@@ -10,8 +10,8 @@ import mcjty.xnet.api.channels.IControllerContext;
 import mcjty.xnet.api.gui.IEditorGui;
 import mcjty.xnet.api.gui.IndicatorIcon;
 import mcjty.xnet.api.helper.DefaultChannelSettings;
-import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.api.keys.SidedConsumer;
+import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.config.ConfigSetup;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -19,10 +19,10 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -71,15 +71,15 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
     @Override
     public void readFromNBT(CompoundNBT tag) {
         channelMode = ChannelMode.values()[tag.getByte("mode")];
-        delay = tag.getInteger("delay");
-        roundRobinOffset = tag.getInteger("offset");
+        delay = tag.getInt("delay");
+        roundRobinOffset = tag.getInt("offset");
     }
 
     @Override
     public void writeToNBT(CompoundNBT tag) {
-        tag.setByte("mode", (byte) channelMode.ordinal());
-        tag.setInteger("delay", delay);
-        tag.setInteger("offset", roundRobinOffset);
+        tag.putByte("mode", (byte) channelMode.ordinal());
+        tag.putInt("delay", delay);
+        tag.putInt("offset", roundRobinOffset);
     }
 
     @Override
@@ -112,7 +112,8 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                 }
 
                 TileEntity te = world.getTileEntity(pos);
-                IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing());
+                // @todo ugly code!
+                IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing()).map(h -> h).orElse(null);
                 // @todo report error somewhere?
                 if (handler != null) {
                     if (checkRedstone(world, settings, extractorPos)) {
@@ -143,8 +144,8 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                         // increments and inserting into a container that works in 17mB increments. We should end up
                         // with toextract = 884 at the end of this loop, given that it started at 1000.
                         FluidStack stack = fetchFluid(handler, true, extractMatcher, toextract);
-                        if (stack == null) continue extractorsLoop;
-                        toextract = stack.amount;
+                        if (stack.isEmpty()) continue extractorsLoop;
+                        toextract = stack.getAmount();
                         inserted.clear();
                         remaining = insertFluidSimulate(inserted, context, stack);
                         toextract -= remaining;
@@ -152,7 +153,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                     } while(remaining > 0);
                     if (context.checkAndConsumeRF(ConfigSetup.controllerOperationRFT.get())) {
                         FluidStack stack = fetchFluid(handler, false, extractMatcher, toextract);
-                        if (stack == null) {
+                        if (stack.isEmpty()) {
                             throw new NullPointerException(handler.getClass().getName() + " misbehaved! handler.drain(" + toextract + ", true) returned null, even though handler.drain(" + toextract + ", false) did not");
                         }
                         insertFluidReal(context, inserted, stack);
@@ -170,8 +171,9 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
         fluidConsumers = null;
     }
 
+    @Nonnull
     private FluidStack fetchFluid(IFluidHandler handler, boolean simulate, @Nullable FluidStack matcher, int rate) {
-        return handler.drain(rate, !simulate);
+        return handler.drain(rate, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE);
     }
 
     // Returns what could not be filled
@@ -180,7 +182,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
         if (channelMode == ChannelMode.PRIORITY) {
             roundRobinOffset = 0;       // Always start at 0
         }
-        int amount = stack.amount;
+        int amount = stack.getAmount();
         for (int j = 0 ; j < fluidConsumers.size() ; j++) {
             int i = (j + roundRobinOffset)  % fluidConsumers.size();
             Pair<SidedConsumer, FluidConnectorSettings> entry = fluidConsumers.get(i);
@@ -202,7 +204,8 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                     Direction side = entry.getKey().getSide();
                     BlockPos pos = consumerPos.offset(side);
                     TileEntity te = world.getTileEntity(pos);
-                    IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing());
+                    // @todo ugly code!
+                    IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing()).map(h -> h).orElse(null);
                     // @todo report error somewhere?
                     if (handler != null) {
                         int toinsert = Math.min(settings.getRate(), amount);
@@ -218,9 +221,9 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                         }
 
                         FluidStack copy = stack.copy();
-                        copy.amount = toinsert;
+                        copy.setAmount(toinsert);
 
-                        int filled = handler.fill(copy, false);
+                        int filled = handler.fill(copy, IFluidHandler.FluidAction.SIMULATE);
                         if (filled > 0) {
                             inserted.add(entry);
                             amount -= filled;
@@ -237,9 +240,9 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
     private int countFluid(IFluidHandler handler, @Nullable FluidStack matcher) {
         int cnt = 0;
-        for (IFluidTankProperties properties : handler.getTankProperties()) {
-            if (properties.getContents() != null && (matcher == null || matcher.equals(properties.getContents()))) {
-                cnt += properties.getContents().amount;
+        for (int i = 0 ; i < handler.getTanks() ; i++) {
+            if (!handler.getFluidInTank(i).isEmpty() && (matcher == null || matcher.equals(handler.getFluidInTank(i)))) {
+                cnt += handler.getFluidInTank(i).getAmount();
             }
         }
         return cnt;
@@ -247,14 +250,15 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
 
     private void insertFluidReal(@Nonnull IControllerContext context, @Nonnull List<Pair<SidedConsumer, FluidConnectorSettings>> inserted, @Nonnull FluidStack stack) {
-        int amount = stack.amount;
+        int amount = stack.getAmount();
         for (Pair<SidedConsumer, FluidConnectorSettings> pair : inserted) {
             BlockPos consumerPosition = context.findConsumerPosition(pair.getKey().getConsumerId());
             Direction side = pair.getKey().getSide();
             FluidConnectorSettings settings = pair.getValue();
             BlockPos pos = consumerPosition.offset(side);
             TileEntity te = context.getControllerWorld().getTileEntity(pos);
-            IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing());
+            // @todo ugly code!
+            IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing()).map(h -> h).orElse(null);
 
             int toinsert = Math.min(settings.getRate(), amount);
 
@@ -269,9 +273,9 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             }
 
             FluidStack copy = stack.copy();
-            copy.amount = toinsert;
+            copy.setAmount(toinsert);
 
-            int filled = handler.fill(copy, true);
+            int filled = handler.fill(copy, IFluidHandler.FluidAction.EXECUTE);
             if (filled > 0) {
                 roundRobinOffset = (roundRobinOffset+1) % fluidConsumers.size();
                 amount -= filled;
@@ -342,14 +346,12 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
         return 0;
     }
 
-    @Nullable
-    public static IFluidHandler getFluidHandlerAt(@Nullable TileEntity te, Direction intSide) {
-        if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, intSide)) {
-            IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, intSide);
-            if (handler != null) {
-                return handler;
-            }
+    @Nonnull
+    public static LazyOptional<IFluidHandler> getFluidHandlerAt(@Nullable TileEntity te, Direction intSide) {
+        if (te != null) {
+            return te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, intSide);
+        } else {
+            return LazyOptional.empty();
         }
-        return null;
     }
 }

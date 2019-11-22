@@ -1,14 +1,9 @@
 package mcjty.xnet.blocks.generic;
 
-import mcjty.lib.McJtyRegister;
-import mcjty.lib.blocks.DamageMetadataItemBlock;
-import mcjty.lib.compat.theoneprobe.TOPInfoProvider;
-import mcjty.lib.compat.waila.WailaInfoProvider;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.ProbeMode;
 import mcjty.theoneprobe.api.TextStyleClass;
-import mcjty.xnet.XNet;
 import mcjty.xnet.api.keys.ConsumerId;
 import mcjty.xnet.api.keys.NetworkId;
 import mcjty.xnet.blocks.cables.ConnectorType;
@@ -18,40 +13,23 @@ import mcjty.xnet.multiblock.BlobId;
 import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
-import mcp.mobius.waila.api.IWailaConfigHandler;
-import mcp.mobius.waila.api.IWailaDataAccessor;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.color.BlockColors;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.state.EnumProperty;
+import net.minecraft.state.IProperty;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.common.property.ExtendedBlockState;
-import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.common.property.IUnlistedProperty;
-import net.minecraftforge.fml.common.Optional;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -59,7 +37,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public abstract class GenericCableBlock extends Block implements WailaInfoProvider, TOPInfoProvider {
+public abstract class GenericCableBlock extends Block {
 
     // Properties that indicate if there is the same block in a certain direction.
     public static final UnlistedPropertyBlockType NORTH = new UnlistedPropertyBlockType("north");
@@ -70,7 +48,7 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
     public static final UnlistedPropertyBlockType DOWN = new UnlistedPropertyBlockType("down");
 
     public static final FacadeProperty FACADEID = new FacadeProperty("facadeid");
-    public static final PropertyEnum<CableColor> COLOR = PropertyEnum.<CableColor>create("color", CableColor.class);
+    public static final EnumProperty<CableColor> COLOR = EnumProperty.<CableColor>create("color", CableColor.class);
 
 
     public static final AxisAlignedBB AABB_EMPTY = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
@@ -96,69 +74,63 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
 
 
     public GenericCableBlock(Material material, String name) {
-        super(material);
-        setHardness(1.0f);
-        setSoundType(SoundType.METAL);
-        setHarvestLevel("pickaxe", 0);
-        setUnlocalizedName(XNet.MODID + "." + name);
+        super(Properties.create(material)
+                .hardnessAndResistance(1.0f)
+                .sound(SoundType.METAL)
+                .harvestLevel(0)
+                .harvestTool(ToolType.PICKAXE)
+        );
         setRegistryName(name);
-        McJtyRegister.registerLater(this, XNet.instance, null);
-        McJtyRegister.registerLater(createItemBlock().setRegistryName(name), XNet.instance);
-        setCreativeTab(XNet.setup.getTab());
-        setDefaultState(getDefaultState().withProperty(COLOR, CableColor.BLUE));
+        setDefaultState(getDefaultState().with(COLOR, CableColor.BLUE));
     }
 
-    public static boolean activateBlock(Block block, World world, BlockPos pos, BlockState state, EntityPlayer player, EnumHand hand, Direction facing, float hitX, float hitY, float hitZ) {
-        return block.onBlockActivated(world, pos, state, player, hand, facing, hitX, hitY, hitZ);
-    }
+//    public static boolean activateBlock(Block block, World world, BlockPos pos, BlockState state, EntityPlayer player, EnumHand hand, Direction facing, float hitX, float hitY, float hitZ) {
+//        return block.onBlockActivated(world, pos, state, player, hand, facing, hitX, hitY, hitZ);
+//    }
 
     public static Collection<IProperty<?>> getPropertyKeys(BlockState state) {
-        return state.getPropertyKeys();
+        return state.getProperties();
     }
 
     @Override
-    public ItemStack getItem(World worldIn, BlockPos pos, BlockState state) {
+    public ItemStack getItem(IBlockReader worldIn, BlockPos pos, BlockState state) {
         ItemStack item = super.getItem(worldIn, pos, state);
-        return updateColorInStack(item, state.getValue(COLOR));
+        return updateColorInStack(item, state.get(COLOR));
     }
 
     protected ItemStack updateColorInStack(ItemStack item, CableColor color) {
         if (color != null) {
-            if (item.getTagCompound() == null) {
-                item.setTagCompound(new CompoundNBT());
-            }
-            CompoundNBT display = new CompoundNBT();
-            String unlocname = getUnlocalizedName() + "_" + color.getName() + ".name";
-            display.setString("LocName", unlocname);
-            item.getTagCompound().setTag("display", display);
+            CompoundNBT tag = item.getOrCreateTag();
+            // @todo 1.14
+//            CompoundNBT display = new CompoundNBT();
+//            String unlocname = getUnlocalizedName() + "_" + color.getName() + ".name";
+//            display.putString("LocName", unlocname);
+//            tag.put("display", display);
         }
         return item;
     }
 
 
-    protected ItemBlock createItemBlock() {
-        return new DamageMetadataItemBlock(this);
-    }
+    // @todo 1.14
+//    @Override
+//    public int damageDropped(BlockState state) {
+//        return state.getValue(COLOR).ordinal();
+//    }
 
-    @Override
-    public int damageDropped(BlockState state) {
-        return state.getValue(COLOR).ordinal();
-    }
+//    @SideOnly(Side.CLIENT)
+//    public void initModel() {
+//        ResourceLocation name = getRegistryName();
+//        for (CableColor color : CableColor.VALUES) {
+//            ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), color.ordinal(), new ModelResourceLocation(new ResourceLocation(name.getResourceDomain(), name.getResourcePath()+"item"), "color=" + color.name()));
+//        }
+//    }
 
-    @SideOnly(Side.CLIENT)
-    public void initModel() {
-        ResourceLocation name = getRegistryName();
-        for (CableColor color : CableColor.VALUES) {
-            ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), color.ordinal(), new ModelResourceLocation(new ResourceLocation(name.getResourceDomain(), name.getResourcePath()+"item"), "color=" + color.name()));
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void initItemModel() {
-    }
+//    @SideOnly(Side.CLIENT)
+//    public void initItemModel() {
+//    }
 
     @Nullable
-    protected BlockState getMimicBlock(IBlockAccess blockAccess, BlockPos pos) {
+    protected BlockState getMimicBlock(World blockAccess, BlockPos pos) {
         TileEntity te = blockAccess.getTileEntity(pos);
         if (te instanceof IFacadeSupport) {
             return ((IFacadeSupport) te).getMimicBlock();
@@ -167,19 +139,22 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
         }
     }
 
-    @SideOnly(Side.CLIENT)
-    public void initColorHandler(BlockColors blockColors) {
-        blockColors.registerBlockColorHandler((state, world, pos, tintIndex) -> {
-            BlockState mimicBlock = getMimicBlock(world, pos);
-            return mimicBlock != null ? blockColors.colorMultiplier(mimicBlock, world, pos, tintIndex) : -1;
-        }, this);
-    }
+    // @todo 1.14
+//    @SideOnly(Side.CLIENT)
+//    public void initColorHandler(BlockColors blockColors) {
+//        blockColors.registerBlockColorHandler((state, world, pos, tintIndex) -> {
+//            BlockState mimicBlock = getMimicBlock(world, pos);
+//            return mimicBlock != null ? blockColors.colorMultiplier(mimicBlock, world, pos, tintIndex) : -1;
+//        }, this);
+//    }
 
-    @Override
-    @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getSelectedBoundingBox(BlockState state, World worldIn, BlockPos pos) {
-        return AABB_EMPTY;
-    }
+//    @Override
+//    @SideOnly(Side.CLIENT)
+//    public AxisAlignedBB getSelectedBoundingBox(BlockState state, World worldIn, BlockPos pos) {
+//        return AABB_EMPTY;
+//    }
+
+
 
     @Nullable
     @Override
