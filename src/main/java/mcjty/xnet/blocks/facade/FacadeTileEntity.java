@@ -1,8 +1,8 @@
 package mcjty.xnet.blocks.facade;
 
 import mcjty.lib.tileentity.GenericTileEntity;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.block.BlockState;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 
@@ -12,7 +12,7 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
 
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet) {
-        IBlockState oldMimicBlock = mimicBlockSupport.getMimicBlock();
+        BlockState oldMimicBlock = mimicBlockSupport.getMimicBlock();
 
         super.onDataPacket(net, packet);
 
@@ -26,23 +26,23 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
 
 
     @Override
-    public IBlockState getMimicBlock() {
+    public BlockState getMimicBlock() {
         return mimicBlockSupport.getMimicBlock();
     }
 
-    public void setMimicBlock(IBlockState mimicBlock) {
+    public void setMimicBlock(BlockState mimicBlock) {
         mimicBlockSupport.setMimicBlock(mimicBlock);
         markDirtyClient();
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tagCompound) {
+    public void readFromNBT(CompoundNBT tagCompound) {
         super.readFromNBT(tagCompound);
         mimicBlockSupport.readFromNBT(tagCompound);
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
+    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
         super.writeToNBT(tagCompound);
         mimicBlockSupport.writeToNBT(tagCompound);
         return tagCompound;

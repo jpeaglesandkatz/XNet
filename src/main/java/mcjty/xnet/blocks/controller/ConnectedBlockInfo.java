@@ -1,7 +1,7 @@
 package mcjty.xnet.blocks.controller;
 
 import mcjty.xnet.api.keys.SidedPos;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,12 +13,12 @@ public class ConnectedBlockInfo {
     private final SidedPos pos;
 
     @Nullable
-    private final IBlockState state;
+    private final BlockState state;
 
     /// The name of the connector
     @Nonnull private final String name;
 
-    public ConnectedBlockInfo(@Nonnull SidedPos pos, @Nullable IBlockState state, @Nonnull String name) {
+    public ConnectedBlockInfo(@Nonnull SidedPos pos, @Nullable BlockState state, @Nonnull String name) {
         this.pos = pos;
         this.state = state;
         this.name = name;
@@ -35,7 +35,7 @@ public class ConnectedBlockInfo {
     }
 
     @Nullable
-    public IBlockState getConnectedState() {
+    public BlockState getConnectedState() {
         return state;
     }
 

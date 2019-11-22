@@ -1,7 +1,7 @@
 package mcjty.xnet.blocks.facade;
 
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 
 public interface IFacadeSupport {
-    IBlockState getMimicBlock();
+    BlockState getMimicBlock();
 }

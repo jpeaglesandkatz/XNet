@@ -12,8 +12,8 @@ import mcjty.xnet.api.helper.AbstractConnectorSettings;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.config.ConfigSetup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -48,7 +48,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
 
     private ItemStack filter = ItemStack.EMPTY;
 
-    public FluidConnectorSettings(@Nonnull EnumFacing side) {
+    public FluidConnectorSettings(@Nonnull Direction side) {
         super(side);
     }
 
@@ -210,7 +210,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
 
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
         super.readFromNBT(tag);
         fluidMode = FluidMode.values()[tag.getByte("fluidMode")];
         if (tag.hasKey("priority")) {
@@ -233,7 +233,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
             speed = 2;
         }
         if (tag.hasKey("filter")) {
-            NBTTagCompound itemTag = tag.getCompoundTag("filter");
+            CompoundNBT itemTag = tag.getCompoundTag("filter");
             filter = new ItemStack(itemTag);
         } else {
             filter = ItemStack.EMPTY;
@@ -241,7 +241,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) {
+    public void writeToNBT(CompoundNBT tag) {
         super.writeToNBT(tag);
         tag.setByte("fluidMode", (byte) fluidMode.ordinal());
         if (priority != null) {
@@ -255,7 +255,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         }
         tag.setInteger("speed", speed);
         if (!filter.isEmpty()) {
-            NBTTagCompound itemTag = new NBTTagCompound();
+            CompoundNBT itemTag = new CompoundNBT();
             filter.writeToNBT(itemTag);
             tag.setTag("filter", itemTag);
         }

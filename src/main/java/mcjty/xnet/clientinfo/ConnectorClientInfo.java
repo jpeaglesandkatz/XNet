@@ -7,8 +7,8 @@ import mcjty.xnet.api.channels.IChannelType;
 import mcjty.xnet.api.channels.IConnectorSettings;
 import mcjty.xnet.api.keys.ConsumerId;
 import mcjty.xnet.api.keys.SidedPos;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 
 import javax.annotation.Nonnull;
 
@@ -32,14 +32,14 @@ public class ConnectorClientInfo {
     }
 
     public ConnectorClientInfo(@Nonnull ByteBuf buf) {
-        pos = new SidedPos(NetworkTools.readPos(buf), EnumFacing.VALUES[buf.readByte()]);
+        pos = new SidedPos(NetworkTools.readPos(buf), Direction.VALUES[buf.readByte()]);
         consumerId = new ConsumerId(buf.readInt());
         IChannelType t = XNet.xNetApi.findType(NetworkTools.readString(buf));
         if (t == null) {
             throw new RuntimeException("Cannot happen!");
         }
         channelType = t;
-        NBTTagCompound tag = NetworkTools.readTag(buf);
+        CompoundNBT tag = NetworkTools.readTag(buf);
         connectorSettings = channelType.createConnector(pos.getSide());
         connectorSettings.readFromNBT(tag);
     }
@@ -49,7 +49,7 @@ public class ConnectorClientInfo {
         buf.writeByte(pos.getSide().ordinal());
         buf.writeInt(consumerId.getId());
         NetworkTools.writeString(buf, channelType.getID());
-        NBTTagCompound tag = new NBTTagCompound();
+        CompoundNBT tag = new CompoundNBT();
         connectorSettings.writeToNBT(tag);
         NetworkTools.writeTag(buf, tag);
     }

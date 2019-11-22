@@ -12,8 +12,8 @@ import mcjty.xnet.api.gui.IndicatorIcon;
 import mcjty.xnet.api.helper.AbstractConnectorSettings;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
@@ -45,7 +45,7 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     private int speed = 2;
     private Integer redstoneOut;    // Redstone output value
 
-    public LogicConnectorSettings(@Nonnull EnumFacing side) {
+    public LogicConnectorSettings(@Nonnull Direction side) {
         super(side);
         sensors = new ArrayList<>(SENSORS);
         for (int i = 0 ; i < SENSORS ; i++) {
@@ -213,7 +213,7 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
         super.readFromNBT(tag);
         logicMode = LogicMode.values()[tag.getByte("logicMode")];
         speed = tag.getInteger("speed");
@@ -228,7 +228,7 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) {
+    public void writeToNBT(CompoundNBT tag) {
         super.writeToNBT(tag);
         tag.setByte("logicMode", (byte) logicMode.ordinal());
         tag.setInteger("speed", speed);

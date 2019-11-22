@@ -11,9 +11,9 @@ import mcjty.xnet.api.gui.IndicatorIcon;
 import mcjty.xnet.api.helper.DefaultChannelSettings;
 import mcjty.xnet.api.keys.SidedConsumer;
 import mcjty.xnet.blocks.cables.ConnectorTileEntity;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -45,13 +45,13 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
 
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
         delay = tag.getInteger("delay");
         colors = tag.getInteger("colors");
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) {
+    public void writeToNBT(CompoundNBT tag) {
         tag.setInteger("delay", delay);
         tag.setInteger("colors", colors);
     }
@@ -85,7 +85,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
             int sensorColors = 0;
             BlockPos connectorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
             if (connectorPos != null) {
-                EnumFacing side = entry.getKey().getSide();
+                Direction side = entry.getKey().getSide();
                 BlockPos pos = connectorPos.offset(side);
                 if (!WorldTools.chunkLoaded(world, pos)) {
                     // If it is not chunkloaded we just use the color settings as we last remembered it
@@ -123,7 +123,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
 
             BlockPos connectorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
             if (connectorPos != null) {
-                EnumFacing side = entry.getKey().getSide();
+                Direction side = entry.getKey().getSide();
                 if (!WorldTools.chunkLoaded(world, connectorPos)) {
                     continue;
                 }

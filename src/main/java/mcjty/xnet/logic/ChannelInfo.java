@@ -6,9 +6,9 @@ import mcjty.xnet.api.channels.IChannelType;
 import mcjty.xnet.api.keys.ConsumerId;
 import mcjty.xnet.api.keys.SidedConsumer;
 import mcjty.xnet.clientinfo.ConnectorInfo;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
@@ -66,15 +66,15 @@ public class ChannelInfo {
         return info;
     }
 
-    public void writeToNBT(NBTTagCompound tag) {
+    public void writeToNBT(CompoundNBT tag) {
         channelSettings.writeToNBT(tag);
         tag.setBoolean("enabled", enabled);
         if (channelName != null && !channelName.isEmpty()) {
             tag.setString("name", channelName);
         }
-        NBTTagList conlist = new NBTTagList();
+        ListNBT conlist = new ListNBT();
         for (Map.Entry<SidedConsumer, ConnectorInfo> entry : connectors.entrySet()) {
-            NBTTagCompound tc = new NBTTagCompound();
+            CompoundNBT tc = new CompoundNBT();
             ConnectorInfo connectorInfo = entry.getValue();
             connectorInfo.writeToNBT(tc);
             tc.setInteger("consumerId", entry.getKey().getConsumerId().getId());
@@ -86,7 +86,7 @@ public class ChannelInfo {
         tag.setTag("connectors", conlist);
     }
 
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
         channelSettings.readFromNBT(tag);
         enabled = tag.getBoolean("enabled");
         if (tag.hasKey("name")) {
@@ -94,9 +94,9 @@ public class ChannelInfo {
         } else {
             channelName = null;
         }
-        NBTTagList conlist = tag.getTagList("connectors", Constants.NBT.TAG_COMPOUND);
+        ListNBT conlist = tag.getTagList("connectors", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < conlist.tagCount() ; i++) {
-            NBTTagCompound tc = conlist.getCompoundTagAt(i);
+            CompoundNBT tc = conlist.getCompoundTagAt(i);
             String id = tc.getString("type");
             IChannelType type = XNet.xNetApi.findType(id);
             if (type == null) {
@@ -108,7 +108,7 @@ public class ChannelInfo {
                 continue;
             }
             ConsumerId consumerId = new ConsumerId(tc.getInteger("consumerId"));
-            EnumFacing side = EnumFacing.VALUES[tc.getInteger("side")];
+            Direction side = Direction.VALUES[tc.getInteger("side")];
             SidedConsumer key = new SidedConsumer(consumerId, side);
             boolean advanced = tc.getBoolean("advanced");
             ConnectorInfo connectorInfo = new ConnectorInfo(type, key, advanced);

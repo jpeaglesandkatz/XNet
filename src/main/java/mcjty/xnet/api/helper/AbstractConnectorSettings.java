@@ -2,13 +2,14 @@ package mcjty.xnet.api.helper;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.api.channels.Color;
 import mcjty.xnet.api.channels.IConnectorSettings;
 import mcjty.xnet.api.channels.RSMode;
 import mcjty.xnet.api.gui.IEditorGui;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,16 +31,16 @@ public abstract class AbstractConnectorSettings implements IConnectorSettings {
     protected boolean advanced = false;
 
     @Nonnull
-    private final EnumFacing side;
+    private final Direction side;
     @Nullable
-    private EnumFacing facingOverride = null; // Only available on advanced connectors
+    private Direction facingOverride = null; // Only available on advanced connectors
 
-    public AbstractConnectorSettings(@Nonnull EnumFacing side) {
+    public AbstractConnectorSettings(@Nonnull Direction side) {
         this.side = side;
     }
 
     @Nonnull
-    public EnumFacing getFacing() {
+    public Direction getFacing() {
         return facingOverride == null ? side : facingOverride;
     }
 
@@ -101,7 +102,7 @@ public abstract class AbstractConnectorSettings implements IConnectorSettings {
         }
         calculateColorsMask();
         String facing = (String) data.get(TAG_FACING);
-        facingOverride = facing == null ? null : EnumFacing.byName(facing);
+        facingOverride = facing == null ? null : Direction.byName(facing);
     }
 
     protected static <T extends Enum<T>> void setEnumSafe(JsonObject object, String tag, T value) {
@@ -165,38 +166,38 @@ public abstract class AbstractConnectorSettings implements IConnectorSettings {
         colors[1] = getEnumSafe(object, "color1", EnumStringTranslators::getColor);
         colors[2] = getEnumSafe(object, "color2", EnumStringTranslators::getColor);
         colors[3] = getEnumSafe(object, "color3", EnumStringTranslators::getColor);
-        facingOverride = getEnumSafe(object, "facingoverride", EnumFacing::byName);
+        facingOverride = getEnumSafe(object, "facingoverride", Direction::byName);
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
         rsMode = RSMode.values()[tag.getByte("rsMode")];
-        prevPulse = tag.getInteger("prevPulse");
+        prevPulse = tag.getInt("prevPulse");
         colors[0] = Color.values()[tag.getByte("color0")];
         colors[1] = Color.values()[tag.getByte("color1")];
         colors[2] = Color.values()[tag.getByte("color2")];
         colors[3] = Color.values()[tag.getByte("color3")];
         calculateColorsMask();
-        if (tag.hasKey("facingOverride")) {
-            facingOverride = EnumFacing.VALUES[tag.getByte("facingOverride")];
+        if (tag.contains("facingOverride")) {
+            facingOverride = OrientationTools.DIRECTION_VALUES[tag.getByte("facingOverride")];
         }
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) {
-        tag.setByte("rsMode", (byte) rsMode.ordinal());
-        tag.setInteger("prevPulse", prevPulse);
-        tag.setByte("color0", (byte) colors[0].ordinal());
-        tag.setByte("color1", (byte) colors[1].ordinal());
-        tag.setByte("color2", (byte) colors[2].ordinal());
-        tag.setByte("color3", (byte) colors[3].ordinal());
+    public void writeToNBT(CompoundNBT tag) {
+        tag.putByte("rsMode", (byte) rsMode.ordinal());
+        tag.putInt("prevPulse", prevPulse);
+        tag.putByte("color0", (byte) colors[0].ordinal());
+        tag.putByte("color1", (byte) colors[1].ordinal());
+        tag.putByte("color2", (byte) colors[2].ordinal());
+        tag.putByte("color3", (byte) colors[3].ordinal());
         if (facingOverride != null) {
-            tag.setByte("facingOverride", (byte) facingOverride.ordinal());
+            tag.putByte("facingOverride", (byte) facingOverride.ordinal());
         }
     }
 
     protected IEditorGui sideGui(IEditorGui gui) {
-        return gui.choices(TAG_FACING, "Side from which to operate", facingOverride == null ? side : facingOverride, EnumFacing.VALUES);
+        return gui.choices(TAG_FACING, "Side from which to operate", facingOverride == null ? side : facingOverride, OrientationTools.DIRECTION_VALUES);
     }
 
     protected IEditorGui colorsGui(IEditorGui gui) {

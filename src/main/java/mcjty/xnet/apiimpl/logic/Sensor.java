@@ -9,13 +9,12 @@ import mcjty.xnet.apiimpl.items.ItemChannelSettings;
 import mcjty.xnet.compat.RFToolsSupport;
 import mcjty.xnet.setup.ModSetup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
@@ -243,28 +242,28 @@ public class Sensor {
         }
     }
 
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
         sensorMode = SensorMode.values()[tag.getByte("sensorMode" + index)];
         operator = Operator.values()[tag.getByte("operator" + index)];
-        amount = tag.getInteger("amount" + index);
+        amount = tag.getInt("amount" + index);
         outputColor = Color.values()[tag.getByte("scolor" + index)];
-        if (tag.hasKey("filter" + index)) {
-            NBTTagCompound itemTag = tag.getCompoundTag("filter" + index);
-            filter = new ItemStack(itemTag);
+        if (tag.contains("filter" + index)) {
+            CompoundNBT itemTag = tag.getCompound("filter" + index);
+            filter = ItemStack.read(itemTag);
         } else {
             filter = ItemStack.EMPTY;
         }
     }
 
-    public void writeToNBT(NBTTagCompound tag) {
-        tag.setByte("sensorMode" + index, (byte) sensorMode.ordinal());
-        tag.setByte("operator" + index, (byte) operator.ordinal());
-        tag.setInteger("amount" + index, amount);
-        tag.setByte("scolor" + index, (byte) outputColor.ordinal());
+    public void writeToNBT(CompoundNBT tag) {
+        tag.putByte("sensorMode" + index, (byte) sensorMode.ordinal());
+        tag.putByte("operator" + index, (byte) operator.ordinal());
+        tag.putInt("amount" + index, amount);
+        tag.putByte("scolor" + index, (byte) outputColor.ordinal());
         if (!filter.isEmpty()) {
-            NBTTagCompound itemTag = new NBTTagCompound();
-            filter.writeToNBT(itemTag);
-            tag.setTag("filter" + index, itemTag);
+            CompoundNBT itemTag = new CompoundNBT();
+            filter.write(itemTag);
+            tag.put("filter" + index, itemTag);
         }
     }
 
@@ -300,20 +299,19 @@ public class Sensor {
         } else {
             fluidStack = null;
         }
-        IFluidTankProperties[] properties = handler.getTankProperties();
         int cnt = 0;
-        for (IFluidTankProperties property : properties) {
-            FluidStack contents = property.getContents();
-            if (contents != null) {
+        for (int i = 0 ; i < handler.getTanks() ; i++) {
+            FluidStack contents = handler.getFluidInTank(i);
+            if (!contents.isEmpty()) {
                 if (fluidStack != null) {
                     if (fluidStack.isFluidEqual(contents)) {
-                        cnt += contents.amount;
+                        cnt += contents.getAmount();
                         if (cnt >= maxNeeded) {
                             return cnt;
                         }
                     }
                 } else {
-                    cnt += contents.amount;
+                    cnt += contents.getAmount();
                     if (cnt >= maxNeeded) {
                         return cnt;
                     }

@@ -7,7 +7,7 @@ import mcjty.xnet.blocks.generic.CableColor;
 import mcjty.xnet.init.ModBlocks;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
@@ -19,7 +19,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -62,7 +62,7 @@ public class FacadeBlock extends NetCableBlock implements ITileEntityProvider {
 
     @Nullable
     @Override
-    public RayTraceResult collisionRayTrace(IBlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
+    public RayTraceResult collisionRayTrace(BlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
         // We do not want the raytracing that happens in the GenericCableBlock
         return super.originalCollisionRayTrace(blockState, world, pos, start, end);
     }
@@ -73,15 +73,15 @@ public class FacadeBlock extends NetCableBlock implements ITileEntityProvider {
     }
 
     @Override
-    public TileEntity createTileEntity(World world, IBlockState metadata) {
+    public TileEntity createTileEntity(World world, BlockState metadata) {
         return new FacadeTileEntity();
     }
 
 
     @Override
-    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, @Nullable TileEntity te, ItemStack stack) {
+    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, BlockState state, @Nullable TileEntity te, ItemStack stack) {
         ItemStack item = new ItemStack(ModBlocks.facadeBlock);
-        IBlockState mimicBlock;
+        BlockState mimicBlock;
         if (te instanceof FacadeTileEntity) {
             mimicBlock = ((FacadeTileEntity) te).getMimicBlock();
         } else {
@@ -93,16 +93,16 @@ public class FacadeBlock extends NetCableBlock implements ITileEntityProvider {
     }
 
     @Override
-    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
+    public boolean removedByPlayer(BlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
         CableColor color = state.getValue(COLOR);
         this.onBlockHarvested(world, pos, state, player);
         return world.setBlockState(pos, NetCableSetup.netCableBlock.getDefaultState().withProperty(COLOR, color), world.isRemote ? 11 : 3);
     }
 
     @Override
-    public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
+    public BlockState getExtendedState(BlockState state, IBlockAccess world, BlockPos pos) {
         IExtendedBlockState extendedBlockState = (IExtendedBlockState) state;
-        IBlockState mimicBlock = getMimicBlock(world, pos);
+        BlockState mimicBlock = getMimicBlock(world, pos);
         if (mimicBlock != null) {
             return extendedBlockState.withProperty(FACADEID, new FacadeBlockId(mimicBlock));
         } else {
@@ -111,7 +111,7 @@ public class FacadeBlock extends NetCableBlock implements ITileEntityProvider {
     }
 
     @Override
-    public void breakBlock(World world, BlockPos pos, IBlockState state) {
+    public void breakBlock(World world, BlockPos pos, BlockState state) {
         // Breaking a facade has no effect on blob network
         originalBreakBlock(world, pos, state);
     }
@@ -124,7 +124,7 @@ public class FacadeBlock extends NetCableBlock implements ITileEntityProvider {
         // To make sure that our ISBM model is chosen for all states we use this custom state mapper:
         StateMapperBase ignoreState = new StateMapperBase() {
             @Override
-            protected ModelResourceLocation getModelResourceLocation(IBlockState iBlockState) {
+            protected ModelResourceLocation getModelResourceLocation(BlockState iBlockState) {
                 return FacadeBakedModel.modelFacade;
             }
         };
@@ -144,35 +144,35 @@ public class FacadeBlock extends NetCableBlock implements ITileEntityProvider {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
-        IBlockState mimicBlock = getMimicBlock(blockAccess, pos);
+    public boolean shouldSideBeRendered(BlockState blockState, IBlockAccess blockAccess, BlockPos pos, Direction side) {
+        BlockState mimicBlock = getMimicBlock(blockAccess, pos);
         return mimicBlock == null ? true : mimicBlock.shouldSideBeRendered(blockAccess, pos, side);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
+    public boolean canRenderInLayer(BlockState state, BlockRenderLayer layer) {
         return true; // delegated to FacadeBakedModel#getQuads
     }
 
     @Override
-    public boolean isBlockNormalCube(IBlockState blockState) {
+    public boolean isBlockNormalCube(BlockState blockState) {
         return true;
     }
 
     @Override
-    public boolean isOpaqueCube(IBlockState blockState) {
+    public boolean isOpaqueCube(BlockState blockState) {
         return true;
     }
 
     @Override
-    public boolean doesSideBlockRendering(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing face) {
-        IBlockState mimicBlock = getMimicBlock(world, pos);
+    public boolean doesSideBlockRendering(BlockState state, IBlockAccess world, BlockPos pos, Direction face) {
+        BlockState mimicBlock = getMimicBlock(world, pos);
         return mimicBlock == null ? true : mimicBlock.doesSideBlockRendering(world, pos, face);
     }
 
     @Override
-    public boolean isFullCube(IBlockState state) {
+    public boolean isFullCube(BlockState state) {
         return true;
     }
 

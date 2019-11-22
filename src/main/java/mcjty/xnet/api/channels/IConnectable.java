@@ -1,7 +1,7 @@
 package mcjty.xnet.api.channels;
 
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
@@ -24,7 +24,7 @@ public interface IConnectable {
      */
     ConnectResult canConnect(@Nonnull IBlockAccess access, @Nonnull BlockPos connectorPos, @Nonnull BlockPos blockPos,
                              @Nullable TileEntity tileEntity,
-                             @Nonnull EnumFacing facing);
+                             @Nonnull Direction facing);
 
     enum ConnectResult {
         NO,                 // No connection possible. Don't try further

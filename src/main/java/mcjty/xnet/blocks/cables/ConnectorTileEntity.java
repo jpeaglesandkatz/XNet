@@ -13,12 +13,12 @@ import mcjty.xnet.config.ConfigSetup;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -44,7 +44,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     private byte enabled = 0x3f;
 
-    private Block[] cachedNeighbours = new Block[EnumFacing.VALUES.length];
+    private Block[] cachedNeighbours = new Block[Direction.VALUES.length];
 
     public static final Key<String> VALUE_NAME = new Key<>("name", Type.STRING);
 
@@ -57,7 +57,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet) {
-        IBlockState oldMimicBlock = mimicBlockSupport.getMimicBlock();
+        BlockState oldMimicBlock = mimicBlockSupport.getMimicBlock();
         byte oldEnabled = enabled;
 
         super.onDataPacket(net, packet);
@@ -70,11 +70,11 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         }
     }
 
-    public int getPowerOut(EnumFacing side) {
+    public int getPowerOut(Direction side) {
         return powerOut[side.ordinal()];
     }
 
-    public void setPowerOut(EnumFacing side, int powerOut) {
+    public void setPowerOut(Direction side, int powerOut) {
         if (powerOut > 15) {
             powerOut = 15;
         }
@@ -86,7 +86,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         world.neighborChanged(pos.offset(side), this.getBlockType(), this.pos);
     }
 
-    public void setEnabled(EnumFacing direction, boolean e) {
+    public void setEnabled(Direction direction, boolean e) {
         if (e) {
             enabled |= 1 << direction.ordinal();
         } else {
@@ -95,16 +95,16 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         markDirtyClient();
     }
 
-    public boolean isEnabled(EnumFacing direction) {
+    public boolean isEnabled(Direction direction) {
         return (enabled & (1 << direction.ordinal())) != 0;
     }
 
     @Override
-    public IBlockState getMimicBlock() {
+    public BlockState getMimicBlock() {
         return mimicBlockSupport.getMimicBlock();
     }
 
-    public void setMimicBlock(IBlockState mimicBlock) {
+    public void setMimicBlock(BlockState mimicBlock) {
         mimicBlockSupport.setMimicBlock(mimicBlock);
         markDirtyClient();
     }
@@ -124,7 +124,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     // Optimization to only increase the network if there is an actual block change
     public void possiblyMarkNetworkDirty(@Nonnull BlockPos neighbor) {
-        for (EnumFacing facing : EnumFacing.VALUES) {
+        for (Direction facing : Direction.VALUES) {
             if (getPos().offset(facing).equals(neighbor)) {
                 Block newblock = world.getBlockState(neighbor).getBlock();
                 if (newblock != cachedNeighbours[facing.ordinal()]) {
@@ -138,7 +138,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tagCompound) {
+    public void readFromNBT(CompoundNBT tagCompound) {
         super.readFromNBT(tagCompound);
         energy = tagCompound.getInteger("energy");
         inputFromSide = tagCompound.getIntArray("inputs");
@@ -153,7 +153,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
-    public void readRestorableFromNBT(NBTTagCompound tagCompound) {
+    public void readRestorableFromNBT(CompoundNBT tagCompound) {
         super.readRestorableFromNBT(tagCompound);
         name = tagCompound.getString("name");
         if (tagCompound.hasKey("enabled")) {
@@ -164,7 +164,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
+    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
         super.writeToNBT(tagCompound);
         tagCompound.setInteger("energy", energy);
         tagCompound.setIntArray("inputs", inputFromSide);
@@ -177,7 +177,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
-    public void writeRestorableToNBT(NBTTagCompound tagCompound) {
+    public void writeRestorableToNBT(CompoundNBT tagCompound) {
         super.writeRestorableToNBT(tagCompound);
         tagCompound.setString("name", name);
         tagCompound.setByte("enabled", enabled);
@@ -212,7 +212,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         }
     }
 
-    public void setEnergyInputFrom(EnumFacing from, int rate) {
+    public void setEnergyInputFrom(Direction from, int rate) {
         if (inputFromSide[from.ordinal()] != rate) {
             inputFromSide[from.ordinal()] = rate;
             markDirtyQuick();
@@ -223,7 +223,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         return ConfigSetup.maxRfConnector.get();
     }
 
-    private int receiveEnergyInternal(EnumFacing from, int maxReceive, boolean simulate) {
+    private int receiveEnergyInternal(Direction from, int maxReceive, boolean simulate) {
         if (from == null) {
             return 0;
         }
@@ -264,14 +264,14 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         if (CMD_ENABLE.equals(command)) {
             int f = params.get(PARAM_FACING);
             boolean e = params.get(PARAM_ENABLED);
-            setEnabled(EnumFacing.VALUES[f], e);
+            setEnabled(Direction.VALUES[f], e);
             return true;
         }
         return false;
     }
 
     @Override
-    public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+    public boolean hasCapability(Capability<?> capability, Direction facing) {
         if (capability == CapabilityEnergy.ENERGY && facing != null) {
             return true;
         }
@@ -279,7 +279,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+    public <T> T getCapability(Capability<T> capability, Direction facing) {
         if (capability == CapabilityEnergy.ENERGY) {
             if (facing == null) {
                 return null;
@@ -293,7 +293,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         return super.getCapability(capability, facing);
     }
 
-    private void createSidedHandler(EnumFacing facing) {
+    private void createSidedHandler(Direction facing) {
         class SidedHandler implements IEnergyStorage {
             @Override
             public int receiveEnergy(int maxReceive, boolean simulate) {

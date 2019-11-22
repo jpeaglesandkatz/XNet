@@ -4,8 +4,8 @@ import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
 import mcjty.xnet.api.keys.SidedPos;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 
 import javax.annotation.Nonnull;
 
@@ -31,7 +31,7 @@ public class ConnectedBlockClientInfo {
     }
 
     public ConnectedBlockClientInfo(@Nonnull ByteBuf buf) {
-        pos = new SidedPos(NetworkTools.readPos(buf), EnumFacing.VALUES[buf.readByte()]);
+        pos = new SidedPos(NetworkTools.readPos(buf), Direction.VALUES[buf.readByte()]);
         connectedBlock = NetworkTools.readItemStack(buf);
         name = NetworkTools.readStringUTF8(buf);
         blockName = NetworkTools.readStringUTF8(buf);
@@ -83,7 +83,7 @@ public class ConnectedBlockClientInfo {
     }
 
     private static String getStackUnlocalizedName(ItemStack stack) {
-        NBTTagCompound nbttagcompound = getSubCompound(stack, "display");
+        CompoundNBT nbttagcompound = getSubCompound(stack, "display");
 
         if (nbttagcompound != null) {
             if (nbttagcompound.hasKey("Name", 8)) {
@@ -98,7 +98,7 @@ public class ConnectedBlockClientInfo {
         return stack.getItem().getUnlocalizedName(stack) + ".name";
     }
 
-    private static NBTTagCompound getSubCompound(ItemStack stack, String key) {
+    private static CompoundNBT getSubCompound(ItemStack stack, String key) {
         if (stack.getTagCompound() != null && stack.getTagCompound().hasKey(key, 10)) {
             return stack.getTagCompound().getCompoundTag(key);
         } else {

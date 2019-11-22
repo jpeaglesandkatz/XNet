@@ -13,9 +13,9 @@ import mcjty.xnet.api.helper.DefaultChannelSettings;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.api.keys.SidedConsumer;
 import mcjty.xnet.config.ConfigSetup;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -69,14 +69,14 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
         channelMode = ChannelMode.values()[tag.getByte("mode")];
         delay = tag.getInteger("delay");
         roundRobinOffset = tag.getInteger("offset");
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) {
+    public void writeToNBT(CompoundNBT tag) {
         tag.setByte("mode", (byte) channelMode.ordinal());
         tag.setInteger("delay", delay);
         tag.setInteger("offset", roundRobinOffset);
@@ -105,7 +105,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
             BlockPos extractorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
             if (extractorPos != null) {
-                EnumFacing side = entry.getKey().getSide();
+                Direction side = entry.getKey().getSide();
                 BlockPos pos = extractorPos.offset(side);
                 if (!WorldTools.chunkLoaded(world, pos)) {
                     continue;
@@ -199,7 +199,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                         continue;
                     }
 
-                    EnumFacing side = entry.getKey().getSide();
+                    Direction side = entry.getKey().getSide();
                     BlockPos pos = consumerPos.offset(side);
                     TileEntity te = world.getTileEntity(pos);
                     IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing());
@@ -250,7 +250,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
         int amount = stack.amount;
         for (Pair<SidedConsumer, FluidConnectorSettings> pair : inserted) {
             BlockPos consumerPosition = context.findConsumerPosition(pair.getKey().getConsumerId());
-            EnumFacing side = pair.getKey().getSide();
+            Direction side = pair.getKey().getSide();
             FluidConnectorSettings settings = pair.getValue();
             BlockPos pos = consumerPosition.offset(side);
             TileEntity te = context.getControllerWorld().getTileEntity(pos);
@@ -343,7 +343,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
     }
 
     @Nullable
-    public static IFluidHandler getFluidHandlerAt(@Nullable TileEntity te, EnumFacing intSide) {
+    public static IFluidHandler getFluidHandlerAt(@Nullable TileEntity te, Direction intSide) {
         if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, intSide)) {
             IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, intSide);
             if (handler != null) {

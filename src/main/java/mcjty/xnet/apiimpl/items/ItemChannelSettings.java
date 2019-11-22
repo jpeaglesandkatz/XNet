@@ -19,9 +19,9 @@ import mcjty.xnet.setup.ModSetup;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -81,7 +81,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
         channelMode = ChannelMode.values()[tag.getByte("mode")];
         delay = tag.getInteger("delay");
         roundRobinOffset = tag.getInteger("offset");
@@ -92,7 +92,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) {
+    public void writeToNBT(CompoundNBT tag) {
         tag.setByte("mode", (byte) channelMode.ordinal());
         tag.setInteger("delay", delay);
         tag.setInteger("offset", roundRobinOffset);
@@ -166,7 +166,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             ConsumerId consumerId = entry.getKey().getConsumerId();
             BlockPos extractorPos = context.findConsumerPosition(consumerId);
             if (extractorPos != null) {
-                EnumFacing side = entry.getKey().getSide();
+                Direction side = entry.getKey().getSide();
                 BlockPos pos = extractorPos.offset(side);
                 if (!WorldTools.chunkLoaded(world, pos)) {
                     continue;
@@ -306,7 +306,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                         continue;
                     }
 
-                    EnumFacing side = entry.getKey().getSide();
+                    Direction side = entry.getKey().getSide();
                     BlockPos pos = consumerPos.offset(side);
                     TileEntity te = world.getTileEntity(pos);
                     int actuallyinserted;
@@ -379,7 +379,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         int total = stack.getCount();
         for (Pair<SidedConsumer, ItemConnectorSettings> entry : inserted) {
             BlockPos consumerPosition = context.findConsumerPosition(entry.getKey().getConsumerId());
-            EnumFacing side = entry.getKey().getSide();
+            Direction side = entry.getKey().getSide();
             ItemConnectorSettings settings = entry.getValue();
             BlockPos pos = consumerPosition.offset(side);
             TileEntity te = context.getControllerWorld().getTileEntity(pos);
@@ -566,7 +566,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     }
 
     @Nullable
-    public static IItemHandler getItemHandlerAt(@Nullable TileEntity te, EnumFacing intSide) {
+    public static IItemHandler getItemHandlerAt(@Nullable TileEntity te, Direction intSide) {
         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide)) {
             IItemHandler handler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide);
             if (handler != null) {

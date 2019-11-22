@@ -1,14 +1,12 @@
 package mcjty.xnet.network;
 
 import mcjty.lib.network.PacketHandler;
-import mcjty.lib.thirteen.ChannelBuilder;
-import mcjty.lib.thirteen.SimpleChannel;
 import mcjty.xnet.XNet;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 public class XNetMessages {
-    public static SimpleNetworkWrapper INSTANCE;
+    public static SimpleChannel INSTANCE;
 
     public static void registerMessages(String name) {
         SimpleChannel net = ChannelBuilder

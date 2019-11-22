@@ -1,21 +1,21 @@
 package mcjty.xnet.api.keys;
 
 import mcjty.lib.varia.BlockPosTools;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
 
 public class SidedPos implements Comparable<SidedPos> {
     private final BlockPos pos;
-    private final EnumFacing side;
+    private final Direction side;
 
     /**
      * A position of a connected block and the side relative
      * from this block where the connection is. Basically
      * pos.offset(side) will be the consumer/connector
      */
-    public SidedPos(@Nonnull BlockPos pos, @Nonnull EnumFacing side) {
+    public SidedPos(@Nonnull BlockPos pos, @Nonnull Direction side) {
         this.pos = pos;
         this.side = side;
     }
@@ -29,7 +29,7 @@ public class SidedPos implements Comparable<SidedPos> {
      * Get the side relative to this position for the connector.
      */
     @Nonnull
-    public EnumFacing getSide() {
+    public Direction getSide() {
         return side;
     }
 

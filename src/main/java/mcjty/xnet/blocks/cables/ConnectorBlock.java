@@ -26,7 +26,7 @@ import mcjty.xnet.multiblock.XNetBlobData;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
 import net.minecraft.client.util.ITooltipFlag;
@@ -36,10 +36,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
@@ -93,12 +93,12 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
     }
 
     @Override
-    public TileEntity createTileEntity(World world, IBlockState metadata) {
+    public TileEntity createTileEntity(World world, BlockState metadata) {
         return new ConnectorTileEntity();
     }
 
     @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(World world, BlockPos pos, BlockState state, EntityPlayer player, EnumHand hand, Direction side, float hitX, float hitY, float hitZ) {
         if (!world.isRemote) {
             player.openGui(XNet.instance, GuiProxy.GUI_CONNECTOR, world, pos.getX(), pos.getY(), pos.getZ());
         }
@@ -106,7 +106,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
     }
 
     @Override
-    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, @Nullable TileEntity te, ItemStack stack) {
+    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, BlockState state, @Nullable TileEntity te, ItemStack stack) {
         if (te instanceof ConnectorTileEntity) {
             // If we are in mimic mode then the drop will be the facade as the connector will remain there
             ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
@@ -123,7 +123,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
 
 
     @Override
-    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
+    public boolean removedByPlayer(BlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
         TileEntity te = world.getTileEntity(pos);
         if (te instanceof ConnectorTileEntity) {
             ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
@@ -146,7 +146,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
 
     @Override
     @Optional.Method(modid = "theoneprobe")
-    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
+    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, BlockState blockState, IProbeHitData data) {
         super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
         TileEntity te = world.getTileEntity(data.getPos());
         if (te instanceof ConnectorTileEntity) {
@@ -159,9 +159,9 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
 
 
     @Override
-    public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
+    public BlockState getExtendedState(BlockState state, IBlockAccess world, BlockPos pos) {
         IExtendedBlockState extendedBlockState = (IExtendedBlockState) super.getExtendedState(state, world, pos);
-        IBlockState mimicBlock = getMimicBlock(world, pos);
+        BlockState mimicBlock = getMimicBlock(world, pos);
         if (mimicBlock != null) {
             return extendedBlockState.withProperty(FACADEID, new FacadeBlockId(mimicBlock));
         } else {
@@ -177,7 +177,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
         // To make sure that our ISBM model is chosen for all states we use this custom state mapper:
         StateMapperBase ignoreState = new StateMapperBase() {
             @Override
-            protected ModelResourceLocation getModelResourceLocation(IBlockState iBlockState) {
+            protected ModelResourceLocation getModelResourceLocation(BlockState iBlockState) {
                 return GenericCableBakedModel.modelConnector;
             }
         };
@@ -197,7 +197,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
 
 
     @Override
-    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos) {
+    public void neighborChanged(BlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos) {
         checkRedstone(world, pos);
     }
 
@@ -216,7 +216,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
     }
 
     @Override
-    public boolean shouldCheckWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+    public boolean shouldCheckWeakPower(BlockState state, IBlockAccess world, BlockPos pos, Direction side) {
         return false;
     }
 
@@ -230,21 +230,21 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
     }
 
     @Override
-    public boolean canProvidePower(IBlockState state) {
+    public boolean canProvidePower(BlockState state) {
         return true;
     }
 
     @Override
-    public int getWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+    public int getWeakPower(BlockState state, IBlockAccess world, BlockPos pos, Direction side) {
         return getRedstoneOutput(state, world, pos, side);
     }
 
     @Override
-    public int getStrongPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+    public int getStrongPower(BlockState state, IBlockAccess world, BlockPos pos, Direction side) {
         return getRedstoneOutput(state, world, pos, side);
     }
 
-    protected int getRedstoneOutput(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+    protected int getRedstoneOutput(BlockState state, IBlockAccess world, BlockPos pos, Direction side) {
         TileEntity te = world.getTileEntity(pos);
         if (state.getBlock() instanceof ConnectorBlock && te instanceof ConnectorTileEntity) {
             ConnectorTileEntity connector = (ConnectorTileEntity) te;
@@ -254,16 +254,16 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
     }
 
     @Override
-    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
+    public BlockState getStateForPlacement(World world, BlockPos pos, Direction facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
         // When our block is placed down we force a re-render of adjacent blocks to make sure their ISBM model is updated
         world.markBlockRangeForRenderUpdate(pos.add(-1, -1, -1), pos.add(1, 1, 1));
         return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer);
     }
 
     @Override
-    protected ConnectorType getConnectorType(@Nonnull CableColor color, IBlockAccess world, BlockPos connectorPos, EnumFacing facing) {
+    protected ConnectorType getConnectorType(@Nonnull CableColor color, IBlockAccess world, BlockPos connectorPos, Direction facing) {
         BlockPos pos = connectorPos.offset(facing);
-        IBlockState state = world.getBlockState(pos);
+        BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
         if ((block instanceof NetCableBlock || block instanceof ConnectorBlock) && state.getValue(COLOR) == color) {
             return ConnectorType.CABLE;
@@ -287,10 +287,10 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
         return false;
     }
 
-    public static boolean isConnectable(IBlockAccess world, BlockPos connectorPos, EnumFacing facing) {
+    public static boolean isConnectable(IBlockAccess world, BlockPos connectorPos, Direction facing) {
 
         BlockPos pos = connectorPos.offset(facing);
-        IBlockState state = world.getBlockState(pos);
+        BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
         if (block.isAir(state, world, pos)) {
             return false;
@@ -361,8 +361,8 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
-        IBlockState mimicBlock = getMimicBlock(blockAccess, pos);
+    public boolean shouldSideBeRendered(BlockState blockState, IBlockAccess blockAccess, BlockPos pos, Direction side) {
+        BlockState mimicBlock = getMimicBlock(blockAccess, pos);
         if (mimicBlock == null) {
             return false;
         } else {
@@ -372,18 +372,18 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
+    public boolean canRenderInLayer(BlockState state, BlockRenderLayer layer) {
         return true; // delegated to GenericCableBakedModel#getQuads
     }
 
     @Override
-    public void getDrops(NonNullList<ItemStack> drops, IBlockAccess blockAccess, BlockPos pos, IBlockState state, int fortune) {
+    public void getDrops(NonNullList<ItemStack> drops, IBlockAccess blockAccess, BlockPos pos, BlockState state, int fortune) {
         super.getDrops(drops, blockAccess, pos, state, fortune);
         if (blockAccess instanceof World) {
             World world = (World) blockAccess;
             for (ItemStack drop : drops) {
                 if (!drop.hasTagCompound()) {
-                    drop.setTagCompound(new NBTTagCompound());
+                    drop.setTagCompound(new CompoundNBT());
                 }
                 WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
                 ConsumerId consumer = worldBlob.getConsumerAt(pos);

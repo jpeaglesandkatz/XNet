@@ -11,13 +11,13 @@ import mcjty.xnet.blocks.generic.GenericCableBlock;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -59,15 +59,15 @@ public class ConnectorUpgradeItem extends Item {
     }
 
     @Override
-    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        IBlockState state = world.getBlockState(pos);
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, Direction facing, float hitX, float hitY, float hitZ) {
+        BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
 
         if (block == NetCableSetup.connectorBlock) {
             if (!world.isRemote) {
                 TileEntity te = world.getTileEntity(pos);
                 if (te instanceof ConnectorTileEntity) {
-                    NBTTagCompound tag = new NBTTagCompound();
+                    CompoundNBT tag = new CompoundNBT();
                     te.writeToNBT(tag);
                     CableColor color = world.getBlockState(pos).getValue(GenericCableBlock.COLOR);
 
@@ -76,7 +76,7 @@ public class ConnectorUpgradeItem extends Item {
                     ConsumerId consumer = worldBlob.getConsumerAt(pos);
                     ((ConnectorBlock)block).unlinkBlock(world, pos);
                     world.setBlockState(pos, NetCableSetup.advancedConnectorBlock.getDefaultState().withProperty(GenericCableBlock.COLOR, color));
-                    IBlockState blockState = world.getBlockState(pos);
+                    BlockState blockState = world.getBlockState(pos);
                     ((ConnectorBlock)blockState.getBlock()).createCableSegment(world, pos, consumer);
 
                     te = TileEntity.create(world, tag);
@@ -108,7 +108,7 @@ public class ConnectorUpgradeItem extends Item {
     }
 
     @Override
-    public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand) {
+    public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, Direction side, float hitX, float hitY, float hitZ, EnumHand hand) {
         return super.onItemUseFirst(player, world, pos, side, hitX, hitY, hitZ, hand);
     }
 }

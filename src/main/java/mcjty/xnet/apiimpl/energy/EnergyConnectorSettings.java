@@ -9,8 +9,8 @@ import mcjty.xnet.api.gui.IndicatorIcon;
 import mcjty.xnet.api.helper.AbstractConnectorSettings;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.config.ConfigSetup;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
@@ -38,7 +38,7 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     @Nullable private Integer rate = null;
     @Nullable private Integer minmax = null;
 
-    public EnergyConnectorSettings(@Nonnull EnumFacing side) {
+    public EnergyConnectorSettings(@Nonnull Direction side) {
         super(side);
     }
 
@@ -151,7 +151,7 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
         super.readFromNBT(tag);
         energyMode = EnergyMode.values()[tag.getByte("itemMode")];
         if (tag.hasKey("priority")) {
@@ -172,7 +172,7 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) {
+    public void writeToNBT(CompoundNBT tag) {
         super.writeToNBT(tag);
         tag.setByte("itemMode", (byte) energyMode.ordinal());
         if (priority != null) {

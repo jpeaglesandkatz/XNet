@@ -1,19 +1,19 @@
 package mcjty.xnet.api.keys;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 import javax.annotation.Nonnull;
 
 public class SidedConsumer {
 
     private final ConsumerId consumerId;
-    private final EnumFacing side;
+    private final Direction side;
 
     /**
      * A consumer ID and a side pointing towards the block
      * we are connecting too.
      */
-    public SidedConsumer(@Nonnull ConsumerId consumerId, @Nonnull EnumFacing side) {
+    public SidedConsumer(@Nonnull ConsumerId consumerId, @Nonnull Direction side) {
         this.consumerId = consumerId;
         this.side = side;
     }
@@ -28,7 +28,7 @@ public class SidedConsumer {
      * to an adjacent block.
      */
     @Nonnull
-    public EnumFacing getSide() {
+    public Direction getSide() {
         return side;
     }
 

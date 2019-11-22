@@ -6,8 +6,8 @@ import mcjty.xnet.api.keys.NetworkId;
 import mcjty.xnet.blocks.cables.NetCableSetup;
 import mcjty.xnet.init.ModBlocks;
 import net.minecraft.block.Block;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagIntArray;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.IntArrayNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
@@ -392,7 +392,7 @@ public class ChunkBlob {
         }
     }
 
-    public void readFromNBT(NBTTagCompound compound) {
+    public void readFromNBT(CompoundNBT compound) {
         networkMappings.clear();
         blobAllocations.clear();
         networkProviders.clear();
@@ -475,7 +475,7 @@ public class ChunkBlob {
         }
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+    public CompoundNBT writeToNBT(CompoundNBT compound) {
         compound.setInteger("lastBlob", lastBlobId);
 
         List<Integer> m = new ArrayList<>();
@@ -486,7 +486,7 @@ public class ChunkBlob {
             }
             m.add(-1);
         }
-        NBTTagIntArray mappings = new NBTTagIntArray(m.stream().mapToInt(i -> i).toArray());
+        IntArrayNBT mappings = new IntArrayNBT(m.stream().mapToInt(i -> i).toArray());
         compound.setTag("mappings", mappings);
 
         m.clear();
@@ -494,7 +494,7 @@ public class ChunkBlob {
             m.add(entry.getKey().getPos());
             m.add(entry.getValue().getId());
         }
-        NBTTagIntArray allocations = new NBTTagIntArray(m.stream().mapToInt(i -> i).toArray());
+        IntArrayNBT allocations = new IntArrayNBT(m.stream().mapToInt(i -> i).toArray());
         compound.setTag("allocations", allocations);
 
         m.clear();
@@ -502,7 +502,7 @@ public class ChunkBlob {
             m.add(entry.getKey().getPos());
             m.add(entry.getValue().getId());
         }
-        NBTTagIntArray providers = new NBTTagIntArray(m.stream().mapToInt(i -> i).toArray());
+        IntArrayNBT providers = new IntArrayNBT(m.stream().mapToInt(i -> i).toArray());
         compound.setTag("providers", providers);
 
         m.clear();
@@ -510,7 +510,7 @@ public class ChunkBlob {
             m.add(entry.getKey().getPos());
             m.add(entry.getValue().getId());
         }
-        NBTTagIntArray consumers = new NBTTagIntArray(m.stream().mapToInt(i -> i).toArray());
+        IntArrayNBT consumers = new IntArrayNBT(m.stream().mapToInt(i -> i).toArray());
         compound.setTag("consumers", consumers);
 
         m.clear();
@@ -518,7 +518,7 @@ public class ChunkBlob {
             m.add(entry.getKey().getId());
             m.add(entry.getValue().getId());
         }
-        NBTTagIntArray colors = new NBTTagIntArray(m.stream().mapToInt(i -> i).toArray());
+        IntArrayNBT colors = new IntArrayNBT(m.stream().mapToInt(i -> i).toArray());
         compound.setTag("colors", colors);
 
         return compound;

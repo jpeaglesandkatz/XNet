@@ -4,9 +4,9 @@ import mcjty.xnet.api.keys.ConsumerId;
 import mcjty.xnet.api.keys.NetworkId;
 import mcjty.xnet.api.net.IWorldBlob;
 import mcjty.xnet.logic.VersionNumber;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3i;
@@ -299,7 +299,7 @@ public class WorldBlob implements IWorldBlob {
                 Set<NetworkId> networks = blob.getOrCreateNetworksForPosition(pos);
                 ColorId color = blob.getColorIdForPosition(pos);
 
-                for (EnumFacing facing : EnumFacing.HORIZONTALS) {
+                for (Direction facing : Direction.HORIZONTALS) {
                     if (pos.isBorder(facing)) {
                         Vec3i vec = facing.getDirectionVec();
                         ChunkBlob adjacent = chunkBlobMap.get(
@@ -346,14 +346,14 @@ public class WorldBlob implements IWorldBlob {
     }
 
 
-    public void readFromNBT(NBTTagCompound compound) {
+    public void readFromNBT(CompoundNBT compound) {
         chunkBlobMap.clear();
         lastNetworkId = compound.getInteger("lastNetwork");
         lastConsumerId = compound.getInteger("lastConsumer");
         if (compound.hasKey("chunks")) {
-            NBTTagList chunks = (NBTTagList) compound.getTag("chunks");
+            ListNBT chunks = (ListNBT) compound.getTag("chunks");
             for (int i = 0 ; i < chunks.tagCount() ; i++) {
-                NBTTagCompound tc = (NBTTagCompound) chunks.get(i);
+                CompoundNBT tc = (CompoundNBT) chunks.get(i);
                 int chunkX = tc.getInteger("chunkX");
                 int chunkZ = tc.getInteger("chunkZ");
                 ChunkBlob blob = new ChunkBlob(new ChunkPos(chunkX, chunkZ));
@@ -363,13 +363,13 @@ public class WorldBlob implements IWorldBlob {
         }
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+    public CompoundNBT writeToNBT(CompoundNBT compound) {
         compound.setInteger("lastNetwork", lastNetworkId);
         compound.setInteger("lastConsumer", lastConsumerId);
-        NBTTagList list = new NBTTagList();
+        ListNBT list = new ListNBT();
         for (Map.Entry<Long, ChunkBlob> entry : chunkBlobMap.entrySet()) {
             ChunkBlob blob = entry.getValue();
-            NBTTagCompound tc = new NBTTagCompound();
+            CompoundNBT tc = new CompoundNBT();
             tc.setInteger("chunkX", blob.getChunkPos().x);
             tc.setInteger("chunkZ", blob.getChunkPos().z);
             blob.writeToNBT(tc);

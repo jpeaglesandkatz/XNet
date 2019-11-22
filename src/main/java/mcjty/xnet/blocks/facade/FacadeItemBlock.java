@@ -6,13 +6,13 @@ import mcjty.xnet.blocks.generic.GenericCableBlock;
 import mcjty.xnet.init.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -33,15 +33,15 @@ public class FacadeItemBlock extends ItemBlock {
         super(block);
     }
 
-    public static void setMimicBlock(@Nonnull ItemStack item, IBlockState mimicBlock) {
-        NBTTagCompound tagCompound = new NBTTagCompound();
+    public static void setMimicBlock(@Nonnull ItemStack item, BlockState mimicBlock) {
+        CompoundNBT tagCompound = new CompoundNBT();
         tagCompound.setString("regName", mimicBlock.getBlock().getRegistryName().toString());
         tagCompound.setInteger("meta", mimicBlock.getBlock().getMetaFromState(mimicBlock));
         item.setTagCompound(tagCompound);
     }
 
-    public static IBlockState getMimicBlock(@Nonnull ItemStack stack) {
-        NBTTagCompound tagCompound = stack.getTagCompound();
+    public static BlockState getMimicBlock(@Nonnull ItemStack stack) {
+        CompoundNBT tagCompound = stack.getTagCompound();
         if (tagCompound == null || !tagCompound.hasKey("regName")) {
             return Blocks.COBBLESTONE.getDefaultState();
         } else {
@@ -54,13 +54,13 @@ public class FacadeItemBlock extends ItemBlock {
 
     @SideOnly(Side.CLIENT)
     @Override
-    public boolean canPlaceBlockOnSide(World worldIn, BlockPos pos, EnumFacing side, EntityPlayer player, ItemStack stack) {
+    public boolean canPlaceBlockOnSide(World worldIn, BlockPos pos, Direction side, EntityPlayer player, ItemStack stack) {
         return true;
     }
 
     @Override
-    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        IBlockState state = world.getBlockState(pos);
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, Direction facing, float hitX, float hitY, float hitZ) {
+        BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
 
         ItemStack itemstack = player.getHeldItem(hand);
@@ -70,7 +70,7 @@ public class FacadeItemBlock extends ItemBlock {
             if (block == NetCableSetup.netCableBlock) {
                 int i = this.getMetadata(itemstack.getMetadata());
                 FacadeBlock facadeBlock = (FacadeBlock) this.block;
-                IBlockState placementState = facadeBlock.getPlacementState(world, pos, facing, hitX, hitY, hitZ, i, player).withProperty(GenericCableBlock.COLOR, state.getValue(GenericCableBlock.COLOR));
+                BlockState placementState = facadeBlock.getPlacementState(world, pos, facing, hitX, hitY, hitZ, i, player).withProperty(GenericCableBlock.COLOR, state.getValue(GenericCableBlock.COLOR));
 
                 if (placeBlockAt(itemstack, player, world, pos, facing, hitX, hitY, hitZ, placementState)) {
                     SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos), world, pos, player);
@@ -113,7 +113,7 @@ public class FacadeItemBlock extends ItemBlock {
     @Override
     public void addInformation(ItemStack stack, @Nullable World playerIn, List<String> tooltip, ITooltipFlag advanced) {
         super.addInformation(stack, null, tooltip, advanced);
-        NBTTagCompound tagCompound = stack.getTagCompound();
+        CompoundNBT tagCompound = stack.getTagCompound();
         if (tagCompound == null || !tagCompound.hasKey("regName")) {
             tooltip.add(TextFormatting.BLUE + "Right or sneak-right click on block to mimic");
             tooltip.add(TextFormatting.BLUE + "Right or sneak-right click on cable/connector to hide");

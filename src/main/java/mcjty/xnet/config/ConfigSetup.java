@@ -1,11 +1,9 @@
 package mcjty.xnet.config;
 
 import com.google.common.collect.Lists;
-import mcjty.lib.thirteen.ConfigSpec;
 import mcjty.xnet.XNet;
 import mcjty.xnet.blocks.wireless.TileEntityWirelessRouter;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.logging.log4j.Level;
 
 import java.io.File;
@@ -14,32 +12,32 @@ import java.util.List;
 public class ConfigSetup {
     public static final String CATEGORY_GENERAL = "general";
 
-    public static ConfigSpec.IntValue controllerMaxRF;
-    public static ConfigSpec.IntValue controllerRfPerTick;
+    public static ForgeConfigSpec.IntValue controllerMaxRF;
+    public static ForgeConfigSpec.IntValue controllerRfPerTick;
 
-    public static ConfigSpec.IntValue wirelessRouterMaxRF;
-    public static ConfigSpec.IntValue wirelessRouterRfPerTick;
-    public static ConfigSpec.IntValue wirelessRouterRfPerChannel[] = new ConfigSpec.IntValue[3];
+    public static ForgeConfigSpec.IntValue wirelessRouterMaxRF;
+    public static ForgeConfigSpec.IntValue wirelessRouterRfPerTick;
+    public static ForgeConfigSpec.IntValue wirelessRouterRfPerChannel[] = new ForgeConfigSpec.IntValue[3];
 
-    public static ConfigSpec.IntValue maxRfConnector;
-    public static ConfigSpec.IntValue maxRfAdvancedConnector;
+    public static ForgeConfigSpec.IntValue maxRfConnector;
+    public static ForgeConfigSpec.IntValue maxRfAdvancedConnector;
 
-    public static ConfigSpec.IntValue maxRfRateNormal;
-    public static ConfigSpec.IntValue maxRfRateAdvanced;
+    public static ForgeConfigSpec.IntValue maxRfRateNormal;
+    public static ForgeConfigSpec.IntValue maxRfRateAdvanced;
 
-    public static ConfigSpec.IntValue maxFluidRateNormal;
-    public static ConfigSpec.IntValue maxFluidRateAdvanced;
+    public static ForgeConfigSpec.IntValue maxFluidRateNormal;
+    public static ForgeConfigSpec.IntValue maxFluidRateAdvanced;
 
-    public static ConfigSpec.IntValue controllerRFT;          // RF per tick that the controller uses all the time
-    public static ConfigSpec.IntValue controllerChannelRFT;   // RF Per tick per enabled channel
-    public static ConfigSpec.IntValue controllerOperationRFT; // RF Per tick per operation
+    public static ForgeConfigSpec.IntValue controllerRFT;          // RF per tick that the controller uses all the time
+    public static ForgeConfigSpec.IntValue controllerChannelRFT;   // RF Per tick per enabled channel
+    public static ForgeConfigSpec.IntValue controllerOperationRFT; // RF Per tick per operation
 
-    public static ConfigSpec.IntValue maxPublishedChannels;    // Maximum number of published channels on a routing network
+    public static ForgeConfigSpec.IntValue maxPublishedChannels;    // Maximum number of published channels on a routing network
 
-    public static ConfigSpec.IntValue antennaTier1Range;
-    public static ConfigSpec.IntValue antennaTier2Range;
+    public static ForgeConfigSpec.IntValue antennaTier1Range;
+    public static ForgeConfigSpec.IntValue antennaTier2Range;
 
-    public static ConfigSpec.BooleanValue showNonFacadedCablesWhileSneaking;
+    public static ForgeConfigSpec.BooleanValue showNonFacadedCablesWhileSneaking;
 
     private static String[] unsidedBlocksAr = new String[] {
             "minecraft:chest",
@@ -48,10 +46,10 @@ public class ConfigSetup {
             "rftools:storage_scanner",
             "rftools:pearl_injector",
     };
-    public static ConfigSpec.ConfigValue<List<? extends String>> unsidedBlocks;
+    public static ForgeConfigSpec.ConfigValue<List<? extends String>> unsidedBlocks;
 
-    private static final ConfigSpec.Builder SERVER_BUILDER = new ConfigSpec.Builder();
-    private static final ConfigSpec.Builder CLIENT_BUILDER = new ConfigSpec.Builder();
+    private static final ForgeConfigSpec.Builder SERVER_BUILDER = new ForgeConfigSpec.Builder();
+    private static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
 
     static {
         SERVER_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
@@ -131,8 +129,8 @@ public class ConfigSetup {
         CLIENT_BUILDER.pop();
     }
 
-    public static ConfigSpec SERVER_CONFIG;
-    public static ConfigSpec CLIENT_CONFIG;
+    public static ForgeConfigSpec SERVER_CONFIG;
+    public static ForgeConfigSpec CLIENT_CONFIG;
 
 
     public static Configuration mainConfig;

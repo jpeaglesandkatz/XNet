@@ -2,7 +2,8 @@ package mcjty.xnet.blocks.wireless;
 
 import mcjty.lib.bindings.DefaultValue;
 import mcjty.lib.bindings.IValue;
-import mcjty.lib.tileentity.GenericEnergyReceiverTileEntity;
+import mcjty.lib.tileentity.GenericEnergyStorage;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.WorldTools;
@@ -22,21 +23,17 @@ import mcjty.xnet.init.ModBlocks;
 import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.multiblock.*;
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.state.BooleanProperty;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.fml.common.Optional;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -45,9 +42,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public final class TileEntityWirelessRouter extends GenericEnergyReceiverTileEntity implements ITickable {
+public final class TileEntityWirelessRouter extends GenericTileEntity implements ITickableTileEntity {
 
-    public static final PropertyBool ERROR = PropertyBool.create("error");
+    public static final BooleanProperty ERROR = BooleanProperty.create("error");
 
     public static final int TIER_INVALID = -1;
     public static final int TIER_1 = 0;
@@ -62,8 +59,10 @@ public final class TileEntityWirelessRouter extends GenericEnergyReceiverTileEnt
 
     private int globalChannelVersion = -1;      // Used to detect if a wireless channel has been published and we might need to recheck
 
+    private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, ConfigSetup.wirelessRouterMaxRF.get(), ConfigSetup.wirelessRouterRfPerTick.get()));
+
     public TileEntityWirelessRouter() {
-        super(ConfigSetup.wirelessRouterMaxRF.get(), ConfigSetup.wirelessRouterRfPerTick.get());
+        super(xxx);
     }
 
     @Override
@@ -83,7 +82,7 @@ public final class TileEntityWirelessRouter extends GenericEnergyReceiverTileEnt
     }
 
     @Override
-    public void update() {
+    public void tick() {
         if (!world.isRemote) {
             counter--;
             if (counter > 0) {
@@ -165,7 +164,7 @@ public final class TileEntityWirelessRouter extends GenericEnergyReceiverTileEnt
         }
 
         // If the dimension is different at this point there is no connection
-        if (world.provider.getDimension() != otherRouter.world.provider.getDimension()) {
+        if (!world.getDimension().getType().equals(otherRouter.world.getDimension().getType())) {
             return false;
         }
 
@@ -176,7 +175,7 @@ public final class TileEntityWirelessRouter extends GenericEnergyReceiverTileEnt
     }
 
     private boolean inRange(XNetWirelessChannels.WirelessRouterInfo wirelessRouter) {
-        World otherWorld = DimensionManager.getWorld(wirelessRouter.getCoordinate().getDimension());
+        World otherWorld = WorldTools.getWorld(world, wirelessRouter.getCoordinate().getDimension());
         if (otherWorld == null) {
             return false;
         }
@@ -202,7 +201,7 @@ public final class TileEntityWirelessRouter extends GenericEnergyReceiverTileEnt
                             .filter(this::inRange)
                             .forEach(routerInfo -> {
                                 // Find all routers on this network
-                                World otherWorld = DimensionManager.getWorld(routerInfo.getCoordinate().getDimension());
+                                World otherWorld = WorldTools.getWorld(world, routerInfo.getCoordinate().getDimension());
                                 LogicTools.consumers(otherWorld, routerInfo.getNetworkId())
                                         .filter(otherWorld::isBlockLoaded)
                                         // Range check not needed here since the check is already done on the wireless router
@@ -217,24 +216,31 @@ public final class TileEntityWirelessRouter extends GenericEnergyReceiverTileEnt
 
     // Test if the given router is not a router on this network
     private boolean isDifferentRouter(NetworkId thisNetwork, XNetWirelessChannels.WirelessRouterInfo routerInfo) {
-        return routerInfo.getCoordinate().getDimension() != world.provider.getDimension() || !thisNetwork.equals(routerInfo.getNetworkId());
+        return !routerInfo.getCoordinate().getDimension().equals(world.getDimension().getType()) || !thisNetwork.equals(routerInfo.getNetworkId());
     }
+
+//    private long getStoredPower() {
+//        return energyHandler.map(h -> h.getEnergy()).orElse(0L);
+//    }
 
     private void publishChannels(TileEntityRouter router, NetworkId networkId) {
         int tier = getAntennaTier();
         UUID ownerUUID = publicAccess ? null : getOwnerUUID();
         XNetWirelessChannels wirelessData = XNetWirelessChannels.getWirelessChannels(world);
-        router.publishedChannelStream()
-                .forEach(pair -> {
-                    String name = pair.getKey();
-                    IChannelType channelType = pair.getValue();
-                    long energyStored = getStoredPower();
-                    if (ConfigSetup.wirelessRouterRfPerChannel[tier].get() <= energyStored) {
-                        consumeEnergy(ConfigSetup.wirelessRouterRfPerChannel[tier].get());
-                        wirelessData.transmitChannel(name, channelType, ownerUUID, world.provider.getDimension(),
-                                pos, networkId);
-                    }
-                });
+        energyHandler.ifPresent(h -> {
+
+            router.publishedChannelStream()
+                    .forEach(pair -> {
+                        String name = pair.getKey();
+                        IChannelType channelType = pair.getValue();
+                        long energyStored = h.getEnergy();
+                        if (ConfigSetup.wirelessRouterRfPerChannel[tier].get() <= energyStored) {
+                            h.consumeEnergy(ConfigSetup.wirelessRouterRfPerChannel[tier].get());
+                            wirelessData.transmitChannel(name, channelType, ownerUUID, world.getDimension().getType(),
+                                    pos, networkId);
+                        }
+                    });
+        });
     }
 
     public void addWirelessConnectors(Map<SidedConsumer, IConnectorSettings> connectors, String channelName, IChannelType type,
@@ -244,10 +250,10 @@ public final class TileEntityWirelessRouter extends GenericEnergyReceiverTileEnt
         if (info != null) {
             info.getRouters().keySet().stream()
                     // Don't do this for ourselves
-                    .filter(routerPos -> routerPos.getDimension() != world.provider.getDimension() || !routerPos.getCoordinate().equals(pos))
-                    .filter(routerPos -> WorldTools.chunkLoaded(DimensionManager.getWorld(routerPos.getDimension()), routerPos.getCoordinate()))
+                    .filter(routerPos -> routerPos.getDimension() != world.getDimension().getType() || !routerPos.getCoordinate().equals(pos))
+                    .filter(routerPos -> WorldTools.chunkLoaded(WorldTools.getWorld(world, routerPos.getDimension()), routerPos.getCoordinate()))
                     .forEach(routerPos -> {
-                        WorldServer otherWorld = DimensionManager.getWorld(routerPos.getDimension());
+                        ServerWorld otherWorld = WorldTools.getWorld(world, routerPos.getDimension());
                         TileEntity otherTE = otherWorld.getTileEntity(routerPos.getCoordinate());
                         if (otherTE instanceof TileEntityWirelessRouter) {
                             TileEntityWirelessRouter otherRouter = (TileEntityWirelessRouter) otherTE;
@@ -306,32 +312,32 @@ public final class TileEntityWirelessRouter extends GenericEnergyReceiverTileEnt
 
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
+    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
         tagCompound.setBoolean("error", error);
         return super.writeToNBT(tagCompound);
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tagCompound) {
+    public void readFromNBT(CompoundNBT tagCompound) {
         super.readFromNBT(tagCompound);
         error = tagCompound.getBoolean("error");
     }
 
     @Override
-    public void writeRestorableToNBT(NBTTagCompound tagCompound) {
+    public void writeRestorableToNBT(CompoundNBT tagCompound) {
         super.writeRestorableToNBT(tagCompound);
         tagCompound.setBoolean("publicAcc", publicAccess);
     }
 
     @Override
-    public void readRestorableFromNBT(NBTTagCompound tagCompound) {
+    public void readRestorableFromNBT(CompoundNBT tagCompound) {
         super.readRestorableFromNBT(tagCompound);
         publicAccess = tagCompound.getBoolean("publicAcc");
     }
 
     @Override
     @Optional.Method(modid = "theoneprobe")
-    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
+    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, BlockState blockState, IProbeHitData data) {
         super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
         XNetBlobData blobData = XNetBlobData.getBlobData(world);
         WorldBlob worldBlob = blobData.getWorldBlob(world);
@@ -362,7 +368,7 @@ public final class TileEntityWirelessRouter extends GenericEnergyReceiverTileEnt
 
 
     @Override
-    public void onBlockBreak(World world, BlockPos pos, IBlockState state) {
+    public void onBlockBreak(World world, BlockPos pos, BlockState state) {
         super.onBlockBreak(world, pos, state);
         if (!this.world.isRemote) {
             XNetBlobData blobData = XNetBlobData.getBlobData(this.world);
@@ -373,7 +379,7 @@ public final class TileEntityWirelessRouter extends GenericEnergyReceiverTileEnt
     }
 
     @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, EntityLivingBase placer, ItemStack stack) {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
         if (!world.isRemote) {
             XNetBlobData blobData = XNetBlobData.getBlobData(world);
@@ -386,7 +392,7 @@ public final class TileEntityWirelessRouter extends GenericEnergyReceiverTileEnt
 
 
     @Override
-    public IBlockState getActualState(IBlockState state) {
+    public BlockState getActualState(BlockState state) {
         return state.withProperty(ERROR, inError());
     }
 

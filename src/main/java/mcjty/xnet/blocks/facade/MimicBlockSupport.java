@@ -1,9 +1,9 @@
 package mcjty.xnet.blocks.facade;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
@@ -12,19 +12,19 @@ import javax.annotation.Nullable;
 public class MimicBlockSupport {
 
     @Nullable
-    private IBlockState mimicBlock = null;
+    private BlockState mimicBlock = null;
 
     @Nullable
-    public IBlockState getMimicBlock() {
+    public BlockState getMimicBlock() {
         return mimicBlock;
     }
 
-    public void setMimicBlock(@Nullable IBlockState mimicBlock) {
+    public void setMimicBlock(@Nullable BlockState mimicBlock) {
         this.mimicBlock = mimicBlock;
     }
 
 
-    public void readFromNBT(NBTTagCompound tagCompound) {
+    public void readFromNBT(CompoundNBT tagCompound) {
         if (tagCompound.hasKey("regName")) {
             String regName = tagCompound.getString("regName");
             int meta = tagCompound.getInteger("meta");
@@ -39,7 +39,7 @@ public class MimicBlockSupport {
         }
     }
 
-    public void writeToNBT(NBTTagCompound tagCompound) {
+    public void writeToNBT(CompoundNBT tagCompound) {
         if (mimicBlock != null) {
             tagCompound.setString("regName", mimicBlock.getBlock().getRegistryName().toString());
             tagCompound.setInteger("meta", mimicBlock.getBlock().getMetaFromState(mimicBlock));

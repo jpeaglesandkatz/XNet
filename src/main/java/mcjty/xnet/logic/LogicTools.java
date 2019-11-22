@@ -11,7 +11,7 @@ import mcjty.xnet.blocks.wireless.TileEntityWirelessRouter;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -110,7 +110,7 @@ public class LogicTools {
     // Return all potential connected blocks (with or an actual connector defined in the channel)
     public static Stream<BlockPos> connectedBlocks(@Nonnull World world, @Nonnull NetworkId networkId) {
         return consumers(world, networkId)
-                .flatMap(blockPos -> Arrays.stream(EnumFacing.VALUES)
+                .flatMap(blockPos -> Arrays.stream(Direction.VALUES)
                         .filter(facing -> ConnectorBlock.isConnectable(world, blockPos, facing))
                         .map(blockPos::offset));
     }

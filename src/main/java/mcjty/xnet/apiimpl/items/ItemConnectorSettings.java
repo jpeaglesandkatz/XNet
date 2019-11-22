@@ -11,8 +11,8 @@ import mcjty.xnet.api.gui.IndicatorIcon;
 import mcjty.xnet.api.helper.AbstractConnectorSettings;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
@@ -77,7 +77,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         return itemMode;
     }
 
-    public ItemConnectorSettings(@Nonnull EnumFacing side) {
+    public ItemConnectorSettings(@Nonnull Direction side) {
         super(side);
     }
 
@@ -294,7 +294,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
         super.readFromNBT(tag);
         itemMode = ItemMode.values()[tag.getByte("itemMode")];
         extractMode = ExtractMode.values()[tag.getByte("extractMode")];
@@ -331,7 +331,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         }
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             if (tag.hasKey("filter" + i)) {
-                NBTTagCompound itemTag = tag.getCompoundTag("filter" + i);
+                CompoundNBT itemTag = tag.getCompoundTag("filter" + i);
                 filters.set(i, new ItemStack(itemTag));
             } else {
                 filters.set(i, ItemStack.EMPTY);
@@ -341,7 +341,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) {
+    public void writeToNBT(CompoundNBT tag) {
         super.writeToNBT(tag);
         tag.setByte("itemMode", (byte) itemMode.ordinal());
         tag.setByte("extractMode", (byte) extractMode.ordinal());
@@ -362,7 +362,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         }
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             if (!filters.get(i).isEmpty()) {
-                NBTTagCompound itemTag = new NBTTagCompound();
+                CompoundNBT itemTag = new CompoundNBT();
                 filters.get(i).writeToNBT(itemTag);
                 tag.setTag("filter" + i, itemTag);
             }

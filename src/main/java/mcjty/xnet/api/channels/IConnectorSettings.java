@@ -3,7 +3,7 @@ package mcjty.xnet.api.channels;
 import com.google.gson.JsonObject;
 import mcjty.xnet.api.gui.IEditorGui;
 import mcjty.xnet.api.gui.IndicatorIcon;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -13,9 +13,9 @@ import java.util.Map;
  */
 public interface IConnectorSettings {
 
-    void readFromNBT(NBTTagCompound tag);
+    void readFromNBT(CompoundNBT tag);
 
-    void writeToNBT(NBTTagCompound tag);
+    void writeToNBT(CompoundNBT tag);
 
     /**
      * Write the connector settings to json. The default implementation does nothing.

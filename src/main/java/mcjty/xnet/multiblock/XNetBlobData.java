@@ -1,8 +1,8 @@
 package mcjty.xnet.multiblock;
 
 import mcjty.lib.worlddata.AbstractWorldData;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -42,12 +42,12 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
 
 
     @Override
-    public void readFromNBT(NBTTagCompound compound) {
+    public void readFromNBT(CompoundNBT compound) {
         worldBlobMap.clear();
         if (compound.hasKey("worlds")) {
-            NBTTagList worlds = (NBTTagList) compound.getTag("worlds");
+            ListNBT worlds = (ListNBT) compound.getTag("worlds");
             for (int i = 0 ; i < worlds.tagCount() ; i++) {
-                NBTTagCompound tc = (NBTTagCompound) worlds.get(i);
+                CompoundNBT tc = (CompoundNBT) worlds.get(i);
                 int id = tc.getInteger("dimid");
                 WorldBlob blob = new WorldBlob(id);
                 blob.readFromNBT(tc);
@@ -57,11 +57,11 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-        NBTTagList list = new NBTTagList();
+    public CompoundNBT writeToNBT(CompoundNBT compound) {
+        ListNBT list = new ListNBT();
         for (Map.Entry<Integer, WorldBlob> entry : worldBlobMap.entrySet()) {
             WorldBlob blob = entry.getValue();
-            NBTTagCompound tc = new NBTTagCompound();
+            CompoundNBT tc = new CompoundNBT();
             tc.setInteger("dimid", blob.getDimId());
             blob.writeToNBT(tc);
             list.appendTag(tc);

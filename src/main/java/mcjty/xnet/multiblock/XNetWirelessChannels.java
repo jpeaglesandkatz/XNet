@@ -6,10 +6,11 @@ import mcjty.lib.worlddata.AbstractWorldData;
 import mcjty.xnet.XNet;
 import mcjty.xnet.api.channels.IChannelType;
 import mcjty.xnet.api.keys.NetworkId;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
@@ -36,7 +37,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
     private int globalChannelVersion = 0;
 
-    public void transmitChannel(String channel, @Nonnull IChannelType channelType, @Nullable UUID ownerUUID, int dimension, BlockPos wirelessRouterPos, NetworkId network) {
+    public void transmitChannel(String channel, @Nonnull IChannelType channelType, @Nullable UUID ownerUUID, DimensionType dimension, BlockPos wirelessRouterPos, NetworkId network) {
         WirelessChannelInfo channelInfo;
         WirelessChannelKey key = new WirelessChannelKey(channel, channelType, ownerUUID);
         if (channelToWireless.containsKey(key)) {
@@ -154,11 +155,11 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound compound) {
+    public void readFromNBT(CompoundNBT compound) {
         channelToWireless.clear();
-        NBTTagList tagList = compound.getTagList("channels", Constants.NBT.TAG_COMPOUND);
+        ListNBT tagList = compound.getTagList("channels", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < tagList.tagCount() ; i++) {
-            NBTTagCompound tc = tagList.getCompoundTagAt(i);
+            CompoundNBT tc = tagList.getCompoundTagAt(i);
             WirelessChannelInfo channelInfo = new WirelessChannelInfo();
             readRouters(tc.getTagList("routers", Constants.NBT.TAG_COMPOUND), channelInfo);
             UUID owner = null;
@@ -171,9 +172,9 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         }
     }
 
-    private void readRouters(NBTTagList tagList, WirelessChannelInfo channelInfo) {
+    private void readRouters(ListNBT tagList, WirelessChannelInfo channelInfo) {
         for (int i = 0 ; i < tagList.tagCount() ; i++) {
-            NBTTagCompound tc = tagList.getCompoundTagAt(i);
+            CompoundNBT tc = tagList.getCompoundTagAt(i);
             GlobalCoordinate pos = new GlobalCoordinate(new BlockPos(tc.getInteger("x"), tc.getInteger("y"), tc.getInteger("z")), tc.getInteger("dim"));
             WirelessRouterInfo info = new WirelessRouterInfo(pos);
             info.setAge(tc.getInteger("age"));
@@ -183,11 +184,11 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-        NBTTagList channelTagList = new NBTTagList();
+    public CompoundNBT writeToNBT(CompoundNBT compound) {
+        ListNBT channelTagList = new ListNBT();
 
         for (Map.Entry<WirelessChannelKey, WirelessChannelInfo> entry : channelToWireless.entrySet()) {
-            NBTTagCompound channelTc = new NBTTagCompound();
+            CompoundNBT channelTc = new CompoundNBT();
             WirelessChannelInfo channelInfo = entry.getValue();
             WirelessChannelKey key = entry.getKey();
             channelTc.setString("name", key.getName());
@@ -204,11 +205,11 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         return compound;
     }
 
-    private NBTTagList writeRouters(WirelessChannelInfo channelInfo) {
-        NBTTagList tagList = new NBTTagList();
+    private ListNBT writeRouters(WirelessChannelInfo channelInfo) {
+        ListNBT tagList = new ListNBT();
 
         for (Map.Entry<GlobalCoordinate, WirelessRouterInfo> infoEntry : channelInfo.getRouters().entrySet()) {
-            NBTTagCompound tc = new NBTTagCompound();
+            CompoundNBT tc = new CompoundNBT();
             GlobalCoordinate pos = infoEntry.getKey();
             tc.setInteger("dim", pos.getDimension());
             tc.setInteger("x", pos.getCoordinate().getX());

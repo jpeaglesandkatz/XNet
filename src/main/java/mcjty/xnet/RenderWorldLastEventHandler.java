@@ -8,7 +8,7 @@ import mcjty.xnet.blocks.generic.CableColor;
 import mcjty.xnet.blocks.generic.GenericCableBlock;
 import mcjty.xnet.config.ConfigSetup;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -81,7 +81,7 @@ public class RenderWorldLastEventHandler {
             for (int dy = -20 ; dy <= 20 ; dy++) {
                 for (int dz = -20 ; dz <= 20 ; dz++) {
                     BlockPos c = p.getPosition().add(dx, dy, dz);
-                    IBlockState state = world.getBlockState(c);
+                    BlockState state = world.getBlockState(c);
                     Block block = state.getBlock();
                     if (block instanceof FacadeBlock || block instanceof ConnectorBlock || block instanceof GenericCableBlock) {
                         IExtendedBlockState extendedBlockState;

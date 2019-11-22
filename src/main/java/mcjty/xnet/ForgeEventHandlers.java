@@ -1,9 +1,9 @@
 package mcjty.xnet;
 
 import mcjty.xnet.multiblock.XNetWirelessChannels;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 
 public class ForgeEventHandlers {
 
@@ -13,7 +13,7 @@ public class ForgeEventHandlers {
 
     @SubscribeEvent
     public void onWorldTick(TickEvent.WorldTickEvent event) {
-        if (event.side == Side.SERVER) {
+        if (event.side == LogicalSide.SERVER) {
             cnt--;
             if (cnt > 0) {
                 return;

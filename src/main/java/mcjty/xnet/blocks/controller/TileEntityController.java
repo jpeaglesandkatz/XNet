@@ -3,6 +3,8 @@ package mcjty.xnet.blocks.controller;
 import com.google.gson.*;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.tileentity.GenericEnergyReceiverTileEntity;
+import mcjty.lib.tileentity.GenericEnergyStorage;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
@@ -35,21 +37,25 @@ import mcjty.xnet.multiblock.*;
 import mcjty.xnet.network.PacketControllerError;
 import mcjty.xnet.network.PacketJsonToClipboard;
 import mcjty.xnet.network.XNetMessages;
-import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.state.BooleanProperty;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.common.Optional;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -61,7 +67,7 @@ import java.util.stream.Stream;
 
 import static mcjty.xnet.logic.ChannelInfo.MAX_CHANNELS;
 
-public final class TileEntityController extends GenericEnergyReceiverTileEntity implements ITickable, IControllerContext {
+public final class TileEntityController extends GenericTileEntity implements ITickableTileEntity, IControllerContext {
 
     public static final String CMD_GETCHANNELS = "getChannelInfo";
     public static final String CLIENTCMD_CHANNELSREADY = "channelsReady";
@@ -86,12 +92,12 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
     public static final Key<Integer> PARAM_SIDE = new Key<>("side", Type.INTEGER);
     public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
 
-    public static final PropertyBool ERROR = PropertyBool.create("error");
+    public static final BooleanProperty ERROR = BooleanProperty.create("error");
 
     public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory() {
         @Override
         protected void setup() {
-            layoutPlayerInventorySlots(91, 157);
+            playerSlots(91, 157);
         }
     };
 
@@ -108,25 +114,28 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
     private Map<SidedConsumer, IConnectorSettings> cachedRoutedConnectors[] = new Map[MAX_CHANNELS];
     private Map<WirelessChannelKey, Integer> wirelessVersions = new HashMap<>();
 
+    private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, ConfigSetup.controllerMaxRF.get(), ConfigSetup.controllerRfPerTick.get()));
+
     private NetworkChecker networkChecker = null;
 
     public TileEntityController() {
-        super(ConfigSetup.controllerMaxRF.get(), ConfigSetup.controllerRfPerTick.get());
+        super(xxx);
         for (int i = 0; i < MAX_CHANNELS; i++) {
             channels[i] = null;
         }
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet) {
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
         boolean oldError = error;
 
         super.onDataPacket(net, packet);
 
-        if (getWorld().isRemote) {
+        if (world.isRemote) {
             // If needed send a render update.
             if (oldError != error) {
-                getWorld().markBlockRangeForRenderUpdate(getPos(), getPos());
+                BlockState state = world.getBlockState(pos);
+                world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
             }
         }
     }
@@ -137,16 +146,16 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
         if (networkChecker == null) {
             networkChecker = new NetworkChecker();
             networkChecker.add(networkId);
-            WorldBlob worldBlob = XNetBlobData.getBlobData(getWorld()).getWorldBlob(getWorld());
-            LogicTools.routers(getWorld(), networkId)
+            WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+            LogicTools.routers(world, networkId)
                     .forEach(router -> {
                         networkChecker.add(worldBlob.getNetworksAt(router.getPos()));
                         // We're only interested in one network. The other router networks are all same topology
                         NetworkId routerNetwork = worldBlob.getNetworkAt(router.getPos());
                         if (routerNetwork != null) {
-                            LogicTools.routers(getWorld(), routerNetwork)
+                            LogicTools.routers(world, routerNetwork)
                                     .filter(r -> router != r)
-                                    .forEach(r -> LogicTools.connectors(getWorld(), r.getPos())
+                                    .forEach(r -> LogicTools.connectors(world, r.getPos())
                                             .forEach(connectorPos -> networkChecker.add(worldBlob.getNetworkAt(connectorPos))));
                         }
                     });
@@ -158,7 +167,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
 
     @Override
     public World getControllerWorld() {
-        return getWorld();
+        return world;
     }
 
     @Override
@@ -217,18 +226,18 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
     }
 
     public boolean inError() {
-        if (getWorld().isRemote) {
+        if (world.isRemote) {
             return error;
         } else {
-            WorldBlob worldBlob = XNetBlobData.getBlobData(getWorld()).getWorldBlob(getWorld());
+            WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
             return worldBlob.getNetworksAt(getPos()).size() > 1;
         }
     }
 
     @Override
-    public void update() {
-        if (!getWorld().isRemote) {
-            WorldBlob worldBlob = XNetBlobData.getBlobData(getWorld()).getWorldBlob(getWorld());
+    public void tick() {
+        if (!world.isRemote) {
+            WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
 
             if (worldBlob.getNetworksAt(getPos()).size() > 1) {
                 // Error situation!
@@ -265,20 +274,22 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
 
     @Override
     public boolean checkAndConsumeRF(int rft) {
-        if (rft > 0) {
-            if (getStoredPower() < rft) {
-                // Not enough energy
-                return false;
+        return energyHandler.map(h -> {
+            if (rft > 0) {
+                if (h.getEnergy() < rft) {
+                    // Not enough energy
+                    return false;
+                }
+                h.consumeEnergy(rft);
+                markDirtyQuick();
             }
-            consumeEnergy(rft);
-            markDirtyQuick();
-        }
-        return true;
+            return true;
+        }).orElse(false);
     }
 
     private void networkDirty() {
         if (networkId != null) {
-            XNetBlobData.getBlobData(getWorld()).getWorldBlob(getWorld()).markNetworkDirty(networkId);
+            XNetBlobData.getBlobData(world).getWorldBlob(world).markNetworkDirty(networkId);
         }
     }
 
@@ -292,7 +303,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
     @Nonnull
     public Map<SidedConsumer, IConnectorSettings> getConnectors(int channel) {
         if (cachedConnectors[channel] == null) {
-            WorldBlob worldBlob = XNetBlobData.getBlobData(getWorld()).getWorldBlob(getWorld());
+            WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
             cachedConnectors[channel] = new HashMap<>();
             for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channels[channel].getConnectors().entrySet()) {
                 SidedConsumer sidedConsumer = entry.getKey();
@@ -313,7 +324,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
 
             wirelessVersions.clear();
             if (!channels[channel].getChannelName().isEmpty()) {
-                LogicTools.routers(getWorld(), networkId)
+                LogicTools.routers(world, networkId)
                         .forEach(router -> router.addRoutedConnectors(cachedRoutedConnectors[channel], getPos(),
                                 channel, channels[channel].getType(),
                                 wirelessVersions));
@@ -323,45 +334,45 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
+    public CompoundNBT write(CompoundNBT tagCompound) {
         if (networkId != null) {
-            tagCompound.setInteger("networkId", networkId.getId());
+            tagCompound.putInt("networkId", networkId.getId());
         }
-        return super.writeToNBT(tagCompound);
+        return super.write(tagCompound);
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tagCompound) {
-        super.readFromNBT(tagCompound);
-        if (tagCompound.hasKey("networkId")) {
-            networkId = new NetworkId(tagCompound.getInteger("networkId"));
+    public void read(CompoundNBT tagCompound) {
+        super.read(tagCompound);
+        if (tagCompound.contains("networkId")) {
+            networkId = new NetworkId(tagCompound.getInt("networkId"));
         } else {
             networkId = null;
         }
     }
 
     @Override
-    public void writeClientDataToNBT(NBTTagCompound tagCompound) {
+    public void writeClientDataToNBT(CompoundNBT tagCompound) {
         super.writeClientDataToNBT(tagCompound);
-        if (!getWorld().isRemote) {
+        if (!world.isRemote) {
             tagCompound.setBoolean("error", inError());
         }
     }
 
     @Override
-    public void readClientDataFromNBT(NBTTagCompound tagCompound) {
+    public void readClientDataFromNBT(CompoundNBT tagCompound) {
         super.readClientDataFromNBT(tagCompound);
         error = tagCompound.getBoolean("error");
     }
 
     @Override
-    public void writeRestorableToNBT(NBTTagCompound tagCompound) {
+    public void writeRestorableToNBT(CompoundNBT tagCompound) {
         super.writeRestorableToNBT(tagCompound);
-        tagCompound.setInteger("colors", colors);
+        tagCompound.putInt("colors", colors);
 
         for (int i = 0; i < MAX_CHANNELS; i++) {
             if (channels[i] != null) {
-                NBTTagCompound tc = new NBTTagCompound();
+                CompoundNBT tc = new CompoundNBT();
                 tc.setString("type", channels[i].getType().getID());
                 channels[i].writeToNBT(tc);
                 tagCompound.setTag("channel" + i, tc);
@@ -370,12 +381,12 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
     }
 
     @Override
-    public void readRestorableFromNBT(NBTTagCompound tagCompound) {
+    public void readRestorableFromNBT(CompoundNBT tagCompound) {
         super.readRestorableFromNBT(tagCompound);
         colors = tagCompound.getInteger("colors");
         for (int i = 0; i < MAX_CHANNELS; i++) {
             if (tagCompound.hasKey("channel" + i)) {
-                NBTTagCompound tc = (NBTTagCompound) tagCompound.getTag("channel" + i);
+                CompoundNBT tc = (CompoundNBT) tagCompound.getTag("channel" + i);
                 String id = tc.getString("type");
                 IChannelType type = XNet.xNetApi.findType(id);
                 if (type == null) {
@@ -393,7 +404,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
     @Nullable
     @Override
     public BlockPos findConsumerPosition(@Nonnull ConsumerId consumerId) {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(getWorld()).getWorldBlob(getWorld());
+        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
         return findConsumerPosition(worldBlob, consumerId);
     }
 
@@ -404,22 +415,22 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
 
     @Override
     public List<SidedPos> getConnectedBlockPositions() {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(getWorld()).getWorldBlob(getWorld());
+        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
 
         List<SidedPos> result = new ArrayList<>();
         Set<ConnectedBlockClientInfo> set = new HashSet<>();
         Stream<BlockPos> consumers = getConsumerStream(worldBlob);
         consumers.forEach(consumerPos -> {
             String name = "";
-            TileEntity te = getWorld().getTileEntity(consumerPos);
+            TileEntity te = world.getTileEntity(consumerPos);
             if (te instanceof ConnectorTileEntity) {
                 // Should always be the case. @todo error?
                 name = ((ConnectorTileEntity) te).getConnectorName();
             } else {
                 XNet.setup.getLogger().warn("What? The connector at " + BlockPosTools.toString(consumerPos) + " is not a connector?");
             }
-            for (EnumFacing facing : EnumFacing.VALUES) {
-                if (ConnectorBlock.isConnectable(getWorld(), consumerPos, facing)) {
+            for (Direction facing : Direction.VALUES) {
+                if (ConnectorBlock.isConnectable(world, consumerPos, facing)) {
                     BlockPos pos = consumerPos.offset(facing);
                     SidedPos sidedPos = new SidedPos(pos, facing.getOpposite());
                     result.add(sidedPos);
@@ -432,25 +443,25 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
 
     @Nonnull
     private List<ConnectedBlockClientInfo> findConnectedBlocksForClient() {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(getWorld()).getWorldBlob(getWorld());
+        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
 
         Set<ConnectedBlockClientInfo> set = new HashSet<>();
         Stream<BlockPos> consumers = getConsumerStream(worldBlob);
         consumers.forEach(consumerPos -> {
             String name = "";
-            TileEntity te = getWorld().getTileEntity(consumerPos);
+            TileEntity te = world.getTileEntity(consumerPos);
             if (te instanceof ConnectorTileEntity) {
                 // Should always be the case. @todo error?
                 name = ((ConnectorTileEntity) te).getConnectorName();
             } else {
                 XNet.setup.getLogger().warn("What? The connector at " + BlockPosTools.toString(consumerPos) + " is not a connector?");
             }
-            for (EnumFacing facing : EnumFacing.VALUES) {
-                if (ConnectorBlock.isConnectable(getWorld(), consumerPos, facing)) {
+            for (Direction facing : Direction.VALUES) {
+                if (ConnectorBlock.isConnectable(world, consumerPos, facing)) {
                     BlockPos pos = consumerPos.offset(facing);
                     SidedPos sidedPos = new SidedPos(pos, facing.getOpposite());
-                    IBlockState state = getWorld().getBlockState(pos);
-                    ItemStack item = state.getBlock().getItem(getWorld(), pos, state);
+                    BlockState state = world.getBlockState(pos);
+                    ItemStack item = state.getBlock().getItem(world, pos, state);
                     ConnectedBlockClientInfo info = new ConnectedBlockClientInfo(sidedPos, item, name);
                     set.add(info);
                 }
@@ -470,7 +481,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
 
     @Nonnull
     private List<ChannelClientInfo> findChannelInfo() {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(getWorld()).getWorldBlob(getWorld());
+        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
 
         List<ChannelClientInfo> chanList = new ArrayList<>();
         for (ChannelInfo channel : channels) {
@@ -485,7 +496,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
                         BlockPos consumerPos = findConsumerPosition(worldBlob, sidedConsumer.getConsumerId());
                         if (consumerPos != null) {
                             SidedPos pos = new SidedPos(consumerPos.offset(sidedConsumer.getSide()), sidedConsumer.getSide().getOpposite());
-                            boolean advanced = getWorld().getBlockState(consumerPos).getBlock() == NetCableSetup.advancedConnectorBlock;
+                            boolean advanced = world.getBlockState(consumerPos).getBlock() == NetCableSetup.advancedConnectorBlock;
                             ConnectorClientInfo ci = new ConnectorClientInfo(pos, sidedConsumer.getConsumerId(), channel.getType(), info.getConnectorSettings());
                             clientInfo.getConnectors().put(sidedConsumer, ci);
                         } else {
@@ -538,7 +549,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
     }
 
     private void updateConnector(int channel, SidedPos pos, TypedMap params) {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(getWorld()).getWorldBlob(getWorld());
+        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
         ConsumerId consumerId = worldBlob.getConsumerAt(pos.getPos().offset(pos.getSide()));
         for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channels[channel].getConnectors().entrySet()) {
             SidedConsumer key = entry.getKey();
@@ -555,7 +566,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
     }
 
     private void removeConnector(int channel, SidedPos pos) {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(getWorld()).getWorldBlob(getWorld());
+        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
         ConsumerId consumerId = worldBlob.getConsumerAt(pos.getPos().offset(pos.getSide()));
         SidedConsumer toremove = null;
         for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channels[channel].getConnectors().entrySet()) {
@@ -574,21 +585,21 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
     }
 
     private ConnectorInfo createConnector(int channel, SidedPos pos) {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(getWorld()).getWorldBlob(getWorld());
+        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
         BlockPos consumerPos = pos.getPos().offset(pos.getSide());
         ConsumerId consumerId = worldBlob.getConsumerAt(consumerPos);
         if (consumerId == null) {
             throw new RuntimeException("What?");
         }
         SidedConsumer id = new SidedConsumer(consumerId, pos.getSide().getOpposite());
-        boolean advanced = getWorld().getBlockState(consumerPos).getBlock() == NetCableSetup.advancedConnectorBlock;
+        boolean advanced = world.getBlockState(consumerPos).getBlock() == NetCableSetup.advancedConnectorBlock;
         ConnectorInfo info = channels[channel].createConnector(id, advanced);
         markAsDirty();
         return info;
     }
 
     private IConnectorSettings findConnectorSettings(ChannelInfo channel, SidedPos p) {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(getWorld()).getWorldBlob(getWorld());
+        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
 
         for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channel.getConnectors().entrySet()) {
             SidedConsumer sidedConsumer = entry.getKey();
@@ -608,7 +619,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
 
     @Nonnull
     private Set<ConnectedBlockInfo> findConnectedBlocks() {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(getWorld()).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
 
         Set<ConnectedBlockInfo> set = new HashSet<>();
         Stream<BlockPos> consumers = getConsumerStream(worldBlob);
@@ -621,11 +632,11 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
             } else {
                 XNet.setup.getLogger().warn("What? The connector at " + BlockPosTools.toString(consumerPos) + " is not a connector?");
             }
-            for (EnumFacing facing : EnumFacing.VALUES) {
+            for (Direction facing : Direction.VALUES) {
                 if (ConnectorBlock.isConnectable(world, consumerPos, facing)) {
                     BlockPos pos = consumerPos.offset(facing);
                     SidedPos sidedPos = new SidedPos(pos, facing.getOpposite());
-                    IBlockState state = world.getBlockState(pos);
+                    BlockState state = world.getBlockState(pos);
                     state = state.getBlock().isAir(state, world, pos) ? null : state;
                     ConnectedBlockInfo info = new ConnectedBlockInfo(sidedPos, state, name);
                     set.add(info);
@@ -684,7 +695,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
                         boolean advanced = ConnectorBlock.isAdvancedConnector(world, sidedPos.getPos().offset(sidedPos.getSide()));
                         connectorObject.add("advanced", new JsonPrimitive(advanced));
                         if (!connectedBlock.isAir()) {
-                            IBlockState state = connectedBlock.getConnectedState();
+                            BlockState state = connectedBlock.getConnectedState();
                             connectorObject.add("block", new JsonPrimitive(state.getBlock().getRegistryName().toString()));
                         }
 
@@ -705,7 +716,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
     }
 
     private int calculateMatchingScore(IChannelType type, ConnectedBlockInfo info, String name, ResourceLocation block,
-                                       @Nonnull EnumFacing side, @Nonnull EnumFacing facingOverride, boolean advanced,
+                                       @Nonnull Direction side, @Nonnull Direction facingOverride, boolean advanced,
                                        boolean advancedNeeded) {
         int score = 0;
 
@@ -715,7 +726,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
         }
 
         BlockPos blockPos = info.getPos().getPos();
-        EnumFacing facing = info.getPos().getSide();
+        Direction facing = info.getPos().getSide();
 
         // This block doesn't support this type. So bad score
         if (!type.supportsBlock(world, blockPos, facing)) {
@@ -783,10 +794,10 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
             boolean advancedNeeded = connectorObject.get("advancedneeded").getAsBoolean();
 
             BlockPos blockPos = sidedPos.getPos();
-            EnumFacing facing = sidedPos.getSide();
+            Direction facing = sidedPos.getSide();
 
-            EnumFacing side = EnumFacing.byName(connectorObject.get("side").getAsString());
-            EnumFacing facingOverride = connectorObject.has("facingoverride") ? EnumFacing.byName(connectorObject.get("facingoverride").getAsString()) : side;
+            Direction side = Direction.byName(connectorObject.get("side").getAsString());
+            Direction facingOverride = connectorObject.has("facingoverride") ? Direction.byName(connectorObject.get("facingoverride").getAsString()) : side;
             boolean infoAdvanced = ConnectorBlock.isAdvancedConnector(world, blockPos.offset(facing));
             if (advanced) {
                 if (!infoAdvanced) {
@@ -863,8 +874,8 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
                 // Also get some useful settings from the connector data itself. Using these we can estimate a
                 // matching score to see how well the destination connector matches with this one
                 JsonObject connectorSettings = connector.get("connector").getAsJsonObject();
-                EnumFacing side = EnumFacing.byName(connectorSettings.get("side").getAsString());
-                EnumFacing facingOverride = connectorSettings.has("facingoverride") ? EnumFacing.byName(connectorSettings.get("facingoverride").getAsString()) : side;
+                Direction side = Direction.byName(connectorSettings.get("side").getAsString());
+                Direction facingOverride = connectorSettings.has("facingoverride") ? Direction.byName(connectorSettings.get("facingoverride").getAsString()) : side;
 
                 // 'advancedNeeded' is true if the connector settings are such that they only work in an advanced connector. This
                 // is unrelated to the actual 'side' differing from the side that is set in the connector (only advanced connectors
@@ -962,7 +973,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
             return true;
         } else if (CMD_PASTECONNECTOR.equals(command)) {
             int index = params.get(PARAM_INDEX);
-            SidedPos pos = new SidedPos(params.get(PARAM_POS), EnumFacing.VALUES[params.get(PARAM_SIDE)]);
+            SidedPos pos = new SidedPos(params.get(PARAM_POS), Direction.VALUES[params.get(PARAM_SIDE)]);
             String json = params.get(PARAM_JSON);
             pasteConnector(playerMP, index, pos, json);
             return true;
@@ -972,12 +983,12 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
             return true;
         } else if (CMD_COPYCONNECTOR.equals(command)) {
             int index = params.get(PARAM_INDEX);
-            SidedPos pos = new SidedPos(params.get(PARAM_POS), EnumFacing.VALUES[params.get(PARAM_SIDE)]);
+            SidedPos pos = new SidedPos(params.get(PARAM_POS), Direction.VALUES[params.get(PARAM_SIDE)]);
             copyConnector(playerMP, index, pos);
             return true;
         } else if (CMD_CREATECONNECTOR.equals(command)) {
             int channel = params.get(PARAM_CHANNEL);
-            SidedPos pos = new SidedPos(params.get(PARAM_POS), EnumFacing.VALUES[params.get(PARAM_SIDE)]);
+            SidedPos pos = new SidedPos(params.get(PARAM_POS), Direction.VALUES[params.get(PARAM_SIDE)]);
             createConnector(channel, pos);
             return true;
         } else if (CMD_REMOVECHANNEL.equals(command)) {
@@ -985,12 +996,12 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
             removeChannel(index);
             return true;
         } else if (CMD_REMOVECONNECTOR.equals(command)) {
-            SidedPos pos = new SidedPos(params.get(PARAM_POS), EnumFacing.VALUES[params.get(PARAM_SIDE)]);
+            SidedPos pos = new SidedPos(params.get(PARAM_POS), Direction.VALUES[params.get(PARAM_SIDE)]);
             int channel = params.get(PARAM_CHANNEL);
             removeConnector(channel, pos);
             return true;
         } else if (CMD_UPDATECONNECTOR.equals(command)) {
-            SidedPos pos = new SidedPos(params.get(PARAM_POS), EnumFacing.VALUES[params.get(PARAM_SIDE)]);
+            SidedPos pos = new SidedPos(params.get(PARAM_POS), Direction.VALUES[params.get(PARAM_SIDE)]);
             int channel = params.get(PARAM_CHANNEL);
             updateConnector(channel, pos, params);
             return true;
@@ -1034,13 +1045,13 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
     }
 
     @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, EntityLivingBase placer, ItemStack stack) {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
         findNeighbourConnector(world, pos);
     }
 
     @Override
-    public void onBlockBreak(World world, BlockPos pos, IBlockState state) {
+    public void onBlockBreak(World world, BlockPos pos, BlockState state) {
         super.onBlockBreak(world, pos, state);
         XNetBlobData blobData = XNetBlobData.getBlobData(this.world);
         WorldBlob worldBlob = blobData.getWorldBlob(this.world);
@@ -1050,7 +1061,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
 
     @Override
     @Optional.Method(modid = "theoneprobe")
-    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
+    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, BlockState blockState, IProbeHitData data) {
         super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
 
         WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
@@ -1097,7 +1108,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
     }
 
     @Override
-    public IBlockState getActualState(IBlockState state) {
+    public BlockState getActualState(BlockState state) {
         return state.withProperty(ERROR, inError());
     }
 
@@ -1118,7 +1129,7 @@ public final class TileEntityController extends GenericEnergyReceiverTileEntity 
         WorldBlob worldBlob = blobData.getWorldBlob(world);
         ColorId oldColor = worldBlob.getColorAt(pos);
         ColorId newColor = null;
-        for (EnumFacing facing : EnumFacing.VALUES) {
+        for (Direction facing : Direction.VALUES) {
             if (world.getBlockState(pos.offset(facing)).getBlock() instanceof ConnectorBlock) {
                 ColorId color = worldBlob.getColorAt(pos.offset(facing));
                 if (color != null) {

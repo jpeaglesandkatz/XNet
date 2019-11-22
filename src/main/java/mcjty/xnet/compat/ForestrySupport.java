@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.fml.common.Loader;
 
 public final class ForestrySupport {
@@ -77,7 +77,7 @@ public final class ForestrySupport {
      * @return		the item with appropriate NBT tags removed
      */
     public static ItemStack sanitize(ItemStack item, int flags) {
-	    NBTTagCompound tagCompound = item.getTagCompound().copy();
+	    CompoundNBT tagCompound = item.getTagCompound().copy();
 	    ArrayList<Tag> tagsToRemove = new ArrayList<>();
 	    switch (item.getItem().getRegistryName().toString()) {
 	        case QUEEN_BEE:
@@ -107,7 +107,7 @@ public final class ForestrySupport {
 	    return item;
     }
 
-    private static NBTTagCompound removeTags(ArrayList<Tag> tagsToRemove, NBTTagCompound compound, int flags) {
+    private static CompoundNBT removeTags(ArrayList<Tag> tagsToRemove, CompoundNBT compound, int flags) {
 	    for (Tag tag : tagsToRemove) {
 	        if ((flags & tag.flag) == tag.flag && compound.hasKey(tag.name)) {
 		        compound.removeTag(tag.name);

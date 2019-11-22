@@ -13,7 +13,7 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.xnet.XNet;
 import mcjty.xnet.setup.GuiProxy;
 import mcjty.xnet.network.XNetMessages;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 import java.awt.*;
 
@@ -51,7 +51,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity> {
 
         Panel togglePanel = new Panel(mc, this).setLayout(new HorizontalLayout()).
                 addChild(new Label(mc, this).setText("Directions:"));
-        for (EnumFacing facing : EnumFacing.VALUES) {
+        for (Direction facing : Direction.VALUES) {
             toggleButtons[facing.ordinal()] = new ToggleButton(mc, this).setText(facing.getName().substring(0, 1).toUpperCase())
                 .addButtonEvent(parent -> {
                     sendServerCommand(XNetMessages.INSTANCE, ConnectorTileEntity.CMD_ENABLE,

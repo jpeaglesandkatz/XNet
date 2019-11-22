@@ -7,7 +7,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -43,7 +43,7 @@ public class CommandGen implements ICommand {
         XNetBlobData data = XNetBlobData.getBlobData(server.getEntityWorld());
         EntityPlayer player = (EntityPlayer) sender;
 
-        EnumFacing facing = player.getHorizontalFacing();
+        Direction facing = player.getHorizontalFacing();
         BlockPos pos = player.getPosition();
         System.out.println("facing = " + facing);
         System.out.println("pos = " + pos);

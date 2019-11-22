@@ -14,9 +14,9 @@ import mcjty.xnet.api.keys.SidedConsumer;
 import mcjty.xnet.blocks.cables.ConnectorBlock;
 import mcjty.xnet.blocks.cables.ConnectorTileEntity;
 import mcjty.xnet.config.ConfigSetup;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -51,11 +51,11 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
 
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) {
+    public void writeToNBT(CompoundNBT tag) {
     }
 
     @Override
@@ -80,7 +80,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             BlockPos connectorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
             if (connectorPos != null) {
 
-                EnumFacing side = entry.getKey().getSide();
+                Direction side = entry.getKey().getSide();
                 BlockPos energyPos = connectorPos.offset(side);
                 if (!WorldTools.chunkLoaded(world, energyPos)) {
                     continue;
@@ -169,7 +169,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             EnergyConnectorSettings settings = entry.getValue();
             BlockPos extractorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
             if (extractorPos != null) {
-                EnumFacing side = entry.getKey().getSide();
+                Direction side = entry.getKey().getSide();
                 BlockPos pos = extractorPos.offset(side);
                 if (!WorldTools.chunkLoaded(world, pos)) {
                     continue;
@@ -212,14 +212,14 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
     }
 
 
-    public static boolean isEnergyTE(@Nullable TileEntity te, @Nonnull EnumFacing side) {
+    public static boolean isEnergyTE(@Nullable TileEntity te, @Nonnull Direction side) {
         if (te == null) {
             return false;
         }
         return te.hasCapability(CapabilityEnergy.ENERGY, side);
     }
 
-    public static int getEnergyLevel(TileEntity tileEntity, @Nonnull EnumFacing side) {
+    public static int getEnergyLevel(TileEntity tileEntity, @Nonnull Direction side) {
         if (tileEntity != null && tileEntity.hasCapability(CapabilityEnergy.ENERGY, side)) {
             IEnergyStorage energy = tileEntity.getCapability(CapabilityEnergy.ENERGY, side);
             return energy.getEnergyStored();

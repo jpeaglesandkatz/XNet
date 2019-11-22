@@ -4,7 +4,7 @@ import mcjty.lib.McJtyRegister;
 import mcjty.xnet.XNet;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -42,7 +42,7 @@ public class RedstoneProxyUBlock extends RedstoneProxyBlock {
     private Set<BlockPos> loopDetector = new HashSet<>();
 
     @Override
-    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
+    public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
         if(loopDetector.add(pos)) {
             try {
                 worldIn.notifyNeighborsOfStateChange(pos, this, true);

@@ -1,7 +1,7 @@
 package mcjty.xnet.blocks.cables;
 
 import mcjty.xnet.XNet;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -20,7 +20,7 @@ public class AdvancedConnectorBlock extends ConnectorBlock {
     }
 
     @Override
-    public TileEntity createTileEntity(World world, IBlockState metadata) {
+    public TileEntity createTileEntity(World world, BlockState metadata) {
         return new AdvancedConnectorTileEntity();
     }
 

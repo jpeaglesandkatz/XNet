@@ -3,8 +3,8 @@ package mcjty.xnet.logic;
 import mcjty.xnet.blocks.cables.ConnectorBlock;
 import mcjty.xnet.blocks.generic.CableColor;
 import mcjty.xnet.blocks.generic.GenericCableBlock;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -25,7 +25,7 @@ public class ConnectorIterator implements Iterator<BlockPos> {
     private BlockPos foundPos = null;
 
     Stream<BlockPos> stream() {
-        return StreamSupport.stream(Spliterators.spliterator(this, EnumFacing.VALUES.length, Spliterator.ORDERED), false);
+        return StreamSupport.stream(Spliterators.spliterator(this, Direction.VALUES.length, Spliterator.ORDERED), false);
     }
 
     ConnectorIterator(@Nonnull World world, @Nonnull BlockPos pos, boolean routing) {
@@ -38,12 +38,12 @@ public class ConnectorIterator implements Iterator<BlockPos> {
     private void findNext() {
         foundPos = null;
         while (facingIdx != -1) {
-            BlockPos connectorPos = pos.offset(EnumFacing.VALUES[facingIdx]);
+            BlockPos connectorPos = pos.offset(Direction.VALUES[facingIdx]);
             facingIdx++;
-            if (facingIdx >= EnumFacing.VALUES.length) {
+            if (facingIdx >= Direction.VALUES.length) {
                 facingIdx = -1;
             }
-            IBlockState state = world.getBlockState(connectorPos);
+            BlockState state = world.getBlockState(connectorPos);
             if (state.getBlock() instanceof ConnectorBlock) {
                 CableColor color = state.getValue(GenericCableBlock.COLOR);
                 if ((color == CableColor.ROUTING) == routing) {

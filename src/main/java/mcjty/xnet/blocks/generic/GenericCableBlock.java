@@ -26,7 +26,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.entity.EntityLivingBase;
@@ -34,9 +34,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -108,16 +108,16 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
         setDefaultState(getDefaultState().withProperty(COLOR, CableColor.BLUE));
     }
 
-    public static boolean activateBlock(Block block, World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+    public static boolean activateBlock(Block block, World world, BlockPos pos, BlockState state, EntityPlayer player, EnumHand hand, Direction facing, float hitX, float hitY, float hitZ) {
         return block.onBlockActivated(world, pos, state, player, hand, facing, hitX, hitY, hitZ);
     }
 
-    public static Collection<IProperty<?>> getPropertyKeys(IBlockState state) {
+    public static Collection<IProperty<?>> getPropertyKeys(BlockState state) {
         return state.getPropertyKeys();
     }
 
     @Override
-    public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state) {
+    public ItemStack getItem(World worldIn, BlockPos pos, BlockState state) {
         ItemStack item = super.getItem(worldIn, pos, state);
         return updateColorInStack(item, state.getValue(COLOR));
     }
@@ -125,9 +125,9 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
     protected ItemStack updateColorInStack(ItemStack item, CableColor color) {
         if (color != null) {
             if (item.getTagCompound() == null) {
-                item.setTagCompound(new NBTTagCompound());
+                item.setTagCompound(new CompoundNBT());
             }
-            NBTTagCompound display = new NBTTagCompound();
+            CompoundNBT display = new CompoundNBT();
             String unlocname = getUnlocalizedName() + "_" + color.getName() + ".name";
             display.setString("LocName", unlocname);
             item.getTagCompound().setTag("display", display);
@@ -141,7 +141,7 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
     }
 
     @Override
-    public int damageDropped(IBlockState state) {
+    public int damageDropped(BlockState state) {
         return state.getValue(COLOR).ordinal();
     }
 
@@ -158,7 +158,7 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
     }
 
     @Nullable
-    protected IBlockState getMimicBlock(IBlockAccess blockAccess, BlockPos pos) {
+    protected BlockState getMimicBlock(IBlockAccess blockAccess, BlockPos pos) {
         TileEntity te = blockAccess.getTileEntity(pos);
         if (te instanceof IFacadeSupport) {
             return ((IFacadeSupport) te).getMimicBlock();
@@ -170,20 +170,20 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
     @SideOnly(Side.CLIENT)
     public void initColorHandler(BlockColors blockColors) {
         blockColors.registerBlockColorHandler((state, world, pos, tintIndex) -> {
-            IBlockState mimicBlock = getMimicBlock(world, pos);
+            BlockState mimicBlock = getMimicBlock(world, pos);
             return mimicBlock != null ? blockColors.colorMultiplier(mimicBlock, world, pos, tintIndex) : -1;
         }, this);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos) {
+    public AxisAlignedBB getSelectedBoundingBox(BlockState state, World worldIn, BlockPos pos) {
         return AABB_EMPTY;
     }
 
     @Nullable
     @Override
-    public RayTraceResult collisionRayTrace(IBlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
+    public RayTraceResult collisionRayTrace(BlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
         if (getMimicBlock(world, pos) != null) {
             // In mimic mode we use original raytrace mode
             return originalCollisionRayTrace(blockState, world, pos, start, end);
@@ -196,7 +196,7 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
         }
         CableColor color = blockState.getValue(COLOR);
 
-        for (EnumFacing facing : EnumFacing.VALUES) {
+        for (Direction facing : Direction.VALUES) {
             ConnectorType type = getConnectorType(color, world, pos, facing);
             if (type != ConnectorType.NONE) {
                 rc = checkIntersect(pos, vec3d, vec3d1, AABBS[facing.ordinal()]);
@@ -219,7 +219,7 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
         return raytraceresult == null ? null : new RayTraceResult(raytraceresult.hitVec.addVector(pos.getX(), pos.getY(), pos.getZ()), raytraceresult.sideHit, pos);
     }
 
-    protected RayTraceResult originalCollisionRayTrace(IBlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
+    protected RayTraceResult originalCollisionRayTrace(BlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
         return super.collisionRayTrace(blockState, world, pos, start, end);
     }
 
@@ -232,7 +232,7 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
 
     @Override
     @Optional.Method(modid = "theoneprobe")
-    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
+    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, BlockState blockState, IProbeHitData data) {
         WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
 
         if (mode == ProbeMode.DEBUG) {
@@ -267,14 +267,14 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
     }
 
     @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, EntityLivingBase placer, ItemStack stack) {
         originalOnBlockPlacedBy(world, pos, state, placer, stack);
         if (!world.isRemote) {
             createCableSegment(world, pos, stack);
         }
     }
 
-    protected void originalOnBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+    protected void originalOnBlockPlacedBy(World world, BlockPos pos, BlockState state, EntityLivingBase placer, ItemStack stack) {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
     }
 
@@ -287,7 +287,7 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
     }
 
     @Override
-    public void breakBlock(World world, BlockPos pos, IBlockState state) {
+    public void breakBlock(World world, BlockPos pos, BlockState state) {
         unlinkBlock(world, pos);
         originalBreakBlock(world, pos, state);
     }
@@ -301,38 +301,38 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
         }
     }
 
-    protected void originalBreakBlock(World world, BlockPos pos, IBlockState state) {
+    protected void originalBreakBlock(World world, BlockPos pos, BlockState state) {
         super.breakBlock(world, pos, state);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
+    public boolean shouldSideBeRendered(BlockState blockState, IBlockAccess blockAccess, BlockPos pos, Direction side) {
         return false;
     }
 
     @Override
-    public boolean isBlockNormalCube(IBlockState blockState) {
+    public boolean isBlockNormalCube(BlockState blockState) {
         return false;
     }
 
     @Override
-    public boolean isOpaqueCube(IBlockState blockState) {
+    public boolean isOpaqueCube(BlockState blockState) {
         return false;
     }
 
     @Override
-    public boolean isFullCube(IBlockState state) {
+    public boolean isFullCube(BlockState state) {
         return false;
     }
 
     @Override
-    public IBlockState getStateFromMeta(int meta) {
+    public BlockState getStateFromMeta(int meta) {
         return getDefaultState().withProperty(COLOR, CableColor.VALUES[meta]);
     }
 
     @Override
-    public int getMetaFromState(IBlockState state) {
+    public int getMetaFromState(BlockState state) {
         return state.getValue(COLOR).ordinal();
     }
 
@@ -345,20 +345,20 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
     }
 
     @Override
-    public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
+    public BlockState getExtendedState(BlockState state, IBlockAccess world, BlockPos pos) {
         return getStateInternal(state, world, pos);
     }
 
-    public IBlockState getStateInternal(IBlockState state, IBlockAccess world, BlockPos pos) {
+    public BlockState getStateInternal(BlockState state, IBlockAccess world, BlockPos pos) {
         IExtendedBlockState extendedBlockState = (IExtendedBlockState) state;
         CableColor color = state.getValue(COLOR);
 
-        ConnectorType north = getConnectorType(color, world, pos, EnumFacing.NORTH);
-        ConnectorType south = getConnectorType(color, world, pos, EnumFacing.SOUTH);
-        ConnectorType west = getConnectorType(color, world, pos, EnumFacing.WEST);
-        ConnectorType east = getConnectorType(color, world, pos, EnumFacing.EAST);
-        ConnectorType up = getConnectorType(color, world, pos, EnumFacing.UP);
-        ConnectorType down = getConnectorType(color, world, pos, EnumFacing.DOWN);
+        ConnectorType north = getConnectorType(color, world, pos, Direction.NORTH);
+        ConnectorType south = getConnectorType(color, world, pos, Direction.SOUTH);
+        ConnectorType west = getConnectorType(color, world, pos, Direction.WEST);
+        ConnectorType east = getConnectorType(color, world, pos, Direction.EAST);
+        ConnectorType up = getConnectorType(color, world, pos, Direction.UP);
+        ConnectorType down = getConnectorType(color, world, pos, Direction.DOWN);
 
         return extendedBlockState
                 .withProperty(NORTH, north)
@@ -369,5 +369,5 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
                 .withProperty(DOWN, down);
     }
 
-    protected abstract ConnectorType getConnectorType(@Nonnull CableColor thisColor, IBlockAccess world, BlockPos pos, EnumFacing facing);
+    protected abstract ConnectorType getConnectorType(@Nonnull CableColor thisColor, IBlockAccess world, BlockPos pos, Direction facing);
 }
