@@ -1,10 +1,10 @@
 package mcjty.xnet.blocks.cables;
 
-import mcjty.xnet.XNet;
 import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraft.world.IBlockReader;
+
+import javax.annotation.Nullable;
 
 public class AdvancedConnectorBlock extends ConnectorBlock {
 
@@ -14,16 +14,11 @@ public class AdvancedConnectorBlock extends ConnectorBlock {
         super(ADVANCED_CONNECTOR);
     }
 
+    @Nullable
     @Override
-    protected void initTileEntity() {
-        GameRegistry.registerTileEntity(AdvancedConnectorTileEntity.class, XNet.MODID + ":advanced_connector");
-    }
-
-    @Override
-    public TileEntity createTileEntity(World world, BlockState metadata) {
+    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
         return new AdvancedConnectorTileEntity();
     }
-
 
     @Override
     public boolean isAdvancedConnector() {

@@ -31,7 +31,7 @@ public class ItemChannelType implements IChannelType {
         if (te == null) {
             return false;
         }
-        if (te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side)) {
+        if (te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side).isPresent()) {
             return true;
         }
         if (te instanceof IInventory) {

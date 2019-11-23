@@ -1,9 +1,15 @@
 package mcjty.xnet.blocks.generic;
 
 import mcjty.xnet.blocks.cables.ConnectorType;
-import net.minecraftforge.common.property.IUnlistedProperty;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.state.IProperty;
 
-public class UnlistedPropertyBlockType implements IUnlistedProperty<ConnectorType> {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Optional;
+
+public class UnlistedPropertyBlockType implements IProperty<ConnectorType> {
 
     private final String name;
 
@@ -17,17 +23,22 @@ public class UnlistedPropertyBlockType implements IUnlistedProperty<ConnectorTyp
     }
 
     @Override
-    public boolean isValid(ConnectorType value) {
-        return true;
+    public Collection<ConnectorType> getAllowedValues() {
+        return Arrays.asList(ConnectorType.VALUES);
     }
 
     @Override
-    public Class<ConnectorType> getType() {
+    public Class<ConnectorType> getValueClass() {
         return ConnectorType.class;
     }
 
     @Override
-    public String valueToString(ConnectorType value) {
-        return value.toString();
+    public Optional<ConnectorType> parseValue(String value) {
+        return Optional.of(ConnectorType.valueOf(value));
+    }
+
+    @Override
+    public String getName(ConnectorType value) {
+        return value.name();
     }
 }

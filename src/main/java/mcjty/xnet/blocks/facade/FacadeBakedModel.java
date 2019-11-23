@@ -2,26 +2,27 @@ package mcjty.xnet.blocks.facade;
 
 import mcjty.xnet.XNet;
 import mcjty.xnet.blocks.generic.GenericCableBlock;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.*;
+import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.client.model.data.IDynamicBakedModel;
+import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.common.model.IModelState;
-import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Function;
 
-public class FacadeBakedModel implements IBakedModel {
+public class FacadeBakedModel implements IDynamicBakedModel {
 
     public static final ModelResourceLocation modelFacade = new ModelResourceLocation(XNet.MODID + ":" + FacadeBlock.FACADE);
 
@@ -34,16 +35,14 @@ public class FacadeBakedModel implements IBakedModel {
 
     private static void initTextures() {
         if (spriteCable == null) {
-            spriteCable = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(XNet.MODID + ":blocks/facade");
+            spriteCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":blocks/facade");
         }
     }
 
-
-
+    @Nonnull
     @Override
-    public List<BakedQuad> getQuads(BlockState state, Direction side, long rand) {
-        IExtendedBlockState extendedBlockState = (IExtendedBlockState) state;
-        FacadeBlockId facadeId = extendedBlockState.getValue(GenericCableBlock.FACADEID);
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
+        BlockState facadeId = extraData.getData(GenericCableBlock.FACADEID);
         if (facadeId == null) {
             return Collections.emptyList();
         }
@@ -63,7 +62,7 @@ public class FacadeBakedModel implements IBakedModel {
 
     private IBakedModel getModel(@Nonnull BlockState state) {
         initTextures();
-        IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState(state);
+        IBakedModel model = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getModel(state);
         return model;
     }
 
@@ -95,7 +94,7 @@ public class FacadeBakedModel implements IBakedModel {
 
     @Override
     public ItemOverrideList getOverrides() {
-        return ItemOverrideList.NONE;
+        return ItemOverrideList.EMPTY;
     }
 
 }

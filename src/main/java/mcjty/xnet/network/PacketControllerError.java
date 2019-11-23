@@ -1,40 +1,34 @@
 package mcjty.xnet.network;
 
-import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.thirteen.Context;
 import mcjty.xnet.blocks.controller.gui.GuiController;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class PacketControllerError implements IMessage {
+
+public class PacketControllerError {
 
     private String error;
 
-    @Override
-    public void fromBytes(ByteBuf buf) {
-        error = NetworkTools.readStringUTF8(buf);
-    }
-
-    @Override
-    public void toBytes(ByteBuf buf) {
+    public void toBytes(PacketBuffer buf) {
         NetworkTools.writeStringUTF8(buf, error);
     }
 
     public PacketControllerError() {
     }
 
-    public PacketControllerError(ByteBuf buf) {
-        fromBytes(buf);
+    public PacketControllerError(PacketBuffer buf) {
+        error = NetworkTools.readStringUTF8(buf);
     }
 
     public PacketControllerError(String error) {
         this.error = error;
     }
 
-    public void handle(Supplier<Context> supplier) {
-        Context ctx = supplier.get();
+    public void handle(Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
             GuiController.showError(error);
         });

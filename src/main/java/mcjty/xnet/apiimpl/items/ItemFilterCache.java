@@ -3,11 +3,8 @@ package mcjty.xnet.apiimpl.items;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.xnet.compat.ForestrySupport;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nonnull;
-import java.util.HashSet;
-import java.util.Set;
 
 public class ItemFilterCache {
     private boolean matchDamage = true;
@@ -15,7 +12,7 @@ public class ItemFilterCache {
     private boolean blacklistMode = true;
     private boolean nbtMode = false;
     private ItemStackList stacks;
-    private Set<Integer> oredictMatches = new HashSet<>();
+//    private Set<Integer> oredictMatches = new HashSet<>();
 
     public ItemFilterCache(boolean matchDamage, boolean oredictMode, boolean blacklistMode, boolean nbtMode, @Nonnull ItemStackList stacks) {
         this.matchDamage = matchDamage;
@@ -23,11 +20,12 @@ public class ItemFilterCache {
         this.blacklistMode = blacklistMode;
         this.nbtMode = nbtMode;
         this.stacks = stacks;
-        for (ItemStack s : stacks) {
-            for (int id : OreDictionary.getOreIDs(s)) {
-                oredictMatches.add(id);
-            }
-        }
+        // @todo 1.14
+//        for (ItemStack s : stacks) {
+//            for (int id : OreDictionary.getOreIDs(s)) {
+//                oredictMatches.add(id);
+//            }
+//        }
     }
 
     public boolean match(ItemStack stack) {
@@ -35,17 +33,18 @@ public class ItemFilterCache {
             boolean match = false;
 
             if (oredictMode) {
-                int[] oreIDs = OreDictionary.getOreIDs(stack);
-                if (oreIDs.length == 0) {
-                    match = itemMatches(stack);
-                } else {
-                    for (int id : oreIDs) {
-                        if (oredictMatches.contains(id)) {
-                            match = true;
-                            break;
-                        }
-                    }
-                }
+                // @todo 1.14
+//                int[] oreIDs = OreDictionary.getOreIDs(stack);
+//                if (oreIDs.length == 0) {
+//                    match = itemMatches(stack);
+//                } else {
+//                    for (int id : oreIDs) {
+//                        if (oredictMatches.contains(id)) {
+//                            match = true;
+//                            break;
+//                        }
+//                    }
+//                }
             } else {
                 match = itemMatches(stack);
             }
@@ -62,7 +61,7 @@ public class ItemFilterCache {
                 cleanedStack = ForestrySupport.sanitize(stack, forestryFlags);
             }
             for (ItemStack itemStack : stacks) {
-                if (matchDamage && itemStack.getMetadata() != stack.getMetadata()) {
+                if (matchDamage && itemStack.getDamage() != stack.getDamage()) {
                     continue;
                 }
                 if (nbtMode) {

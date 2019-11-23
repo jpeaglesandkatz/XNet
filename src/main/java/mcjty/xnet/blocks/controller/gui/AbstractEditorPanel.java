@@ -58,7 +58,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
             }
         }
 
-        gui.sendServerCommand(XNetMessages.INSTANCE, cmd, builder.build());
+        gui.sendServerCommand(XNetMessages.INSTANCE, XNet.MODID, cmd, builder.build());
         gui.refresh();
     }
 
@@ -308,7 +308,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
         blockRender.addSelectionEvent(new BlockRenderEvent() {
             @Override
             public void select(Widget widget) {
-                ItemStack holding = Minecraft.getMinecraft().player.inventory.getItemStack();
+                ItemStack holding = Minecraft.getInstance().player.inventory.getItemStack();
                 if (holding.isEmpty()) {
                     update(tag, holding);
                     blockRender.setRenderItem(null);

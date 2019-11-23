@@ -11,6 +11,8 @@ import java.util.Map;
 
 public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
 
+    // @todo 1.14 CHECK
+
     private static final String NAME = "XNetBlobData";
 
     private final Map<Integer, WorldBlob> worldBlobMap = new HashMap<>();
@@ -19,19 +21,14 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
         super(name);
     }
 
-    @Override
-    public void clear() {
-        worldBlobMap.clear();
-    }
-
     @Nonnull
     public static XNetBlobData getBlobData(World world) {
-        return getData(world, XNetBlobData.class, NAME);
+        return getData(world, () -> new XNetBlobData(NAME), NAME);
     }
 
     public WorldBlob getWorldBlob(World world) {
-        return getWorldBlob(world.provider.getDimension());
-    }
+        return getWorldBlob(world.getDimension().getType().getId());
+    }   // @todo 1.14 don't use numeric ID!
 
     public WorldBlob getWorldBlob(int dimId) {
         if (!worldBlobMap.containsKey(dimId)) {
@@ -42,13 +39,13 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
 
 
     @Override
-    public void readFromNBT(CompoundNBT compound) {
+    public void read(CompoundNBT compound) {
         worldBlobMap.clear();
-        if (compound.hasKey("worlds")) {
-            ListNBT worlds = (ListNBT) compound.getTag("worlds");
-            for (int i = 0 ; i < worlds.tagCount() ; i++) {
+        if (compound.contains("worlds")) {
+            ListNBT worlds = (ListNBT) compound.get("worlds");
+            for (int i = 0 ; i < worlds.size() ; i++) {
                 CompoundNBT tc = (CompoundNBT) worlds.get(i);
-                int id = tc.getInteger("dimid");
+                int id = tc.getInt("dimid");
                 WorldBlob blob = new WorldBlob(id);
                 blob.readFromNBT(tc);
                 worldBlobMap.put(id, blob);
@@ -57,16 +54,16 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
     }
 
     @Override
-    public CompoundNBT writeToNBT(CompoundNBT compound) {
+    public CompoundNBT write(CompoundNBT compound) {
         ListNBT list = new ListNBT();
         for (Map.Entry<Integer, WorldBlob> entry : worldBlobMap.entrySet()) {
             WorldBlob blob = entry.getValue();
             CompoundNBT tc = new CompoundNBT();
-            tc.setInteger("dimid", blob.getDimId());
+            tc.putInt("dimid", blob.getDimId());
             blob.writeToNBT(tc);
-            list.appendTag(tc);
+            list.add(tc);
         }
-        compound.setTag("worlds", list);
+        compound.put("worlds", list);
 
         return compound;
     }

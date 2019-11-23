@@ -1,22 +1,21 @@
 package mcjty.xnet.network;
 
-import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.ICommandHandler;
-import mcjty.lib.network.NetworkTools;
 import mcjty.lib.network.TypedMapTools;
-import mcjty.lib.thirteen.Context;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.xnet.blocks.router.TileEntityRouter;
 import mcjty.xnet.clientinfo.ControllerChannelClientInfo;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-public class PacketGetLocalChannelsRouter implements IMessage {
+public class PacketGetLocalChannelsRouter {
 
     protected BlockPos pos;
     protected TypedMap params;
@@ -24,8 +23,9 @@ public class PacketGetLocalChannelsRouter implements IMessage {
     public PacketGetLocalChannelsRouter() {
     }
 
-    public PacketGetLocalChannelsRouter(ByteBuf buf) {
-        fromBytes(buf);
+    public PacketGetLocalChannelsRouter(PacketBuffer buf) {
+        pos = buf.readBlockPos();
+        params = TypedMapTools.readArguments(buf);
     }
 
     public PacketGetLocalChannelsRouter(BlockPos pos) {
@@ -33,25 +33,18 @@ public class PacketGetLocalChannelsRouter implements IMessage {
         this.params = TypedMap.EMPTY;
     }
 
-    @Override
-    public void fromBytes(ByteBuf buf) {
-        pos = NetworkTools.readPos(buf);
-        params = TypedMapTools.readArguments(buf);
-    }
-
-    @Override
-    public void toBytes(ByteBuf buf) {
-        NetworkTools.writePos(buf, pos);
+    public void toBytes(PacketBuffer buf) {
+        buf.writeBlockPos(pos);
         TypedMapTools.writeArguments(buf, params);
     }
 
-    public void handle(Supplier<Context> supplier) {
-        Context ctx = supplier.get();
+    public void handle(Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
             TileEntity te = ctx.getSender().getEntityWorld().getTileEntity(pos);
             ICommandHandler commandHandler = (ICommandHandler) te;
             List<ControllerChannelClientInfo> list = commandHandler.executeWithResultList(TileEntityRouter.CMD_GETCHANNELS, params, Type.create(ControllerChannelClientInfo.class));
-            XNetMessages.INSTANCE.sendTo(new PacketLocalChannelsRouterReady(pos, TileEntityRouter.CLIENTCMD_CHANNELSREADY, list), ctx.getSender());
+            XNetMessages.INSTANCE.sendTo(new PacketLocalChannelsRouterReady(pos, TileEntityRouter.CLIENTCMD_CHANNELSREADY, list), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
         });
         ctx.setPacketHandled(true);
     }

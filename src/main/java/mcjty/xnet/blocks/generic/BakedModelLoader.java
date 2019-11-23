@@ -1,20 +1,6 @@
 package mcjty.xnet.blocks.generic;
 
-import com.google.common.collect.ImmutableSet;
-import mcjty.xnet.XNet;
-import mcjty.xnet.blocks.cables.ConnectorBlock;
-import mcjty.xnet.blocks.cables.NetCableBlock;
-import mcjty.xnet.blocks.facade.FacadeBlock;
-import mcjty.xnet.blocks.facade.FacadeModel;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.ICustomModelLoader;
-import net.minecraftforge.client.model.IModel;
-
-import java.util.Set;
-
-public class BakedModelLoader implements ICustomModelLoader {
+public class BakedModelLoader {/*implements ICustomModelLoader {
 
     public static final GenericCableModel GENERIC_MODEL = new GenericCableModel();
     public static final FacadeModel FACADE_MODEL = new FacadeModel();
@@ -48,4 +34,4 @@ public class BakedModelLoader implements ICustomModelLoader {
     public void onResourceManagerReload(IResourceManager resourceManager) {
 
     }
-}
+*/}

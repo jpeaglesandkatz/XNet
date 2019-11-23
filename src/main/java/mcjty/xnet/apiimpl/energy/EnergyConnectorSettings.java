@@ -154,18 +154,18 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     public void readFromNBT(CompoundNBT tag) {
         super.readFromNBT(tag);
         energyMode = EnergyMode.values()[tag.getByte("itemMode")];
-        if (tag.hasKey("priority")) {
-            priority = tag.getInteger("priority");
+        if (tag.contains("priority")) {
+            priority = tag.getInt("priority");
         } else {
             priority = null;
         }
-        if (tag.hasKey("rate")) {
-            rate = tag.getInteger("rate");
+        if (tag.contains("rate")) {
+            rate = tag.getInt("rate");
         } else {
             rate = null;
         }
-        if (tag.hasKey("minmax")) {
-            minmax = tag.getInteger("minmax");
+        if (tag.contains("minmax")) {
+            minmax = tag.getInt("minmax");
         } else {
             minmax = null;
         }
@@ -174,15 +174,15 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void writeToNBT(CompoundNBT tag) {
         super.writeToNBT(tag);
-        tag.setByte("itemMode", (byte) energyMode.ordinal());
+        tag.putByte("itemMode", (byte) energyMode.ordinal());
         if (priority != null) {
-            tag.setInteger("priority", priority);
+            tag.putInt("priority", priority);
         }
         if (rate != null) {
-            tag.setInteger("rate", rate);
+            tag.putInt("rate", rate);
         }
         if (minmax != null) {
-            tag.setInteger("minmax", minmax);
+            tag.putInt("minmax", minmax);
         }
     }
 }

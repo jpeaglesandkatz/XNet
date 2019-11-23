@@ -2,17 +2,13 @@ package mcjty.xnet.blocks.controller;
 
 import com.google.gson.*;
 import mcjty.lib.container.ContainerFactory;
-import mcjty.lib.tileentity.GenericEnergyReceiverTileEntity;
 import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
-import mcjty.theoneprobe.api.IProbeHitData;
-import mcjty.theoneprobe.api.IProbeInfo;
-import mcjty.theoneprobe.api.ProbeMode;
-import mcjty.theoneprobe.api.TextStyleClass;
+import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.XNet;
 import mcjty.xnet.api.channels.IChannelSettings;
 import mcjty.xnet.api.channels.IChannelType;
@@ -37,26 +33,26 @@ import mcjty.xnet.multiblock.*;
 import mcjty.xnet.network.PacketControllerError;
 import mcjty.xnet.network.PacketJsonToClipboard;
 import mcjty.xnet.network.XNetMessages;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.state.BooleanProperty;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.state.BooleanProperty;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.common.Optional;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.fml.network.NetworkDirection;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -65,6 +61,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static mcjty.xnet.init.ModBlocks.TYPE_CONTROLLER;
 import static mcjty.xnet.logic.ChannelInfo.MAX_CHANNELS;
 
 public final class TileEntityController extends GenericTileEntity implements ITickableTileEntity, IControllerContext {
@@ -94,7 +91,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     public static final BooleanProperty ERROR = BooleanProperty.create("error");
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory() {
+    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(0) {
         @Override
         protected void setup() {
             playerSlots(91, 157);
@@ -119,7 +116,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     private NetworkChecker networkChecker = null;
 
     public TileEntityController() {
-        super(xxx);
+        super(TYPE_CONTROLLER);
         for (int i = 0; i < MAX_CHANNELS; i++) {
             channels[i] = null;
         }
@@ -355,7 +352,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     public void writeClientDataToNBT(CompoundNBT tagCompound) {
         super.writeClientDataToNBT(tagCompound);
         if (!world.isRemote) {
-            tagCompound.setBoolean("error", inError());
+            tagCompound.putBoolean("error", inError());
         }
     }
 
@@ -366,27 +363,29 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     }
 
     @Override
-    public void writeRestorableToNBT(CompoundNBT tagCompound) {
-        super.writeRestorableToNBT(tagCompound);
-        tagCompound.putInt("colors", colors);
+    protected void writeInfo(CompoundNBT tagCompound) {
+        super.writeInfo(tagCompound);
+        CompoundNBT info = getOrCreateInfo(tagCompound);
+        info.putInt("colors", colors);
 
         for (int i = 0; i < MAX_CHANNELS; i++) {
             if (channels[i] != null) {
                 CompoundNBT tc = new CompoundNBT();
-                tc.setString("type", channels[i].getType().getID());
+                tc.putString("type", channels[i].getType().getID());
                 channels[i].writeToNBT(tc);
-                tagCompound.setTag("channel" + i, tc);
+                info.put("channel" + i, tc);
             }
         }
     }
 
     @Override
-    public void readRestorableFromNBT(CompoundNBT tagCompound) {
-        super.readRestorableFromNBT(tagCompound);
-        colors = tagCompound.getInteger("colors");
+    public void readInfo(CompoundNBT tagCompound) {
+        super.readInfo(tagCompound);
+        CompoundNBT info = tagCompound.getCompound("Info");
+        colors = info.getInt("colors");
         for (int i = 0; i < MAX_CHANNELS; i++) {
-            if (tagCompound.hasKey("channel" + i)) {
-                CompoundNBT tc = (CompoundNBT) tagCompound.getTag("channel" + i);
+            if (info.contains("channel" + i)) {
+                CompoundNBT tc = info.getCompound("channel" + i);
                 String id = tc.getString("type");
                 IChannelType type = XNet.xNetApi.findType(id);
                 if (type == null) {
@@ -429,7 +428,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             } else {
                 XNet.setup.getLogger().warn("What? The connector at " + BlockPosTools.toString(consumerPos) + " is not a connector?");
             }
-            for (Direction facing : Direction.VALUES) {
+            for (Direction facing : OrientationTools.DIRECTION_VALUES) {
                 if (ConnectorBlock.isConnectable(world, consumerPos, facing)) {
                     BlockPos pos = consumerPos.offset(facing);
                     SidedPos sidedPos = new SidedPos(pos, facing.getOpposite());
@@ -456,7 +455,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             } else {
                 XNet.setup.getLogger().warn("What? The connector at " + BlockPosTools.toString(consumerPos) + " is not a connector?");
             }
-            for (Direction facing : Direction.VALUES) {
+            for (Direction facing : OrientationTools.DIRECTION_VALUES) {
                 if (ConnectorBlock.isConnectable(world, consumerPos, facing)) {
                     BlockPos pos = consumerPos.offset(facing);
                     SidedPos sidedPos = new SidedPos(pos, facing.getOpposite());
@@ -632,7 +631,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             } else {
                 XNet.setup.getLogger().warn("What? The connector at " + BlockPosTools.toString(consumerPos) + " is not a connector?");
             }
-            for (Direction facing : Direction.VALUES) {
+            for (Direction facing : OrientationTools.DIRECTION_VALUES) {
                 if (ConnectorBlock.isConnectable(world, consumerPos, facing)) {
                     BlockPos pos = consumerPos.offset(facing);
                     SidedPos sidedPos = new SidedPos(pos, facing.getOpposite());
@@ -646,7 +645,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         return set;
     }
 
-    private void copyConnector(EntityPlayerMP player, int index, SidedPos sidedPos) {
+    private void copyConnector(ServerPlayerEntity player, int index, SidedPos sidedPos) {
         ChannelInfo channel = channels[index];
         IChannelSettings settings = channel.getChannelSettings();
         JsonObject parent = new JsonObject();
@@ -662,14 +661,14 @@ public final class TileEntityController extends GenericTileEntity implements ITi
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 String json = gson.toJson(parent);
 
-                XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), player);
+                XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
         }
-        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error copying connector!"), player);
+        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error copying connector!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
     }
 
-    private void copyChannel(EntityPlayerMP player, int index) {
+    private void copyChannel(ServerPlayerEntity player, int index) {
         ChannelInfo channel = channels[index];
         IChannelSettings settings = channel.getChannelSettings();
         JsonObject parent = new JsonObject();
@@ -709,9 +708,9 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String json = gson.toJson(parent);
 
-            XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), player);
+            XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
         } else {
-            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Channel does not support this!"), player);
+            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Channel does not support this!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 
@@ -773,20 +772,20 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         return score;
     }
 
-    private void pasteConnector(EntityPlayerMP player, int channel, SidedPos sidedPos, String json) {
+    private void pasteConnector(ServerPlayerEntity player, int channel, SidedPos sidedPos, String json) {
         try {
             JsonParser parser = new JsonParser();
             JsonObject root = parser.parse(json).getAsJsonObject();
 
             if (!root.has("connector") || !root.has("type")) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid connector json!"), player);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid connector json!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
 
             String typeId = root.get("type").getAsString();
             IChannelType type = XNet.xNetApi.findType(typeId);
             if (type != channels[channel].getType()) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Wrong channel type!"), player);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Wrong channel type!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
             boolean advanced = root.get("advanced").getAsBoolean();
@@ -804,7 +803,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
                     // If advanced is desired but our actual connector is not advanced then we give a penalty. The penalty is big
                     // if we can't match with the actual side or if we actually need advanced
                     if (advancedNeeded || !facingOverride.equals(facing)) {
-                        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Advanced connector is needed!"), player);
+                        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Advanced connector is needed!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
                         return;
                     }
                 }
@@ -817,7 +816,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             ConnectorInfo info = createConnector(channel, sidedPos);
             info.getConnectorSettings().readFromJson(connectorObject);
         } catch (JsonSyntaxException e) {
-            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), player);
+            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
         }
 
         markAsDirty();
@@ -834,12 +833,12 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         }
     }
 
-    private void pasteChannel(EntityPlayerMP player, int channel, String json) {
+    private void pasteChannel(ServerPlayerEntity player, int channel, String json) {
         try {
             JsonParser parser = new JsonParser();
             JsonObject root = parser.parse(json).getAsJsonObject();
             if (!root.has("channel") || !root.has("type") || !root.has("name")) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid channel json!"), player);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid channel json!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
             String typeId = root.get("type").getAsString();
@@ -945,10 +944,10 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             }
 
             if (notEnoughConnectors) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Not everything could be pasted!"), player);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Not everything could be pasted!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
             }
         } catch (JsonSyntaxException e) {
-            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), player);
+            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
         }
 
         markAsDirty();
@@ -956,11 +955,12 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
 
     @Override
-    public boolean execute(EntityPlayerMP playerMP, String command, TypedMap params) {
-        boolean rc = super.execute(playerMP, command, params);
+    public boolean execute(PlayerEntity player, String command, TypedMap params) {
+        boolean rc = super.execute(player, command, params);
         if (rc) {
             return true;
         }
+        ServerPlayerEntity playerMP = (ServerPlayerEntity) player;
         if (CMD_CREATECHANNEL.equals(command)) {
             int index = params.get(PARAM_INDEX);
             String typeId = params.get(PARAM_TYPE);
@@ -973,7 +973,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             return true;
         } else if (CMD_PASTECONNECTOR.equals(command)) {
             int index = params.get(PARAM_INDEX);
-            SidedPos pos = new SidedPos(params.get(PARAM_POS), Direction.VALUES[params.get(PARAM_SIDE)]);
+            SidedPos pos = new SidedPos(params.get(PARAM_POS), OrientationTools.DIRECTION_VALUES[params.get(PARAM_SIDE)]);
             String json = params.get(PARAM_JSON);
             pasteConnector(playerMP, index, pos, json);
             return true;
@@ -983,12 +983,12 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             return true;
         } else if (CMD_COPYCONNECTOR.equals(command)) {
             int index = params.get(PARAM_INDEX);
-            SidedPos pos = new SidedPos(params.get(PARAM_POS), Direction.VALUES[params.get(PARAM_SIDE)]);
+            SidedPos pos = new SidedPos(params.get(PARAM_POS), OrientationTools.DIRECTION_VALUES[params.get(PARAM_SIDE)]);
             copyConnector(playerMP, index, pos);
             return true;
         } else if (CMD_CREATECONNECTOR.equals(command)) {
             int channel = params.get(PARAM_CHANNEL);
-            SidedPos pos = new SidedPos(params.get(PARAM_POS), Direction.VALUES[params.get(PARAM_SIDE)]);
+            SidedPos pos = new SidedPos(params.get(PARAM_POS), OrientationTools.DIRECTION_VALUES[params.get(PARAM_SIDE)]);
             createConnector(channel, pos);
             return true;
         } else if (CMD_REMOVECHANNEL.equals(command)) {
@@ -996,12 +996,12 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             removeChannel(index);
             return true;
         } else if (CMD_REMOVECONNECTOR.equals(command)) {
-            SidedPos pos = new SidedPos(params.get(PARAM_POS), Direction.VALUES[params.get(PARAM_SIDE)]);
+            SidedPos pos = new SidedPos(params.get(PARAM_POS), OrientationTools.DIRECTION_VALUES[params.get(PARAM_SIDE)]);
             int channel = params.get(PARAM_CHANNEL);
             removeConnector(channel, pos);
             return true;
         } else if (CMD_UPDATECONNECTOR.equals(command)) {
-            SidedPos pos = new SidedPos(params.get(PARAM_POS), Direction.VALUES[params.get(PARAM_SIDE)]);
+            SidedPos pos = new SidedPos(params.get(PARAM_POS), OrientationTools.DIRECTION_VALUES[params.get(PARAM_SIDE)]);
             int channel = params.get(PARAM_CHANNEL);
             updateConnector(channel, pos, params);
             return true;
@@ -1045,71 +1045,73 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     }
 
     @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, EntityLivingBase placer, ItemStack stack) {
+    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
         findNeighbourConnector(world, pos);
     }
 
     @Override
-    public void onBlockBreak(World world, BlockPos pos, BlockState state) {
-        super.onBlockBreak(world, pos, state);
+    public void onReplaced(World world, BlockPos pos, BlockState state) {
+        super.onReplaced(world, pos, state);
         XNetBlobData blobData = XNetBlobData.getBlobData(this.world);
         WorldBlob worldBlob = blobData.getWorldBlob(this.world);
         worldBlob.removeCableSegment(pos);
         blobData.save();
     }
 
-    @Override
-    @Optional.Method(modid = "theoneprobe")
-    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, BlockState blockState, IProbeHitData data) {
-        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
-
-        NetworkId networkId = getNetworkId();
-        if (networkId != null) {
-            if (mode == ProbeMode.DEBUG) {
-                probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId() + ", V: " +
-                        worldBlob.getNetworkVersion(networkId));
-            } else {
-                probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId());
-            }
-        }
-
-        if (mode == ProbeMode.DEBUG) {
-            String s = "";
-            for (NetworkId id : getNetworkChecker().getAffectedNetworks()) {
-                s += id.getId() + " ";
-                if (s.length() > 15) {
-                    probeInfo.text(TextStyleClass.LABEL + "InfNet: " + TextStyleClass.INFO + s);
-                    s = "";
-                }
-            }
-            if (!s.isEmpty()) {
-                probeInfo.text(TextStyleClass.LABEL + "InfNet: " + TextStyleClass.INFO + s);
-            }
-        }
-        if (inError()) {
-            probeInfo.text(TextStyleClass.ERROR + "Too many controllers on network!");
-        }
-
-        if (mode == ProbeMode.DEBUG) {
-            BlobId blobId = worldBlob.getBlobAt(data.getPos());
-            if (blobId != null) {
-                probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
-            }
-            ColorId colorId = worldBlob.getColorAt(data.getPos());
-            if (colorId != null) {
-                probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
-            }
-
-            probeInfo.text(TextStyleClass.LABEL + "Color mask: " + colors);
-        }
-    }
+    // @todo 1.14
+//    @Override
+//    @Optional.Method(modid = "theoneprobe")
+//    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
+//        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
+//
+//        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+//
+//        NetworkId networkId = getNetworkId();
+//        if (networkId != null) {
+//            if (mode == ProbeMode.DEBUG) {
+//                probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId() + ", V: " +
+//                        worldBlob.getNetworkVersion(networkId));
+//            } else {
+//                probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId());
+//            }
+//        }
+//
+//        if (mode == ProbeMode.DEBUG) {
+//            String s = "";
+//            for (NetworkId id : getNetworkChecker().getAffectedNetworks()) {
+//                s += id.getId() + " ";
+//                if (s.length() > 15) {
+//                    probeInfo.text(TextStyleClass.LABEL + "InfNet: " + TextStyleClass.INFO + s);
+//                    s = "";
+//                }
+//            }
+//            if (!s.isEmpty()) {
+//                probeInfo.text(TextStyleClass.LABEL + "InfNet: " + TextStyleClass.INFO + s);
+//            }
+//        }
+//        if (inError()) {
+//            probeInfo.text(TextStyleClass.ERROR + "Too many controllers on network!");
+//        }
+//
+//        if (mode == ProbeMode.DEBUG) {
+//            BlobId blobId = worldBlob.getBlobAt(data.getPos());
+//            if (blobId != null) {
+//                probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
+//            }
+//            ColorId colorId = worldBlob.getColorAt(data.getPos());
+//            if (colorId != null) {
+//                probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
+//            }
+//
+//            probeInfo.text(TextStyleClass.LABEL + "Color mask: " + colors);
+//        }
+//    }
 
     @Override
     public BlockState getActualState(BlockState state) {
-        return state.withProperty(ERROR, inError());
+        // @todo 1.14?
+        return state.with(ERROR, inError());
     }
 
     @Override
@@ -1129,7 +1131,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         WorldBlob worldBlob = blobData.getWorldBlob(world);
         ColorId oldColor = worldBlob.getColorAt(pos);
         ColorId newColor = null;
-        for (Direction facing : Direction.VALUES) {
+        for (Direction facing : OrientationTools.DIRECTION_VALUES) {
             if (world.getBlockState(pos.offset(facing)).getBlock() instanceof ConnectorBlock) {
                 ColorId color = worldBlob.getColorAt(pos.offset(facing));
                 if (color != null) {
@@ -1155,4 +1157,15 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         }
     }
 
+    @Nonnull
+    @Override
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
+//        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+//            return itemHandler.cast();
+//        }
+        if (cap == CapabilityEnergy.ENERGY) {
+            return energyHandler.cast();
+        }
+        return super.getCapability(cap, facing);
+    }
 }

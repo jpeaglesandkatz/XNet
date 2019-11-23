@@ -1,24 +1,20 @@
 package mcjty.xnet.network;
 
-import io.netty.buffer.ByteBuf;
+import mcjty.lib.McJtyLib;
 import mcjty.lib.network.IClientCommandHandler;
-import mcjty.lib.network.NetworkTools;
-import mcjty.lib.thirteen.Context;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.Logging;
-import mcjty.xnet.XNet;
 import mcjty.xnet.clientinfo.ControllerChannelClientInfo;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class PacketLocalChannelsRouterReady implements IMessage {
+public class PacketLocalChannelsRouterReady {
 
     public BlockPos pos;
     public List<ControllerChannelClientInfo> list;
@@ -27,21 +23,9 @@ public class PacketLocalChannelsRouterReady implements IMessage {
     public PacketLocalChannelsRouterReady() {
     }
 
-    public PacketLocalChannelsRouterReady(ByteBuf buf) {
-        fromBytes(buf);
-    }
-
-    public PacketLocalChannelsRouterReady(BlockPos pos, String command, List<ControllerChannelClientInfo> list) {
-        this.pos = pos;
-        this.command = command;
-        this.list = new ArrayList<>();
-        this.list.addAll(list);
-    }
-
-    @Override
-    public void fromBytes(ByteBuf buf) {
-        pos = NetworkTools.readPos(buf);
-        command = NetworkTools.readString(buf);
+    public PacketLocalChannelsRouterReady(PacketBuffer buf) {
+        pos = buf.readBlockPos();
+        command = buf.readString(32767);
 
         int size = buf.readInt();
         if (size != -1) {
@@ -61,11 +45,16 @@ public class PacketLocalChannelsRouterReady implements IMessage {
         }
     }
 
-    @Override
-    public void toBytes(ByteBuf buf) {
-        NetworkTools.writePos(buf, pos);
+    public PacketLocalChannelsRouterReady(BlockPos pos, String command, List<ControllerChannelClientInfo> list) {
+        this.pos = pos;
+        this.command = command;
+        this.list = new ArrayList<>();
+        this.list.addAll(list);
+    }
 
-        NetworkTools.writeString(buf, command);
+    public void toBytes(PacketBuffer buf) {
+        buf.writeBlockPos(pos);
+        buf.writeString(command);
 
         if (list == null) {
             buf.writeInt(-1);
@@ -82,10 +71,10 @@ public class PacketLocalChannelsRouterReady implements IMessage {
         }
     }
 
-    public void handle(Supplier<Context> supplier) {
-        Context ctx = supplier.get();
+    public void handle(Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            TileEntity te = XNet.proxy.getClientWorld().getTileEntity(pos);
+            TileEntity te = McJtyLib.proxy.getClientWorld().getTileEntity(pos);
             IClientCommandHandler clientCommandHandler = (IClientCommandHandler) te;
             if (!clientCommandHandler.receiveListFromServer(command, list, Type.create(ControllerChannelClientInfo.class))) {
                 Logging.log("Command " + command + " was not handled!");
@@ -94,19 +83,20 @@ public class PacketLocalChannelsRouterReady implements IMessage {
         ctx.setPacketHandled(true);
     }
 
-    public static class Handler implements IMessageHandler<PacketLocalChannelsRouterReady, IMessage> {
-        @Override
-        public IMessage onMessage(PacketLocalChannelsRouterReady message, MessageContext ctx) {
-            XNet.proxy.addScheduledTaskClient(() -> handle(message, ctx));
-            return null;
-        }
-
-        private void handle(PacketLocalChannelsRouterReady message, MessageContext ctx) {
-            TileEntity te = XNet.proxy.getClientWorld().getTileEntity(message.pos);
-            IClientCommandHandler clientCommandHandler = (IClientCommandHandler) te;
-            if (!clientCommandHandler.receiveListFromServer(message.command, message.list, Type.create(ControllerChannelClientInfo.class))) {
-                Logging.log("Command " + message.command + " was not handled!");
-            }
-        }
-    }
+    // @todo 1.14?
+//    public static class Handler implements IMessageHandler<PacketLocalChannelsRouterReady, IMessage> {
+//        @Override
+//        public IMessage onMessage(PacketLocalChannelsRouterReady message, MessageContext ctx) {
+//            XNet.proxy.addScheduledTaskClient(() -> handle(message, ctx));
+//            return null;
+//        }
+//
+//        private void handle(PacketLocalChannelsRouterReady message, MessageContext ctx) {
+//            TileEntity te = XNet.proxy.getClientWorld().getTileEntity(message.pos);
+//            IClientCommandHandler clientCommandHandler = (IClientCommandHandler) te;
+//            if (!clientCommandHandler.receiveListFromServer(message.command, message.list, Type.create(ControllerChannelClientInfo.class))) {
+//                Logging.log("Command " + message.command + " was not handled!");
+//            }
+//        }
+//    }
 }

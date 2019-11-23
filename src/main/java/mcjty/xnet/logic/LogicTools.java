@@ -1,5 +1,6 @@
 package mcjty.xnet.logic;
 
+import mcjty.lib.varia.OrientationTools;
 import mcjty.lib.varia.WorldTools;
 import mcjty.xnet.api.keys.ConsumerId;
 import mcjty.xnet.api.keys.NetworkId;
@@ -11,7 +12,6 @@ import mcjty.xnet.blocks.wireless.TileEntityWirelessRouter;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -110,7 +110,7 @@ public class LogicTools {
     // Return all potential connected blocks (with or an actual connector defined in the channel)
     public static Stream<BlockPos> connectedBlocks(@Nonnull World world, @Nonnull NetworkId networkId) {
         return consumers(world, networkId)
-                .flatMap(blockPos -> Arrays.stream(Direction.VALUES)
+                .flatMap(blockPos -> Arrays.stream(OrientationTools.DIRECTION_VALUES)
                         .filter(facing -> ConnectorBlock.isConnectable(world, blockPos, facing))
                         .map(blockPos::offset));
     }

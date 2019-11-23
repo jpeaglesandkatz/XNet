@@ -7,7 +7,6 @@ import mcjty.xnet.apiimpl.energy.EnergyChannelSettings;
 import mcjty.xnet.apiimpl.fluids.FluidChannelSettings;
 import mcjty.xnet.apiimpl.items.ItemChannelSettings;
 import mcjty.xnet.compat.RFToolsSupport;
-import mcjty.xnet.setup.ModSetup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -169,7 +168,7 @@ public class Sensor {
     public boolean test(@Nullable TileEntity te, @Nonnull World world, @Nonnull BlockPos pos, LogicConnectorSettings settings) {
         switch (sensorMode) {
             case ITEM: {
-                if (ModSetup.rftools && RFToolsSupport.isStorageScanner(te)) {
+                if (RFToolsSupport.isStorageScanner(te)) {
                     int cnt = RFToolsSupport.countItems(te, filter, amount + 1);
                     return operator.match(cnt, amount);
                 } else {
@@ -182,7 +181,8 @@ public class Sensor {
                 break;
             }
             case FLUID: {
-                IFluidHandler handler = FluidChannelSettings.getFluidHandlerAt(te, settings.getFacing());
+                // @todo 1.14 ugly!
+                IFluidHandler handler = FluidChannelSettings.getFluidHandlerAt(te, settings.getFacing()).map(h -> h).orElse(null);
                 if (handler != null) {
                     int cnt = countFluid(handler, filter, amount + 1);
                     return operator.match(cnt, amount);

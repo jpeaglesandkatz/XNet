@@ -7,10 +7,6 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.WorldTools;
-import mcjty.theoneprobe.api.IProbeHitData;
-import mcjty.theoneprobe.api.IProbeInfo;
-import mcjty.theoneprobe.api.ProbeMode;
-import mcjty.theoneprobe.api.TextStyleClass;
 import mcjty.xnet.api.channels.IChannelType;
 import mcjty.xnet.api.channels.IConnectorSettings;
 import mcjty.xnet.api.keys.NetworkId;
@@ -24,23 +20,27 @@ import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.multiblock.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
+
+import static mcjty.xnet.init.ModBlocks.TYPE_WIRELESS_ROUTER;
 
 public final class TileEntityWirelessRouter extends GenericTileEntity implements ITickableTileEntity {
 
@@ -62,7 +62,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, ConfigSetup.wirelessRouterMaxRF.get(), ConfigSetup.wirelessRouterRfPerTick.get()));
 
     public TileEntityWirelessRouter() {
-        super(xxx);
+        super(TYPE_WIRELESS_ROUTER);
     }
 
     @Override
@@ -288,7 +288,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet) {
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
         boolean oldError = inError();
 
         super.onDataPacket(net, packet);
@@ -296,7 +296,9 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
         if (world.isRemote) {
             // If needed send a render update.
             if (oldError != inError()) {
-                world.markBlockRangeForRenderUpdate(getPos(), getPos());
+//                ModelDataManager.requestModelDataRefresh(this);
+                BlockState state = world.getBlockState(pos);
+                world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
             }
         }
     }
@@ -312,64 +314,67 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
 
 
     @Override
-    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
-        tagCompound.setBoolean("error", error);
-        return super.writeToNBT(tagCompound);
+    public CompoundNBT write(CompoundNBT tagCompound) {
+        tagCompound.putBoolean("error", error);
+        return super.write(tagCompound);
     }
 
     @Override
-    public void readFromNBT(CompoundNBT tagCompound) {
-        super.readFromNBT(tagCompound);
+    public void read(CompoundNBT tagCompound) {
+        super.read(tagCompound);
         error = tagCompound.getBoolean("error");
     }
 
     @Override
-    public void writeRestorableToNBT(CompoundNBT tagCompound) {
-        super.writeRestorableToNBT(tagCompound);
-        tagCompound.setBoolean("publicAcc", publicAccess);
+    public void writeInfo(CompoundNBT tagCompound) {
+        super.writeInfo(tagCompound);
+        CompoundNBT info = getOrCreateInfo(tagCompound);
+        info.putBoolean("publicAcc", publicAccess);
     }
 
     @Override
-    public void readRestorableFromNBT(CompoundNBT tagCompound) {
-        super.readRestorableFromNBT(tagCompound);
-        publicAccess = tagCompound.getBoolean("publicAcc");
+    public void readInfo(CompoundNBT tagCompound) {
+        super.readInfo(tagCompound);
+        CompoundNBT info = tagCompound.getCompound("Info");
+        publicAccess = info.getBoolean("publicAcc");
     }
 
+    // @todo 1.14
+//    @Override
+//    @Optional.Method(modid = "theoneprobe")
+//    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
+//        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
+//        XNetBlobData blobData = XNetBlobData.getBlobData(world);
+//        WorldBlob worldBlob = blobData.getWorldBlob(world);
+//        Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
+//        for (NetworkId networkId : networks) {
+//            probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId());
+//            if (mode != ProbeMode.EXTENDED) {
+//                break;
+//            }
+//        }
+//        if (inError()) {
+//            probeInfo.text(TextStyleClass.ERROR + "Missing antenna!");
+//        } else {
+////            probeInfo.text(TextStyleClass.LABEL + "Channels: " + TextStyleClass.INFO + getChannelCount());
+//        }
+//
+//        if (mode == ProbeMode.DEBUG) {
+//            BlobId blobId = worldBlob.getBlobAt(data.getPos());
+//            if (blobId != null) {
+//                probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
+//            }
+//            ColorId colorId = worldBlob.getColorAt(data.getPos());
+//            if (colorId != null) {
+//                probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
+//            }
+//        }
+//    }
+
+
     @Override
-    @Optional.Method(modid = "theoneprobe")
-    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, BlockState blockState, IProbeHitData data) {
-        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-        XNetBlobData blobData = XNetBlobData.getBlobData(world);
-        WorldBlob worldBlob = blobData.getWorldBlob(world);
-        Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
-        for (NetworkId networkId : networks) {
-            probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId());
-            if (mode != ProbeMode.EXTENDED) {
-                break;
-            }
-        }
-        if (inError()) {
-            probeInfo.text(TextStyleClass.ERROR + "Missing antenna!");
-        } else {
-//            probeInfo.text(TextStyleClass.LABEL + "Channels: " + TextStyleClass.INFO + getChannelCount());
-        }
-
-        if (mode == ProbeMode.DEBUG) {
-            BlobId blobId = worldBlob.getBlobAt(data.getPos());
-            if (blobId != null) {
-                probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
-            }
-            ColorId colorId = worldBlob.getColorAt(data.getPos());
-            if (colorId != null) {
-                probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
-            }
-        }
-    }
-
-
-    @Override
-    public void onBlockBreak(World world, BlockPos pos, BlockState state) {
-        super.onBlockBreak(world, pos, state);
+    public void onReplaced(World world, BlockPos pos, BlockState state) {
+        super.onReplaced(world, pos, state);
         if (!this.world.isRemote) {
             XNetBlobData blobData = XNetBlobData.getBlobData(this.world);
             WorldBlob worldBlob = blobData.getWorldBlob(this.world);
@@ -379,7 +384,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     }
 
     @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, EntityLivingBase placer, ItemStack stack) {
+    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
         if (!world.isRemote) {
             XNetBlobData blobData = XNetBlobData.getBlobData(world);
@@ -393,7 +398,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
 
     @Override
     public BlockState getActualState(BlockState state) {
-        return state.withProperty(ERROR, inError());
+        return state.with(ERROR, inError());
     }
 
 }

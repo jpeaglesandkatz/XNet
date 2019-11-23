@@ -1,5 +1,6 @@
 package mcjty.xnet.logic;
 
+import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.blocks.cables.ConnectorBlock;
 import mcjty.xnet.blocks.generic.CableColor;
 import mcjty.xnet.blocks.generic.GenericCableBlock;
@@ -25,7 +26,7 @@ public class ConnectorIterator implements Iterator<BlockPos> {
     private BlockPos foundPos = null;
 
     Stream<BlockPos> stream() {
-        return StreamSupport.stream(Spliterators.spliterator(this, Direction.VALUES.length, Spliterator.ORDERED), false);
+        return StreamSupport.stream(Spliterators.spliterator(this, OrientationTools.DIRECTION_VALUES.length, Spliterator.ORDERED), false);
     }
 
     ConnectorIterator(@Nonnull World world, @Nonnull BlockPos pos, boolean routing) {
@@ -38,14 +39,14 @@ public class ConnectorIterator implements Iterator<BlockPos> {
     private void findNext() {
         foundPos = null;
         while (facingIdx != -1) {
-            BlockPos connectorPos = pos.offset(Direction.VALUES[facingIdx]);
+            BlockPos connectorPos = pos.offset(OrientationTools.DIRECTION_VALUES[facingIdx]);
             facingIdx++;
-            if (facingIdx >= Direction.VALUES.length) {
+            if (facingIdx >= OrientationTools.DIRECTION_VALUES.length) {
                 facingIdx = -1;
             }
             BlockState state = world.getBlockState(connectorPos);
             if (state.getBlock() instanceof ConnectorBlock) {
-                CableColor color = state.getValue(GenericCableBlock.COLOR);
+                CableColor color = state.get(GenericCableBlock.COLOR);
                 if ((color == CableColor.ROUTING) == routing) {
                     foundPos = connectorPos;
                     return;

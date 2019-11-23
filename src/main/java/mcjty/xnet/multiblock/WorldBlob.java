@@ -1,5 +1,6 @@
 package mcjty.xnet.multiblock;
 
+import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.api.keys.ConsumerId;
 import mcjty.xnet.api.keys.NetworkId;
 import mcjty.xnet.api.net.IWorldBlob;
@@ -299,7 +300,7 @@ public class WorldBlob implements IWorldBlob {
                 Set<NetworkId> networks = blob.getOrCreateNetworksForPosition(pos);
                 ColorId color = blob.getColorIdForPosition(pos);
 
-                for (Direction facing : Direction.HORIZONTALS) {
+                for (Direction facing : OrientationTools.HORIZONTAL_DIRECTION_VALUES) {
                     if (pos.isBorder(facing)) {
                         Vec3i vec = facing.getDirectionVec();
                         ChunkBlob adjacent = chunkBlobMap.get(
@@ -348,14 +349,14 @@ public class WorldBlob implements IWorldBlob {
 
     public void readFromNBT(CompoundNBT compound) {
         chunkBlobMap.clear();
-        lastNetworkId = compound.getInteger("lastNetwork");
-        lastConsumerId = compound.getInteger("lastConsumer");
-        if (compound.hasKey("chunks")) {
-            ListNBT chunks = (ListNBT) compound.getTag("chunks");
-            for (int i = 0 ; i < chunks.tagCount() ; i++) {
+        lastNetworkId = compound.getInt("lastNetwork");
+        lastConsumerId = compound.getInt("lastConsumer");
+        if (compound.contains("chunks")) {
+            ListNBT chunks = (ListNBT) compound.get("chunks");
+            for (int i = 0 ; i < chunks.size() ; i++) {
                 CompoundNBT tc = (CompoundNBT) chunks.get(i);
-                int chunkX = tc.getInteger("chunkX");
-                int chunkZ = tc.getInteger("chunkZ");
+                int chunkX = tc.getInt("chunkX");
+                int chunkZ = tc.getInt("chunkZ");
                 ChunkBlob blob = new ChunkBlob(new ChunkPos(chunkX, chunkZ));
                 blob.readFromNBT(tc);
                 chunkBlobMap.put(blob.getChunkNum(), blob);
@@ -364,18 +365,18 @@ public class WorldBlob implements IWorldBlob {
     }
 
     public CompoundNBT writeToNBT(CompoundNBT compound) {
-        compound.setInteger("lastNetwork", lastNetworkId);
-        compound.setInteger("lastConsumer", lastConsumerId);
+        compound.putInt("lastNetwork", lastNetworkId);
+        compound.putInt("lastConsumer", lastConsumerId);
         ListNBT list = new ListNBT();
         for (Map.Entry<Long, ChunkBlob> entry : chunkBlobMap.entrySet()) {
             ChunkBlob blob = entry.getValue();
             CompoundNBT tc = new CompoundNBT();
-            tc.setInteger("chunkX", blob.getChunkPos().x);
-            tc.setInteger("chunkZ", blob.getChunkPos().z);
+            tc.putInt("chunkX", blob.getChunkPos().x);
+            tc.putInt("chunkZ", blob.getChunkPos().z);
             blob.writeToNBT(tc);
-            list.appendTag(tc);
+            list.add(tc);
         }
-        compound.setTag("chunks", list);
+        compound.put("chunks", list);
 
         return compound;
     }

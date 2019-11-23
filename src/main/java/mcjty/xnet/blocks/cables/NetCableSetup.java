@@ -1,39 +1,45 @@
 package mcjty.xnet.blocks.cables;
 
-import net.minecraft.client.renderer.color.BlockColors;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import mcjty.xnet.XNet;
+import net.minecraft.block.Block;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.registries.ObjectHolder;
 
 public class NetCableSetup {
+
+    @ObjectHolder(XNet.MODID + ":netcable")
     public static NetCableBlock netCableBlock;
+    @ObjectHolder(XNet.MODID + ":connector")
     public static ConnectorBlock connectorBlock;
+    @ObjectHolder(XNet.MODID + ":advanced_connector")
     public static AdvancedConnectorBlock advancedConnectorBlock;
 
-    public static void init() {
-        netCableBlock = new NetCableBlock();
-        connectorBlock = new ConnectorBlock();
-        advancedConnectorBlock = new AdvancedConnectorBlock();
+    public static void registerBlocks(RegistryEvent.Register<Block> event) {
+        event.getRegistry().register(new NetCableBlock());
+        event.getRegistry().register(new ConnectorBlock());
+        event.getRegistry().register(new AdvancedConnectorBlock());
     }
 
-    @SideOnly(Side.CLIENT)
-    public static void initClient() {
-        netCableBlock.initModel();
-        connectorBlock.initModel();
-        advancedConnectorBlock.initModel();
-    }
-
-    @SideOnly(Side.CLIENT)
-    public static void initItemModels() {
-        netCableBlock.initItemModel();
-        connectorBlock.initItemModel();
-        advancedConnectorBlock.initItemModel();
-    }
-
-    @SideOnly(Side.CLIENT)
-    public static void initColorHandlers(BlockColors blockColors) {
-        connectorBlock.initColorHandler(blockColors);
-        advancedConnectorBlock.initColorHandler(blockColors);
-    }
+    // @todo 1.14
+//    @SideOnly(Side.CLIENT)
+//    public static void initClient() {
+//        netCableBlock.initModel();
+//        connectorBlock.initModel();
+//        advancedConnectorBlock.initModel();
+//    }
+//
+//    @SideOnly(Side.CLIENT)
+//    public static void initItemModels() {
+//        netCableBlock.initItemModel();
+//        connectorBlock.initItemModel();
+//        advancedConnectorBlock.initItemModel();
+//    }
+//
+//    @SideOnly(Side.CLIENT)
+//    public static void initColorHandlers(BlockColors blockColors) {
+//        connectorBlock.initColorHandler(blockColors);
+//        advancedConnectorBlock.initColorHandler(blockColors);
+//    }
 
     public static void initCrafting() {
 

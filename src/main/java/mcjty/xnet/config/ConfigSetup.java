@@ -1,12 +1,12 @@
 package mcjty.xnet.config;
 
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.io.WritingMode;
 import com.google.common.collect.Lists;
-import mcjty.xnet.XNet;
 import mcjty.xnet.blocks.wireless.TileEntityWirelessRouter;
 import net.minecraftforge.common.ForgeConfigSpec;
-import org.apache.logging.log4j.Level;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 public class ConfigSetup {
@@ -129,27 +129,18 @@ public class ConfigSetup {
         CLIENT_BUILDER.pop();
     }
 
-    public static ForgeConfigSpec SERVER_CONFIG;
+    public static ForgeConfigSpec COMMON_CONFIG;
     public static ForgeConfigSpec CLIENT_CONFIG;
 
+    public static void loadConfig(ForgeConfigSpec spec, Path path) {
 
-    public static Configuration mainConfig;
+        final CommentedFileConfig configData = CommentedFileConfig.builder(path)
+                .sync()
+                .autosave()
+                .writingMode(WritingMode.REPLACE)
+                .build();
 
-    public static void init() {
-        mainConfig = new Configuration(new File(XNet.setup.getModConfigDir().getPath() + File.separator + "xnet", "xnet.cfg"));
-        Configuration cfg = mainConfig;
-        try {
-            cfg.load();
-            SERVER_CONFIG = SERVER_BUILDER.build(mainConfig);
-            CLIENT_CONFIG = CLIENT_BUILDER.build(mainConfig);
-        } catch (Exception e1) {
-            FMLLog.log(Level.ERROR, e1, "Problem loading config file!");
-        }
-    }
-
-    public static void postInit() {
-        if (mainConfig.hasChanged()) {
-            mainConfig.save();
-        }
+        configData.load();
+        spec.setConfig(configData);
     }
 }

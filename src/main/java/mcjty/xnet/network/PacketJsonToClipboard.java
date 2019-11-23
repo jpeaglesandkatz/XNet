@@ -1,40 +1,33 @@
 package mcjty.xnet.network;
 
-import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.thirteen.Context;
 import mcjty.xnet.blocks.controller.gui.GuiController;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class PacketJsonToClipboard implements IMessage {
+public class PacketJsonToClipboard {
 
     private String json;
 
-    @Override
-    public void fromBytes(ByteBuf buf) {
-        json = NetworkTools.readStringUTF8(buf);
-    }
-
-    @Override
-    public void toBytes(ByteBuf buf) {
+    public void toBytes(PacketBuffer buf) {
         NetworkTools.writeStringUTF8(buf, json);
     }
 
     public PacketJsonToClipboard() {
     }
 
-    public PacketJsonToClipboard(ByteBuf buf) {
-        fromBytes(buf);
+    public PacketJsonToClipboard(PacketBuffer buf) {
+        json = NetworkTools.readStringUTF8(buf);
     }
 
     public PacketJsonToClipboard(String json) {
         this.json = json;
     }
 
-    public void handle(Supplier<Context> supplier) {
-        Context ctx = supplier.get();
+    public void handle(Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
             GuiController.toClipboard(json);
         });

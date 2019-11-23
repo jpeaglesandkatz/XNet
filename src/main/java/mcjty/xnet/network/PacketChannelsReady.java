@@ -1,21 +1,20 @@
 package mcjty.xnet.network;
 
-import io.netty.buffer.ByteBuf;
+import mcjty.lib.McJtyLib;
 import mcjty.lib.network.IClientCommandHandler;
-import mcjty.lib.network.NetworkTools;
-import mcjty.lib.thirteen.Context;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.Logging;
-import mcjty.xnet.XNet;
 import mcjty.xnet.clientinfo.ChannelClientInfo;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class PacketChannelsReady implements net.minecraftforge.fml.common.network.simpleimpl.IMessage {
+public class PacketChannelsReady {
 
     public BlockPos pos;
     public List<ChannelClientInfo> list;
@@ -24,33 +23,9 @@ public class PacketChannelsReady implements net.minecraftforge.fml.common.networ
     public PacketChannelsReady() {
     }
 
-    public PacketChannelsReady(ByteBuf buf) {
-        fromBytes(buf);
-    }
-
-    public PacketChannelsReady(BlockPos pos, String command, List<ChannelClientInfo> list) {
-        this.pos = pos;
-        this.command = command;
-        this.list = new ArrayList<>();
-        this.list.addAll(list);
-    }
-
-    public void handle(Supplier<Context> supplier) {
-        Context ctx = supplier.get();
-        ctx.enqueueWork(() -> {
-            TileEntity te = XNet.proxy.getClientWorld().getTileEntity(pos);
-            IClientCommandHandler clientCommandHandler = (IClientCommandHandler) te;
-            if (!clientCommandHandler.receiveListFromServer(command, list, Type.create(ChannelClientInfo.class))) {
-                Logging.log("Command " + command + " was not handled!");
-            }
-        });
-        ctx.setPacketHandled(true);
-    }
-
-    @Override
-    public void fromBytes(ByteBuf buf) {
-        pos = NetworkTools.readPos(buf);
-        command = NetworkTools.readString(buf);
+    public PacketChannelsReady(PacketBuffer buf) {
+        pos = buf.readBlockPos();
+        command = buf.readString(32767);
 
         int size = buf.readInt();
         if (size != -1) {
@@ -70,11 +45,28 @@ public class PacketChannelsReady implements net.minecraftforge.fml.common.networ
         }
     }
 
-    @Override
-    public void toBytes(ByteBuf buf) {
-        NetworkTools.writePos(buf, pos);
+    public PacketChannelsReady(BlockPos pos, String command, List<ChannelClientInfo> list) {
+        this.pos = pos;
+        this.command = command;
+        this.list = new ArrayList<>();
+        this.list.addAll(list);
+    }
 
-        NetworkTools.writeString(buf, command);
+    public void handle(Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
+        ctx.enqueueWork(() -> {
+            TileEntity te = McJtyLib.proxy.getClientWorld().getTileEntity(pos);
+            IClientCommandHandler clientCommandHandler = (IClientCommandHandler) te;
+            if (!clientCommandHandler.receiveListFromServer(command, list, Type.create(ChannelClientInfo.class))) {
+                Logging.log("Command " + command + " was not handled!");
+            }
+        });
+        ctx.setPacketHandled(true);
+    }
+
+    public void toBytes(PacketBuffer buf) {
+        buf.writeBlockPos(pos);
+        buf.writeString(command);
 
         if (list == null) {
             buf.writeInt(-1);

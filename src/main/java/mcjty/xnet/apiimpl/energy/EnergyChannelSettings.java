@@ -21,7 +21,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.IEnergyStorage;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -216,13 +215,12 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
         if (te == null) {
             return false;
         }
-        return te.hasCapability(CapabilityEnergy.ENERGY, side);
+        return te.getCapability(CapabilityEnergy.ENERGY, side).isPresent();
     }
 
     public static int getEnergyLevel(TileEntity tileEntity, @Nonnull Direction side) {
-        if (tileEntity != null && tileEntity.hasCapability(CapabilityEnergy.ENERGY, side)) {
-            IEnergyStorage energy = tileEntity.getCapability(CapabilityEnergy.ENERGY, side);
-            return energy.getEnergyStored();
+        if (tileEntity != null) {
+            return tileEntity.getCapability(CapabilityEnergy.ENERGY, side).map(h -> h.getEnergyStored()).orElse(0);
         } else {
             return 0;
         }

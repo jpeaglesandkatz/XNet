@@ -1,15 +1,7 @@
 package mcjty.xnet.blocks.generic;
 
-import mcjty.theoneprobe.api.IProbeHitData;
-import mcjty.theoneprobe.api.IProbeInfo;
-import mcjty.theoneprobe.api.ProbeMode;
-import mcjty.theoneprobe.api.TextStyleClass;
-import mcjty.xnet.api.keys.ConsumerId;
-import mcjty.xnet.api.keys.NetworkId;
 import mcjty.xnet.blocks.cables.ConnectorType;
-import mcjty.xnet.blocks.facade.FacadeProperty;
 import mcjty.xnet.blocks.facade.IFacadeSupport;
-import mcjty.xnet.multiblock.BlobId;
 import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
@@ -17,25 +9,26 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.IProperty;
+import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.data.ModelProperty;
 import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 public abstract class GenericCableBlock extends Block {
 
@@ -47,7 +40,7 @@ public abstract class GenericCableBlock extends Block {
     public static final UnlistedPropertyBlockType UP = new UnlistedPropertyBlockType("up");
     public static final UnlistedPropertyBlockType DOWN = new UnlistedPropertyBlockType("down");
 
-    public static final FacadeProperty FACADEID = new FacadeProperty("facadeid");
+    public static final ModelProperty<BlockState> FACADEID = new ModelProperty<>();
     public static final EnumProperty<CableColor> COLOR = EnumProperty.<CableColor>create("color", CableColor.class);
 
 
@@ -84,7 +77,7 @@ public abstract class GenericCableBlock extends Block {
         setDefaultState(getDefaultState().with(COLOR, CableColor.BLUE));
     }
 
-//    public static boolean activateBlock(Block block, World world, BlockPos pos, BlockState state, EntityPlayer player, EnumHand hand, Direction facing, float hitX, float hitY, float hitZ) {
+//    public static boolean activateBlock(Block block, World world, BlockPos pos, BlockState state, PlayerEntity player, Hand hand, Direction facing, float hitX, float hitY, float hitZ) {
 //        return block.onBlockActivated(world, pos, state, player, hand, facing, hitX, hitY, hitZ);
 //    }
 
@@ -155,116 +148,122 @@ public abstract class GenericCableBlock extends Block {
 //    }
 
 
-
-    @Nullable
     @Override
-    public RayTraceResult collisionRayTrace(BlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
-        if (getMimicBlock(world, pos) != null) {
-            // In mimic mode we use original raytrace mode
-            return originalCollisionRayTrace(blockState, world, pos, start, end);
-        }
-        Vec3d vec3d = start.subtract(pos.getX(), pos.getY(), pos.getZ());
-        Vec3d vec3d1 = end.subtract(pos.getX(), pos.getY(), pos.getZ());
-        RayTraceResult rc = checkIntersect(pos, vec3d, vec3d1, AABB_CENTER);
-        if (rc != null) {
-            return rc;
-        }
-        CableColor color = blockState.getValue(COLOR);
-
-        for (Direction facing : Direction.VALUES) {
-            ConnectorType type = getConnectorType(color, world, pos, facing);
-            if (type != ConnectorType.NONE) {
-                rc = checkIntersect(pos, vec3d, vec3d1, AABBS[facing.ordinal()]);
-                if (rc != null) {
-                    return rc;
-                }
-            }
-            if (type == ConnectorType.BLOCK) {
-                rc = checkIntersect(pos, vec3d, vec3d1, AABBS_CONNECTOR[facing.ordinal()]);
-                if (rc != null) {
-                    return rc;
-                }
-            }
-        }
-        return null;
+    public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+        return super.getShape(state, world, pos, context);
     }
+// @todo 1.14
+//    @Nullable
+//    @Override
+//    public RayTraceResult collisionRayTrace(BlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
+//        if (getMimicBlock(world, pos) != null) {
+//            // In mimic mode we use original raytrace mode
+//            return originalCollisionRayTrace(blockState, world, pos, start, end);
+//        }
+//        Vec3d vec3d = start.subtract(pos.getX(), pos.getY(), pos.getZ());
+//        Vec3d vec3d1 = end.subtract(pos.getX(), pos.getY(), pos.getZ());
+//        RayTraceResult rc = checkIntersect(pos, vec3d, vec3d1, AABB_CENTER);
+//        if (rc != null) {
+//            return rc;
+//        }
+//        CableColor color = blockState.getValue(COLOR);
+//
+//        for (Direction facing : OrientationTools.DIRECTION_VALUES) {
+//            ConnectorType type = getConnectorType(color, world, pos, facing);
+//            if (type != ConnectorType.NONE) {
+//                rc = checkIntersect(pos, vec3d, vec3d1, AABBS[facing.ordinal()]);
+//                if (rc != null) {
+//                    return rc;
+//                }
+//            }
+//            if (type == ConnectorType.BLOCK) {
+//                rc = checkIntersect(pos, vec3d, vec3d1, AABBS_CONNECTOR[facing.ordinal()]);
+//                if (rc != null) {
+//                    return rc;
+//                }
+//            }
+//        }
+//        return null;
+//    }
+//
+//    private RayTraceResult checkIntersect(BlockPos pos, Vec3d vec3d, Vec3d vec3d1, AxisAlignedBB boundingBox) {
+//        RayTraceResult raytraceresult = boundingBox.calculateIntercept(vec3d, vec3d1);
+//        return raytraceresult == null ? null : new RayTraceResult(raytraceresult.hitVec.addVector(pos.getX(), pos.getY(), pos.getZ()), raytraceresult.sideHit, pos);
+//    }
+//
+//    protected RayTraceResult originalCollisionRayTrace(BlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
+//        return super.collisionRayTrace(blockState, world, pos, start, end);
+//    }
 
-    private RayTraceResult checkIntersect(BlockPos pos, Vec3d vec3d, Vec3d vec3d1, AxisAlignedBB boundingBox) {
-        RayTraceResult raytraceresult = boundingBox.calculateIntercept(vec3d, vec3d1);
-        return raytraceresult == null ? null : new RayTraceResult(raytraceresult.hitVec.addVector(pos.getX(), pos.getY(), pos.getZ()), raytraceresult.sideHit, pos);
-    }
-
-    protected RayTraceResult originalCollisionRayTrace(BlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
-        return super.collisionRayTrace(blockState, world, pos, start, end);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    @Optional.Method(modid = "waila")
-    public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
-        return currenttip;
-    }
-
-    @Override
-    @Optional.Method(modid = "theoneprobe")
-    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, BlockState blockState, IProbeHitData data) {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
-
-        if (mode == ProbeMode.DEBUG) {
-            BlobId blobId = worldBlob.getBlobAt(data.getPos());
-            if (blobId != null) {
-                probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
-            }
-            ColorId colorId = worldBlob.getColorAt(data.getPos());
-            if (colorId != null) {
-                probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
-            }
-        }
-
-        Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
-        for (NetworkId network : networks) {
-            if (mode == ProbeMode.DEBUG) {
-                probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + network.getId() + ", V: " +
-                    worldBlob.getNetworkVersion(network));
-            } else {
-                probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + network.getId());
-            }
-        }
-
-        ConsumerId consumerId = worldBlob.getConsumerAt(data.getPos());
-        if (consumerId != null) {
-            probeInfo.text(TextStyleClass.LABEL + "Consumer: " + TextStyleClass.INFO + consumerId.getId());
-        }
-    }
+//    @Override
+//    @SideOnly(Side.CLIENT)
+//    @Optional.Method(modid = "waila")
+//    public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
+//        return currenttip;
+//    }
+//
+//    @Override
+//    @Optional.Method(modid = "theoneprobe")
+//    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
+//        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+//
+//        if (mode == ProbeMode.DEBUG) {
+//            BlobId blobId = worldBlob.getBlobAt(data.getPos());
+//            if (blobId != null) {
+//                probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
+//            }
+//            ColorId colorId = worldBlob.getColorAt(data.getPos());
+//            if (colorId != null) {
+//                probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
+//            }
+//        }
+//
+//        Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
+//        for (NetworkId network : networks) {
+//            if (mode == ProbeMode.DEBUG) {
+//                probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + network.getId() + ", V: " +
+//                    worldBlob.getNetworkVersion(network));
+//            } else {
+//                probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + network.getId());
+//            }
+//        }
+//
+//        ConsumerId consumerId = worldBlob.getConsumerAt(data.getPos());
+//        if (consumerId != null) {
+//            probeInfo.text(TextStyleClass.LABEL + "Consumer: " + TextStyleClass.INFO + consumerId.getId());
+//        }
+//    }
 
     public boolean isAdvancedConnector() {
         return false;
     }
 
     @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, EntityLivingBase placer, ItemStack stack) {
+    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         originalOnBlockPlacedBy(world, pos, state, placer, stack);
         if (!world.isRemote) {
             createCableSegment(world, pos, stack);
         }
     }
 
-    protected void originalOnBlockPlacedBy(World world, BlockPos pos, BlockState state, EntityLivingBase placer, ItemStack stack) {
+    protected void originalOnBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
     }
 
     public void createCableSegment(World world, BlockPos pos, ItemStack stack) {
         XNetBlobData blobData = XNetBlobData.getBlobData(world);
         WorldBlob worldBlob = blobData.getWorldBlob(world);
-        CableColor color = world.getBlockState(pos).getValue(COLOR);
+        CableColor color = world.getBlockState(pos).get(COLOR);
         worldBlob.createCableSegment(pos, new ColorId(color.ordinal()+1));
         blobData.save();
     }
 
     @Override
-    public void breakBlock(World world, BlockPos pos, BlockState state) {
-        unlinkBlock(world, pos);
-        originalBreakBlock(world, pos, state);
+    public void onReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (newState.getBlock() != state.getBlock()) {
+            unlinkBlock(world, pos);
+        }
+        originalBreakBlock(state, world, pos, newState, isMoving);
     }
 
     public void unlinkBlock(World world, BlockPos pos) {
@@ -276,73 +275,58 @@ public abstract class GenericCableBlock extends Block {
         }
     }
 
-    protected void originalBreakBlock(World world, BlockPos pos, BlockState state) {
-        super.breakBlock(world, pos, state);
+    protected void originalBreakBlock(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
+        super.onReplaced(state, world, pos, newState, isMoving);
     }
+
+//    @Override
+//    @SideOnly(Side.CLIENT)
+//    public boolean shouldSideBeRendered(BlockState blockState, IBlockAccess blockAccess, BlockPos pos, Direction side) {
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean isBlockNormalCube(BlockState blockState) {
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean isOpaqueCube(BlockState blockState) {
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean isFullCube(BlockState state) {
+//        return false;
+//    }
+
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean shouldSideBeRendered(BlockState blockState, IBlockAccess blockAccess, BlockPos pos, Direction side) {
-        return false;
+    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+        super.fillStateContainer(builder);
+        builder.add(COLOR, NORTH, SOUTH, WEST, EAST, UP, DOWN);
     }
 
-    @Override
-    public boolean isBlockNormalCube(BlockState blockState) {
-        return false;
-    }
+    // @todo 1.14
+//    public BlockState getStateInternal(BlockState state, IBlockAccess world, BlockPos pos) {
+//        IExtendedBlockState extendedBlockState = (IExtendedBlockState) state;
+//        CableColor color = state.getValue(COLOR);
+//
+//        ConnectorType north = getConnectorType(color, world, pos, Direction.NORTH);
+//        ConnectorType south = getConnectorType(color, world, pos, Direction.SOUTH);
+//        ConnectorType west = getConnectorType(color, world, pos, Direction.WEST);
+//        ConnectorType east = getConnectorType(color, world, pos, Direction.EAST);
+//        ConnectorType up = getConnectorType(color, world, pos, Direction.UP);
+//        ConnectorType down = getConnectorType(color, world, pos, Direction.DOWN);
+//
+//        return extendedBlockState
+//                .withProperty(NORTH, north)
+//                .withProperty(SOUTH, south)
+//                .withProperty(WEST, west)
+//                .withProperty(EAST, east)
+//                .withProperty(UP, up)
+//                .withProperty(DOWN, down);
+//    }
 
-    @Override
-    public boolean isOpaqueCube(BlockState blockState) {
-        return false;
-    }
-
-    @Override
-    public boolean isFullCube(BlockState state) {
-        return false;
-    }
-
-    @Override
-    public BlockState getStateFromMeta(int meta) {
-        return getDefaultState().withProperty(COLOR, CableColor.VALUES[meta]);
-    }
-
-    @Override
-    public int getMetaFromState(BlockState state) {
-        return state.getValue(COLOR).ordinal();
-    }
-
-    @Override
-    protected BlockStateContainer createBlockState() {
-        IProperty<?>[] listedProperties = new IProperty<?>[] { COLOR };
-        IUnlistedProperty<?>[] unlistedProperties = new IUnlistedProperty<?>[] { NORTH, SOUTH, WEST, EAST, UP, DOWN,
-            FACADEID};
-        return new ExtendedBlockState(this, listedProperties, unlistedProperties);
-    }
-
-    @Override
-    public BlockState getExtendedState(BlockState state, IBlockAccess world, BlockPos pos) {
-        return getStateInternal(state, world, pos);
-    }
-
-    public BlockState getStateInternal(BlockState state, IBlockAccess world, BlockPos pos) {
-        IExtendedBlockState extendedBlockState = (IExtendedBlockState) state;
-        CableColor color = state.getValue(COLOR);
-
-        ConnectorType north = getConnectorType(color, world, pos, Direction.NORTH);
-        ConnectorType south = getConnectorType(color, world, pos, Direction.SOUTH);
-        ConnectorType west = getConnectorType(color, world, pos, Direction.WEST);
-        ConnectorType east = getConnectorType(color, world, pos, Direction.EAST);
-        ConnectorType up = getConnectorType(color, world, pos, Direction.UP);
-        ConnectorType down = getConnectorType(color, world, pos, Direction.DOWN);
-
-        return extendedBlockState
-                .withProperty(NORTH, north)
-                .withProperty(SOUTH, south)
-                .withProperty(WEST, west)
-                .withProperty(EAST, east)
-                .withProperty(UP, up)
-                .withProperty(DOWN, down);
-    }
-
-    protected abstract ConnectorType getConnectorType(@Nonnull CableColor thisColor, IBlockAccess world, BlockPos pos, Direction facing);
+    protected abstract ConnectorType getConnectorType(@Nonnull CableColor thisColor, IBlockReader world, BlockPos pos, Direction facing);
 }

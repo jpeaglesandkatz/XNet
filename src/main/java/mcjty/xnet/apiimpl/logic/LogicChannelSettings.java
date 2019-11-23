@@ -46,14 +46,14 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
 
     @Override
     public void readFromNBT(CompoundNBT tag) {
-        delay = tag.getInteger("delay");
-        colors = tag.getInteger("colors");
+        delay = tag.getInt("delay");
+        colors = tag.getInt("colors");
     }
 
     @Override
     public void writeToNBT(CompoundNBT tag) {
-        tag.setInteger("delay", delay);
-        tag.setInteger("colors", colors);
+        tag.putInt("delay", delay);
+        tag.putInt("colors", colors);
     }
 
     @Override

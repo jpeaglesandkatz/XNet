@@ -1,9 +1,9 @@
 package mcjty.xnet.clientinfo;
 
-import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
 import mcjty.xnet.XNet;
 import mcjty.xnet.api.channels.IChannelType;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
@@ -25,25 +25,25 @@ public class ControllerChannelClientInfo {
         this.index = index;
     }
 
-    public ControllerChannelClientInfo(@Nonnull ByteBuf buf) {
+    public ControllerChannelClientInfo(@Nonnull PacketBuffer buf) {
         channelName = NetworkTools.readStringUTF8(buf);
         publishedName = NetworkTools.readStringUTF8(buf);
-        String id = NetworkTools.readString(buf);
+        String id = buf.readString(32767);
         IChannelType t = XNet.xNetApi.findType(id);
         if (t == null) {
             throw new RuntimeException("Bad type: " + id);
         }
         channelType = t;
-        pos = NetworkTools.readPos(buf);
+        pos = buf.readBlockPos();
         remote = buf.readBoolean();
         index = buf.readInt();
     }
 
-    public void writeToNBT(@Nonnull ByteBuf buf) {
+    public void writeToNBT(@Nonnull PacketBuffer buf) {
         NetworkTools.writeStringUTF8(buf, channelName);
         NetworkTools.writeStringUTF8(buf, publishedName);
-        NetworkTools.writeString(buf, channelType.getID());
-        NetworkTools.writePos(buf, pos);
+        buf.writeString(channelType.getID());
+        buf.writeBlockPos(pos);
         buf.writeBoolean(remote);
         buf.writeInt(index);
     }

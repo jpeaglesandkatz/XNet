@@ -1,6 +1,7 @@
 package mcjty.xnet.blocks.cables;
 
 import mcjty.lib.container.EmptyContainer;
+import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.HorizontalLayout;
@@ -10,51 +11,52 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.gui.widgets.ToggleButton;
 import mcjty.lib.typed.TypedMap;
+import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.XNet;
-import mcjty.xnet.setup.GuiProxy;
 import mcjty.xnet.network.XNetMessages;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.Direction;
 
 import java.awt.*;
 
 import static mcjty.xnet.blocks.cables.ConnectorTileEntity.*;
 
-public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity> {
+public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, GenericContainer> {
 
     public static final int WIDTH = 220;
     public static final int HEIGHT = 50;
 
     private ToggleButton toggleButtons[] = new ToggleButton[6];
 
-    public GuiConnector(AdvancedConnectorTileEntity te, EmptyContainer container) {
-        this((ConnectorTileEntity) te, container);
+    public GuiConnector(AdvancedConnectorTileEntity te, EmptyContainer container, PlayerInventory inventory) {
+        this((ConnectorTileEntity) te, container, inventory);
     }
 
-    public GuiConnector(ConnectorTileEntity tileEntity, EmptyContainer container) {
-        super(XNet.instance, XNetMessages.INSTANCE, tileEntity, container, GuiProxy.GUI_MANUAL_XNET, "connector");
+    public GuiConnector(ConnectorTileEntity tileEntity, EmptyContainer container, PlayerInventory inventory) {
+        super(XNet.instance, tileEntity, container, inventory, 0 /*@todo 1.14 GuiProxy.GUI_MANUAL_XNET*/, "connector");
 
         xSize = WIDTH;
         ySize = HEIGHT;
     }
 
     @Override
-    public void initGui() {
-        super.initGui();
+    public void init() {
+        super.init();
 
-        Panel toplevel = new Panel(mc, this).setFilledRectThickness(2).setLayout(new VerticalLayout());
+        Panel toplevel = new Panel(minecraft, this).setFilledRectThickness(2).setLayout(new VerticalLayout());
 
-        TextField nameField = new TextField(mc, this).setName("name").setTooltips("Set the name of this connector");
+        TextField nameField = new TextField(minecraft, this).setName("name").setTooltips("Set the name of this connector");
 
-        Panel namePanel = new Panel(mc, this).setLayout(new HorizontalLayout()).
-                addChild(new Label(mc, this).setText("Name:")).addChild(nameField);
+        Panel namePanel = new Panel(minecraft, this).setLayout(new HorizontalLayout()).
+                addChild(new Label(minecraft, this).setText("Name:")).addChild(nameField);
         toplevel.addChild(namePanel);
 
-        Panel togglePanel = new Panel(mc, this).setLayout(new HorizontalLayout()).
-                addChild(new Label(mc, this).setText("Directions:"));
-        for (Direction facing : Direction.VALUES) {
-            toggleButtons[facing.ordinal()] = new ToggleButton(mc, this).setText(facing.getName().substring(0, 1).toUpperCase())
+        Panel togglePanel = new Panel(minecraft, this).setLayout(new HorizontalLayout()).
+                addChild(new Label(minecraft, this).setText("Directions:"));
+        for (Direction facing : OrientationTools.DIRECTION_VALUES) {
+            toggleButtons[facing.ordinal()] = new ToggleButton(minecraft, this).setText(facing.getName().substring(0, 1).toUpperCase())
                 .addButtonEvent(parent -> {
-                    sendServerCommand(XNetMessages.INSTANCE, ConnectorTileEntity.CMD_ENABLE,
+                    sendServerCommand(XNetMessages.INSTANCE, XNet.MODID, ConnectorTileEntity.CMD_ENABLE,
                             TypedMap.builder()
                                     .put(PARAM_FACING, facing.ordinal())
                                     .put(PARAM_ENABLED, toggleButtons[facing.ordinal()].isPressed())

@@ -20,17 +20,14 @@ import java.util.stream.Stream;
 
 public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels> {
 
+    // @todo 1.14
+
     private static final String NAME = "XNetWirelessChannels";
 
     private final Map<WirelessChannelKey, WirelessChannelInfo> channelToWireless = new HashMap<>();
 
     public XNetWirelessChannels(String name) {
         super(name);
-    }
-
-    @Override
-    public void clear() {
-        channelToWireless.clear();
     }
 
     private int cnt = 30;
@@ -112,7 +109,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
                 }
             }
             for (GlobalCoordinate pos : toDelete) {
-                WorldBlob worldBlob = blobData.getWorldBlob(pos.getDimension());
+                WorldBlob worldBlob = blobData.getWorldBlob(pos.getDimension().getId());    // @todo 1.14 dimension id!
                 NetworkId networkId = channelInfo.getRouter(pos).getNetworkId();
 //                System.out.println("Clean up wireless network = " + networkId + " (" + entry.getKey() + ")");
                 worldBlob.markNetworkDirty(networkId);
@@ -135,7 +132,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
     @Nonnull
     public static XNetWirelessChannels getWirelessChannels(World world) {
-        return getData(world, XNetWirelessChannels.class, NAME);
+        return getData(world, () -> new XNetWirelessChannels(NAME), NAME);
     }
 
     public WirelessChannelInfo findChannel(String name, @Nonnull IChannelType channelType, @Nullable UUID owner) {
@@ -155,13 +152,13 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     }
 
     @Override
-    public void readFromNBT(CompoundNBT compound) {
+    public void read(CompoundNBT compound) {
         channelToWireless.clear();
-        ListNBT tagList = compound.getTagList("channels", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < tagList.tagCount() ; i++) {
-            CompoundNBT tc = tagList.getCompoundTagAt(i);
+        ListNBT tagList = compound.getList("channels", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0 ; i < tagList.size() ; i++) {
+            CompoundNBT tc = tagList.getCompound(i);
             WirelessChannelInfo channelInfo = new WirelessChannelInfo();
-            readRouters(tc.getTagList("routers", Constants.NBT.TAG_COMPOUND), channelInfo);
+            readRouters(tc.getList("routers", Constants.NBT.TAG_COMPOUND), channelInfo);
             UUID owner = null;
             if (tc.hasUniqueId("owner")) {
                 owner = tc.getUniqueId("owner");
@@ -173,34 +170,34 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     }
 
     private void readRouters(ListNBT tagList, WirelessChannelInfo channelInfo) {
-        for (int i = 0 ; i < tagList.tagCount() ; i++) {
-            CompoundNBT tc = tagList.getCompoundTagAt(i);
-            GlobalCoordinate pos = new GlobalCoordinate(new BlockPos(tc.getInteger("x"), tc.getInteger("y"), tc.getInteger("z")), tc.getInteger("dim"));
+        for (int i = 0 ; i < tagList.size() ; i++) {
+            CompoundNBT tc = tagList.getCompound(i);
+            GlobalCoordinate pos = new GlobalCoordinate(new BlockPos(tc.getInt("x"), tc.getInt("y"), tc.getInt("z")), DimensionType.getById(tc.getInt("dim"))); // @todo 1.14 dimension id!
             WirelessRouterInfo info = new WirelessRouterInfo(pos);
-            info.setAge(tc.getInteger("age"));
-            info.setNetworkId(new NetworkId(tc.getInteger("network")));
+            info.setAge(tc.getInt("age"));
+            info.setNetworkId(new NetworkId(tc.getInt("network")));
             channelInfo.updateRouterInfo(pos, info);
         }
     }
 
     @Override
-    public CompoundNBT writeToNBT(CompoundNBT compound) {
+    public CompoundNBT write(CompoundNBT compound) {
         ListNBT channelTagList = new ListNBT();
 
         for (Map.Entry<WirelessChannelKey, WirelessChannelInfo> entry : channelToWireless.entrySet()) {
             CompoundNBT channelTc = new CompoundNBT();
             WirelessChannelInfo channelInfo = entry.getValue();
             WirelessChannelKey key = entry.getKey();
-            channelTc.setString("name", key.getName());
-            channelTc.setString("type", key.getChannelType().getID());
+            channelTc.putString("name", key.getName());
+            channelTc.putString("type", key.getChannelType().getID());
             if (key.getOwner() != null) {
-                channelTc.setUniqueId("owner", key.getOwner());
+                channelTc.putUniqueId("owner", key.getOwner());
             }
-            channelTc.setTag("routers", writeRouters(channelInfo));
-            channelTagList.appendTag(channelTc);
+            channelTc.put("routers", writeRouters(channelInfo));
+            channelTagList.add(channelTc);
         }
 
-        compound.setTag("channels", channelTagList);
+        compound.put("channels", channelTagList);
 
         return compound;
     }
@@ -211,14 +208,14 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         for (Map.Entry<GlobalCoordinate, WirelessRouterInfo> infoEntry : channelInfo.getRouters().entrySet()) {
             CompoundNBT tc = new CompoundNBT();
             GlobalCoordinate pos = infoEntry.getKey();
-            tc.setInteger("dim", pos.getDimension());
-            tc.setInteger("x", pos.getCoordinate().getX());
-            tc.setInteger("y", pos.getCoordinate().getY());
-            tc.setInteger("z", pos.getCoordinate().getZ());
+            tc.putInt("dim", pos.getDimension().getId());   // @todo 1.14 (store reg!)
+            tc.putInt("x", pos.getCoordinate().getX());
+            tc.putInt("y", pos.getCoordinate().getY());
+            tc.putInt("z", pos.getCoordinate().getZ());
             WirelessRouterInfo info = infoEntry.getValue();
-            tc.setInteger("age", info.getAge());
-            tc.setInteger("network", info.getNetworkId().getId());
-            tagList.appendTag(tc);
+            tc.putInt("age", info.getAge());
+            tc.putInt("network", info.getNetworkId().getId());
+            tagList.add(tc);
         }
         return tagList;
     }

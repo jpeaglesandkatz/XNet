@@ -25,7 +25,7 @@ public class TOPSupport {
                 ItemStack pickBlock = data.getPickBlock();
                 TileEntity te = world.getTileEntity(data.getPos());
                 if (te instanceof FacadeTileEntity) {
-                    pickBlock = new ItemStack(NetCableSetup.netCableBlock, 1, pickBlock.getItemDamage());
+                    pickBlock = new ItemStack(NetCableSetup.netCableBlock, 1);
                 }
 
                 if (!pickBlock.isEmpty()) {
@@ -47,6 +47,6 @@ public class TOPSupport {
     }
 
     private static String getBlockUnlocalizedName(Block block) {
-        return STARTLOC + block.getUnlocalizedName() + ".name" + ENDLOC;
+        return STARTLOC + block.getTranslationKey() + ".name" + ENDLOC;
     }
 }

@@ -1,14 +1,14 @@
 package mcjty.xnet.clientinfo;
 
-import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
+import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.XNet;
 import mcjty.xnet.api.channels.IChannelSettings;
 import mcjty.xnet.api.channels.IChannelType;
 import mcjty.xnet.api.keys.ConsumerId;
 import mcjty.xnet.api.keys.SidedConsumer;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.network.PacketBuffer;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -33,34 +33,34 @@ public class ChannelClientInfo {
         this.enabled = enabled;
     }
 
-    public ChannelClientInfo(@Nonnull ByteBuf buf) {
+    public ChannelClientInfo(@Nonnull PacketBuffer buf) {
         channelName = NetworkTools.readStringUTF8(buf);
         enabled = buf.readBoolean();
-        String id = NetworkTools.readString(buf);
+        String id = buf.readString(32767);
         IChannelType t = XNet.xNetApi.findType(id);
         if (t == null) {
             throw new RuntimeException("Bad type: " + id);
         }
         type = t;
         channelSettings = type.createChannel();
-        CompoundNBT tag = NetworkTools.readTag(buf);
+        CompoundNBT tag = buf.readCompoundTag();
         channelSettings.readFromNBT(tag);
 
         int size = buf.readInt();
         for (int i = 0 ; i < size ; i++) {
-            SidedConsumer key = new SidedConsumer(new ConsumerId(buf.readInt()), Direction.VALUES[buf.readByte()]);
+            SidedConsumer key = new SidedConsumer(new ConsumerId(buf.readInt()), OrientationTools.DIRECTION_VALUES[buf.readByte()]);
             ConnectorClientInfo info = new ConnectorClientInfo(buf);
             connectors.put(key, info);
         }
     }
 
-    public void writeToNBT(@Nonnull ByteBuf buf) {
+    public void writeToNBT(@Nonnull PacketBuffer buf) {
         NetworkTools.writeStringUTF8(buf, channelName);
         buf.writeBoolean(enabled);
-        NetworkTools.writeString(buf, type.getID());
+        buf.writeString(type.getID());
         CompoundNBT tag = new CompoundNBT();
         channelSettings.writeToNBT(tag);
-        NetworkTools.writeTag(buf, tag);
+        buf.writeCompoundTag(tag);
         buf.writeInt(connectors.size());
         for (Map.Entry<SidedConsumer, ConnectorClientInfo> entry : connectors.entrySet()) {
             SidedConsumer key = entry.getKey();

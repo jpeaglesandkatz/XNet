@@ -402,9 +402,9 @@ public class ChunkBlob {
         cachedConsumers = null;
         cachedProviders = null;
 
-        lastBlobId = compound.getInteger("lastBlob");
+        lastBlobId = compound.getInt("lastBlob");
         Set<BlobId> foundBlobs = new HashSet<>();       // Keep track of blobs we found
-        if (compound.hasKey("allocations")) {
+        if (compound.contains("allocations")) {
             int[] allocations = compound.getIntArray("allocations");
             int idx = 0;
             while (idx < allocations.length-1) {
@@ -419,7 +419,7 @@ public class ChunkBlob {
             }
         }
 
-        if (compound.hasKey("mappings")) {
+        if (compound.contains("mappings")) {
             int[] mappings = compound.getIntArray("mappings");
             int idx = 0;
             while (idx < mappings.length-1) {
@@ -439,7 +439,7 @@ public class ChunkBlob {
             }
         }
 
-        if (compound.hasKey("providers")) {
+        if (compound.contains("providers")) {
             int[] providers = compound.getIntArray("providers");
             int idx = 0;
             while (idx < providers.length-1) {
@@ -448,7 +448,7 @@ public class ChunkBlob {
             }
         }
 
-        if (compound.hasKey("consumers")) {
+        if (compound.contains("consumers")) {
             int[] consumers = compound.getIntArray("consumers");
             int idx = 0;
             while (idx < consumers.length-1) {
@@ -460,7 +460,7 @@ public class ChunkBlob {
             }
         }
 
-        if (compound.hasKey("colors")) {
+        if (compound.contains("colors")) {
             int[] colors = compound.getIntArray("colors");
             int idx = 0;
             while (idx < colors.length-1) {
@@ -476,7 +476,7 @@ public class ChunkBlob {
     }
 
     public CompoundNBT writeToNBT(CompoundNBT compound) {
-        compound.setInteger("lastBlob", lastBlobId);
+        compound.putInt("lastBlob", lastBlobId);
 
         List<Integer> m = new ArrayList<>();
         for (Map.Entry<BlobId, Set<NetworkId>> entry : networkMappings.entrySet()) {
@@ -487,7 +487,7 @@ public class ChunkBlob {
             m.add(-1);
         }
         IntArrayNBT mappings = new IntArrayNBT(m.stream().mapToInt(i -> i).toArray());
-        compound.setTag("mappings", mappings);
+        compound.put("mappings", mappings);
 
         m.clear();
         for (Map.Entry<IntPos, BlobId> entry : blobAllocations.entrySet()) {
@@ -495,7 +495,7 @@ public class ChunkBlob {
             m.add(entry.getValue().getId());
         }
         IntArrayNBT allocations = new IntArrayNBT(m.stream().mapToInt(i -> i).toArray());
-        compound.setTag("allocations", allocations);
+        compound.put("allocations", allocations);
 
         m.clear();
         for (Map.Entry<IntPos, NetworkId> entry : networkProviders.entrySet()) {
@@ -503,7 +503,7 @@ public class ChunkBlob {
             m.add(entry.getValue().getId());
         }
         IntArrayNBT providers = new IntArrayNBT(m.stream().mapToInt(i -> i).toArray());
-        compound.setTag("providers", providers);
+        compound.put("providers", providers);
 
         m.clear();
         for (Map.Entry<IntPos, ConsumerId> entry : networkConsumers.entrySet()) {
@@ -511,7 +511,7 @@ public class ChunkBlob {
             m.add(entry.getValue().getId());
         }
         IntArrayNBT consumers = new IntArrayNBT(m.stream().mapToInt(i -> i).toArray());
-        compound.setTag("consumers", consumers);
+        compound.put("consumers", consumers);
 
         m.clear();
         for (Map.Entry<BlobId, ColorId> entry : blobColors.entrySet()) {
@@ -519,7 +519,7 @@ public class ChunkBlob {
             m.add(entry.getValue().getId());
         }
         IntArrayNBT colors = new IntArrayNBT(m.stream().mapToInt(i -> i).toArray());
-        compound.setTag("colors", colors);
+        compound.put("colors", colors);
 
         return compound;
     }

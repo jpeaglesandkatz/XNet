@@ -216,28 +216,28 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     public void readFromNBT(CompoundNBT tag) {
         super.readFromNBT(tag);
         logicMode = LogicMode.values()[tag.getByte("logicMode")];
-        speed = tag.getInteger("speed");
+        speed = tag.getInt("speed");
         if (speed == 0) {
             speed = 2;
         }
-        colors = tag.getInteger("colors");
+        colors = tag.getInt("colors");
         for (Sensor sensor : sensors) {
             sensor.readFromNBT(tag);
         }
-        redstoneOut = tag.getInteger("rsout");
+        redstoneOut = tag.getInt("rsout");
     }
 
     @Override
     public void writeToNBT(CompoundNBT tag) {
         super.writeToNBT(tag);
-        tag.setByte("logicMode", (byte) logicMode.ordinal());
-        tag.setInteger("speed", speed);
-        tag.setInteger("colors", colors);
+        tag.putByte("logicMode", (byte) logicMode.ordinal());
+        tag.putInt("speed", speed);
+        tag.putInt("colors", colors);
         for (Sensor sensor : sensors) {
             sensor.writeToNBT(tag);
         }
         if (redstoneOut != null) {
-            tag.setInteger("rsout", redstoneOut);
+            tag.putInt("rsout", redstoneOut);
         }
     }
 

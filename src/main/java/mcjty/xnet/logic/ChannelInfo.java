@@ -1,5 +1,6 @@
 package mcjty.xnet.logic;
 
+import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.XNet;
 import mcjty.xnet.api.channels.IChannelSettings;
 import mcjty.xnet.api.channels.IChannelType;
@@ -68,35 +69,35 @@ public class ChannelInfo {
 
     public void writeToNBT(CompoundNBT tag) {
         channelSettings.writeToNBT(tag);
-        tag.setBoolean("enabled", enabled);
+        tag.putBoolean("enabled", enabled);
         if (channelName != null && !channelName.isEmpty()) {
-            tag.setString("name", channelName);
+            tag.putString("name", channelName);
         }
         ListNBT conlist = new ListNBT();
         for (Map.Entry<SidedConsumer, ConnectorInfo> entry : connectors.entrySet()) {
             CompoundNBT tc = new CompoundNBT();
             ConnectorInfo connectorInfo = entry.getValue();
             connectorInfo.writeToNBT(tc);
-            tc.setInteger("consumerId", entry.getKey().getConsumerId().getId());
-            tc.setInteger("side", entry.getKey().getSide().ordinal());
-            tc.setString("type", connectorInfo.getType().getID());
-            tc.setBoolean("advanced", connectorInfo.isAdvanced());
-            conlist.appendTag(tc);
+            tc.putInt("consumerId", entry.getKey().getConsumerId().getId());
+            tc.putInt("side", entry.getKey().getSide().ordinal());
+            tc.putString("type", connectorInfo.getType().getID());
+            tc.putBoolean("advanced", connectorInfo.isAdvanced());
+            conlist.add(tc);
         }
-        tag.setTag("connectors", conlist);
+        tag.put("connectors", conlist);
     }
 
     public void readFromNBT(CompoundNBT tag) {
         channelSettings.readFromNBT(tag);
         enabled = tag.getBoolean("enabled");
-        if (tag.hasKey("name")) {
+        if (tag.contains("name")) {
             channelName = tag.getString("name");
         } else {
             channelName = null;
         }
-        ListNBT conlist = tag.getTagList("connectors", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < conlist.tagCount() ; i++) {
-            CompoundNBT tc = conlist.getCompoundTagAt(i);
+        ListNBT conlist = tag.getList("connectors", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0 ; i < conlist.size() ; i++) {
+            CompoundNBT tc = conlist.getCompound(i);
             String id = tc.getString("type");
             IChannelType type = XNet.xNetApi.findType(id);
             if (type == null) {
@@ -107,8 +108,8 @@ public class ChannelInfo {
                 XNet.setup.getLogger().warn("Trying to load a connector with non-matching type " + type + "!");
                 continue;
             }
-            ConsumerId consumerId = new ConsumerId(tc.getInteger("consumerId"));
-            Direction side = Direction.VALUES[tc.getInteger("side")];
+            ConsumerId consumerId = new ConsumerId(tc.getInt("consumerId"));
+            Direction side = OrientationTools.DIRECTION_VALUES[tc.getInt("side")];
             SidedConsumer key = new SidedConsumer(consumerId, side);
             boolean advanced = tc.getBoolean("advanced");
             ConnectorInfo connectorInfo = new ConnectorInfo(type, key, advanced);

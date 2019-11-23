@@ -1,14 +1,13 @@
 package mcjty.xnet.clientinfo;
 
-import io.netty.buffer.ByteBuf;
-import mcjty.lib.network.NetworkTools;
+import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.XNet;
 import mcjty.xnet.api.channels.IChannelType;
 import mcjty.xnet.api.channels.IConnectorSettings;
 import mcjty.xnet.api.keys.ConsumerId;
 import mcjty.xnet.api.keys.SidedPos;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.network.PacketBuffer;
 
 import javax.annotation.Nonnull;
 
@@ -31,27 +30,27 @@ public class ConnectorClientInfo {
         this.connectorSettings = connectorSettings;
     }
 
-    public ConnectorClientInfo(@Nonnull ByteBuf buf) {
-        pos = new SidedPos(NetworkTools.readPos(buf), Direction.VALUES[buf.readByte()]);
+    public ConnectorClientInfo(@Nonnull PacketBuffer buf) {
+        pos = new SidedPos(buf.readBlockPos(), OrientationTools.DIRECTION_VALUES[buf.readByte()]);
         consumerId = new ConsumerId(buf.readInt());
-        IChannelType t = XNet.xNetApi.findType(NetworkTools.readString(buf));
+        IChannelType t = XNet.xNetApi.findType(buf.readString(32767));
         if (t == null) {
             throw new RuntimeException("Cannot happen!");
         }
         channelType = t;
-        CompoundNBT tag = NetworkTools.readTag(buf);
+        CompoundNBT tag = buf.readCompoundTag();
         connectorSettings = channelType.createConnector(pos.getSide());
         connectorSettings.readFromNBT(tag);
     }
 
-    public void writeToBuf(@Nonnull ByteBuf buf) {
-        NetworkTools.writePos(buf, pos.getPos());
+    public void writeToBuf(@Nonnull PacketBuffer buf) {
+        buf.writeBlockPos(pos.getPos());
         buf.writeByte(pos.getSide().ordinal());
         buf.writeInt(consumerId.getId());
-        NetworkTools.writeString(buf, channelType.getID());
+        buf.writeString(channelType.getID());
         CompoundNBT tag = new CompoundNBT();
         connectorSettings.writeToNBT(tag);
-        NetworkTools.writeTag(buf, tag);
+        buf.writeCompoundTag(tag);
     }
 
     @Nonnull

@@ -5,10 +5,7 @@ import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
-import mcjty.theoneprobe.api.IProbeHitData;
-import mcjty.theoneprobe.api.IProbeInfo;
-import mcjty.theoneprobe.api.ProbeMode;
-import mcjty.theoneprobe.api.TextStyleClass;
+import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.api.channels.IChannelType;
 import mcjty.xnet.api.channels.IConnectorSettings;
 import mcjty.xnet.api.keys.NetworkId;
@@ -18,22 +15,23 @@ import mcjty.xnet.clientinfo.ControllerChannelClientInfo;
 import mcjty.xnet.config.ConfigSetup;
 import mcjty.xnet.logic.ChannelInfo;
 import mcjty.xnet.logic.LogicTools;
-import mcjty.xnet.multiblock.*;
-import net.minecraft.state.BooleanProperty;
+import mcjty.xnet.multiblock.ColorId;
+import mcjty.xnet.multiblock.WirelessChannelKey;
+import mcjty.xnet.multiblock.WorldBlob;
+import mcjty.xnet.multiblock.XNetBlobData;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.state.BooleanProperty;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.Optional;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -43,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static mcjty.xnet.init.ModBlocks.TYPE_ROUTER;
 import static mcjty.xnet.logic.ChannelInfo.MAX_CHANNELS;
 
 public final class TileEntityRouter extends GenericTileEntity {
@@ -63,6 +62,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     private int channelCount = 0;
 
     public TileEntityRouter() {
+        super(TYPE_ROUTER);
     }
 
     public void addPublishedChannels(Set<String> channels) {
@@ -73,7 +73,7 @@ public final class TileEntityRouter extends GenericTileEntity {
         Set<String> channels = new HashSet<>();
         NetworkId networkId = findRoutingNetwork();
         if (networkId != null) {
-            LogicTools.routers(getWorld(), networkId)
+            LogicTools.routers(world, networkId)
                     .forEach(router -> router.addPublishedChannels(channels));
         }
         return channels.size();
@@ -96,53 +96,46 @@ public final class TileEntityRouter extends GenericTileEntity {
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet) {
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
         boolean oldError = inError();
 
         super.onDataPacket(net, packet);
 
-        if (getWorld().isRemote) {
+        if (world.isRemote) {
             // If needed send a render update.
             if (oldError != inError()) {
-                getWorld().markBlockRangeForRenderUpdate(getPos(), getPos());
+                BlockState state = world.getBlockState(pos);
+                world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
             }
         }
     }
 
 
     @Override
-    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
-        return super.writeToNBT(tagCompound);
-    }
-
-    @Override
-    public void readFromNBT(CompoundNBT tagCompound) {
-        super.readFromNBT(tagCompound);
-    }
-
-    @Override
-    public void writeRestorableToNBT(CompoundNBT tagCompound) {
-        super.writeRestorableToNBT(tagCompound);
-        tagCompound.setInteger("chancnt", channelCount);
+    public void writeInfo(CompoundNBT tagCompound) {
+        super.writeInfo(tagCompound);
+        CompoundNBT info = getOrCreateInfo(tagCompound);
+        info.putInt("chancnt", channelCount);
         ListNBT published = new ListNBT();
         for (Map.Entry<LocalChannelId, String> entry : publishedChannels.entrySet()) {
             CompoundNBT tc = new CompoundNBT();
-            BlockPosTools.writeToNBT(tc, "pos", entry.getKey().getControllerPos());
-            tc.setInteger("index", entry.getKey().getIndex());
-            tc.setString("name", entry.getValue());
-            published.appendTag(tc);
+            BlockPosTools.write(tc, "pos", entry.getKey().getControllerPos());
+            tc.putInt("index", entry.getKey().getIndex());
+            tc.putString("name", entry.getValue());
+            published.add(tc);
         }
-        tagCompound.setTag("published", published);
+        info.put("published", published);
     }
 
     @Override
-    public void readRestorableFromNBT(CompoundNBT tagCompound) {
-        super.readRestorableFromNBT(tagCompound);
-        channelCount = tagCompound.getInteger("chancnt");
-        ListNBT published = tagCompound.getTagList("published", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0; i < published.tagCount(); i++) {
-            CompoundNBT tc = published.getCompoundTagAt(i);
-            LocalChannelId id = new LocalChannelId(BlockPosTools.readFromNBT(tc, "pos"), tc.getInteger("index"));
+    public void readInfo(CompoundNBT tagCompound) {
+        super.readInfo(tagCompound);
+        CompoundNBT info = tagCompound.getCompound("Info");
+        channelCount = info.getInt("chancnt");
+        ListNBT published = info.getList("published", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < published.size(); i++) {
+            CompoundNBT tc = published.getCompound(i);
+            LocalChannelId id = new LocalChannelId(BlockPosTools.read(tc, "pos"), tc.getInt("index"));
             String name = tc.getString("name");
             publishedChannels.put(id, name);
         }
@@ -150,7 +143,7 @@ public final class TileEntityRouter extends GenericTileEntity {
 
     public Stream<Pair<String, IChannelType>> publishedChannelStream() {
         return LogicTools.connectors(world, pos)
-                .map(connectorPos -> LogicTools.getControllerForConnector(getWorld(), connectorPos))
+                .map(connectorPos -> LogicTools.getControllerForConnector(world, connectorPos))
                 .filter(Objects::nonNull)
                 .flatMap(controller -> IntStream.range(0, MAX_CHANNELS)
                         .mapToObj(i -> {
@@ -168,8 +161,8 @@ public final class TileEntityRouter extends GenericTileEntity {
     }
 
     public void findLocalChannelInfo(List<ControllerChannelClientInfo> list, boolean onlyPublished, boolean remote) {
-        LogicTools.connectors(getWorld(), getPos())
-                .map(connectorPos -> LogicTools.getControllerForConnector(getWorld(), connectorPos))
+        LogicTools.connectors(world, getPos())
+                .map(connectorPos -> LogicTools.getControllerForConnector(world, connectorPos))
                 .filter(Objects::nonNull)
                 .forEach(controller -> {
                     for (int i = 0; i < MAX_CHANNELS; i++) {
@@ -215,8 +208,8 @@ public final class TileEntityRouter extends GenericTileEntity {
 
     @Nullable
     public NetworkId findRoutingNetwork() {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(getWorld()).getWorldBlob(getWorld());
-        return LogicTools.routingConnectors(getWorld(), getPos())
+        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        return LogicTools.routingConnectors(world, getPos())
                 .findFirst()
                 .map(worldBlob::getNetworkAt)
                 .orElse(null);
@@ -233,7 +226,7 @@ public final class TileEntityRouter extends GenericTileEntity {
         if (publishedName != null && !publishedName.isEmpty()) {
             NetworkId networkId = findRoutingNetwork();
             if (networkId != null) {
-                LogicTools.consumers(getWorld(), networkId)
+                LogicTools.consumers(world, networkId)
                         .forEach(consumerPos -> {
                             LogicTools.routers(world, consumerPos)
                                     .forEach(router -> router.addConnectorsFromConnectedNetworks(connectors, publishedName, type));
@@ -256,8 +249,8 @@ public final class TileEntityRouter extends GenericTileEntity {
 
     public boolean addConnectorsFromConnectedNetworks(Map<SidedConsumer, IConnectorSettings> connectors, String channelName, IChannelType type) {
         AtomicBoolean rc = new AtomicBoolean(false);
-        LogicTools.connectors(getWorld(), getPos())
-                .map(connectorPos -> LogicTools.getControllerForConnector(getWorld(), connectorPos))
+        LogicTools.connectors(world, getPos())
+                .map(connectorPos -> LogicTools.getControllerForConnector(world, connectorPos))
                 .filter(Objects::nonNull)
                 .forEach(controller -> {
                     for (int i = 0; i < MAX_CHANNELS; i++) {
@@ -284,11 +277,11 @@ public final class TileEntityRouter extends GenericTileEntity {
             publishedChannels.put(id, name);
         }
         int number = countPublishedChannelsOnNet();
-        WorldBlob worldBlob = XNetBlobData.getBlobData(getWorld()).getWorldBlob(getWorld());
+        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
         NetworkId networkId = findRoutingNetwork();
         if (networkId != null) {
             if (number != channelCount) {
-                LogicTools.routers(getWorld(), networkId)
+                LogicTools.routers(world, networkId)
                         .forEach(router -> router.setChannelCount(number));
             }
             worldBlob.markNetworkDirty(networkId); // Force a recalc of affected networks
@@ -296,7 +289,7 @@ public final class TileEntityRouter extends GenericTileEntity {
         for (NetworkId net : worldBlob.getNetworksAt(pos)) {
             worldBlob.markNetworkDirty(net);
         }
-        for (Direction facing : Direction.VALUES) {
+        for (Direction facing : OrientationTools.DIRECTION_VALUES) {
             for (NetworkId net : worldBlob.getNetworksAt(pos.offset(facing))) {
                 worldBlob.markNetworkDirty(net);
             }
@@ -307,7 +300,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     }
 
     @Override
-    public boolean execute(EntityPlayerMP playerMP, String command, TypedMap params) {
+    public boolean execute(PlayerEntity playerMP, String command, TypedMap params) {
         boolean rc = super.execute(playerMP, command, params);
         if (rc) {
             return true;
@@ -359,40 +352,42 @@ public final class TileEntityRouter extends GenericTileEntity {
         return false;
     }
 
-    @Override
-    @Optional.Method(modid = "theoneprobe")
-    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, BlockState blockState, IProbeHitData data) {
-        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-        XNetBlobData blobData = XNetBlobData.getBlobData(world);
-        WorldBlob worldBlob = blobData.getWorldBlob(world);
-        Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
-        for (NetworkId networkId : networks) {
-            probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId());
-            if (mode != ProbeMode.EXTENDED) {
-                break;
-            }
-        }
-        if (inError()) {
-            probeInfo.text(TextStyleClass.ERROR + "Too many channels on router!");
-        } else {
-            probeInfo.text(TextStyleClass.LABEL + "Channels: " + TextStyleClass.INFO + getChannelCount());
-        }
+    // @todo 1.14
+//    @Override
+//    @Optional.Method(modid = "theoneprobe")
+//    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
+//        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
+//        XNetBlobData blobData = XNetBlobData.getBlobData(world);
+//        WorldBlob worldBlob = blobData.getWorldBlob(world);
+//        Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
+//        for (NetworkId networkId : networks) {
+//            probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId());
+//            if (mode != ProbeMode.EXTENDED) {
+//                break;
+//            }
+//        }
+//        if (inError()) {
+//            probeInfo.text(TextStyleClass.ERROR + "Too many channels on router!");
+//        } else {
+//            probeInfo.text(TextStyleClass.LABEL + "Channels: " + TextStyleClass.INFO + getChannelCount());
+//        }
+//
+//        if (mode == ProbeMode.DEBUG) {
+//            BlobId blobId = worldBlob.getBlobAt(data.getPos());
+//            if (blobId != null) {
+//                probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
+//            }
+//            ColorId colorId = worldBlob.getColorAt(data.getPos());
+//            if (colorId != null) {
+//                probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
+//            }
+//        }
+//    }
 
-        if (mode == ProbeMode.DEBUG) {
-            BlobId blobId = worldBlob.getBlobAt(data.getPos());
-            if (blobId != null) {
-                probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
-            }
-            ColorId colorId = worldBlob.getColorAt(data.getPos());
-            if (colorId != null) {
-                probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
-            }
-        }
-    }
 
     @Override
-    public void onBlockBreak(World world, BlockPos pos, BlockState state) {
-        super.onBlockBreak(world, pos, state);
+    public void onReplaced(World world, BlockPos pos, BlockState state) {
+        super.onReplaced(world, pos, state);
         if (!this.world.isRemote) {
             XNetBlobData blobData = XNetBlobData.getBlobData(this.world);
             WorldBlob worldBlob = blobData.getWorldBlob(this.world);
@@ -402,7 +397,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     }
 
     @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, EntityLivingBase placer, ItemStack stack) {
+    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
         if (!world.isRemote) {
             XNetBlobData blobData = XNetBlobData.getBlobData(world);
@@ -415,6 +410,6 @@ public final class TileEntityRouter extends GenericTileEntity {
 
     @Override
     public BlockState getActualState(BlockState state) {
-        return state.withProperty(ERROR, inError());
+        return state.with(ERROR, inError());
     }
 }

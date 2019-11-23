@@ -213,28 +213,28 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     public void readFromNBT(CompoundNBT tag) {
         super.readFromNBT(tag);
         fluidMode = FluidMode.values()[tag.getByte("fluidMode")];
-        if (tag.hasKey("priority")) {
-            priority = tag.getInteger("priority");
+        if (tag.contains("priority")) {
+            priority = tag.getInt("priority");
         } else {
             priority = null;
         }
-        if (tag.hasKey("rate")) {
-            rate = tag.getInteger("rate");
+        if (tag.contains("rate")) {
+            rate = tag.getInt("rate");
         } else {
             rate = null;
         }
-        if (tag.hasKey("minmax")) {
-            minmax = tag.getInteger("minmax");
+        if (tag.contains("minmax")) {
+            minmax = tag.getInt("minmax");
         } else {
             minmax = null;
         }
-        speed = tag.getInteger("speed");
+        speed = tag.getInt("speed");
         if (speed == 0) {
             speed = 2;
         }
-        if (tag.hasKey("filter")) {
-            CompoundNBT itemTag = tag.getCompoundTag("filter");
-            filter = new ItemStack(itemTag);
+        if (tag.contains("filter")) {
+            CompoundNBT itemTag = tag.getCompound("filter");
+            filter = ItemStack.read(itemTag);
         } else {
             filter = ItemStack.EMPTY;
         }
@@ -243,21 +243,21 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void writeToNBT(CompoundNBT tag) {
         super.writeToNBT(tag);
-        tag.setByte("fluidMode", (byte) fluidMode.ordinal());
+        tag.putByte("fluidMode", (byte) fluidMode.ordinal());
         if (priority != null) {
-            tag.setInteger("priority", priority);
+            tag.putInt("priority", priority);
         }
         if (rate != null) {
-            tag.setInteger("rate", rate);
+            tag.putInt("rate", rate);
         }
         if (minmax != null) {
-            tag.setInteger("minmax", minmax);
+            tag.putInt("minmax", minmax);
         }
-        tag.setInteger("speed", speed);
+        tag.putInt("speed", speed);
         if (!filter.isEmpty()) {
             CompoundNBT itemTag = new CompoundNBT();
-            filter.writeToNBT(itemTag);
-            tag.setTag("filter", itemTag);
+            filter.write(itemTag);
+            tag.put("filter", itemTag);
         }
     }
 }

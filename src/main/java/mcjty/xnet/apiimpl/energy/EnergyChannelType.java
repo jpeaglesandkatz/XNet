@@ -30,7 +30,7 @@ public class EnergyChannelType implements IChannelType {
         if (te == null) {
             return false;
         }
-        if (te.hasCapability(CapabilityEnergy.ENERGY, side)) {
+        if (te.getCapability(CapabilityEnergy.ENERGY, side).isPresent()) {
             return true;
         }
 //        if (te instanceof IInventory) {

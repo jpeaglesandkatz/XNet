@@ -1,6 +1,7 @@
 package mcjty.xnet.logic;
 
 import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.blocks.router.TileEntityRouter;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -24,7 +25,7 @@ public class RouterIterator<T extends GenericTileEntity> implements Iterator<T> 
     private T foundRouter = null;
 
     Stream<T> stream() {
-        return StreamSupport.stream(Spliterators.spliterator(this, Direction.VALUES.length, Spliterator.ORDERED), false);
+        return StreamSupport.stream(Spliterators.spliterator(this, OrientationTools.DIRECTION_VALUES.length, Spliterator.ORDERED), false);
     }
 
     RouterIterator(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull Class<T> clazz) {
@@ -37,9 +38,9 @@ public class RouterIterator<T extends GenericTileEntity> implements Iterator<T> 
     private void findNext() {
         foundRouter = null;
         while (facingIdx != -1) {
-            BlockPos routerPos = pos.offset(Direction.VALUES[facingIdx]);
+            BlockPos routerPos = pos.offset(OrientationTools.DIRECTION_VALUES[facingIdx]);
             facingIdx++;
-            if (facingIdx >= Direction.VALUES.length) {
+            if (facingIdx >= OrientationTools.DIRECTION_VALUES.length) {
                 facingIdx = -1;
             }
             TileEntity te = world.getTileEntity(routerPos);

@@ -30,7 +30,7 @@ public class FluidChannelType implements IChannelType {
         if (te == null) {
             return false;
         }
-        if (te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side)) {
+        if (te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side).isPresent()) {
             return true;
         }
         return false;

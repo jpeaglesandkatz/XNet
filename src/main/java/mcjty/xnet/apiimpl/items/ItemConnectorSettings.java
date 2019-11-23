@@ -299,12 +299,12 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         itemMode = ItemMode.values()[tag.getByte("itemMode")];
         extractMode = ExtractMode.values()[tag.getByte("extractMode")];
         stackMode = StackMode.values()[tag.getByte("stackMode")];
-        if (tag.hasKey("spd")) {
+        if (tag.contains("spd")) {
             // New tag
-            speed = tag.getInteger("spd");
+            speed = tag.getInt("spd");
         } else {
             // Old tag for compatibility
-            speed = tag.getInteger("speed");
+            speed = tag.getInt("speed");
             if (speed == 0) {
                 speed = 2;
             }
@@ -314,25 +314,25 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         metaMode = tag.getBoolean("metaMode");
         nbtMode = tag.getBoolean("nbtMode");
         blacklist = tag.getBoolean("blacklist");
-        if (tag.hasKey("priority")) {
-            priority = tag.getInteger("priority");
+        if (tag.contains("priority")) {
+            priority = tag.getInt("priority");
         } else {
             priority = null;
         }
-        if (tag.hasKey("extractAmount")) {
-            extractAmount = tag.getInteger("extractAmount");
+        if (tag.contains("extractAmount")) {
+            extractAmount = tag.getInt("extractAmount");
         } else {
             extractAmount = null;
         }
-        if (tag.hasKey("count")) {
-            count = tag.getInteger("count");
+        if (tag.contains("count")) {
+            count = tag.getInt("count");
         } else {
             count = null;
         }
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
-            if (tag.hasKey("filter" + i)) {
-                CompoundNBT itemTag = tag.getCompoundTag("filter" + i);
-                filters.set(i, new ItemStack(itemTag));
+            if (tag.contains("filter" + i)) {
+                CompoundNBT itemTag = tag.getCompound("filter" + i);
+                filters.set(i, ItemStack.read(itemTag));
             } else {
                 filters.set(i, ItemStack.EMPTY);
             }
@@ -343,28 +343,28 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void writeToNBT(CompoundNBT tag) {
         super.writeToNBT(tag);
-        tag.setByte("itemMode", (byte) itemMode.ordinal());
-        tag.setByte("extractMode", (byte) extractMode.ordinal());
-        tag.setByte("stackMode", (byte) stackMode.ordinal());
-        tag.setInteger("spd", speed);
-        tag.setBoolean("oredictMode", oredictMode);
-        tag.setBoolean("metaMode", metaMode);
-        tag.setBoolean("nbtMode", nbtMode);
-        tag.setBoolean("blacklist", blacklist);
+        tag.putByte("itemMode", (byte) itemMode.ordinal());
+        tag.putByte("extractMode", (byte) extractMode.ordinal());
+        tag.putByte("stackMode", (byte) stackMode.ordinal());
+        tag.putInt("spd", speed);
+        tag.putBoolean("oredictMode", oredictMode);
+        tag.putBoolean("metaMode", metaMode);
+        tag.putBoolean("nbtMode", nbtMode);
+        tag.putBoolean("blacklist", blacklist);
         if (priority != null) {
-            tag.setInteger("priority", priority);
+            tag.putInt("priority", priority);
         }
         if (extractAmount != null) {
-            tag.setInteger("extractAmount", extractAmount);
+            tag.putInt("extractAmount", extractAmount);
         }
         if (count != null) {
-            tag.setInteger("count", count);
+            tag.putInt("count", count);
         }
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             if (!filters.get(i).isEmpty()) {
                 CompoundNBT itemTag = new CompoundNBT();
-                filters.get(i).writeToNBT(itemTag);
-                tag.setTag("filter" + i, itemTag);
+                filters.get(i).write(itemTag);
+                tag.put("filter" + i, itemTag);
             }
         }
     }

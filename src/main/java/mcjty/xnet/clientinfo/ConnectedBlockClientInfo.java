@@ -1,11 +1,11 @@
 package mcjty.xnet.clientinfo;
 
-import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
+import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.api.keys.SidedPos;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.network.PacketBuffer;
 
 import javax.annotation.Nonnull;
 
@@ -30,17 +30,17 @@ public class ConnectedBlockClientInfo {
         this.blockName = getStackUnlocalizedName(connectedBlock);
     }
 
-    public ConnectedBlockClientInfo(@Nonnull ByteBuf buf) {
-        pos = new SidedPos(NetworkTools.readPos(buf), Direction.VALUES[buf.readByte()]);
-        connectedBlock = NetworkTools.readItemStack(buf);
+    public ConnectedBlockClientInfo(@Nonnull PacketBuffer buf) {
+        pos = new SidedPos(buf.readBlockPos(), OrientationTools.DIRECTION_VALUES[buf.readByte()]);
+        connectedBlock = buf.readItemStack();
         name = NetworkTools.readStringUTF8(buf);
         blockName = NetworkTools.readStringUTF8(buf);
     }
 
-    public void writeToBuf(@Nonnull ByteBuf buf) {
-        NetworkTools.writePos(buf, pos.getPos());
+    public void writeToBuf(@Nonnull PacketBuffer buf) {
+        buf.writeBlockPos(pos.getPos());
         buf.writeByte(pos.getSide().ordinal());
-        NetworkTools.writeItemStack(buf, connectedBlock);
+        buf.writeItemStack(connectedBlock);
         NetworkTools.writeStringUTF8(buf, name);
         NetworkTools.writeStringUTF8(buf, blockName);
     }
@@ -86,21 +86,21 @@ public class ConnectedBlockClientInfo {
         CompoundNBT nbttagcompound = getSubCompound(stack, "display");
 
         if (nbttagcompound != null) {
-            if (nbttagcompound.hasKey("Name", 8)) {
+            if (nbttagcompound.contains("Name", 8)) {
                 return nbttagcompound.getString("Name");
             }
 
-            if (nbttagcompound.hasKey("LocName", 8)) {
+            if (nbttagcompound.contains("LocName", 8)) {
                 return nbttagcompound.getString("LocName");
             }
         }
 
-        return stack.getItem().getUnlocalizedName(stack) + ".name";
+        return stack.getItem().getTranslationKey(stack) + ".name";
     }
 
     private static CompoundNBT getSubCompound(ItemStack stack, String key) {
-        if (stack.getTagCompound() != null && stack.getTagCompound().hasKey(key, 10)) {
-            return stack.getTagCompound().getCompoundTag(key);
+        if (stack.getTag() != null && stack.getTag().contains(key, 10)) {
+            return stack.getTag().getCompound(key);
         } else {
             return null;
         }
