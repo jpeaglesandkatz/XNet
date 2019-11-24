@@ -4,6 +4,7 @@ import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.dimension.DimensionType;
 
 public class WorldBlobTest {
 
@@ -20,7 +21,7 @@ public class WorldBlobTest {
         ColorId color2 = new ColorId(222);
         ColorId color3 = new ColorId(333);
 
-        WorldBlob world = new WorldBlob(0);
+        WorldBlob world = new WorldBlob(DimensionType.OVERWORLD);
 
         BlockPos p1 = new BlockPos(10, 60, 10);
         world.createNetworkProvider(p1, color1, new NetworkId(1000));
@@ -52,7 +53,7 @@ public class WorldBlobTest {
         CompoundNBT compound = new CompoundNBT();
         world.writeToNBT(compound);
 
-        world = new WorldBlob(0);
+        world = new WorldBlob(DimensionType.OVERWORLD);
         world.readFromNBT(compound);
 
         System.out.println("------------------------------------------------------------");

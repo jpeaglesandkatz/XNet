@@ -12,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,7 +20,7 @@ import java.util.*;
 
 public class WorldBlob implements IWorldBlob {
 
-    private final int dimId;
+    private final DimensionType dimensionType;
     private final Map<Long, ChunkBlob> chunkBlobMap = new HashMap<>();
     private int lastNetworkId = 0;              // Network ID
     private int lastConsumerId = 0;             // Network consumer ID
@@ -39,12 +40,12 @@ public class WorldBlob implements IWorldBlob {
     // Transient map containing all providers and their position
     private final Map<NetworkId, BlockPos> providerPositions = new HashMap<>();
 
-    public WorldBlob(int dimId) {
-        this.dimId = dimId;
+    public WorldBlob(DimensionType dimensionType) {
+        this.dimensionType = dimensionType;
     }
 
-    public int getDimId() {
-        return dimId;
+    public DimensionType getDimensionType() {
+        return dimensionType;
     }
 
     @Nonnull

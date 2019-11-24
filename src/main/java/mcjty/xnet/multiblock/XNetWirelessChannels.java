@@ -3,9 +3,9 @@ package mcjty.xnet.multiblock;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.GlobalCoordinate;
 import mcjty.lib.worlddata.AbstractWorldData;
-import mcjty.xnet.XNet;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
+import mcjty.xnet.XNet;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.math.BlockPos;
@@ -109,7 +109,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
                 }
             }
             for (GlobalCoordinate pos : toDelete) {
-                WorldBlob worldBlob = blobData.getWorldBlob(pos.getDimension().getId());    // @todo 1.14 dimension id!
+                WorldBlob worldBlob = blobData.getWorldBlob(pos.getDimension());
                 NetworkId networkId = channelInfo.getRouter(pos).getNetworkId();
 //                System.out.println("Clean up wireless network = " + networkId + " (" + entry.getKey() + ")");
                 worldBlob.markNetworkDirty(networkId);
