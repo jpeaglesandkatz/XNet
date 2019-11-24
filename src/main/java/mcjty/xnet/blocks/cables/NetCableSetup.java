@@ -2,6 +2,9 @@ package mcjty.xnet.blocks.cables;
 
 import mcjty.xnet.XNet;
 import net.minecraft.block.Block;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.registries.ObjectHolder;
 
@@ -14,10 +17,27 @@ public class NetCableSetup {
     @ObjectHolder(XNet.MODID + ":advanced_connector")
     public static AdvancedConnectorBlock advancedConnectorBlock;
 
+    @ObjectHolder(XNet.MODID + ":connector")
+    public static TileEntityType<?> TYPE_CONNECTOR;
+    @ObjectHolder(XNet.MODID + ":advanced_connector")
+    public static TileEntityType<?> TYPE_ADVANCED_CONNECTOR;
+
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry().register(new NetCableBlock());
         event.getRegistry().register(new ConnectorBlock());
         event.getRegistry().register(new AdvancedConnectorBlock());
+    }
+
+    public static void registerItems(RegistryEvent.Register<Item> event) {
+        Item.Properties properties = new Item.Properties().group(XNet.setup.getTab());
+        event.getRegistry().register(new BlockItem(netCableBlock, properties).setRegistryName("netcable"));
+        event.getRegistry().register(new BlockItem(connectorBlock, properties).setRegistryName("connector"));
+        event.getRegistry().register(new BlockItem(advancedConnectorBlock, properties).setRegistryName("advanced_connector"));
+    }
+
+    public static void registerTiles(final RegistryEvent.Register<TileEntityType<?>> event) {
+        event.getRegistry().register(TileEntityType.Builder.create(ConnectorTileEntity::new, connectorBlock).build(null).setRegistryName("connector"));
+        event.getRegistry().register(TileEntityType.Builder.create(AdvancedConnectorTileEntity::new, advancedConnectorBlock).build(null).setRegistryName("advanced_connector"));
     }
 
     // @todo 1.14

@@ -63,7 +63,7 @@ public class FacadeBlock extends NetCableBlock {
 
     @Override
     public void harvestBlock(World worldIn, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity te, ItemStack stack) {
-        ItemStack item = new ItemStack(ModBlocks.facadeBlock);
+        ItemStack item = new ItemStack(ModBlocks.FACADE);
         BlockState mimicBlock;
         if (te instanceof FacadeTileEntity) {
             mimicBlock = ((FacadeTileEntity) te).getMimicBlock();

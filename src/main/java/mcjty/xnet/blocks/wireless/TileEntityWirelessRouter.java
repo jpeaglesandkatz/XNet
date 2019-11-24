@@ -120,17 +120,17 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     }
 
     private int getAntennaTier() {
-        if (world.getBlockState(pos.up()).getBlock() != ModBlocks.antennaBaseBlock) {
+        if (world.getBlockState(pos.up()).getBlock() != ModBlocks.ANTENNA_BASE) {
             return TIER_INVALID;
         }
         Block aboveAntenna = world.getBlockState(pos.up(2)).getBlock();
-        if (aboveAntenna == ModBlocks.antennaDishBlock) {
+        if (aboveAntenna == ModBlocks.ANTENNA_DISH) {
             return TIER_INF;
         }
-        if (aboveAntenna != ModBlocks.antennaBlock) {
+        if (aboveAntenna != ModBlocks.ANTENNA) {
             return TIER_INVALID;
         }
-        if (world.getBlockState(pos.up(3)).getBlock() == ModBlocks.antennaBlock) {
+        if (world.getBlockState(pos.up(3)).getBlock() == ModBlocks.ANTENNA) {
             return TIER_2;
         } else {
             return TIER_1;

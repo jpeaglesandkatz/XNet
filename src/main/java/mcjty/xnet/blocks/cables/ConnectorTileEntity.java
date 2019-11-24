@@ -19,6 +19,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
@@ -30,7 +31,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static mcjty.xnet.init.ModBlocks.TYPE_CONNECTOR;
+import static mcjty.xnet.blocks.cables.NetCableSetup.TYPE_CONNECTOR;
 
 public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSupport, IConnectorTile {
 
@@ -64,11 +65,16 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     public ConnectorTileEntity() {
-        super(TYPE_CONNECTOR);
+        this(TYPE_CONNECTOR);
+    }
+
+    protected ConnectorTileEntity(TileEntityType<?> type) {
+        super(type);
         sidedStorages = new LazyOptional[OrientationTools.DIRECTION_VALUES.length];
         for (Direction direction : OrientationTools.DIRECTION_VALUES) {
             sidedStorages[direction.ordinal()] = LazyOptional.of(() -> createSidedHandler(direction));
         }
+
     }
 
     @Override

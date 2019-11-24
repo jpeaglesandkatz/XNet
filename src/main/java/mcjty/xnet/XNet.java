@@ -43,7 +43,7 @@ public class XNet implements ModBase {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigSetup.COMMON_CONFIG);
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener((FMLCommonSetupEvent event) -> setup.init(event));
-        FMLJavaModLoadingContext.get().getModEventBus().addListener((FMLClientSetupEvent event) -> ClientSetup.initClient(event));
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::initClient);
 
         ConfigSetup.loadConfig(ConfigSetup.CLIENT_CONFIG, FMLPaths.CONFIGDIR.get().resolve("xnet-client.toml"));
         ConfigSetup.loadConfig(ConfigSetup.COMMON_CONFIG, FMLPaths.CONFIGDIR.get().resolve("xnet-common.toml"));

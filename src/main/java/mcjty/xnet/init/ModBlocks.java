@@ -2,16 +2,20 @@ package mcjty.xnet.init;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
+import mcjty.lib.container.GenericContainer;
 import mcjty.xnet.XNet;
-import mcjty.xnet.blocks.cables.NetCableSetup;
 import mcjty.xnet.blocks.controller.TileEntityController;
 import mcjty.xnet.blocks.facade.FacadeBlock;
+import mcjty.xnet.blocks.facade.FacadeTileEntity;
 import mcjty.xnet.blocks.redstoneproxy.RedstoneProxyBlock;
 import mcjty.xnet.blocks.redstoneproxy.RedstoneProxyUBlock;
 import mcjty.xnet.blocks.router.TileEntityRouter;
 import mcjty.xnet.blocks.wireless.TileEntityWirelessRouter;
 import mcjty.xnet.config.ConfigSetup;
 import net.minecraft.block.Block;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.registries.ObjectHolder;
@@ -19,33 +23,30 @@ import net.minecraftforge.registries.ObjectHolder;
 public class ModBlocks {
 
     @ObjectHolder(XNet.MODID + ":controller")
-    public static BaseBlock controllerBlock;
+    public static BaseBlock CONTROLLER;
     @ObjectHolder(XNet.MODID + ":router")
-    public static BaseBlock routerBlock;
+    public static BaseBlock ROUTER;
     @ObjectHolder(XNet.MODID + ":wireless_router")
-    public static BaseBlock wirelessRouterBlock;
+    public static BaseBlock WIRELESS_ROUTER;
 
     @ObjectHolder(XNet.MODID + ":antenna")
-    public static BaseBlock antennaBlock;
+    public static BaseBlock ANTENNA;
     @ObjectHolder(XNet.MODID + ":antenna_base")
-    public static BaseBlock antennaBaseBlock;
+    public static BaseBlock ANTENNA_BASE;
     @ObjectHolder(XNet.MODID + ":antenna_dish")
-    public static BaseBlock antennaDishBlock;
+    public static BaseBlock ANTENNA_DISH;
 
     @ObjectHolder(XNet.MODID + ":facade")
-    public static FacadeBlock facadeBlock;
+    public static FacadeBlock FACADE;
 
     @ObjectHolder(XNet.MODID + ":redstone_proxy")
-    public static RedstoneProxyBlock redstoneProxyBlock;
+    public static RedstoneProxyBlock REDSTONE_PROXY;
 
     @ObjectHolder(XNet.MODID + ":redstone_proxy_upd")
-    public static RedstoneProxyUBlock redstoneProxyUBlock;
+    public static RedstoneProxyUBlock REDSTONE_PROXY_UPD;
 
     @ObjectHolder(XNet.MODID + ":controller")
     public static TileEntityType<?> TYPE_CONTROLLER;
-
-    @ObjectHolder(XNet.MODID + ":connector")
-    public static TileEntityType<?> TYPE_CONNECTOR;
 
     @ObjectHolder(XNet.MODID + ":router")
     public static TileEntityType<?> TYPE_ROUTER;
@@ -106,6 +107,34 @@ public class ModBlocks {
                 .infoExtendedParameter(stack -> Integer.toString(ConfigSetup.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_INF].get()))
         ));
     }
+
+    public static void registerItems(RegistryEvent.Register<Item> event) {
+        Item.Properties properties = new Item.Properties().group(XNet.setup.getTab());
+        event.getRegistry().register(new BlockItem(CONTROLLER, properties).setRegistryName("controller"));
+        event.getRegistry().register(new BlockItem(WIRELESS_ROUTER, properties).setRegistryName("wireless_router"));
+        event.getRegistry().register(new BlockItem(ROUTER, properties).setRegistryName("router"));
+        event.getRegistry().register(new BlockItem(FACADE, properties).setRegistryName("facade"));
+        event.getRegistry().register(new BlockItem(ANTENNA, properties).setRegistryName("antena"));
+        event.getRegistry().register(new BlockItem(ANTENNA_BASE, properties).setRegistryName("antena_base"));
+        event.getRegistry().register(new BlockItem(ANTENNA_DISH, properties).setRegistryName("antena_dish"));
+        event.getRegistry().register(new BlockItem(REDSTONE_PROXY, properties).setRegistryName("redstone_proxy"));
+        event.getRegistry().register(new BlockItem(REDSTONE_PROXY_UPD, properties).setRegistryName("redstone_proxy_upd"));
+    }
+
+    public static void registerTiles(final RegistryEvent.Register<TileEntityType<?>> event) {
+        event.getRegistry().register(TileEntityType.Builder.create(TileEntityController::new, CONTROLLER).build(null).setRegistryName("controller"));
+        event.getRegistry().register(TileEntityType.Builder.create(TileEntityRouter::new, ROUTER).build(null).setRegistryName("router"));
+        event.getRegistry().register(TileEntityType.Builder.create(TileEntityRouter::new, WIRELESS_ROUTER).build(null).setRegistryName("wireless_router"));
+        event.getRegistry().register(TileEntityType.Builder.create(FacadeTileEntity::new, FACADE).build(null).setRegistryName("facade"));
+    }
+
+    public static void registerContainers(final RegistryEvent.Register<ContainerType<?>> event) {
+        event.getRegistry().register(GenericContainer.createContainerType("connector"));
+        event.getRegistry().register(GenericContainer.createContainerType("controller"));
+        event.getRegistry().register(GenericContainer.createContainerType("router"));
+        event.getRegistry().register(GenericContainer.createContainerType("wireless_router"));
+    }
+
 
 //    @SideOnly(Side.CLIENT)
 //    public static void initModels() {

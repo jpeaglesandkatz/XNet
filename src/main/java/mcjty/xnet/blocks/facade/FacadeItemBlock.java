@@ -101,7 +101,7 @@ public class FacadeItemBlock extends BlockItem {
                         return ActionResultType.FAIL;
                     }
                 }
-            } else if (block == ModBlocks.facadeBlock) {
+            } else if (block == ModBlocks.FACADE) {
                 return ActionResultType.FAIL;
             } else {
                 setMimicBlock(itemstack, state);

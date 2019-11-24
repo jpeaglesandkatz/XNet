@@ -19,7 +19,7 @@ public class TOPSupport {
     public static void registerTopExtras() {
         TOPCompatibility.GetTheOneProbe.probe.registerBlockDisplayOverride((mode, probeInfo, player, world, blockState, data) -> {
             Block block = blockState.getBlock();
-            if (block == ModBlocks.facadeBlock) {
+            if (block == ModBlocks.FACADE) {
                 String modid = XNet.MODNAME;
 
                 ItemStack pickBlock = data.getPickBlock();

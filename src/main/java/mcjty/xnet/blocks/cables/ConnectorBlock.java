@@ -17,7 +17,6 @@ import mcjty.xnet.init.ModBlocks;
 import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
-import mcjty.xnet.setup.GuiProxy;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -99,7 +98,7 @@ public class ConnectorBlock extends GenericCableBlock {
             // If we are in mimic mode then the drop will be the facade as the connector will remain there
             ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
             if (connectorTileEntity.getMimicBlock() != null) {
-                ItemStack item = new ItemStack(ModBlocks.facadeBlock);
+                ItemStack item = new ItemStack(ModBlocks.FACADE);
                 FacadeItemBlock.setMimicBlock(item, connectorTileEntity.getMimicBlock());
                 connectorTileEntity.setMimicBlock(null);
                 spawnAsEntity(worldIn, pos, item);
