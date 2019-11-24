@@ -1,7 +1,11 @@
 package mcjty.xnet.blocks.cables;
 
+import mcjty.lib.api.container.CapabilityContainerProvider;
+import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.DefaultValue;
 import mcjty.lib.bindings.IValue;
+import mcjty.lib.container.EmptyContainer;
+import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
@@ -16,6 +20,7 @@ import mcjty.xnet.multiblock.XNetBlobData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
@@ -63,6 +68,9 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
                 new DefaultValue<>(VALUE_NAME, this::getConnectorName, this::setConnectorName),
         };
     }
+
+    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Connector")
+            .containerSupplier((windowId,player) -> new GenericContainer(NetCableSetup.CONTAINER_CONNECTOR, windowId, EmptyContainer.CONTAINER_FACTORY, getPos(), ConnectorTileEntity.this)));
 
     public ConnectorTileEntity() {
         this(TYPE_CONNECTOR);
@@ -301,6 +309,9 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
             } else {
                 return sidedStorages[side.ordinal()].cast();
             }
+        }
+        if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
+            return screenHandler.cast();
         }
         return super.getCapability(cap, side);
     }

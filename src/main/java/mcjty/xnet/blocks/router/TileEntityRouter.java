@@ -1,5 +1,9 @@
 package mcjty.xnet.blocks.router;
 
+import mcjty.lib.api.container.CapabilityContainerProvider;
+import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.container.EmptyContainer;
+import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
@@ -13,6 +17,7 @@ import mcjty.xnet.api.keys.SidedConsumer;
 import mcjty.xnet.blocks.generic.CableColor;
 import mcjty.xnet.clientinfo.ControllerChannelClientInfo;
 import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.init.ModBlocks;
 import mcjty.xnet.logic.ChannelInfo;
 import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.multiblock.ColorId;
@@ -22,6 +27,7 @@ import mcjty.xnet.multiblock.XNetBlobData;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -31,7 +37,9 @@ import net.minecraft.state.BooleanProperty;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.LazyOptional;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -60,6 +68,9 @@ public final class TileEntityRouter extends GenericTileEntity {
 
     private Map<LocalChannelId, String> publishedChannels = new HashMap<>();
     private int channelCount = 0;
+
+    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Router")
+            .containerSupplier((windowId,player) -> new GenericContainer(ModBlocks.CONTAINER_ROUTER, windowId, EmptyContainer.CONTAINER_FACTORY, getPos(), TileEntityRouter.this)));
 
     public TileEntityRouter() {
         super(TYPE_ROUTER);
@@ -411,5 +422,14 @@ public final class TileEntityRouter extends GenericTileEntity {
     @Override
     public BlockState getActualState(BlockState state) {
         return state.with(ERROR, inError());
+    }
+
+    @Nonnull
+    @Override
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
+        if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
+            return screenHandler.cast();
+        }
+        return super.getCapability(cap, facing);
     }
 }

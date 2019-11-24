@@ -57,6 +57,13 @@ public class ModBlocks {
     @ObjectHolder(XNet.MODID + ":facade")
     public static TileEntityType<?> TYPE_FACADE;
 
+    @ObjectHolder(XNet.MODID + ":controller")
+    public static ContainerType<GenericContainer> CONTAINER_CONTROLLER;
+    @ObjectHolder(XNet.MODID + ":router")
+    public static ContainerType<GenericContainer> CONTAINER_ROUTER;
+    @ObjectHolder(XNet.MODID + ":wireless_router")
+    public static ContainerType<GenericContainer> CONTAINER_WIRELESS_ROUTER;
+
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry().register(new FacadeBlock());
         event.getRegistry().register(new RedstoneProxyBlock());
@@ -129,7 +136,6 @@ public class ModBlocks {
     }
 
     public static void registerContainers(final RegistryEvent.Register<ContainerType<?>> event) {
-        event.getRegistry().register(GenericContainer.createContainerType("connector"));
         event.getRegistry().register(GenericContainer.createContainerType("controller"));
         event.getRegistry().register(GenericContainer.createContainerType("router"));
         event.getRegistry().register(GenericContainer.createContainerType("wireless_router"));

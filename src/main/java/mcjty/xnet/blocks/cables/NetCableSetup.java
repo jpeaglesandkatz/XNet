@@ -1,7 +1,9 @@
 package mcjty.xnet.blocks.cables;
 
+import mcjty.lib.container.GenericContainer;
 import mcjty.xnet.XNet;
 import net.minecraft.block.Block;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
@@ -22,6 +24,9 @@ public class NetCableSetup {
     @ObjectHolder(XNet.MODID + ":advanced_connector")
     public static TileEntityType<?> TYPE_ADVANCED_CONNECTOR;
 
+    @ObjectHolder(XNet.MODID + ":connector")
+    public static ContainerType<GenericContainer> CONTAINER_CONNECTOR;
+
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry().register(new NetCableBlock());
         event.getRegistry().register(new ConnectorBlock());
@@ -39,6 +44,12 @@ public class NetCableSetup {
         event.getRegistry().register(TileEntityType.Builder.create(ConnectorTileEntity::new, connectorBlock).build(null).setRegistryName("connector"));
         event.getRegistry().register(TileEntityType.Builder.create(AdvancedConnectorTileEntity::new, advancedConnectorBlock).build(null).setRegistryName("advanced_connector"));
     }
+
+    public static void registerContainers(final RegistryEvent.Register<ContainerType<?>> event) {
+        event.getRegistry().register(GenericContainer.createContainerType("connector"));
+    }
+
+
 
     // @todo 1.14
 //    @SideOnly(Side.CLIENT)

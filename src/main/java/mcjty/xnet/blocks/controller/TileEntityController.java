@@ -1,7 +1,10 @@
 package mcjty.xnet.blocks.controller;
 
 import com.google.gson.*;
+import mcjty.lib.api.container.CapabilityContainerProvider;
+import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.container.ContainerFactory;
+import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
@@ -27,6 +30,7 @@ import mcjty.xnet.clientinfo.ConnectedBlockClientInfo;
 import mcjty.xnet.clientinfo.ConnectorClientInfo;
 import mcjty.xnet.clientinfo.ConnectorInfo;
 import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.init.ModBlocks;
 import mcjty.xnet.logic.ChannelInfo;
 import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.multiblock.*;
@@ -37,6 +41,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
@@ -112,6 +117,9 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     private Map<WirelessChannelKey, Integer> wirelessVersions = new HashMap<>();
 
     private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, ConfigSetup.controllerMaxRF.get(), ConfigSetup.controllerRfPerTick.get()));
+    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
+            .containerSupplier((windowId,player) -> new GenericContainer(ModBlocks.CONTAINER_CONTROLLER, windowId, CONTAINER_FACTORY, getPos(), TileEntityController.this))
+            .energyHandler(energyHandler));
 
     private NetworkChecker networkChecker = null;
 
@@ -1165,6 +1173,9 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 //        }
         if (cap == CapabilityEnergy.ENERGY) {
             return energyHandler.cast();
+        }
+        if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
+            return screenHandler.cast();
         }
         return super.getCapability(cap, facing);
     }

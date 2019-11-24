@@ -28,11 +28,11 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
 
     private ToggleButton toggleButtons[] = new ToggleButton[6];
 
-    public GuiConnector(AdvancedConnectorTileEntity te, EmptyContainer container, PlayerInventory inventory) {
-        this((ConnectorTileEntity) te, container, inventory);
-    }
+//    public GuiConnector(AdvancedConnectorTileEntity te, EmptyContainer container, PlayerInventory inventory) {
+//        this((ConnectorTileEntity) te, container, inventory);
+//    }
 
-    public GuiConnector(ConnectorTileEntity tileEntity, EmptyContainer container, PlayerInventory inventory) {
+    public GuiConnector(ConnectorTileEntity tileEntity, GenericContainer container, PlayerInventory inventory) {
         super(XNet.instance, tileEntity, container, inventory, 0 /*@todo 1.14 GuiProxy.GUI_MANUAL_XNET*/, "connector");
 
         xSize = WIDTH;

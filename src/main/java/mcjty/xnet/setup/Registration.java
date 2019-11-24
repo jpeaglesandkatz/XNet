@@ -37,5 +37,6 @@ public class Registration {
     @SubscribeEvent
     public static void registerContainers(final RegistryEvent.Register<ContainerType<?>> event) {
         ModBlocks.registerContainers(event);
+        NetCableSetup.registerContainers(event);
     }
 }
