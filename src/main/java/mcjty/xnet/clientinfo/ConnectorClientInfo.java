@@ -2,10 +2,10 @@ package mcjty.xnet.clientinfo;
 
 import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.XNet;
-import mcjty.xnet.api.channels.IChannelType;
-import mcjty.xnet.api.channels.IConnectorSettings;
-import mcjty.xnet.api.keys.ConsumerId;
-import mcjty.xnet.api.keys.SidedPos;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
+import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
+import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
+import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 

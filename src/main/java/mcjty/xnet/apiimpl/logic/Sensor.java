@@ -1,8 +1,8 @@
 package mcjty.xnet.apiimpl.logic;
 
 import mcjty.lib.varia.FluidTools;
-import mcjty.xnet.api.channels.Color;
-import mcjty.xnet.api.gui.IEditorGui;
+import mcjty.rftoolsbase.api.xnet.channels.Color;
+import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.xnet.apiimpl.energy.EnergyChannelSettings;
 import mcjty.xnet.apiimpl.fluids.FluidChannelSettings;
 import mcjty.xnet.apiimpl.items.ItemChannelSettings;
@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiPredicate;
 
-import static mcjty.xnet.api.channels.Color.COLORS;
-import static mcjty.xnet.api.channels.Color.OFF;
+import static mcjty.rftoolsbase.api.xnet.channels.Color.COLORS;
+import static mcjty.rftoolsbase.api.xnet.channels.Color.OFF;
 
 public class Sensor {
 

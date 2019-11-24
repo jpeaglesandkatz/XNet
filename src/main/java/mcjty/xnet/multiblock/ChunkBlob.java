@@ -1,8 +1,8 @@
 package mcjty.xnet.multiblock;
 
 import mcjty.lib.varia.BlockPosTools;
-import mcjty.xnet.api.keys.ConsumerId;
-import mcjty.xnet.api.keys.NetworkId;
+import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
+import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.xnet.blocks.cables.NetCableSetup;
 import mcjty.xnet.init.ModBlocks;
 import net.minecraft.block.Block;

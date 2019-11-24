@@ -1,9 +1,9 @@
 package mcjty.xnet.multiblock;
 
 import mcjty.lib.varia.OrientationTools;
-import mcjty.xnet.api.keys.ConsumerId;
-import mcjty.xnet.api.keys.NetworkId;
-import mcjty.xnet.api.net.IWorldBlob;
+import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
+import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
+import mcjty.rftoolsbase.api.xnet.net.IWorldBlob;
 import mcjty.xnet.logic.VersionNumber;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;

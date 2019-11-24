@@ -1,6 +1,6 @@
 package mcjty.xnet.multiblock;
 
-import mcjty.xnet.api.keys.NetworkId;
+import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;

@@ -2,7 +2,7 @@ package mcjty.xnet.clientinfo;
 
 import mcjty.lib.network.NetworkTools;
 import mcjty.lib.varia.OrientationTools;
-import mcjty.xnet.api.keys.SidedPos;
+import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;

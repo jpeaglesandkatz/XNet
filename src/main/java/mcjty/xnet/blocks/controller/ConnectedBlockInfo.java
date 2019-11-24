@@ -1,6 +1,6 @@
 package mcjty.xnet.blocks.controller;
 
-import mcjty.xnet.api.keys.SidedPos;
+import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
 import net.minecraft.block.BlockState;
 
 import javax.annotation.Nonnull;

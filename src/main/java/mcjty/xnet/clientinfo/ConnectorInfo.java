@@ -1,8 +1,8 @@
 package mcjty.xnet.clientinfo;
 
-import mcjty.xnet.api.channels.IChannelType;
-import mcjty.xnet.api.channels.IConnectorSettings;
-import mcjty.xnet.api.keys.SidedConsumer;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
+import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
+import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import net.minecraft.nbt.CompoundNBT;
 
 public class ConnectorInfo {

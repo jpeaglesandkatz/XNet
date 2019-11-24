@@ -2,9 +2,9 @@ package mcjty.xnet.logic;
 
 import mcjty.lib.varia.OrientationTools;
 import mcjty.lib.varia.WorldTools;
-import mcjty.xnet.api.keys.ConsumerId;
-import mcjty.xnet.api.keys.NetworkId;
-import mcjty.xnet.api.keys.SidedConsumer;
+import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
+import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
+import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.blocks.cables.ConnectorBlock;
 import mcjty.xnet.blocks.controller.TileEntityController;
 import mcjty.xnet.blocks.router.TileEntityRouter;

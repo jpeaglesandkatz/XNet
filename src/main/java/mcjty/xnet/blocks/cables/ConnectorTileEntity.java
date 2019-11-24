@@ -11,7 +11,7 @@ import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.OrientationTools;
-import mcjty.xnet.api.tiles.IConnectorTile;
+import mcjty.rftoolsbase.api.xnet.tiles.IConnectorTile;
 import mcjty.xnet.blocks.facade.IFacadeSupport;
 import mcjty.xnet.blocks.facade.MimicBlockSupport;
 import mcjty.xnet.config.ConfigSetup;

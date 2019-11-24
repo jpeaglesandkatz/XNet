@@ -1,8 +1,8 @@
 package mcjty.xnet.compat;
 
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
-import mcjty.xnet.api.channels.IControllerContext;
-import mcjty.xnet.api.keys.SidedConsumer;
+import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
+import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.apiimpl.items.ItemChannelSettings;
 import mcjty.xnet.apiimpl.items.ItemConnectorSettings;
 import mcjty.xnet.config.ConfigSetup;

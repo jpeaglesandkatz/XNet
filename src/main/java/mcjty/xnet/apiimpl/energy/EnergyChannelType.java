@@ -1,8 +1,8 @@
 package mcjty.xnet.apiimpl.energy;
 
-import mcjty.xnet.api.channels.IChannelSettings;
-import mcjty.xnet.api.channels.IChannelType;
-import mcjty.xnet.api.channels.IConnectorSettings;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
+import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;

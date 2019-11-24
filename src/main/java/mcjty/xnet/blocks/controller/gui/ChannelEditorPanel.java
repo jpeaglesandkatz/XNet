@@ -3,7 +3,7 @@ package mcjty.xnet.blocks.controller.gui;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.Widget;
 import mcjty.lib.typed.TypedMap;
-import mcjty.xnet.api.channels.IChannelSettings;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.xnet.blocks.controller.TileEntityController;
 import net.minecraft.client.Minecraft;
 

@@ -1,7 +1,7 @@
 package mcjty.xnet.api.helper;
 
-import mcjty.xnet.api.channels.RSMode;
-import mcjty.xnet.api.tiles.IConnectorTile;
+import mcjty.rftoolsbase.api.xnet.channels.RSMode;
+import mcjty.rftoolsbase.api.xnet.tiles.IConnectorTile;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 

@@ -2,7 +2,7 @@ package mcjty.xnet.clientinfo;
 
 import mcjty.lib.network.NetworkTools;
 import mcjty.xnet.XNet;
-import mcjty.xnet.api.channels.IChannelType;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 

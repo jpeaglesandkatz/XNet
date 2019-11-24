@@ -1,7 +1,7 @@
 package mcjty.xnet.items;
 
 import mcjty.xnet.XNet;
-import mcjty.xnet.api.keys.ConsumerId;
+import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.xnet.blocks.cables.ConnectorBlock;
 import mcjty.xnet.blocks.cables.ConnectorTileEntity;
 import mcjty.xnet.blocks.cables.NetCableSetup;

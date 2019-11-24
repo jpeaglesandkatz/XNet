@@ -1,7 +1,7 @@
 package mcjty.xnet.apiimpl;
 
-import mcjty.xnet.api.channels.Color;
-import mcjty.xnet.api.channels.RSMode;
+import mcjty.rftoolsbase.api.xnet.channels.Color;
+import mcjty.rftoolsbase.api.xnet.channels.RSMode;
 import mcjty.xnet.apiimpl.energy.EnergyConnectorSettings;
 import mcjty.xnet.apiimpl.fluids.FluidChannelSettings;
 import mcjty.xnet.apiimpl.fluids.FluidConnectorSettings;
