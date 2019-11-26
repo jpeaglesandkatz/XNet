@@ -14,7 +14,6 @@ public class XNetManualItem extends Item {
     public XNetManualItem() {
         super(new Properties()
                 .group(XNet.setup.getTab())
-                .defaultMaxDamage(1)
                 .maxStackSize(1)
         );
         setRegistryName("xnet_manual");

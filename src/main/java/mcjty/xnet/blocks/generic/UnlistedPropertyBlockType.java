@@ -39,6 +39,6 @@ public class UnlistedPropertyBlockType implements IProperty<ConnectorType> {
 
     @Override
     public String getName(ConnectorType value) {
-        return value.name();
+        return name;
     }
 }

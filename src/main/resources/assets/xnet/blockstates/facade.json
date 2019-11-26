@@ -1,5 +1,5 @@
 {
   "variants": {
-    "normal": { "model": "xnet:facade" }
+    "normal": { "model": "xnet:block/facade" }
   }
 }

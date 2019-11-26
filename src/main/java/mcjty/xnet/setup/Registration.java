@@ -1,6 +1,7 @@
 package mcjty.xnet.setup;
 
 
+import mcjty.xnet.XNet;
 import mcjty.xnet.blocks.cables.NetCableSetup;
 import mcjty.xnet.init.ModBlocks;
 import mcjty.xnet.init.ModItems;
@@ -12,7 +13,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(modid = XNet.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Registration {
 
     @SubscribeEvent

@@ -1,12 +1,10 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "xnet:controller",
-    "textures": { "txt": "xnet:blocks/machine_controller" }
+    "model": "xnet:block/controller",
+    "textures": { "txt": "xnet:block/machine_controller" }
   },
   "variants": {
-    "normal": [ {} ],
-    "inventory": [ {} ],
     "facing": {
       "north": {},
       "south": { "y": 180 },
@@ -17,10 +15,10 @@
     },
     "error": {
       "false": {
-        "textures": { "txt": "xnet:blocks/machine_controller" }
+        "textures": { "txt": "xnet:block/machine_controller" }
       },
       "true": {
-        "textures": { "txt": "xnet:blocks/machine_controller_error" }
+        "textures": { "txt": "xnet:block/machine_controller_error" }
       }
     }
   }

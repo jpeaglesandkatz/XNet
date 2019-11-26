@@ -4,12 +4,8 @@
     "textures": {
     },
     "custom": { "flip-v": true },
-    "model": "xnet:antenna_base.obj"
+    "model": "xnet:block/antenna_base.obj"
   },
   "variants": {
-    "normal": [{}],
-    "inventory": [{
-      "transform": { }
-    }]
   }
 }

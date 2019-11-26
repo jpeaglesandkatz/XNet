@@ -1,5 +1,5 @@
 {
   "variants": {
-    "normal": { "model": "xnet:terminal" }
+    "normal": { "model": "xnet:block/terminal" }
   }
 }

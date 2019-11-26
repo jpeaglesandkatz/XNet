@@ -1,12 +1,10 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "xnet:router",
-    "textures": { "txt": "xnet:blocks/machine_router" }
+    "model": "xnet:block/router",
+    "textures": { "txt": "xnet:block/machine_router" }
   },
   "variants": {
-    "normal": [{}],
-    "inventory": [{}],
     "facing": {
       "north": {},
       "south": {"y": 180},
@@ -17,10 +15,10 @@
     },
     "error": {
       "false": {
-        "textures": { "txt": "xnet:blocks/machine_router" }
+        "textures": { "txt": "xnet:block/machine_router" }
       },
       "true": {
-        "textures": { "txt": "xnet:blocks/machine_router_error" }
+        "textures": { "txt": "xnet:block/machine_router_error" }
       }
     }
   }
