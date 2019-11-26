@@ -1,6 +1,7 @@
 package mcjty.xnet.init;
 
 import mcjty.lib.blocks.BaseBlock;
+import mcjty.lib.blocks.RotationType;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.container.GenericContainer;
 import mcjty.xnet.XNet;
@@ -13,9 +14,11 @@ import mcjty.xnet.blocks.router.TileEntityRouter;
 import mcjty.xnet.blocks.wireless.TileEntityWirelessRouter;
 import mcjty.xnet.config.ConfigSetup;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.registries.ObjectHolder;
@@ -74,25 +77,37 @@ public class ModBlocks {
                 .info("message.xnet.shiftmessage")
                 .infoExtended("message.xnet.controller")
 //                .flags(BlockFlags.REDSTONE_CHECK)   // Not really for redstone check but to have TE.checkRedstone() being called
-//                .guiId(GuiProxy.GUI_CONTROLLER)
-//                .property(TileEntityController.ERROR)
-        ));
+        ) {
+            @Override
+            protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+                super.fillStateContainer(builder);
+                builder.add(TileEntityController.ERROR);
+            }
+        });
         event.getRegistry().register(new BaseBlock("router", new BlockBuilder()
                 .tileEntitySupplier(TileEntityRouter::new)
                 .info("message.xnet.shiftmessage")
                 .infoExtended("message.xnet.router")
 //                .flags(BlockFlags.REDSTONE_CHECK)   // Not really for redstone check but to have TE.checkRedstone() being called
-//                .guiId(GuiProxy.GUI_ROUTER)
-//                .property(TileEntityRouter.ERROR)
-        ));
+        ) {
+            @Override
+            protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+                super.fillStateContainer(builder);
+                builder.add(TileEntityController.ERROR);
+            }
+        });
         event.getRegistry().register(new BaseBlock("wireless_router", new BlockBuilder()
                 .tileEntitySupplier(TileEntityWirelessRouter::new)
                 .info("message.xnet.shiftmessage")
                 .infoExtended("message.xnet.wireless_router")
 //                .flags(BlockFlags.REDSTONE_CHECK)   // Not really for redstone check but to have TE.checkRedstone() being called
-//                .guiId(GuiProxy.GUI_WIRELESS_ROUTER)
-//                .property(TileEntityWirelessRouter.ERROR)
-        ));
+        ) {
+            @Override
+            protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+                super.fillStateContainer(builder);
+                builder.add(TileEntityController.ERROR);
+            }
+        });
         event.getRegistry().register(new BaseBlock("antenna", new BlockBuilder()
                 .info("message.xnet.shiftmessage")
 //                .flags(BlockFlags.NON_OPAQUE)
@@ -101,18 +116,33 @@ public class ModBlocks {
                 .infoExtendedParameter(stack -> Integer.toString(ConfigSetup.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_1].get()))
                 .infoExtendedParameter(stack -> Integer.toString(ConfigSetup.antennaTier2Range.get()))
                 .infoExtendedParameter(stack -> Integer.toString(ConfigSetup.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_2].get()))
-        ));
+        ) {
+            @Override
+            public RotationType getRotationType() {
+                return RotationType.HORIZROTATION;
+            }
+        });
         event.getRegistry().register(new BaseBlock("antenna_base", new BlockBuilder()
                 .info("message.xnet.shiftmessage")
 //                .flags(BlockFlags.NON_OPAQUE)
                 .infoExtended("message.xnet.antenna_base")
-        ));
+        ) {
+            @Override
+            public RotationType getRotationType() {
+                return RotationType.NONE;
+            }
+        });
         event.getRegistry().register(new BaseBlock("antenna_dish", new BlockBuilder()
                 .info("message.xnet.shiftmessage")
 //                .flags(BlockFlags.NON_OPAQUE)
                 .infoExtended("message.xnet.antenna_dish")
                 .infoExtendedParameter(stack -> Integer.toString(ConfigSetup.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_INF].get()))
-        ));
+        ) {
+            @Override
+            public RotationType getRotationType() {
+                return RotationType.HORIZROTATION;
+            }
+        });
     }
 
     public static void registerItems(RegistryEvent.Register<Item> event) {

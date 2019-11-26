@@ -1,6 +1,6 @@
 {
   "parent": "xnet:block/xnetblock",
   "textures": {
-    "front": "xnet:block/machine_wireless_router"
+    "front": "xnet:block/machine_wireless_router_error"
   }
 }

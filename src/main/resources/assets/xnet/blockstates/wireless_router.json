@@ -1,8 +1,7 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "xnet:block/wireless_router",
-    "textures": { "txt": "xnet:block/machine_wireless_router" }
+    "model": "xnet:block/wireless_router"
   },
   "variants": {
     "facing": {
@@ -15,10 +14,10 @@
     },
     "error": {
       "false": {
-        "textures": { "txt": "xnet:block/machine_wireless_router" }
+        "model": "xnet:block/wireless_router"
       },
       "true": {
-        "textures": { "txt": "xnet:block/machine_wireless_router_error" }
+        "model": "xnet:block/wireless_router_error"
       }
     }
   }

@@ -1,6 +1,6 @@
 {
   "parent": "rftoolsbase:block/rftoolsblock",
   "textures": {
-    "front": "xnet:block/machine_controller"
+    "front": "xnet:block/machine_controller_error"
   }
 }

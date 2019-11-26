@@ -1,8 +1,7 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "xnet:block/router",
-    "textures": { "txt": "xnet:block/machine_router" }
+    "model": "xnet:block/router"
   },
   "variants": {
     "facing": {
@@ -15,10 +14,10 @@
     },
     "error": {
       "false": {
-        "textures": { "txt": "xnet:block/machine_router" }
+        "model": "xnet:block/router"
       },
       "true": {
-        "textures": { "txt": "xnet:block/machine_router_error" }
+        "model": "xnet:block/router_error"
       }
     }
   }

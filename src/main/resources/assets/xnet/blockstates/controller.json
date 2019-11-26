@@ -1,25 +1,16 @@
 {
-  "forge_marker": 1,
-  "defaults": {
-    "model": "xnet:block/controller",
-    "textures": { "txt": "xnet:block/machine_controller" }
-  },
   "variants": {
-    "facing": {
-      "north": {},
-      "south": { "y": 180 },
-      "west": { "y": 270 },
-      "east": { "y": 90 },
-      "up": { "x": -90 },
-      "down": { "x": 90 }
-    },
-    "error": {
-      "false": {
-        "textures": { "txt": "xnet:block/machine_controller" }
-      },
-      "true": {
-        "textures": { "txt": "xnet:block/machine_controller_error" }
-      }
-    }
+    "facing=north,error=false": { "model": "xnet:block/controller" },
+    "facing=south,error=false": { "model": "xnet:block/controller", "y": 180 },
+    "facing=west,error=false": { "model": "xnet:block/controller", "y": 270 },
+    "facing=east,error=false": { "model": "xnet:block/controller", "y": 90 },
+    "facing=up,error=false": { "model": "xnet:block/controller", "x": -90 },
+    "facing=down,error=false": { "model": "xnet:block/controller", "x": 90 },
+    "facing=north,error=true": { "model": "xnet:block/controller_error" },
+    "facing=south,error=true": { "model": "xnet:block/controller_error", "y": 180 },
+    "facing=west,error=true": { "model": "xnet:block/controller_error", "y": 270 },
+    "facing=east,error=true": { "model": "xnet:block/controller_error", "y": 90 },
+    "facing=up,error=true": { "model": "xnet:block/controller_error", "x": -90 },
+    "facing=down,error=true": { "model": "xnet:block/controller_error", "x": 90 }
   }
 }

@@ -10,6 +10,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.EnumProperty;
@@ -33,12 +34,12 @@ import java.util.Collection;
 public abstract class GenericCableBlock extends Block {
 
     // Properties that indicate if there is the same block in a certain direction.
-    public static final UnlistedPropertyBlockType NORTH = new UnlistedPropertyBlockType("north");
-    public static final UnlistedPropertyBlockType SOUTH = new UnlistedPropertyBlockType("south");
-    public static final UnlistedPropertyBlockType WEST = new UnlistedPropertyBlockType("west");
-    public static final UnlistedPropertyBlockType EAST = new UnlistedPropertyBlockType("east");
-    public static final UnlistedPropertyBlockType UP = new UnlistedPropertyBlockType("up");
-    public static final UnlistedPropertyBlockType DOWN = new UnlistedPropertyBlockType("down");
+    public static final EnumProperty<ConnectorType> NORTH = EnumProperty.<ConnectorType>create("north", ConnectorType.class);
+    public static final EnumProperty<ConnectorType> SOUTH = EnumProperty.<ConnectorType>create("south", ConnectorType.class);
+    public static final EnumProperty<ConnectorType> WEST = EnumProperty.<ConnectorType>create("west", ConnectorType.class);
+    public static final EnumProperty<ConnectorType> EAST = EnumProperty.<ConnectorType>create("east", ConnectorType.class);
+    public static final EnumProperty<ConnectorType> UP = EnumProperty.<ConnectorType>create("up", ConnectorType.class);
+    public static final EnumProperty<ConnectorType> DOWN = EnumProperty.<ConnectorType>create("down", ConnectorType.class);
 
     public static final ModelProperty<BlockState> FACADEID = new ModelProperty<>();
     public static final EnumProperty<CableColor> COLOR = EnumProperty.<CableColor>create("color", CableColor.class);
@@ -300,33 +301,35 @@ public abstract class GenericCableBlock extends Block {
 //        return false;
 //    }
 
-
     @Override
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
         super.fillStateContainer(builder);
-        builder.add(COLOR, NORTH, SOUTH, WEST, EAST, UP, DOWN);
+        builder.add(COLOR, NORTH, SOUTH, EAST, WEST, UP, DOWN);
     }
 
-    // @todo 1.14
-//    public BlockState getStateInternal(BlockState state, IBlockAccess world, BlockPos pos) {
-//        IExtendedBlockState extendedBlockState = (IExtendedBlockState) state;
-//        CableColor color = state.getValue(COLOR);
-//
-//        ConnectorType north = getConnectorType(color, world, pos, Direction.NORTH);
-//        ConnectorType south = getConnectorType(color, world, pos, Direction.SOUTH);
-//        ConnectorType west = getConnectorType(color, world, pos, Direction.WEST);
-//        ConnectorType east = getConnectorType(color, world, pos, Direction.EAST);
-//        ConnectorType up = getConnectorType(color, world, pos, Direction.UP);
-//        ConnectorType down = getConnectorType(color, world, pos, Direction.DOWN);
-//
-//        return extendedBlockState
-//                .withProperty(NORTH, north)
-//                .withProperty(SOUTH, south)
-//                .withProperty(WEST, west)
-//                .withProperty(EAST, east)
-//                .withProperty(UP, up)
-//                .withProperty(DOWN, down);
-//    }
+    @Nullable
+    @Override
+    public BlockState getStateForPlacement(BlockItemUseContext context) {
+        World world = context.getWorld();
+        BlockPos pos = context.getPos();
+        BlockState state = getDefaultState();
+        CableColor color = state.get(COLOR);
+
+        ConnectorType north = getConnectorType(color, world, pos, Direction.NORTH);
+        ConnectorType south = getConnectorType(color, world, pos, Direction.SOUTH);
+        ConnectorType west = getConnectorType(color, world, pos, Direction.WEST);
+        ConnectorType east = getConnectorType(color, world, pos, Direction.EAST);
+        ConnectorType up = getConnectorType(color, world, pos, Direction.UP);
+        ConnectorType down = getConnectorType(color, world, pos, Direction.DOWN);
+
+        return state
+                .with(NORTH, north)
+                .with(SOUTH, south)
+                .with(WEST, west)
+                .with(EAST, east)
+                .with(UP, up)
+                .with(DOWN, down);
+    }
 
     protected abstract ConnectorType getConnectorType(@Nonnull CableColor thisColor, IBlockReader world, BlockPos pos, Direction facing);
 }
