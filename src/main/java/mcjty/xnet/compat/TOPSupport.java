@@ -25,7 +25,7 @@ public class TOPSupport {
                 ItemStack pickBlock = data.getPickBlock();
                 TileEntity te = world.getTileEntity(data.getPos());
                 if (te instanceof FacadeTileEntity) {
-                    pickBlock = new ItemStack(NetCableSetup.netCableBlock, 1);
+                    pickBlock = new ItemStack(NetCableSetup.NETCABLE, 1);
                 }
 
                 if (!pickBlock.isEmpty()) {

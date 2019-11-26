@@ -13,11 +13,11 @@ import net.minecraftforge.registries.ObjectHolder;
 public class NetCableSetup {
 
     @ObjectHolder(XNet.MODID + ":netcable")
-    public static NetCableBlock netCableBlock;
+    public static NetCableBlock NETCABLE;
     @ObjectHolder(XNet.MODID + ":connector")
-    public static ConnectorBlock connectorBlock;
+    public static ConnectorBlock CONNECTOR;
     @ObjectHolder(XNet.MODID + ":advanced_connector")
-    public static AdvancedConnectorBlock advancedConnectorBlock;
+    public static AdvancedConnectorBlock ADVANCED_CONNECTOR;
 
     @ObjectHolder(XNet.MODID + ":connector")
     public static TileEntityType<?> TYPE_CONNECTOR;
@@ -35,14 +35,14 @@ public class NetCableSetup {
 
     public static void registerItems(RegistryEvent.Register<Item> event) {
         Item.Properties properties = new Item.Properties().group(XNet.setup.getTab());
-        event.getRegistry().register(new BlockItem(netCableBlock, properties).setRegistryName("netcable"));
-        event.getRegistry().register(new BlockItem(connectorBlock, properties).setRegistryName("connector"));
-        event.getRegistry().register(new BlockItem(advancedConnectorBlock, properties).setRegistryName("advanced_connector"));
+        event.getRegistry().register(new BlockItem(NETCABLE, properties).setRegistryName("netcable"));
+        event.getRegistry().register(new BlockItem(CONNECTOR, properties).setRegistryName("connector"));
+        event.getRegistry().register(new BlockItem(ADVANCED_CONNECTOR, properties).setRegistryName("advanced_connector"));
     }
 
     public static void registerTiles(final RegistryEvent.Register<TileEntityType<?>> event) {
-        event.getRegistry().register(TileEntityType.Builder.create(ConnectorTileEntity::new, connectorBlock).build(null).setRegistryName("connector"));
-        event.getRegistry().register(TileEntityType.Builder.create(AdvancedConnectorTileEntity::new, advancedConnectorBlock).build(null).setRegistryName("advanced_connector"));
+        event.getRegistry().register(TileEntityType.Builder.create(ConnectorTileEntity::new, CONNECTOR).build(null).setRegistryName("connector"));
+        event.getRegistry().register(TileEntityType.Builder.create(AdvancedConnectorTileEntity::new, ADVANCED_CONNECTOR).build(null).setRegistryName("advanced_connector"));
     }
 
     public static void registerContainers(final RegistryEvent.Register<ContainerType<?>> event) {

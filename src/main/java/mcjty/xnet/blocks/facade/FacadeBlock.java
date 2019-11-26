@@ -79,7 +79,7 @@ public class FacadeBlock extends NetCableBlock {
     public boolean removedByPlayer(BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, IFluidState fluid) {
         CableColor color = state.get(COLOR);
         this.onBlockHarvested(world, pos, state, player);
-        return world.setBlockState(pos, NetCableSetup.netCableBlock.getDefaultState().with(COLOR, color), world.isRemote ? 11 : 3);
+        return world.setBlockState(pos, NetCableSetup.NETCABLE.getDefaultState().with(COLOR, color), world.isRemote ? 11 : 3);
     }
 
     // @todo 1.14

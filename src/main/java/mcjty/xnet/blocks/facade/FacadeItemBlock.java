@@ -72,7 +72,7 @@ public class FacadeItemBlock extends BlockItem {
 
         if (!itemstack.isEmpty()) {
 
-            if (block == NetCableSetup.netCableBlock) {
+            if (block == NetCableSetup.NETCABLE) {
                 FacadeBlock facadeBlock = (FacadeBlock) this.getBlock();
                 BlockState placementState = facadeBlock.getPlacementState((BlockItemUseContext)context) // @todo 1.14 is this cast right?
                         .with(GenericCableBlock.COLOR, state.get(GenericCableBlock.COLOR));
@@ -87,7 +87,7 @@ public class FacadeItemBlock extends BlockItem {
                     int amount = -1;
                     itemstack.grow(amount);
                 }
-            } else if (block == NetCableSetup.connectorBlock || block == NetCableSetup.advancedConnectorBlock) {
+            } else if (block == NetCableSetup.CONNECTOR || block == NetCableSetup.ADVANCED_CONNECTOR) {
                 TileEntity te = world.getTileEntity(pos);
                 if (te instanceof ConnectorTileEntity) {
                     ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;

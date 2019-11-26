@@ -503,7 +503,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
                         BlockPos consumerPos = findConsumerPosition(worldBlob, sidedConsumer.getConsumerId());
                         if (consumerPos != null) {
                             SidedPos pos = new SidedPos(consumerPos.offset(sidedConsumer.getSide()), sidedConsumer.getSide().getOpposite());
-                            boolean advanced = world.getBlockState(consumerPos).getBlock() == NetCableSetup.advancedConnectorBlock;
+                            boolean advanced = world.getBlockState(consumerPos).getBlock() == NetCableSetup.ADVANCED_CONNECTOR;
                             ConnectorClientInfo ci = new ConnectorClientInfo(pos, sidedConsumer.getConsumerId(), channel.getType(), info.getConnectorSettings());
                             clientInfo.getConnectors().put(sidedConsumer, ci);
                         } else {
@@ -599,7 +599,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             throw new RuntimeException("What?");
         }
         SidedConsumer id = new SidedConsumer(consumerId, pos.getSide().getOpposite());
-        boolean advanced = world.getBlockState(consumerPos).getBlock() == NetCableSetup.advancedConnectorBlock;
+        boolean advanced = world.getBlockState(consumerPos).getBlock() == NetCableSetup.ADVANCED_CONNECTOR;
         ConnectorInfo info = channels[channel].createConnector(id, advanced);
         markAsDirty();
         return info;

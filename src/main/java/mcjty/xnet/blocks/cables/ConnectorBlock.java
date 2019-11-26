@@ -382,7 +382,7 @@ public class ConnectorBlock extends GenericCableBlock {
             tooltip.add(new StringTextComponent(TextFormatting.BLUE + "Place connector next to block or"));
             tooltip.add(new StringTextComponent(TextFormatting.BLUE + "machine that should be connected"));
             tooltip.add(new StringTextComponent(TextFormatting.BLUE + "to the network"));
-            boolean advanced = this == NetCableSetup.advancedConnectorBlock;
+            boolean advanced = this == NetCableSetup.ADVANCED_CONNECTOR;
             int maxrf = advanced ? ConfigSetup.maxRfAdvancedConnector.get() : ConfigSetup.maxRfConnector.get();
             tooltip.add(new StringTextComponent(TextFormatting.GRAY + "" + TextFormatting.BOLD + "Max RF: " + TextFormatting.WHITE + maxrf));
             if (advanced) {
