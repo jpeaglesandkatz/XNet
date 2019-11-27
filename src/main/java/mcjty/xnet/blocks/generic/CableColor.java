@@ -15,7 +15,8 @@ public enum CableColor implements IStringSerializable {
     private final String dye;
 
     CableColor(String name, String dye) {
-        this.name = name; this.dye = dye;
+        this.name = name;
+        this.dye = dye;
     }
 
     @Override

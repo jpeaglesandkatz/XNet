@@ -2,6 +2,7 @@ package mcjty.xnet.blocks.facade;
 
 import mcjty.xnet.XNet;
 import mcjty.xnet.blocks.cables.ConnectorTileEntity;
+import mcjty.xnet.blocks.cables.NetCableBlock;
 import mcjty.xnet.blocks.cables.NetCableSetup;
 import mcjty.xnet.blocks.generic.GenericCableBlock;
 import mcjty.xnet.init.ModBlocks;
@@ -72,7 +73,7 @@ public class FacadeItemBlock extends BlockItem {
 
         if (!itemstack.isEmpty()) {
 
-            if (block == NetCableSetup.NETCABLE) {
+            if (block instanceof NetCableBlock) {
                 FacadeBlock facadeBlock = (FacadeBlock) this.getBlock();
                 BlockState placementState = facadeBlock.getPlacementState((BlockItemUseContext)context) // @todo 1.14 is this cast right?
                         .with(GenericCableBlock.COLOR, state.get(GenericCableBlock.COLOR));

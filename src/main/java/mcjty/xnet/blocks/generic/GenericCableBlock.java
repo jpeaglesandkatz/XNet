@@ -75,7 +75,6 @@ public abstract class GenericCableBlock extends Block {
                 .harvestTool(ToolType.PICKAXE)
         );
         setRegistryName(name);
-        setDefaultState(getDefaultState().with(COLOR, CableColor.BLUE));
     }
 
 //    public static boolean activateBlock(Block block, World world, BlockPos pos, BlockState state, PlayerEntity player, Hand hand, Direction facing, float hitX, float hitY, float hitZ) {
@@ -103,7 +102,6 @@ public abstract class GenericCableBlock extends Block {
         }
         return item;
     }
-
 
     // @todo 1.14
 //    @Override

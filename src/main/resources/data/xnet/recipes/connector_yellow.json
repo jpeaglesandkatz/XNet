@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "xnet",
+  "pattern": [
+    "1C1",
+    "rgr",
+    "1r1"
+  ],
+  "key": {
+    "g": {
+      "tag": "forge:ingots/gold"
+    },
+    "1": {
+      "tag": "forge:dyes/yellow"
+    },
+    "C": {
+      "item": "minecraft:chest"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "xnet:connector_yellow"
+  }
+}

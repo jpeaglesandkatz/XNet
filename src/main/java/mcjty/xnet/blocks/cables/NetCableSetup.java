@@ -2,6 +2,7 @@ package mcjty.xnet.blocks.cables;
 
 import mcjty.lib.container.GenericContainer;
 import mcjty.xnet.XNet;
+import mcjty.xnet.blocks.generic.CableColor;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
@@ -14,10 +15,45 @@ public class NetCableSetup {
 
     @ObjectHolder(XNet.MODID + ":netcable")
     public static NetCableBlock NETCABLE;
+
+    @ObjectHolder(XNet.MODID + ":netcable_red")
+    public static Item NETCABLE_RED;
+    @ObjectHolder(XNet.MODID + ":netcable_green")
+    public static Item NETCABLE_GREEN;
+    @ObjectHolder(XNet.MODID + ":netcable_blue")
+    public static Item NETCABLE_BLUE;
+    @ObjectHolder(XNet.MODID + ":netcable_yellow")
+    public static Item NETCABLE_YELLOW;
+    @ObjectHolder(XNet.MODID + ":netcable_routing")
+    public static Item NETCABLE_ROUTING;
+
     @ObjectHolder(XNet.MODID + ":connector")
     public static ConnectorBlock CONNECTOR;
+
+    @ObjectHolder(XNet.MODID + ":connector_red")
+    public static Item CONNECTOR_RED;
+    @ObjectHolder(XNet.MODID + ":connector_green")
+    public static Item CONNECTOR_GREEN;
+    @ObjectHolder(XNet.MODID + ":connector_blue")
+    public static Item CONNECTOR_BLUE;
+    @ObjectHolder(XNet.MODID + ":connector_yellow")
+    public static Item CONNECTOR_YELLOW;
+    @ObjectHolder(XNet.MODID + ":connector_routing")
+    public static Item CONNECTOR_ROUTING;
+
     @ObjectHolder(XNet.MODID + ":advanced_connector")
     public static AdvancedConnectorBlock ADVANCED_CONNECTOR;
+
+    @ObjectHolder(XNet.MODID + ":advanced_connector_red")
+    public static Item ADVANCED_CONNECTOR_RED;
+    @ObjectHolder(XNet.MODID + ":advanced_connector_green")
+    public static Item ADVANCED_CONNECTOR_GREEN;
+    @ObjectHolder(XNet.MODID + ":advanced_connector_blue")
+    public static Item ADVANCED_CONNECTOR_BLUE;
+    @ObjectHolder(XNet.MODID + ":advanced_connector_yellow")
+    public static Item ADVANCED_CONNECTOR_YELLOW;
+    @ObjectHolder(XNet.MODID + ":advanced_connector_routing")
+    public static Item ADVANCED_CONNECTOR_ROUTING;
 
     @ObjectHolder(XNet.MODID + ":connector")
     public static TileEntityType<?> TYPE_CONNECTOR;
@@ -35,8 +71,11 @@ public class NetCableSetup {
 
     public static void registerItems(RegistryEvent.Register<Item> event) {
         Item.Properties properties = new Item.Properties().group(XNet.setup.getTab());
-        event.getRegistry().register(new BlockItem(NETCABLE, properties).setRegistryName("netcable"));
-        event.getRegistry().register(new BlockItem(CONNECTOR, properties).setRegistryName("connector"));
+        for (CableColor color : CableColor.VALUES) {
+            event.getRegistry().register(new ColorBlockItem(NETCABLE, properties, color).setRegistryName(NETCABLE.getRegistryName() + "_" + color.getName()));
+            event.getRegistry().register(new ColorBlockItem(CONNECTOR, properties, color).setRegistryName(CONNECTOR.getRegistryName() + "_" + color.getName()));
+            event.getRegistry().register(new ColorBlockItem(ADVANCED_CONNECTOR, properties, color).setRegistryName(ADVANCED_CONNECTOR.getRegistryName() + "_" + color.getName()));
+        }
         event.getRegistry().register(new BlockItem(ADVANCED_CONNECTOR, properties).setRegistryName("advanced_connector"));
     }
 

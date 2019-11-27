@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "xnet",
+  "pattern": [
+    "ICI",
+    "rFr",
+    "igi"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:repeater"
+    },
+    "C": {
+      "item": "minecraft:comparator"
+    },
+    "g": {
+      "tag": "forge:ingots/gold"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "F": {
+      "item": "rftoolsbase:machine_frame"
+    },
+    "i": {
+      "tag": "forge:ingots/iron"
+    }
+  },
+  "result": {
+    "item": "xnet:controller"
+  }
+}

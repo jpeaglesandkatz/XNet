@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "xnet",
+  "pattern": [
+    "rrr",
+    "gCg",
+    "rrr"
+  ],
+  "key": {
+    "g": {
+      "tag": "forge:nuggets/gold"
+    },
+    "C": {
+      "item": "xnet:connector_routing"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "xnet:connector_routing"
+  }
+}

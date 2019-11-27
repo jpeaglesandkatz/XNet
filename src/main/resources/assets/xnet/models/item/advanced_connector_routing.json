@@ -1,0 +1,6 @@
+{
+  "parent": "xnet:block/smallblock",
+  "textures": {
+    "all": "xnet:block/cable4/advanced_connector"
+  }
+}

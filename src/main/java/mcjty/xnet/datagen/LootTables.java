@@ -22,7 +22,8 @@ public class LootTables extends BaseLootTableProvider {
         lootTables.put(ModBlocks.ROUTER, createStandardTable("router", ModBlocks.ROUTER));
         lootTables.put(ModBlocks.WIRELESS_ROUTER, createStandardTable("wireless_router", ModBlocks.WIRELESS_ROUTER));
 
-        lootTables.put(NetCableSetup.NETCABLE, createSimpleTable("cable", NetCableSetup.NETCABLE));
+        // @todo 1.14 the loottables below are not correct with regards to color!
+        lootTables.put(NetCableSetup.NETCABLE, createSimpleTable("cable", NetCableSetup.NETCABLE_BLUE));
         lootTables.put(NetCableSetup.CONNECTOR, createStandardTable("connector", NetCableSetup.CONNECTOR));
         lootTables.put(NetCableSetup.ADVANCED_CONNECTOR, createStandardTable("advanced_connector", NetCableSetup.ADVANCED_CONNECTOR));
     }
