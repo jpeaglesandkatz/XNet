@@ -14,6 +14,7 @@ import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.tiles.IConnectorTile;
 import mcjty.xnet.blocks.facade.IFacadeSupport;
 import mcjty.xnet.blocks.facade.MimicBlockSupport;
+import mcjty.xnet.blocks.generic.GenericCableBlock;
 import mcjty.xnet.config.ConfigSetup;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
@@ -27,6 +28,9 @@ import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.client.model.ModelDataManager;
+import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
@@ -95,6 +99,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         if (world.isRemote) {
             // If needed send a render update.
             if (enabled != oldEnabled || mimicBlockSupport.getMimicBlock() != oldMimicBlock) {
+                ModelDataManager.requestModelDataRefresh(this);
                 world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
             }
         }
@@ -283,6 +288,14 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     private int getMaxEnergyStoredInternal() {
         return getMaxEnergy();
+    }
+
+    @Nonnull
+    @Override
+    public IModelData getModelData() {
+        return new ModelDataMap.Builder()
+                .withInitial(GenericCableBlock.FACADEID, getMimicBlock())
+                .build();
     }
 
     @Override

@@ -13,8 +13,6 @@ import java.util.Map;
 
 public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
 
-    // @todo 1.14 CHECK
-
     private static final String NAME = "XNetBlobData";
 
     private final Map<DimensionType, WorldBlob> worldBlobMap = new HashMap<>();
@@ -30,7 +28,7 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
 
     public WorldBlob getWorldBlob(World world) {
         return getWorldBlob(world.getDimension().getType());
-    }   // @todo 1.14 don't use numeric ID!
+    }
 
     public WorldBlob getWorldBlob(DimensionType type) {
         if (!worldBlobMap.containsKey(type)) {

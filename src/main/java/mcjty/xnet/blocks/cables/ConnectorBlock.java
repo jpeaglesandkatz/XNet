@@ -1,10 +1,13 @@
 package mcjty.xnet.blocks.cables;
 
 import mcjty.lib.McJtyLib;
+import mcjty.lib.container.EmptyContainer;
+import mcjty.lib.container.GenericContainer;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.EnergyTools;
-import mcjty.xnet.XNet;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectable;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
+import mcjty.xnet.XNet;
 import mcjty.xnet.blocks.controller.TileEntityController;
 import mcjty.xnet.blocks.facade.FacadeItemBlock;
 import mcjty.xnet.blocks.generic.CableColor;
@@ -23,8 +26,12 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.fluid.IFluidState;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -43,6 +50,7 @@ import net.minecraft.world.storage.loot.LootContext;
 import net.minecraft.world.storage.loot.LootParameters;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nonnull;
@@ -61,17 +69,6 @@ public class ConnectorBlock extends GenericCableBlock {
         super(Material.IRON, name);
     }
 
-    // @todo 1.14
-//    @Override
-//    public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
-//        for (CableColor value : CableColor.VALUES) {
-//            if (value != CableColor.ROUTING || this != NetCableSetup.advancedConnectorBlock) {
-//                items.add(updateColorInStack(new ItemStack(this, 1, value.ordinal()), value));
-//            }
-//        }
-//    }
-
-
     @Override
     public boolean hasTileEntity() {
         return true;
@@ -86,8 +83,22 @@ public class ConnectorBlock extends GenericCableBlock {
     @Override
     public boolean onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         if (!world.isRemote) {
-            // @todo 1.14
-//            player.openGui(XNet.instance, GuiProxy.GUI_CONNECTOR, world, pos.getX(), pos.getY(), pos.getZ());
+            TileEntity te = world.getTileEntity(pos);
+            if (te instanceof GenericTileEntity) {
+                GenericTileEntity genericTileEntity = (GenericTileEntity) te;
+                NetworkHooks.openGui((ServerPlayerEntity) player, new INamedContainerProvider() {
+                    @Override
+                    public ITextComponent getDisplayName() {
+                        return new StringTextComponent("Connector");
+                    }
+
+                    @Nullable
+                    @Override
+                    public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
+                        return new GenericContainer(NetCableSetup.CONTAINER_CONNECTOR, id, EmptyContainer.CONTAINER_FACTORY, pos, genericTileEntity);
+                    }
+                }, pos);
+            }
         }
         return true;
     }
@@ -145,19 +156,7 @@ public class ConnectorBlock extends GenericCableBlock {
 //    }
 
 
-    // @todo 1.14
-//    @Override
-//    public BlockState getExtendedState(BlockState state, IBlockAccess world, BlockPos pos) {
-//        IExtendedBlockState extendedBlockState = (IExtendedBlockState) super.getExtendedState(state, world, pos);
-//        BlockState mimicBlock = getMimicBlock(world, pos);
-//        if (mimicBlock != null) {
-//            return extendedBlockState.withProperty(FACADEID, new FacadeBlockId(mimicBlock));
-//        } else {
-//            return extendedBlockState;
-//        }
-//    }
-//
-//
+
     // @todo 1.14
 //    @Override
 //    @SideOnly(Side.CLIENT)

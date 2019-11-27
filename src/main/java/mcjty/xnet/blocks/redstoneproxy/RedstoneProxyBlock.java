@@ -30,13 +30,6 @@ public class RedstoneProxyBlock extends Block {
         );
     }
 
-    // @todo 1.14
-//    @SideOnly(Side.CLIENT)
-//    public void initModel() {
-//        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), 0, new ModelResourceLocation(getRegistryName(), "inventory"));
-//    }
-
-
     @Override
     public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         tooltip.add(new StringTextComponent("Acts as a proxy block for"));

@@ -8,6 +8,7 @@ import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.xnet.XNet;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
@@ -19,8 +20,6 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels> {
-
-    // @todo 1.14
 
     private static final String NAME = "XNetWirelessChannels";
 
@@ -172,7 +171,8 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     private void readRouters(ListNBT tagList, WirelessChannelInfo channelInfo) {
         for (int i = 0 ; i < tagList.size() ; i++) {
             CompoundNBT tc = tagList.getCompound(i);
-            GlobalCoordinate pos = new GlobalCoordinate(new BlockPos(tc.getInt("x"), tc.getInt("y"), tc.getInt("z")), DimensionType.getById(tc.getInt("dim"))); // @todo 1.14 dimension id!
+            DimensionType dim = DimensionType.byName(new ResourceLocation(tc.getString("dim")));
+            GlobalCoordinate pos = new GlobalCoordinate(new BlockPos(tc.getInt("x"), tc.getInt("y"), tc.getInt("z")), dim);
             WirelessRouterInfo info = new WirelessRouterInfo(pos);
             info.setAge(tc.getInt("age"));
             info.setNetworkId(new NetworkId(tc.getInt("network")));
@@ -208,7 +208,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         for (Map.Entry<GlobalCoordinate, WirelessRouterInfo> infoEntry : channelInfo.getRouters().entrySet()) {
             CompoundNBT tc = new CompoundNBT();
             GlobalCoordinate pos = infoEntry.getKey();
-            tc.putInt("dim", pos.getDimension().getId());   // @todo 1.14 (store reg!)
+            tc.putString("dim", pos.getDimension().getRegistryName().toString());
             tc.putInt("x", pos.getCoordinate().getX());
             tc.putInt("y", pos.getCoordinate().getY());
             tc.putInt("z", pos.getCoordinate().getZ());

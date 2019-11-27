@@ -19,8 +19,6 @@ public class ClientSetup extends DefaultClientProxy {
     public static void initClient(FMLClientSetupEvent e) {
         MinecraftForge.EVENT_BUS.register(new ClientSetup());
         OBJLoader.INSTANCE.addDomain(XNet.MODID);
-        // @todo 1.14
-//        ModelLoaderRegistry.registerLoader(new BakedModelLoader());
     }
 
 //    @SubscribeEvent

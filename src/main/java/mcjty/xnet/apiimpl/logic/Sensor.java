@@ -172,22 +172,17 @@ public class Sensor {
                     int cnt = RFToolsSupport.countItems(te, filter, amount + 1);
                     return operator.match(cnt, amount);
                 } else {
-                    IItemHandler handler = ItemChannelSettings.getItemHandlerAt(te, settings.getFacing());
-                    if (handler != null) {
-                        int cnt = countItem(handler, filter, amount + 1);
+                    return ItemChannelSettings.getItemHandlerAt(te, settings.getFacing()).map(h -> {
+                        int cnt = countItem(h, filter, amount + 1);
                         return operator.match(cnt, amount);
-                    }
+                    }).orElse(false);
                 }
-                break;
             }
             case FLUID: {
-                // @todo 1.14 ugly!
-                IFluidHandler handler = FluidChannelSettings.getFluidHandlerAt(te, settings.getFacing()).map(h -> h).orElse(null);
-                if (handler != null) {
-                    int cnt = countFluid(handler, filter, amount + 1);
+                return FluidChannelSettings.getFluidHandlerAt(te, settings.getFacing()).map(h -> {
+                    int cnt = countFluid(h, filter, amount + 1);
                     return operator.match(cnt, amount);
-                }
-                break;
+                }).orElse(false);
             }
             case ENERGY: {
                 if (EnergyChannelSettings.isEnergyTE(te, settings.getFacing())) {
@@ -274,7 +269,7 @@ public class Sensor {
             ItemStack stack = handler.getStackInSlot(i);
             if (!stack.isEmpty()) {
                 if (!matcher.isEmpty()) {
-                    // @todo oredict?
+                    // @todo 1.14 oredict?
                     if (matcher.isItemEqual(stack)) {
                         cnt += stack.getCount();
                         if (cnt >= maxNeeded) {

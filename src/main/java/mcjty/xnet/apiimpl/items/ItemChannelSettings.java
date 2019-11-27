@@ -3,15 +3,15 @@ package mcjty.xnet.apiimpl.items;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import mcjty.lib.varia.WorldTools;
-import mcjty.xnet.XNet;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
-import mcjty.xnet.api.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
+import mcjty.xnet.XNet;
+import mcjty.xnet.api.helper.DefaultChannelSettings;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.compat.RFToolsSupport;
 import mcjty.xnet.config.ConfigSetup;
@@ -22,6 +22,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -81,8 +82,8 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         delay = tag.getInt("delay");
         roundRobinOffset = tag.getInt("offset");
         int[] cons = tag.getIntArray("extidx");
-        for (int idx = 0 ; idx < cons.length ; idx += 2) {
-            extractIndices.put(new ConsumerId(cons[idx]), cons[idx+1]);
+        for (int idx = 0; idx < cons.length; idx += 2) {
+            extractIndices.put(new ConsumerId(cons[idx]), cons[idx + 1]);
         }
     }
 
@@ -143,12 +144,12 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     public void tick(int channel, IControllerContext context) {
         delay--;
         if (delay <= 0) {
-            delay = 200*6;      // Multiply of the different speeds we have
+            delay = 200 * 6;      // Multiply of the different speeds we have
         }
         if (delay % 5 != 0) {
             return;
         }
-        int d = delay/5;
+        int d = delay / 5;
 
         updateCache(channel, context);
         World world = context.getControllerWorld();
@@ -179,14 +180,13 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 if (RFToolsSupport.isStorageScanner(te)) {
                     RFToolsSupport.tickStorageScanner(context, settings, te, this);
                 } else {
-                    IItemHandler handler = getItemHandlerAt(te, settings.getFacing());
-                    if (handler != null) {
+                    getItemHandlerAt(te, settings.getFacing()).ifPresent(handler -> {
                         int idx = getStartExtractIndex(settings, consumerId, handler);
                         idx = tickItemHandler(context, settings, handler, idx);
                         if (handler.getSlots() > 0) {
                             rememberExtractIndex(consumerId, (idx + 1) % handler.getSlots());
                         }
-                    }
+                    });
                 }
             }
         }
@@ -201,7 +201,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                     return 0;
                 }
                 // Try 5 times to find a non empty slot
-                for (int i = 0 ; i < 5 ; i++) {
+                for (int i = 0; i < 5; i++) {
                     int idx = random.nextInt(handler.getSlots());
                     if (!handler.getStackInSlot(idx).isEmpty()) {
                         return idx;
@@ -209,7 +209,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 }
                 // Otherwise use a more complicated algorithm
                 List<Integer> slots = new ArrayList<>();
-                for (int i = 0 ; i < handler.getSlots() ; i++) {
+                for (int i = 0; i < handler.getSlots(); i++) {
                     if (!handler.getStackInSlot(i).isEmpty()) {
                         slots.add(i);
                     }
@@ -246,7 +246,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 // number of items
                 int toextract = stack.getCount();
                 if (count != null) {
-                    int canextract = amount-count;
+                    int canextract = amount - count;
                     if (canextract <= 0) {
                         index.inc();
                         continue;
@@ -262,7 +262,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 int remaining = insertStackSimulate(inserted, context, stack);
                 if (!inserted.isEmpty()) {
                     if (context.checkAndConsumeRF(ConfigSetup.controllerOperationRFT.get())) {
-                        insertStackReal(context, inserted, fetchItem(handler, false, extractMatcher, settings.getStackMode(), settings.getExtractAmount(), toextract-remaining, index, startIdx));
+                        insertStackReal(context, inserted, fetchItem(handler, false, extractMatcher, settings.getStackMode(), settings.getExtractAmount(), toextract - remaining, index, startIdx));
                     }
                     break;
                 } else {
@@ -282,7 +282,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             roundRobinOffset = 0;       // Always start at 0
         }
         int total = stack.getCount();
-        for (int j = 0 ; j < itemConsumers.size() ; j++) {
+        for (int j = 0; j < itemConsumers.size(); j++) {
             int i = (j + roundRobinOffset) % itemConsumers.size();
             Pair<SidedConsumer, ItemConnectorSettings> entry = itemConsumers.get(i);
             ItemConnectorSettings settings = entry.getValue();
@@ -326,10 +326,10 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                         }
                         remaining = RFToolsSupport.insertItem(te, stack, true);
                     } else {
-                        IItemHandler handler = getItemHandlerAt(te, settings.getFacing());
-                        if (handler != null) {
+                        LazyOptional<IItemHandler> itemHandler = getItemHandlerAt(te, settings.getFacing());
+                        if (itemHandler.isPresent()) {
                             if (count != null) {
-                                int amount = countItems(handler, settings.getMatcher());
+                                int amount = countItems(itemHandler, settings.getMatcher());
                                 int caninsert = count - amount;
                                 if (caninsert <= 0) {
                                     continue;
@@ -342,7 +342,8 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                                     stack.setCount(toinsert);
                                 }
                             }
-                            remaining = ItemHandlerHelper.insertItem(handler, stack, true);
+                            ItemStack finalStack = stack;
+                            remaining = itemHandler.map(h -> ItemHandlerHelper.insertItem(h, finalStack, true)).orElse(ItemStack.EMPTY);
                         } else {
                             continue;
                         }
@@ -415,7 +416,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 }
 
             } else {
-                IItemHandler handler = getItemHandlerAt(te, settings.getFacing());
+                LazyOptional<IItemHandler> handler = getItemHandlerAt(te, settings.getFacing());
 
                 int toinsert = total;
                 Integer count = settings.getCount();
@@ -433,7 +434,8 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                         stack.setCount(toinsert);
                     }
                 }
-                ItemStack remaining = ItemHandlerHelper.insertItem(handler, stack, false);
+                ItemStack finalStack = stack;
+                ItemStack remaining = handler.map(h -> ItemHandlerHelper.insertItem(h, finalStack, false)).orElse(ItemStack.EMPTY);
                 int actuallyinserted = toinsert - remaining.getCount();
                 if (count == null) {
                     // If we are not using a count then we restore 'stack' here as that is what
@@ -455,10 +457,16 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         }
     }
 
-    private int countItems(IItemHandler handler, Predicate<ItemStack> matcher) {
+    private int countItems(LazyOptional<IItemHandler> handler, Predicate<ItemStack> matcher) {
+        return handler.map(h -> {
+            return countItems(h, matcher);
+        }).orElse(0);
+    }
+
+    private Integer countItems(IItemHandler h, Predicate<ItemStack> matcher) {
         int cnt = 0;
-        for (int i = 0 ; i < handler.getSlots() ; i++) {
-            ItemStack s = handler.getStackInSlot(i);
+        for (int i = 0; i < h.getSlots(); i++) {
+            ItemStack s = h.getStackInSlot(i);
             if (!s.isEmpty()) {
                 if (matcher.test(s)) {
                     cnt += s.getCount();
@@ -473,7 +481,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         if (handler.getSlots() <= 0) {
             return ItemStack.EMPTY;
         }
-        for (int i = index.get(); i < handler.getSlots()+startIdx ; i++) {
+        for (int i = index.get(); i < handler.getSlots() + startIdx; i++) {
             int j = i % handler.getSlots();
             ItemStack stack = handler.getStackInSlot(j);
             if (!stack.isEmpty()) {
@@ -556,17 +564,16 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
     @Override
     public void update(Map<String, Object> data) {
-        channelMode = ChannelMode.valueOf(((String)data.get(TAG_MODE)).toUpperCase());
+        channelMode = ChannelMode.valueOf(((String) data.get(TAG_MODE)).toUpperCase());
         roundRobinOffset = 0;
     }
 
-    @Nullable
-    public static IItemHandler getItemHandlerAt(@Nullable TileEntity te, Direction intSide) {
+    @Nonnull
+    public static LazyOptional<IItemHandler> getItemHandlerAt(@Nullable TileEntity te, Direction intSide) {
         if (te != null) {
-            // @todo 1.14 ugly!
-            return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide).map(h -> h).orElse(null);
+            return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide);
         }
-        return null;
+        return LazyOptional.empty();
     }
 
 
