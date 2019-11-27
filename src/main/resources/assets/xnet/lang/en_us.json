@@ -1,0 +1,54 @@
+{
+
+    "item.xnet.xnet_manual": "XNet Manual",
+    "item.xnet.connector_upgrade": "Connector Upgrade Kit",
+
+    "block.xnet.facade": "Facade",
+    "block.xnet.facade_blue": "Blue Facade",
+    "block.xnet.facade_red": "Red Facade",
+    "block.xnet.facade_yellow": "Yellow Facade",
+    "block.xnet.facade_green": "Green Facade",
+    "block.xnet.facade_routing": "Routing Facade",
+
+    "block.xnet.connector": "Connector",
+    "block.xnet.connector_blue": "Blue Connector",
+    "block.xnet.connector_red": "Red Connector",
+    "block.xnet.connector_yellow": "Yellow Connector",
+    "block.xnet.connector_green": "Green Connector",
+    "block.xnet.connector_routing": "Routing Connector",
+
+    "block.xnet.advanced_connector": "Advanced Connector",
+    "block.xnet.advanced_connector_blue": "Advanced Blue Connector",
+    "block.xnet.advanced_connector_red": "Advanced Red Connector",
+    "block.xnet.advanced_connector_yellow": "Advanced Yellow Connector",
+    "block.xnet.advanced_connector_green": "Advanced Green Connector",
+    "block.xnet.advanced_connector_routing": "Advanced Routing Connector (NOT)",
+
+    "block.xnet.netcable": "Network Cable",
+    "block.xnet.netcable_blue": "Blue Network Cable",
+    "block.xnet.netcable_red": "Red Network Cable",
+    "block.xnet.netcable_yellow": "Yellow Network Cable",
+    "block.xnet.netcable_green": "Green Network Cable",
+    "block.xnet.netcable_routing": "Routing Network Cable",
+
+    "block.xnet.redstone_proxy": "Redstone Proxy",
+    "block.xnet.redstone_proxy_upd": "Redstone Proxy (update)",
+
+    "block.xnet.controller": "Controller",
+    "block.xnet.router": "Router",
+    "block.xnet.wireless_router": "Wireless Router",
+    "block.xnet.antenna": "Antenna",
+    "block.xnet.antenna_base": "Antenna Base",
+    "block.xnet.antenna_dish": "Antenna Dish",
+
+    "itemGroup.XNet": "XNet",
+
+    "message.xnet.shiftmessage": "<Press Shift>",
+
+    "message.xnet.router": "@fWith this block you can connect\n@fmultiple channels (controllers)",
+    "message.xnet.wireless_router": "@fWith this block you can connect\n@fmultiple channels remotely\n@fConnect this to a normal router\n@fusing a router cable\n@6This needs an antenna!",
+    "message.xnet.controller": "@fThe base block for automation\n@fin XNet",
+    "message.xnet.antenna": "@fPlace one or two antenna's on\n@ftop of an antenna base.\n@6One: range %s (%s rf/t/channel)\n@6Two: range %s (%s rf/t/channel)",
+    "message.xnet.antenna_base": "@fAn antenna base has to be placed\n@fon top of a wireless router",
+    "message.xnet.antenna_dish": "@fAn antenna dish has to be placed\n@fon top of an antenna base and\n@fallows very extreme wireless range\n@6(%s rf/t/channel)"
+}
