@@ -63,8 +63,9 @@ public class NetCableBlock extends GenericCableBlock {
         World world = context.getWorld();
         BlockPos pos = context.getPos();
         BlockState state = world.getBlockState(pos);
+        state = super.getStateForPlacement(context);
         world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.NOTIFY_NEIGHBORS);
-        return super.getStateForPlacement(context);
+        return state;
     }
 
     @Override

@@ -80,18 +80,18 @@ public class GenericCableBakedModel implements IDynamicBakedModel {
             for (CableColor color : CableColor.VALUES) {
                 int i = color.ordinal();
                 tt[i] = new CableTextures();
-                tt[i].spriteConnector = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":blocks/cable" + i + "/connector");
-                tt[i].spriteAdvancedConnector = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":blocks/cable" + i + "/advanced_connector");
+                tt[i].spriteConnector = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":block/cable" + i + "/connector");
+                tt[i].spriteAdvancedConnector = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":block/cable" + i + "/advanced_connector");
 
-                tt[i].spriteNormalCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":blocks/cable" + i + "/normal_netcable");
-                tt[i].spriteNoneCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":blocks/cable" + i + "/normal_none_netcable");
-                tt[i].spriteEndCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":blocks/cable" + i + "/normal_end_netcable");
-                tt[i].spriteCornerCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":blocks/cable" + i + "/normal_corner_netcable");
-                tt[i].spriteThreeCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":blocks/cable" + i + "/normal_three_netcable");
-                tt[i].spriteCrossCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":blocks/cable" + i + "/normal_cross_netcable");
+                tt[i].spriteNormalCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":block/cable" + i + "/normal_netcable");
+                tt[i].spriteNoneCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":block/cable" + i + "/normal_none_netcable");
+                tt[i].spriteEndCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":block/cable" + i + "/normal_end_netcable");
+                tt[i].spriteCornerCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":block/cable" + i + "/normal_corner_netcable");
+                tt[i].spriteThreeCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":block/cable" + i + "/normal_three_netcable");
+                tt[i].spriteCrossCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":block/cable" + i + "/normal_cross_netcable");
             }
 
-            spriteSide = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":blocks/connector_side");
+            spriteSide = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":block/connector_side");
             cableTextures = tt;
         }
     }
