@@ -1,4 +1,4 @@
-package mcjty.xnet.items.manual;
+package mcjty.xnet.modules.various.items;
 
 import mcjty.xnet.XNet;
 import net.minecraft.entity.player.PlayerEntity;

@@ -1,10 +1,10 @@
 package mcjty.xnet.modules.various;
 
 import mcjty.xnet.XNet;
-import mcjty.xnet.items.ConnectorUpgradeItem;
-import mcjty.xnet.items.manual.XNetManualItem;
-import mcjty.xnet.modules.various.RedstoneProxyBlock;
-import mcjty.xnet.modules.various.RedstoneProxyUBlock;
+import mcjty.xnet.modules.various.items.ConnectorUpgradeItem;
+import mcjty.xnet.modules.various.items.XNetManualItem;
+import mcjty.xnet.modules.various.blocks.RedstoneProxyBlock;
+import mcjty.xnet.modules.various.blocks.RedstoneProxyUBlock;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;

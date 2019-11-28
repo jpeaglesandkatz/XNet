@@ -14,7 +14,7 @@ import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.facade.FacadeSetup;
 import mcjty.xnet.modules.facade.blocks.FacadeItemBlock;
 import mcjty.xnet.modules.cables.CableColor;
-import mcjty.xnet.modules.various.RedstoneProxyBlock;
+import mcjty.xnet.modules.various.blocks.RedstoneProxyBlock;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import mcjty.xnet.config.ConfigSetup;

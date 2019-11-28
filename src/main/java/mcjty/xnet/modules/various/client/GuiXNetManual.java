@@ -1,4 +1,4 @@
-package mcjty.xnet.items.manual;
+package mcjty.xnet.modules.various.client;
 
 import mcjty.lib.gui.GuiItemScreen;
 import mcjty.lib.gui.Window;

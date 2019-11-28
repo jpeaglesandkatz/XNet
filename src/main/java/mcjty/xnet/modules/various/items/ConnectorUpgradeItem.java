@@ -1,4 +1,4 @@
-package mcjty.xnet.items;
+package mcjty.xnet.modules.various.items;
 
 import mcjty.xnet.XNet;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
