@@ -1,5 +1,5 @@
 {
-  "parent": "xnet:block/smallblock",
+  "parent": "xnet:block/mediumblock",
   "textures": {
     "all": "xnet:block/cable2/advanced_connector"
   }
