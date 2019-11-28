@@ -3,6 +3,7 @@ package mcjty.xnet.blocks.cables;
 import mcjty.lib.container.GenericContainer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.blocks.generic.CableColor;
+import mcjty.xnet.blocks.generic.ColorBlockItem;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;

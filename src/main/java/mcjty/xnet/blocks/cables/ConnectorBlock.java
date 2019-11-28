@@ -48,7 +48,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.loot.LootContext;
 import net.minecraft.world.storage.loot.LootParameters;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -234,10 +233,10 @@ public class ConnectorBlock extends GenericCableBlock {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        World world = context.getWorld();
-        BlockPos pos = context.getPos();
-        BlockState state = world.getBlockState(pos);
-        world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.NOTIFY_NEIGHBORS);
+//        World world = context.getWorld();
+//        BlockPos pos = context.getPos();
+//        BlockState state = world.getBlockState(pos);
+//        world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.NOTIFY_NEIGHBORS);
         return super.getStateForPlacement(context);
     }
 
@@ -364,7 +363,7 @@ public class ConnectorBlock extends GenericCableBlock {
         List<ItemStack> drops = super.getDrops(state, builder);
         ServerWorld world = builder.getWorld();
         for (ItemStack drop : drops) {
-            WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+            WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
             ConsumerId consumer = worldBlob.getConsumerAt(builder.get(LootParameters.POSITION));
             if (consumer != null) {
                 drop.getOrCreateTag().putInt("consumerId", consumer.getId());
@@ -400,7 +399,7 @@ public class ConnectorBlock extends GenericCableBlock {
         if (!stack.isEmpty() && stack.hasTag() && stack.getTag().contains("consumerId")) {
             consumer = new ConsumerId(stack.getTag().getInt("consumerId"));
         } else {
-            XNetBlobData blobData = XNetBlobData.getBlobData(world);
+            XNetBlobData blobData = XNetBlobData.get(world);
             WorldBlob worldBlob = blobData.getWorldBlob(world);
             consumer = worldBlob.newConsumer();
         }
@@ -408,7 +407,7 @@ public class ConnectorBlock extends GenericCableBlock {
     }
 
     public void createCableSegment(World world, BlockPos pos, ConsumerId consumer) {
-        XNetBlobData blobData = XNetBlobData.getBlobData(world);
+        XNetBlobData blobData = XNetBlobData.get(world);
         WorldBlob worldBlob = blobData.getWorldBlob(world);
         CableColor color = world.getBlockState(pos).get(COLOR);
         worldBlob.createNetworkConsumer(pos, new ColorId(color.ordinal()+1), consumer);

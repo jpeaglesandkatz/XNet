@@ -99,12 +99,12 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
             }
             counter = 10;
 
-            int version = XNetWirelessChannels.getWirelessChannels(world).getGlobalChannelVersion();
+            int version = XNetWirelessChannels.get(world).getGlobalChannelVersion();
             if (globalChannelVersion != version) {
                 globalChannelVersion = version;
                 NetworkId networkId = findRoutingNetwork();
                 if (networkId != null) {
-                    WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+                    WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
                     worldBlob.markNetworkDirty(networkId);
                 }
             }
@@ -200,7 +200,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
             return;
         }
 
-        XNetWirelessChannels wirelessData = XNetWirelessChannels.getWirelessChannels(world);
+        XNetWirelessChannels wirelessData = XNetWirelessChannels.get(world);
         wirelessData.findChannels(getOwnerUUID())
                 .forEach(channel -> {
                     // Find all wireless routers on a given channel but remove the ones on our own channel
@@ -235,7 +235,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     private void publishChannels(TileEntityRouter router, NetworkId networkId) {
         int tier = getAntennaTier();
         UUID ownerUUID = publicAccess ? null : getOwnerUUID();
-        XNetWirelessChannels wirelessData = XNetWirelessChannels.getWirelessChannels(world);
+        XNetWirelessChannels wirelessData = XNetWirelessChannels.get(world);
         energyHandler.ifPresent(h -> {
 
             router.publishedChannelStream()
@@ -255,7 +255,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     public void addWirelessConnectors(Map<SidedConsumer, IConnectorSettings> connectors, String channelName, IChannelType type,
                                       @Nullable UUID owner, @Nonnull Map<WirelessChannelKey, Integer> wirelessVersions) {
         WirelessChannelKey key = new WirelessChannelKey(channelName, type, owner);
-        XNetWirelessChannels.WirelessChannelInfo info = XNetWirelessChannels.getWirelessChannels(world).findChannel(key);
+        XNetWirelessChannels.WirelessChannelInfo info = XNetWirelessChannels.get(world).findChannel(key);
         if (info != null) {
             info.getRouters().keySet().stream()
                     // Don't do this for ourselves
@@ -314,7 +314,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
 
     @Nullable
     public NetworkId findRoutingNetwork() {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
         return LogicTools.routingConnectors(world, getPos())
                 .findFirst()
                 .map(worldBlob::getNetworkAt)
@@ -385,7 +385,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     public void onReplaced(World world, BlockPos pos, BlockState state) {
         super.onReplaced(world, pos, state);
         if (!this.world.isRemote) {
-            XNetBlobData blobData = XNetBlobData.getBlobData(this.world);
+            XNetBlobData blobData = XNetBlobData.get(this.world);
             WorldBlob worldBlob = blobData.getWorldBlob(this.world);
             worldBlob.removeCableSegment(pos);
             blobData.save();
@@ -396,7 +396,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
         if (!world.isRemote) {
-            XNetBlobData blobData = XNetBlobData.getBlobData(world);
+            XNetBlobData blobData = XNetBlobData.get(world);
             WorldBlob worldBlob = blobData.getWorldBlob(world);
             NetworkId networkId = worldBlob.newNetwork();
             worldBlob.createNetworkProvider(pos, new ColorId(CableColor.ROUTING.ordinal() + 1), networkId);

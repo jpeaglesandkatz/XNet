@@ -68,7 +68,7 @@ public class ConnectorUpgradeItem extends Item {
                     te.write(tag);
                     CableColor color = world.getBlockState(pos).get(GenericCableBlock.COLOR);
 
-                    XNetBlobData blobData = XNetBlobData.getBlobData(world);
+                    XNetBlobData blobData = XNetBlobData.get(world);
                     WorldBlob worldBlob = blobData.getWorldBlob(world);
                     ConsumerId consumer = worldBlob.getConsumerAt(pos);
                     ((ConnectorBlock)block).unlinkBlock(world, pos);

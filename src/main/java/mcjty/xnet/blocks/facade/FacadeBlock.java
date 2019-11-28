@@ -98,7 +98,7 @@ public class FacadeBlock extends NetCableBlock {
     @Override
     public void onReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
         // Breaking a facade has no effect on blob network
-        originalBreakBlock(state, world, pos, newState, isMoving);
+        super.onReplaced(state, world, pos, newState, isMoving);
     }
 
 

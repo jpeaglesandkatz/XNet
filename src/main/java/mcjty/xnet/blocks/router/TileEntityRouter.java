@@ -219,7 +219,7 @@ public final class TileEntityRouter extends GenericTileEntity {
 
     @Nullable
     public NetworkId findRoutingNetwork() {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
         return LogicTools.routingConnectors(world, getPos())
                 .findFirst()
                 .map(worldBlob::getNetworkAt)
@@ -288,7 +288,7 @@ public final class TileEntityRouter extends GenericTileEntity {
             publishedChannels.put(id, name);
         }
         int number = countPublishedChannelsOnNet();
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
         NetworkId networkId = findRoutingNetwork();
         if (networkId != null) {
             if (number != channelCount) {
@@ -400,7 +400,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     public void onReplaced(World world, BlockPos pos, BlockState state) {
         super.onReplaced(world, pos, state);
         if (!this.world.isRemote) {
-            XNetBlobData blobData = XNetBlobData.getBlobData(this.world);
+            XNetBlobData blobData = XNetBlobData.get(this.world);
             WorldBlob worldBlob = blobData.getWorldBlob(this.world);
             worldBlob.removeCableSegment(pos);
             blobData.save();
@@ -411,7 +411,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
         if (!world.isRemote) {
-            XNetBlobData blobData = XNetBlobData.getBlobData(world);
+            XNetBlobData blobData = XNetBlobData.get(world);
             WorldBlob worldBlob = blobData.getWorldBlob(world);
             NetworkId networkId = worldBlob.newNetwork();
             worldBlob.createNetworkProvider(pos, new ColorId(CableColor.ROUTING.ordinal() + 1), networkId);

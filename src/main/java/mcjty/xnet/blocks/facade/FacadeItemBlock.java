@@ -75,7 +75,7 @@ public class FacadeItemBlock extends BlockItem {
 
             if (block instanceof NetCableBlock) {
                 FacadeBlock facadeBlock = (FacadeBlock) this.getBlock();
-                BlockState placementState = facadeBlock.getPlacementState((BlockItemUseContext)context) // @todo 1.14 is this cast right?
+                BlockState placementState = facadeBlock.getStateForPlacement((BlockItemUseContext)context) // @todo 1.14 is this cast right?
                         .with(GenericCableBlock.COLOR, state.get(GenericCableBlock.COLOR));
 
                 if (placeBlock((BlockItemUseContext)context, placementState)) {

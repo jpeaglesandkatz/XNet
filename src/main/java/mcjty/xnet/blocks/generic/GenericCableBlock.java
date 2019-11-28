@@ -1,6 +1,5 @@
 package mcjty.xnet.blocks.generic;
 
-import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.blocks.cables.ConnectorType;
 import mcjty.xnet.blocks.facade.IFacadeSupport;
 import mcjty.xnet.multiblock.ColorId;
@@ -18,7 +17,6 @@ import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -26,16 +24,12 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.data.ModelProperty;
 import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 public abstract class GenericCableBlock extends Block {
 
@@ -50,28 +44,21 @@ public abstract class GenericCableBlock extends Block {
     public static final ModelProperty<BlockState> FACADEID = new ModelProperty<>();
     public static final EnumProperty<CableColor> COLOR = EnumProperty.<CableColor>create("color", CableColor.class);
 
+    private static VoxelShape[] shapeCache = null;
 
-    public static final AxisAlignedBB AABB_EMPTY = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
-    public static final AxisAlignedBB AABB_CENTER = new AxisAlignedBB(.4, .4, .4, .6, .6, .6);
+    private static final VoxelShape SHAPE_CABLE_NORTH = VoxelShapes.create(.4, .4, 0, .6, .6, .4);
+    private static final VoxelShape SHAPE_CABLE_SOUTH = VoxelShapes.create(.4, .4, .6, .6, .6, 1);
+    private static final VoxelShape SHAPE_CABLE_WEST = VoxelShapes.create(0, .4, .4, .4, .6, .6);
+    private static final VoxelShape SHAPE_CABLE_EAST = VoxelShapes.create(.6, .4, .4, 1, .6, .6);
+    private static final VoxelShape SHAPE_CABLE_UP = VoxelShapes.create(.4, .6, .4, .6, 1, .6);
+    private static final VoxelShape SHAPE_CABLE_DOWN = VoxelShapes.create(.4, 0, .4, .6, .4, .6);
 
-    public static final AxisAlignedBB AABBS[] = new AxisAlignedBB[]{
-            new AxisAlignedBB(.4, 0, .4, .6, .4, .6),
-            new AxisAlignedBB(.4, .6, .4, .6, 1, .6),
-            new AxisAlignedBB(.4, .4, 0, .6, .6, .4),
-            new AxisAlignedBB(.4, .4, .6, .6, .6, 1),
-            new AxisAlignedBB(0, .4, .4, .4, .6, .6),
-            new AxisAlignedBB(.6, .4, .4, 1, .6, .6)
-    };
-
-    public static final AxisAlignedBB AABBS_CONNECTOR[] = new AxisAlignedBB[]{
-            new AxisAlignedBB(.2, 0, .2, .8, .1, .8),
-            new AxisAlignedBB(.2, .9, .2, .8, 1, .8),
-            new AxisAlignedBB(.2, .2, 0, .8, .8, .1),
-            new AxisAlignedBB(.2, .2, .9, .8, .8, 1),
-            new AxisAlignedBB(0, .2, .2, .1, .8, .8),
-            new AxisAlignedBB(.9, .2, .2, 1, .8, .8)
-    };
-
+    private static final VoxelShape SHAPE_BLOCK_NORTH = VoxelShapes.create(.2, .2, 0, .8, .8, .1);
+    private static final VoxelShape SHAPE_BLOCK_SOUTH = VoxelShapes.create(.2, .2, .9, .8, .8, 1);
+    private static final VoxelShape SHAPE_BLOCK_WEST = VoxelShapes.create(0, .2, .2, .1, .8, .8);
+    private static final VoxelShape SHAPE_BLOCK_EAST = VoxelShapes.create(.9, .2, .2, 1, .8, .8);
+    private static final VoxelShape SHAPE_BLOCK_UP = VoxelShapes.create(.2, .9, .2, .8, 1, .8);
+    private static final VoxelShape SHAPE_BLOCK_DOWN = VoxelShapes.create(.2, 0, .2, .8, .1, .8);
 
     public GenericCableBlock(Material material, String name) {
         super(Properties.create(material)
@@ -81,11 +68,57 @@ public abstract class GenericCableBlock extends Block {
                 .harvestTool(ToolType.PICKAXE)
         );
         setRegistryName(name);
+        makeShapes();
     }
 
-//    public static boolean activateBlock(Block block, World world, BlockPos pos, BlockState state, PlayerEntity player, Hand hand, Direction facing, float hitX, float hitY, float hitZ) {
-//        return block.onBlockActivated(world, pos, state, player, hand, facing, hitX, hitY, hitZ);
-//    }
+    private int calculateShapeIndex(ConnectorType north, ConnectorType south, ConnectorType west, ConnectorType east, ConnectorType up, ConnectorType down) {
+        int l = ConnectorType.values().length;
+        return ((((south.ordinal() * l + north.ordinal()) * l + west.ordinal()) * l + east.ordinal()) * l + up.ordinal()) * l + down.ordinal();
+    }
+
+    private void makeShapes() {
+        if (shapeCache == null) {
+            int length = ConnectorType.values().length;
+            shapeCache = new VoxelShape[length * length * length * length * length * length];
+
+            for (ConnectorType up : ConnectorType.VALUES) {
+                for (ConnectorType down : ConnectorType.VALUES) {
+                    for (ConnectorType north : ConnectorType.VALUES) {
+                        for (ConnectorType south : ConnectorType.VALUES) {
+                            for (ConnectorType east : ConnectorType.VALUES) {
+                                for (ConnectorType west : ConnectorType.VALUES) {
+                                    int idx = calculateShapeIndex(north, south, west, east, up, down);
+                                    shapeCache[idx] = makeShape(north, south, west, east, up, down);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    private VoxelShape makeShape(ConnectorType north, ConnectorType south, ConnectorType west, ConnectorType east, ConnectorType up, ConnectorType down) {
+        VoxelShape shape = VoxelShapes.create(.4, .4, .4, .6, .6, .6);
+        shape = combineShape(shape, north, SHAPE_CABLE_NORTH, SHAPE_BLOCK_NORTH);
+        shape = combineShape(shape, south, SHAPE_CABLE_SOUTH, SHAPE_BLOCK_SOUTH);
+        shape = combineShape(shape, west, SHAPE_CABLE_WEST, SHAPE_BLOCK_WEST);
+        shape = combineShape(shape, east, SHAPE_CABLE_EAST, SHAPE_BLOCK_EAST);
+        shape = combineShape(shape, up, SHAPE_CABLE_UP, SHAPE_BLOCK_UP);
+        shape = combineShape(shape, down, SHAPE_CABLE_DOWN, SHAPE_BLOCK_DOWN);
+        return shape;
+    }
+
+    private VoxelShape combineShape(VoxelShape shape, ConnectorType connectorType, VoxelShape cableShape, VoxelShape blockShape) {
+        if (connectorType == ConnectorType.CABLE) {
+            return VoxelShapes.combineAndSimplify(shape, cableShape, IBooleanFunction.OR);
+        } else if (connectorType == ConnectorType.BLOCK) {
+            return VoxelShapes.combineAndSimplify(shape, blockShape, IBooleanFunction.OR);
+        } else {
+            return shape;
+        }
+    }
 
     @Override
     public ItemStack getItem(IBlockReader worldIn, BlockPos pos, BlockState state) {
@@ -148,51 +181,6 @@ public abstract class GenericCableBlock extends Block {
 //        return AABB_EMPTY;
 //    }
 
-    private static class ConnectionKey {
-        private final ConnectorType north;
-        private final ConnectorType south;
-        private final ConnectorType east;
-        private final ConnectorType west;
-        private final ConnectorType up;
-        private final ConnectorType down;
-
-        public ConnectionKey(ConnectorType north, ConnectorType south, ConnectorType east, ConnectorType west, ConnectorType up, ConnectorType down) {
-            this.north = north;
-            this.south = south;
-            this.east = east;
-            this.west = west;
-            this.up = up;
-            this.down = down;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            ConnectionKey that = (ConnectionKey) o;
-            return north == that.north &&
-                    south == that.south &&
-                    east == that.east &&
-                    west == that.west &&
-                    up == that.up &&
-                    down == that.down;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(north, south, east, west, up, down);
-        }
-    }
-
-    private static final Map<ConnectionKey, VoxelShape> SHAPE_CACHE = new HashMap<>();
-
-    private static final VoxelShape SHAPE_CABLE_NORTH = VoxelShapes.create(.4, .4, 0, .6, .6, .4);
-    private static final VoxelShape SHAPE_CABLE_SOUTH = VoxelShapes.create(.4, .4, .6, .6, .6, 1);
-    private static final VoxelShape SHAPE_CABLE_WEST = VoxelShapes.create(0, .4, .4, .4, .6, .6);
-    private static final VoxelShape SHAPE_CABLE_EAST = VoxelShapes.create(.6, .4, .4, 1, .6, .6);
-    private static final VoxelShape SHAPE_CABLE_UP = VoxelShapes.create(.4, .6, .4, .6, 1, .6);
-    private static final VoxelShape SHAPE_CABLE_DOWN = VoxelShapes.create(.4, 0, .4, .6, .4, .6);
-
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
         if (getMimicBlock(world, pos) != null) {
@@ -206,32 +194,9 @@ public abstract class GenericCableBlock extends Block {
         ConnectorType east = getConnectorType(color, world, pos, Direction.EAST);
         ConnectorType up = getConnectorType(color, world, pos, Direction.UP);
         ConnectorType down = getConnectorType(color, world, pos, Direction.DOWN);
-        ConnectionKey key = new ConnectionKey(north, south, east, west, up, down);
-        if (!SHAPE_CACHE.containsKey(key)) {
-            VoxelShape shape = VoxelShapes.create(.4, .4, .4, .6, .6, .6);
-            if (north != ConnectorType.NONE) {
-                shape = VoxelShapes.combineAndSimplify(shape, SHAPE_CABLE_NORTH, IBooleanFunction.OR);
-            }
-            if (south != ConnectorType.NONE) {
-                shape = VoxelShapes.combineAndSimplify(shape, SHAPE_CABLE_SOUTH, IBooleanFunction.OR);
-            }
-            if (west != ConnectorType.NONE) {
-                shape = VoxelShapes.combineAndSimplify(shape, SHAPE_CABLE_WEST, IBooleanFunction.OR);
-            }
-            if (east != ConnectorType.NONE) {
-                shape = VoxelShapes.combineAndSimplify(shape, SHAPE_CABLE_EAST, IBooleanFunction.OR);
-            }
-            if (up != ConnectorType.NONE) {
-                shape = VoxelShapes.combineAndSimplify(shape, SHAPE_CABLE_UP, IBooleanFunction.OR);
-            }
-            if (down != ConnectorType.NONE) {
-                shape = VoxelShapes.combineAndSimplify(shape, SHAPE_CABLE_DOWN, IBooleanFunction.OR);
-            }
-            SHAPE_CACHE.put(key, shape);
-        }
-        return SHAPE_CACHE.get(key);
+        int index = calculateShapeIndex(north, south, west, east, up, down);
+        return shapeCache[index];
     }
-
 
 //    @Override
 //    @SideOnly(Side.CLIENT)
@@ -289,7 +254,7 @@ public abstract class GenericCableBlock extends Block {
     }
 
     public void createCableSegment(World world, BlockPos pos, ItemStack stack) {
-        XNetBlobData blobData = XNetBlobData.getBlobData(world);
+        XNetBlobData blobData = XNetBlobData.get(world);
         WorldBlob worldBlob = blobData.getWorldBlob(world);
         CableColor color = world.getBlockState(pos).get(COLOR);
         worldBlob.createCableSegment(pos, new ColorId(color.ordinal()+1));
@@ -301,42 +266,17 @@ public abstract class GenericCableBlock extends Block {
         if (newState.getBlock() != state.getBlock()) {
             unlinkBlock(world, pos);
         }
-        originalBreakBlock(state, world, pos, newState, isMoving);
+        super.onReplaced(state, world, pos, newState, isMoving);
     }
 
     public void unlinkBlock(World world, BlockPos pos) {
         if (!world.isRemote) {
-            XNetBlobData blobData = XNetBlobData.getBlobData(world);
+            XNetBlobData blobData = XNetBlobData.get(world);
             WorldBlob worldBlob = blobData.getWorldBlob(world);
             worldBlob.removeCableSegment(pos);
             blobData.save();
         }
     }
-
-    protected void originalBreakBlock(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
-        super.onReplaced(state, world, pos, newState, isMoving);
-    }
-
-//    @Override
-//    @SideOnly(Side.CLIENT)
-//    public boolean shouldSideBeRendered(BlockState blockState, IBlockAccess blockAccess, BlockPos pos, Direction side) {
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean isBlockNormalCube(BlockState blockState) {
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean isOpaqueCube(BlockState blockState) {
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean isFullCube(BlockState state) {
-//        return false;
-//    }
 
     @Override
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
@@ -344,31 +284,31 @@ public abstract class GenericCableBlock extends Block {
         builder.add(COLOR, NORTH, SOUTH, EAST, WEST, UP, DOWN);
     }
 
-    @Override
-    public void onNeighborChange(BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbor) {
+//    @Override
+//    public void onNeighborChange(BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbor) {
+//
+//    }
+//
+//    @Override
+//    public void neighborChanged(BlockState p_220069_1_, World p_220069_2_, BlockPos p_220069_3_, Block p_220069_4_, BlockPos p_220069_5_, boolean p_220069_6_) {
+//        super.neighborChanged(p_220069_1_, p_220069_2_, p_220069_3_, p_220069_4_, p_220069_5_, p_220069_6_);
+//    }
 
-    }
-
-    @Override
-    public void neighborChanged(BlockState p_220069_1_, World p_220069_2_, BlockPos p_220069_3_, Block p_220069_4_, BlockPos p_220069_5_, boolean p_220069_6_) {
-        super.neighborChanged(p_220069_1_, p_220069_2_, p_220069_3_, p_220069_4_, p_220069_5_, p_220069_6_);
-    }
-
-    @Override
-    public void updateNeighbors(BlockState state, IWorld world, BlockPos pos, int flags) {
-        super.updateNeighbors(state, world, pos, flags);
-        for (Direction direction : OrientationTools.DIRECTION_VALUES) {
-            BlockPos p = pos.offset(direction);
-            BlockState original = world.getBlockState(p);
-            BlockState newstate = original.updatePostPlacement(direction.getOpposite(), state, world, p, pos);
-            replaceBlock(original, newstate, world, p, flags);
-
-        }
-    }
+//    @Override
+//    public void update    Neighbors(BlockState state, IWorld world, BlockPos pos, int flags) {
+//        super.updateNeighbors(state, world, pos, flags);
+//        for (Direction direction : OrientationTools.DIRECTION_VALUES) {
+//            BlockPos p = pos.offset(direction);
+//            BlockState original = world.getBlockState(p);
+//            BlockState newstate = original.updatePostPlacement(direction.getOpposite(), state, world, p, pos);
+//            replaceBlock(original, newstate, world, p, flags);
+//
+//        }
+//    }
 
     @Override
     public BlockState updatePostPlacement(BlockState state, Direction direction, BlockState neighbourState, IWorld world, BlockPos current, BlockPos offset) {
-        return calculateState(world, current);
+        return calculateState(world, current, state);
     }
 
     @Nullable
@@ -376,13 +316,12 @@ public abstract class GenericCableBlock extends Block {
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         World world = context.getWorld();
         BlockPos pos = context.getPos();
-        return calculateState(world, pos);
+        return calculateState(world, pos, getDefaultState());
     }
 
-    private BlockState calculateState(IWorld world, BlockPos pos) {
-        BlockState state = getDefaultState();
+    @Nonnull
+    public BlockState calculateState(IWorld world, BlockPos pos, BlockState state) {
         CableColor color = state.get(COLOR);
-
         ConnectorType north = getConnectorType(color, world, pos, Direction.NORTH);
         ConnectorType south = getConnectorType(color, world, pos, Direction.SOUTH);
         ConnectorType west = getConnectorType(color, world, pos, Direction.WEST);

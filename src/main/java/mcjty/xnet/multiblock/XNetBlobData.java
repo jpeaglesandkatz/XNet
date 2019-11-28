@@ -22,7 +22,7 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
     }
 
     @Nonnull
-    public static XNetBlobData getBlobData(World world) {
+    public static XNetBlobData get(World world) {
         return getData(world, () -> new XNetBlobData(NAME), NAME);
     }
 

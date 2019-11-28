@@ -151,7 +151,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         if (networkChecker == null) {
             networkChecker = new NetworkChecker();
             networkChecker.add(networkId);
-            WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+            WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
             LogicTools.routers(world, networkId)
                     .forEach(router -> {
                         networkChecker.add(worldBlob.getNetworksAt(router.getPos()));
@@ -204,7 +204,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
         // Check wireless
         for (Map.Entry<WirelessChannelKey, Integer> entry : wirelessVersions.entrySet()) {
-            XNetWirelessChannels channels = XNetWirelessChannels.getWirelessChannels(world);
+            XNetWirelessChannels channels = XNetWirelessChannels.get(world);
             XNetWirelessChannels.WirelessChannelInfo channel = channels.findChannel(entry.getKey());
             if (channel == null) {
                 cleanCaches();
@@ -234,7 +234,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         if (world.isRemote) {
             return error;
         } else {
-            WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+            WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
             return worldBlob.getNetworksAt(getPos()).size() > 1;
         }
     }
@@ -242,7 +242,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     @Override
     public void tick() {
         if (!world.isRemote) {
-            WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+            WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
 
             if (worldBlob.getNetworksAt(getPos()).size() > 1) {
                 // Error situation!
@@ -294,7 +294,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     private void networkDirty() {
         if (networkId != null) {
-            XNetBlobData.getBlobData(world).getWorldBlob(world).markNetworkDirty(networkId);
+            XNetBlobData.get(world).getWorldBlob(world).markNetworkDirty(networkId);
         }
     }
 
@@ -308,7 +308,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     @Nonnull
     public Map<SidedConsumer, IConnectorSettings> getConnectors(int channel) {
         if (cachedConnectors[channel] == null) {
-            WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+            WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
             cachedConnectors[channel] = new HashMap<>();
             for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channels[channel].getConnectors().entrySet()) {
                 SidedConsumer sidedConsumer = entry.getKey();
@@ -411,7 +411,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     @Nullable
     @Override
     public BlockPos findConsumerPosition(@Nonnull ConsumerId consumerId) {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
         return findConsumerPosition(worldBlob, consumerId);
     }
 
@@ -422,7 +422,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     @Override
     public List<SidedPos> getConnectedBlockPositions() {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
 
         List<SidedPos> result = new ArrayList<>();
         Set<ConnectedBlockClientInfo> set = new HashSet<>();
@@ -450,7 +450,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     @Nonnull
     private List<ConnectedBlockClientInfo> findConnectedBlocksForClient() {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
 
         Set<ConnectedBlockClientInfo> set = new HashSet<>();
         Stream<BlockPos> consumers = getConsumerStream(worldBlob);
@@ -488,7 +488,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     @Nonnull
     private List<ChannelClientInfo> findChannelInfo() {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
 
         List<ChannelClientInfo> chanList = new ArrayList<>();
         for (ChannelInfo channel : channels) {
@@ -556,7 +556,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     }
 
     private void updateConnector(int channel, SidedPos pos, TypedMap params) {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
         ConsumerId consumerId = worldBlob.getConsumerAt(pos.getPos().offset(pos.getSide()));
         for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channels[channel].getConnectors().entrySet()) {
             SidedConsumer key = entry.getKey();
@@ -573,7 +573,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     }
 
     private void removeConnector(int channel, SidedPos pos) {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
         ConsumerId consumerId = worldBlob.getConsumerAt(pos.getPos().offset(pos.getSide()));
         SidedConsumer toremove = null;
         for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channels[channel].getConnectors().entrySet()) {
@@ -592,7 +592,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     }
 
     private ConnectorInfo createConnector(int channel, SidedPos pos) {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
         BlockPos consumerPos = pos.getPos().offset(pos.getSide());
         ConsumerId consumerId = worldBlob.getConsumerAt(consumerPos);
         if (consumerId == null) {
@@ -606,7 +606,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     }
 
     private IConnectorSettings findConnectorSettings(ChannelInfo channel, SidedPos p) {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
 
         for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channel.getConnectors().entrySet()) {
             SidedConsumer sidedConsumer = entry.getKey();
@@ -626,7 +626,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     @Nonnull
     private Set<ConnectedBlockInfo> findConnectedBlocks() {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
 
         Set<ConnectedBlockInfo> set = new HashSet<>();
         Stream<BlockPos> consumers = getConsumerStream(worldBlob);
@@ -1061,7 +1061,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     @Override
     public void onReplaced(World world, BlockPos pos, BlockState state) {
         super.onReplaced(world, pos, state);
-        XNetBlobData blobData = XNetBlobData.getBlobData(this.world);
+        XNetBlobData blobData = XNetBlobData.get(this.world);
         WorldBlob worldBlob = blobData.getWorldBlob(this.world);
         worldBlob.removeCableSegment(pos);
         blobData.save();
@@ -1135,7 +1135,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         if (world.isRemote) {
             return;
         }
-        XNetBlobData blobData = XNetBlobData.getBlobData(world);
+        XNetBlobData blobData = XNetBlobData.get(world);
         WorldBlob worldBlob = blobData.getWorldBlob(world);
         ColorId oldColor = worldBlob.getColorAt(pos);
         ColorId newColor = null;

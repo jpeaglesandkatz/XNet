@@ -164,7 +164,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
                 Block newblock = world.getBlockState(neighbor).getBlock();
                 if (newblock != cachedNeighbours[facing.ordinal()]) {
                     cachedNeighbours[facing.ordinal()] = newblock;
-                    WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+                    WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
                     worldBlob.markNetworkDirty(worldBlob.getNetworkAt(getPos()));
                 }
                 return;

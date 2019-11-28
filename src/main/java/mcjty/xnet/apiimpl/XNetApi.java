@@ -4,7 +4,6 @@ import mcjty.rftoolsbase.api.xnet.IXNet;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectable;
 import mcjty.rftoolsbase.api.xnet.channels.IConsumerProvider;
-import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.net.IWorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
 import net.minecraft.world.World;
@@ -56,6 +55,6 @@ public class XNetApi implements IXNet {
 
     @Override
     public IWorldBlob getWorldBlob(World world) {
-        return XNetBlobData.getBlobData(world).getWorldBlob(world);
+        return XNetBlobData.get(world).getWorldBlob(world);
     }
 }

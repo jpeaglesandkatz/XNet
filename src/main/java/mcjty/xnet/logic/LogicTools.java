@@ -44,7 +44,7 @@ public class LogicTools {
 
     @Nullable
     public static BlockPos getControllerPosForConnector(@Nonnull World world, @Nonnull BlockPos connectorPos) {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
         NetworkId networkId = worldBlob.getNetworkAt(connectorPos);
         if (networkId == null) {
             return null;
@@ -54,7 +54,7 @@ public class LogicTools {
 
     // All consumers for a given network
     public static Stream<BlockPos> consumers(@Nonnull World world, @Nonnull NetworkId networkId) {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
         return worldBlob.getConsumers(networkId).stream();
     }
 
@@ -80,7 +80,7 @@ public class LogicTools {
 
     // Return all connected blocks that have an actual connector defined in a channel
     public static Stream<BlockPos> connectedBlocks(@Nonnull World world, @Nonnull NetworkId networkId, @Nonnull Set<SidedConsumer> consumers) {
-        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
         return consumers.stream()
                 .map(sidedConsumer -> {
                     BlockPos consumerPos = findConsumerPosition(networkId, worldBlob, sidedConsumer.getConsumerId());

@@ -1,7 +1,6 @@
-package mcjty.xnet.blocks.cables;
+package mcjty.xnet.blocks.generic;
 
-import mcjty.xnet.blocks.generic.CableColor;
-import mcjty.xnet.blocks.generic.GenericCableBlock;
+import mcjty.xnet.blocks.cables.NetCableSetup;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItem;
@@ -24,7 +23,13 @@ public class ColorBlockItem extends BlockItem {
     @Nullable
     @Override
     protected BlockState getStateForPlacement(BlockItemUseContext context) {
-        return super.getStateForPlacement(context).with(GenericCableBlock.COLOR, color);
+        BlockState blockstate = ((GenericCableBlock)this.getBlock()).calculateState(context.getWorld(),
+                context.getPos(), this.getBlock().getDefaultState().with(GenericCableBlock.COLOR, color));
+        if (canPlace(context, blockstate)) {
+            return blockstate;
+        } else {
+            return null;
+        }
     }
 
     @Override

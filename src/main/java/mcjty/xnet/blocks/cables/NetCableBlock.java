@@ -5,15 +5,11 @@ import mcjty.xnet.blocks.generic.GenericCableBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
-import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class NetCableBlock extends GenericCableBlock {
 
@@ -51,22 +47,22 @@ public class NetCableBlock extends GenericCableBlock {
 //    }
 
 
-    @Nullable
-    @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
-        return getPlacementState(context);
-
-    }
-
-    public BlockState getPlacementState(BlockItemUseContext context) {
-        // When our block is placed down we force a re-render of adjacent blocks to make sure their baked model is updated
-        World world = context.getWorld();
-        BlockPos pos = context.getPos();
-        BlockState state = world.getBlockState(pos);
-        state = super.getStateForPlacement(context);
-        world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.NOTIFY_NEIGHBORS);
-        return state;
-    }
+//    @Nullable
+//    @Override
+//    public BlockState getStateForPlacement(BlockItemUseContext context) {
+//        return getPlacementState(context);
+//
+//    }
+//
+//    public BlockState getPlacementState(BlockItemUseContext context) {
+//        // When our block is placed down we force a re-render of adjacent blocks to make sure their baked model is updated
+//        World world = context.getWorld();
+//        BlockPos pos = context.getPos();
+//        BlockState state = world.getBlockState(pos);
+//        state = super.getStateForPlacement(context);
+//        world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.NOTIFY_NEIGHBORS);
+//        return state;
+//    }
 
     @Override
     protected ConnectorType getConnectorType(@Nonnull CableColor color, IBlockReader world, BlockPos connectorPos, Direction facing) {

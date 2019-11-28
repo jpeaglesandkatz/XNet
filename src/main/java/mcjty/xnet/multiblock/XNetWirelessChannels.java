@@ -92,7 +92,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             return;
         }
 
-        XNetBlobData blobData = XNetBlobData.getBlobData(world);
+        XNetBlobData blobData = XNetBlobData.get(world);
 
         Set<WirelessChannelKey> toDeleteChannel = new HashSet<>();
         for (Map.Entry<WirelessChannelKey, WirelessChannelInfo> entry : channelToWireless.entrySet()) {
@@ -130,7 +130,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     }
 
     @Nonnull
-    public static XNetWirelessChannels getWirelessChannels(World world) {
+    public static XNetWirelessChannels get(World world) {
         return getData(world, () -> new XNetWirelessChannels(NAME), NAME);
     }
 
