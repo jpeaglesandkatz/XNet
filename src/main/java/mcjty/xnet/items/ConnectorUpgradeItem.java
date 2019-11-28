@@ -2,11 +2,11 @@ package mcjty.xnet.items;
 
 import mcjty.xnet.XNet;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
-import mcjty.xnet.blocks.cables.ConnectorBlock;
-import mcjty.xnet.blocks.cables.ConnectorTileEntity;
-import mcjty.xnet.blocks.cables.NetCableSetup;
-import mcjty.xnet.blocks.generic.CableColor;
-import mcjty.xnet.blocks.generic.GenericCableBlock;
+import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
+import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
+import mcjty.xnet.modules.cables.CableSetup;
+import mcjty.xnet.modules.cables.CableColor;
+import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
 import net.minecraft.block.Block;
@@ -60,7 +60,7 @@ public class ConnectorUpgradeItem extends Item {
         PlayerEntity player = context.getPlayer();
         Block block = state.getBlock();
 
-        if (block == NetCableSetup.CONNECTOR) {
+        if (block == CableSetup.CONNECTOR) {
             if (!world.isRemote) {
                 TileEntity te = world.getTileEntity(pos);
                 if (te instanceof ConnectorTileEntity) {
@@ -72,7 +72,7 @@ public class ConnectorUpgradeItem extends Item {
                     WorldBlob worldBlob = blobData.getWorldBlob(world);
                     ConsumerId consumer = worldBlob.getConsumerAt(pos);
                     ((ConnectorBlock)block).unlinkBlock(world, pos);
-                    world.setBlockState(pos, NetCableSetup.ADVANCED_CONNECTOR.getDefaultState().with(GenericCableBlock.COLOR, color));
+                    world.setBlockState(pos, CableSetup.ADVANCED_CONNECTOR.getDefaultState().with(GenericCableBlock.COLOR, color));
                     BlockState blockState = world.getBlockState(pos);
                     ((ConnectorBlock)blockState.getBlock()).createCableSegment(world, pos, consumer);
 
@@ -92,7 +92,7 @@ public class ConnectorUpgradeItem extends Item {
                 }
             }
             return ActionResultType.SUCCESS;
-        } else if (block == NetCableSetup.ADVANCED_CONNECTOR) {
+        } else if (block == CableSetup.ADVANCED_CONNECTOR) {
             if (!world.isRemote) {
                 player.sendStatusMessage(new StringTextComponent(TextFormatting.YELLOW + "This connector is already advanced!"), false);
             }

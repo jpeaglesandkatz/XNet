@@ -4,15 +4,17 @@ package mcjty.xnet.setup;
 import com.google.common.collect.Lists;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.xnet.XNet;
-import mcjty.xnet.blocks.cables.ConnectorType;
-import mcjty.xnet.blocks.cables.GuiConnector;
-import mcjty.xnet.blocks.cables.NetCableSetup;
-import mcjty.xnet.blocks.controller.gui.GuiController;
-import mcjty.xnet.blocks.generic.CableColor;
-import mcjty.xnet.blocks.generic.GenericCableBakedModel;
-import mcjty.xnet.blocks.router.GuiRouter;
-import mcjty.xnet.blocks.wireless.GuiWirelessRouter;
-import mcjty.xnet.init.ModBlocks;
+import mcjty.xnet.modules.cables.ConnectorType;
+import mcjty.xnet.modules.cables.client.GuiConnector;
+import mcjty.xnet.modules.cables.CableSetup;
+import mcjty.xnet.modules.controller.ControllerSetup;
+import mcjty.xnet.modules.controller.client.GuiController;
+import mcjty.xnet.modules.cables.CableColor;
+import mcjty.xnet.modules.cables.client.GenericCableBakedModel;
+import mcjty.xnet.modules.router.RouterSetup;
+import mcjty.xnet.modules.router.client.GuiRouter;
+import mcjty.xnet.modules.wireless.WirelessRouterSetup;
+import mcjty.xnet.modules.wireless.client.GuiWirelessRouter;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
@@ -30,10 +32,10 @@ public class ClientRegistration {
     @SubscribeEvent
     public static void init(FMLClientSetupEvent event) {
 //        InformationScreenRenderer.register();
-        GenericGuiContainer.register(ModBlocks.CONTAINER_CONTROLLER, GuiController::new);
-        GenericGuiContainer.register(ModBlocks.CONTAINER_ROUTER, GuiRouter::new);
-        GenericGuiContainer.register(ModBlocks.CONTAINER_WIRELESS_ROUTER, GuiWirelessRouter::new);
-        GenericGuiContainer.register(NetCableSetup.CONTAINER_CONNECTOR, GuiConnector::new);
+        GenericGuiContainer.register(ControllerSetup.CONTAINER_CONTROLLER, GuiController::new);
+        GenericGuiContainer.register(RouterSetup.CONTAINER_ROUTER, GuiRouter::new);
+        GenericGuiContainer.register(WirelessRouterSetup.CONTAINER_WIRELESS_ROUTER, GuiWirelessRouter::new);
+        GenericGuiContainer.register(CableSetup.CONTAINER_CONNECTOR, GuiConnector::new);
         OBJLoader.INSTANCE.addDomain(XNet.MODID);
     }
 

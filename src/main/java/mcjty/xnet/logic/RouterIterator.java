@@ -2,9 +2,7 @@ package mcjty.xnet.logic;
 
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.OrientationTools;
-import mcjty.xnet.blocks.router.TileEntityRouter;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 

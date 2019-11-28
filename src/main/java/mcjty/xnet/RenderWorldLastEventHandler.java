@@ -1,12 +1,12 @@
 package mcjty.xnet;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import mcjty.xnet.blocks.cables.ConnectorBlock;
-import mcjty.xnet.blocks.cables.ConnectorType;
-import mcjty.xnet.blocks.facade.FacadeBlock;
-import mcjty.xnet.blocks.facade.IFacadeSupport;
-import mcjty.xnet.blocks.generic.CableColor;
-import mcjty.xnet.blocks.generic.GenericCableBlock;
+import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
+import mcjty.xnet.modules.cables.ConnectorType;
+import mcjty.xnet.modules.facade.blocks.FacadeBlock;
+import mcjty.xnet.modules.facade.IFacadeSupport;
+import mcjty.xnet.modules.cables.CableColor;
+import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.config.ConfigSetup;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -28,8 +28,8 @@ import org.lwjgl.opengl.GL11;
 import java.util.ArrayList;
 import java.util.List;
 
-import static mcjty.xnet.blocks.cables.ConnectorType.BLOCK;
-import static mcjty.xnet.blocks.cables.ConnectorType.CABLE;
+import static mcjty.xnet.modules.cables.ConnectorType.BLOCK;
+import static mcjty.xnet.modules.cables.ConnectorType.CABLE;
 
 public class RenderWorldLastEventHandler {
 

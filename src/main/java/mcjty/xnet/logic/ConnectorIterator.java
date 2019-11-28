@@ -1,11 +1,10 @@
 package mcjty.xnet.logic;
 
 import mcjty.lib.varia.OrientationTools;
-import mcjty.xnet.blocks.cables.ConnectorBlock;
-import mcjty.xnet.blocks.generic.CableColor;
-import mcjty.xnet.blocks.generic.GenericCableBlock;
+import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
+import mcjty.xnet.modules.cables.CableColor;
+import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 

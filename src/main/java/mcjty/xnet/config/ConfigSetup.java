@@ -3,7 +3,7 @@ package mcjty.xnet.config;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import com.google.common.collect.Lists;
-import mcjty.xnet.blocks.wireless.TileEntityWirelessRouter;
+import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.nio.file.Path;

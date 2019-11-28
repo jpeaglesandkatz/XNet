@@ -1,7 +1,7 @@
 package mcjty.xnet.network;
 
 import mcjty.lib.network.NetworkTools;
-import mcjty.xnet.blocks.controller.gui.GuiController;
+import mcjty.xnet.modules.controller.client.GuiController;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 

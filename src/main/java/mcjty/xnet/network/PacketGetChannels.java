@@ -4,7 +4,7 @@ import mcjty.lib.network.ICommandHandler;
 import mcjty.lib.network.TypedMapTools;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
-import mcjty.xnet.blocks.controller.TileEntityController;
+import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.clientinfo.ChannelClientInfo;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
