@@ -12,7 +12,6 @@ import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.OrientationTools;
-import mcjty.xnet.XNet;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
@@ -21,6 +20,7 @@ import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
+import mcjty.xnet.XNet;
 import mcjty.xnet.blocks.cables.ConnectorBlock;
 import mcjty.xnet.blocks.cables.ConnectorTileEntity;
 import mcjty.xnet.blocks.cables.NetCableSetup;
@@ -44,8 +44,6 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -108,9 +106,6 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     private final ChannelInfo[] channels = new ChannelInfo[MAX_CHANNELS];
     private int colors = 0;
 
-    // Client side only
-    private boolean error = false;
-
     // Cached/transient data
     private Map<SidedConsumer, IConnectorSettings> cachedConnectors[] = new Map[MAX_CHANNELS];
     private Map<SidedConsumer, IConnectorSettings> cachedRoutedConnectors[] = new Map[MAX_CHANNELS];
@@ -129,22 +124,6 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             channels[i] = null;
         }
     }
-
-    @Override
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
-        boolean oldError = error;
-
-        super.onDataPacket(net, packet);
-
-        if (world.isRemote) {
-            // If needed send a render update.
-            if (oldError != error) {
-                BlockState state = world.getBlockState(pos);
-                world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
-            }
-        }
-    }
-
 
     @Nonnull
     public NetworkChecker getNetworkChecker() {
@@ -230,24 +209,21 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         return (colors & colorMask) == colorMask;
     }
 
-    public boolean inError() {
-        if (world.isRemote) {
-            return error;
-        } else {
-            WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
-            return worldBlob.getNetworksAt(getPos()).size() > 1;
-        }
-    }
-
     @Override
     public void tick() {
         if (!world.isRemote) {
             WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
 
+            BlockState state = world.getBlockState(pos);
             if (worldBlob.getNetworksAt(getPos()).size() > 1) {
-                // Error situation!
-                markDirtyClient();
+                if (!state.get(ERROR)) {
+                    world.setBlockState(pos, state.with(ERROR, true), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+                }
                 return;
+            } else {
+                if (state.get(ERROR)) {
+                    world.setBlockState(pos, state.with(ERROR, false), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+                }
             }
 
             checkNetwork(worldBlob);
@@ -354,20 +330,6 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         } else {
             networkId = null;
         }
-    }
-
-    @Override
-    public void writeClientDataToNBT(CompoundNBT tagCompound) {
-        super.writeClientDataToNBT(tagCompound);
-        if (!world.isRemote) {
-            tagCompound.putBoolean("error", inError());
-        }
-    }
-
-    @Override
-    public void readClientDataFromNBT(CompoundNBT tagCompound) {
-        super.readClientDataFromNBT(tagCompound);
-        error = tagCompound.getBoolean("error");
     }
 
     @Override
@@ -1059,8 +1021,10 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     }
 
     @Override
-    public void onReplaced(World world, BlockPos pos, BlockState state) {
-        super.onReplaced(world, pos, state);
+    public void onReplaced(World world, BlockPos pos, BlockState state, BlockState newstate) {
+        if (state.getBlock() == newstate.getBlock()) {
+            return;
+        }
         XNetBlobData blobData = XNetBlobData.get(this.world);
         WorldBlob worldBlob = blobData.getWorldBlob(this.world);
         worldBlob.removeCableSegment(pos);
@@ -1115,12 +1079,6 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 //            probeInfo.text(TextStyleClass.LABEL + "Color mask: " + colors);
 //        }
 //    }
-
-    @Override
-    public BlockState getActualState(BlockState state) {
-        // @todo 1.14?
-        return state.with(ERROR, inError());
-    }
 
     @Override
     public void checkRedstone(World world, BlockPos pos) {

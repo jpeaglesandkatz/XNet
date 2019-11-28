@@ -28,9 +28,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.state.BooleanProperty;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -47,11 +44,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static mcjty.xnet.blocks.controller.TileEntityController.ERROR;
 import static mcjty.xnet.init.ModBlocks.TYPE_WIRELESS_ROUTER;
 
 public final class TileEntityWirelessRouter extends GenericTileEntity implements ITickableTileEntity {
-
-    public static final BooleanProperty ERROR = BooleanProperty.create("error");
 
     public static final int TIER_INVALID = -1;
     public static final int TIER_1 = 0;
@@ -288,28 +284,22 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     private void setError(boolean err) {
         if (error != err) {
             error = err;
-            markDirtyClient();
+            BlockState state = world.getBlockState(pos);
+            if (error) {
+                if (!state.get(ERROR)) {
+                    world.setBlockState(pos, state.with(ERROR, true), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+                }
+            } else {
+                if (state.get(ERROR)) {
+                    world.setBlockState(pos, state.with(ERROR, false), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+                }
+            }
+            markDirtyQuick();
         }
     }
 
     public boolean inError() {
         return error;
-    }
-
-    @Override
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
-        boolean oldError = inError();
-
-        super.onDataPacket(net, packet);
-
-        if (world.isRemote) {
-            // If needed send a render update.
-            if (oldError != inError()) {
-//                ModelDataManager.requestModelDataRefresh(this);
-                BlockState state = world.getBlockState(pos);
-                world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
-            }
-        }
     }
 
     @Nullable
@@ -382,8 +372,10 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
 
 
     @Override
-    public void onReplaced(World world, BlockPos pos, BlockState state) {
-        super.onReplaced(world, pos, state);
+    public void onReplaced(World world, BlockPos pos, BlockState state, BlockState newstate) {
+        if (state.getBlock() == newstate.getBlock()) {
+            return;
+        }
         if (!this.world.isRemote) {
             XNetBlobData blobData = XNetBlobData.get(this.world);
             WorldBlob worldBlob = blobData.getWorldBlob(this.world);
@@ -405,7 +397,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     }
 
 
-    @Override
+    // @todo 1.14
     public BlockState getActualState(BlockState state) {
         return state.with(ERROR, inError());
     }
