@@ -3,48 +3,47 @@ package mcjty.xnet.apiimpl.items;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.xnet.compat.ForestrySupport;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ItemFilterCache {
     private boolean matchDamage = true;
-    private boolean oredictMode = false;
+    private boolean tagsMode = false;
     private boolean blacklistMode = true;
     private boolean nbtMode = false;
     private ItemStackList stacks;
-//    private Set<Integer> oredictMatches = new HashSet<>();
+    private Set<ResourceLocation> tagMatches = new HashSet<>();
 
-    public ItemFilterCache(boolean matchDamage, boolean oredictMode, boolean blacklistMode, boolean nbtMode, @Nonnull ItemStackList stacks) {
+    public ItemFilterCache(boolean matchDamage, boolean tagsMode, boolean blacklistMode, boolean nbtMode, @Nonnull ItemStackList stacks) {
         this.matchDamage = matchDamage;
-        this.oredictMode = oredictMode;
+        this.tagsMode = tagsMode;
         this.blacklistMode = blacklistMode;
         this.nbtMode = nbtMode;
         this.stacks = stacks;
-        // @todo 1.14
-//        for (ItemStack s : stacks) {
-//            for (int id : OreDictionary.getOreIDs(s)) {
-//                oredictMatches.add(id);
-//            }
-//        }
+        for (ItemStack s : stacks) {
+            for (ResourceLocation tag : s.getItem().getTags()) {
+                tagMatches.add(tag);
+            }
+        }
     }
 
     public boolean match(ItemStack stack) {
         if (!stack.isEmpty()) {
             boolean match = false;
 
-            if (oredictMode) {
-                // @todo 1.14
-//                int[] oreIDs = OreDictionary.getOreIDs(stack);
-//                if (oreIDs.length == 0) {
-//                    match = itemMatches(stack);
-//                } else {
-//                    for (int id : oreIDs) {
-//                        if (oredictMatches.contains(id)) {
-//                            match = true;
-//                            break;
-//                        }
-//                    }
-//                }
+            if (tagsMode) {
+                Set<ResourceLocation> tags = stack.getItem().getTags();
+                if (tags.isEmpty()) {
+                    match = itemMatches(stack);
+                } else {
+                    if (!Collections.disjoint(tagMatches, tags)) {
+                        match = true;
+                    }
+                }
             } else {
                 match = itemMatches(stack);
             }

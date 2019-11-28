@@ -30,7 +30,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     public static final String TAG_EXTRACT_AMOUNT = "extract_amount";
     public static final String TAG_SPEED = "speed";
     public static final String TAG_EXTRACT = "extract";
-    public static final String TAG_OREDICT = "od";
+    public static final String TAG_TAGS = "od";
     public static final String TAG_NBT = "nbt";
     public static final String TAG_META = "meta";
     public static final String TAG_PRIORITY = "priority";
@@ -61,7 +61,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     private ExtractMode extractMode = ExtractMode.FIRST;
     private int speed = 2;
     private StackMode stackMode = StackMode.SINGLE;
-    private boolean oredictMode = false;
+    private boolean tagsMode = false;
     private boolean metaMode = false;
     private boolean nbtMode = false;
     private boolean blacklist = false;
@@ -142,7 +142,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
                 .nl()
 
                 .toggleText(TAG_BLACKLIST, "Enable blacklist mode", "BL", blacklist).shift(2)
-                .toggleText(TAG_OREDICT, "Ore dictionary matching", "Ore", oredictMode).shift(2)
+                .toggleText(TAG_TAGS, "Tag matching", "Tags", tagsMode).shift(2)
                 .toggleText(TAG_META, "Metadata matching", "Meta", metaMode).shift(2)
                 .toggleText(TAG_NBT, "NBT matching", "NBT", nbtMode)
                 .nl();
@@ -162,7 +162,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
             if (filterList.isEmpty()) {
                 matcher = itemStack -> true;
             } else {
-                ItemFilterCache filterCache = new ItemFilterCache(metaMode, oredictMode, blacklist, nbtMode, filterList);
+                ItemFilterCache filterCache = new ItemFilterCache(metaMode, tagsMode, blacklist, nbtMode, filterList);
                 matcher = filterCache::match;
             }
         }
@@ -196,8 +196,8 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         return speed;
     }
 
-    private static final Set<String> INSERT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_COUNT, TAG_PRIORITY, TAG_OREDICT, TAG_META, TAG_NBT, TAG_BLACKLIST);
-    private static final Set<String> EXTRACT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_COUNT, TAG_OREDICT, TAG_META, TAG_NBT, TAG_BLACKLIST, TAG_STACK, TAG_SPEED, TAG_EXTRACT, TAG_EXTRACT_AMOUNT);
+    private static final Set<String> INSERT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_COUNT, TAG_PRIORITY, TAG_TAGS, TAG_META, TAG_NBT, TAG_BLACKLIST);
+    private static final Set<String> EXTRACT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_COUNT, TAG_TAGS, TAG_META, TAG_NBT, TAG_BLACKLIST, TAG_STACK, TAG_SPEED, TAG_EXTRACT, TAG_EXTRACT_AMOUNT);
 
     @Override
     public boolean isEnabled(String tag) {
@@ -229,7 +229,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         if (speed == 0) {
             speed = 4;
         }
-        oredictMode = Boolean.TRUE.equals(data.get(TAG_OREDICT));
+        tagsMode = Boolean.TRUE.equals(data.get(TAG_TAGS));
         metaMode = Boolean.TRUE.equals(data.get(TAG_META));
         nbtMode = Boolean.TRUE.equals(data.get(TAG_NBT));
 
@@ -250,7 +250,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         setEnumSafe(object, "itemmode", itemMode);
         setEnumSafe(object, "extractmode", extractMode);
         setEnumSafe(object, "stackmode", stackMode);
-        object.add("oredictmode", new JsonPrimitive(oredictMode));
+        object.add("tagsmode", new JsonPrimitive(tagsMode));
         object.add("metamode", new JsonPrimitive(metaMode));
         object.add("nbtmode", new JsonPrimitive(nbtMode));
         object.add("blacklist", new JsonPrimitive(blacklist));
@@ -276,7 +276,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         itemMode = getEnumSafe(object, "itemmode", EnumStringTranslators::getItemMode);
         extractMode = getEnumSafe(object, "extractmode", EnumStringTranslators::getExtractMode);
         stackMode = getEnumSafe(object, "stackmode", EnumStringTranslators::getStackMode);
-        oredictMode = getBoolSafe(object, "oredictmode");
+        tagsMode = getBoolSafe(object, "tagsmode");
         metaMode = getBoolSafe(object, "metamode");
         nbtMode = getBoolSafe(object, "nbtmode");
         blacklist = getBoolSafe(object, "blacklist");
@@ -310,7 +310,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
             }
             speed *= 2;
         }
-        oredictMode = tag.getBoolean("oredictMode");
+        tagsMode = tag.getBoolean("tagsMode");
         metaMode = tag.getBoolean("metaMode");
         nbtMode = tag.getBoolean("nbtMode");
         blacklist = tag.getBoolean("blacklist");
@@ -347,7 +347,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         tag.putByte("extractMode", (byte) extractMode.ordinal());
         tag.putByte("stackMode", (byte) stackMode.ordinal());
         tag.putInt("spd", speed);
-        tag.putBoolean("oredictMode", oredictMode);
+        tag.putBoolean("tagsMode", tagsMode);
         tag.putBoolean("metaMode", metaMode);
         tag.putBoolean("nbtMode", nbtMode);
         tag.putBoolean("blacklist", blacklist);
