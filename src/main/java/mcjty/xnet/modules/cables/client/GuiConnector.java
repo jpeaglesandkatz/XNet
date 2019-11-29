@@ -56,7 +56,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
         for (Direction facing : OrientationTools.DIRECTION_VALUES) {
             toggleButtons[facing.ordinal()] = new ToggleButton(minecraft, this).setText(facing.getName().substring(0, 1).toUpperCase())
                 .addButtonEvent(parent -> {
-                    sendServerCommand(XNetMessages.INSTANCE, XNet.MODID, ConnectorTileEntity.CMD_ENABLE,
+                    sendServerCommandTyped(XNetMessages.INSTANCE, ConnectorTileEntity.CMD_ENABLE,
                             TypedMap.builder()
                                     .put(PARAM_FACING, facing.ordinal())
                                     .put(PARAM_ENABLED, toggleButtons[facing.ordinal()].isPressed())

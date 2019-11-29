@@ -198,9 +198,12 @@ public class GenericCableBakedModel implements IDynamicBakedModel {
             }
         }
 
-        if (side != null || (state.getBlock() instanceof ConnectorBlock && MinecraftForgeClient.getRenderLayer() != BlockRenderLayer.CUTOUT_MIPPED)) {
+        if (side != null) {
             return Collections.emptyList();
         }
+//        if (side != null || (state.getBlock() instanceof ConnectorBlock && MinecraftForgeClient.getRenderLayer() != BlockRenderLayer.CUTOUT_MIPPED)) {
+//            return Collections.emptyList();
+//        }
 
         // Called with the blockstate from our block. Here we get the values of the six properties and pass that to
         // our baked model implementation.

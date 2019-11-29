@@ -58,7 +58,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
             }
         }
 
-        gui.sendServerCommand(XNetMessages.INSTANCE, XNet.MODID, cmd, builder.build());
+        gui.sendServerCommandTyped(XNetMessages.INSTANCE, cmd, builder.build());
         gui.refresh();
     }
 

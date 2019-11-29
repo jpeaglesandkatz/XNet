@@ -8,16 +8,16 @@ import mcjty.lib.varia.EnergyTools;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectable;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.xnet.XNet;
-import mcjty.xnet.modules.cables.ConnectorType;
+import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.CableSetup;
+import mcjty.xnet.modules.cables.ConnectorType;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.facade.FacadeSetup;
 import mcjty.xnet.modules.facade.blocks.FacadeItemBlock;
-import mcjty.xnet.modules.cables.CableColor;
-import mcjty.xnet.modules.various.blocks.RedstoneProxyBlock;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
+import mcjty.xnet.modules.various.blocks.RedstoneProxyBlock;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
-import mcjty.xnet.config.ConfigSetup;
 import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
@@ -70,7 +70,7 @@ public class ConnectorBlock extends GenericCableBlock {
     }
 
     @Override
-    public boolean hasTileEntity() {
+    public boolean hasTileEntity(BlockState state) {
         return true;
     }
 

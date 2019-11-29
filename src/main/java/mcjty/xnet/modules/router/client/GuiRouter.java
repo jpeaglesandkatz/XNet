@@ -51,7 +51,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
     }
 
     private void updatePublish(BlockPos pos, int index, String name) {
-        sendServerCommand(XNetMessages.INSTANCE, XNet.MODID, TileEntityRouter.CMD_UPDATENAME,
+        sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityRouter.CMD_UPDATENAME,
                 TypedMap.builder()
                         .put(PARAM_POS, pos)
                         .put(PARAM_CHANNEL, index)

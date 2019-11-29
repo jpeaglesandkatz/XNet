@@ -46,6 +46,8 @@ public class ClientRegistration {
             return;
         }
 
+        event.addSprite(new ResourceLocation(XNet.MODID, "block/connector_side"));
+
         for (int i = 0 ; i <= 4 ; i++) {
             event.addSprite(new ResourceLocation(XNet.MODID, "block/cable"+i+"/advanced_connector"));
             event.addSprite(new ResourceLocation(XNet.MODID, "block/cable"+i+"/connector"));

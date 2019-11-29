@@ -242,7 +242,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private void removeConnector(SidedPos sidedPos) {
-        sendServerCommand(XNetMessages.INSTANCE, XNet.MODID, TileEntityController.CMD_REMOVECONNECTOR,
+        sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_REMOVECONNECTOR,
                 TypedMap.builder()
                         .put(PARAM_CHANNEL, getSelectedChannel())
                         .put(PARAM_POS, sidedPos.getPos())
@@ -252,7 +252,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private void createConnector(SidedPos sidedPos) {
-        sendServerCommand(XNetMessages.INSTANCE, XNet.MODID, TileEntityController.CMD_CREATECONNECTOR,
+        sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_CREATECONNECTOR,
                 TypedMap.builder()
                         .put(PARAM_CHANNEL, getSelectedChannel())
                         .put(PARAM_POS, sidedPos.getPos())
@@ -263,7 +263,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private void removeChannel() {
         showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Really remove channel " + (getSelectedChannel() + 1) + "?", parent -> {
-            sendServerCommand(XNetMessages.INSTANCE, XNet.MODID, TileEntityController.CMD_REMOVECHANNEL,
+            sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_REMOVECHANNEL,
                     TypedMap.builder()
                             .put(PARAM_INDEX, getSelectedChannel())
                             .build());
@@ -272,7 +272,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private void createChannel(String typeId) {
-        sendServerCommand(XNetMessages.INSTANCE, XNet.MODID, TileEntityController.CMD_CREATECHANNEL,
+        sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_CREATECHANNEL,
                 TypedMap.builder()
                         .put(PARAM_INDEX, getSelectedChannel())
                         .put(PARAM_TYPE, typeId)
@@ -395,7 +395,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private void copyConnector() {
         if (editingConnector != null) {
-            sendServerCommand(XNetMessages.INSTANCE, XNet.MODID, TileEntityController.CMD_COPYCONNECTOR,
+            sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_COPYCONNECTOR,
                     TypedMap.builder()
                             .put(PARAM_INDEX, getSelectedChannel())
                             .put(PARAM_POS, editingConnector.getPos())
@@ -407,7 +407,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private void copyChannel() {
         showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.GREEN + "Copied channel");
-        sendServerCommand(XNetMessages.INSTANCE, XNet.MODID, TileEntityController.CMD_COPYCHANNEL,
+        sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_COPYCHANNEL,
                 TypedMap.builder()
                         .put(PARAM_INDEX, getSelectedChannel())
                         .build());
@@ -446,7 +446,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Unsupported channel type: " + type + "!");
                 return;
             }
-            sendServerCommand(XNetMessages.INSTANCE, XNet.MODID, TileEntityController.CMD_PASTECONNECTOR,
+            sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_PASTECONNECTOR,
                     TypedMap.builder()
                             .put(PARAM_INDEX, getSelectedChannel())
                             .put(PARAM_POS, editingConnector.getPos())
@@ -482,7 +482,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Unsupported channel type: " + type + "!");
                 return;
             }
-            sendServerCommand(XNetMessages.INSTANCE, XNet.MODID, TileEntityController.CMD_PASTECHANNEL,
+            sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_PASTECHANNEL,
                     TypedMap.builder()
                             .put(PARAM_INDEX, getSelectedChannel())
                             .put(PARAM_JSON, json)
