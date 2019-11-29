@@ -11,6 +11,8 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.registries.ObjectHolder;
 
+import java.util.Collections;
+
 public class FacadeSetup {
 
     @ObjectHolder(XNet.MODID + ":facade")
@@ -19,7 +21,7 @@ public class FacadeSetup {
     public static TileEntityType<?> TYPE_FACADE;
 
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
-        event.getRegistry().register(new FacadeBlock());
+        event.getRegistry().register(new FacadeBlock(Collections.emptyList())); // @todo 1.14
     }
 
     public static void registerItems(RegistryEvent.Register<Item> event) {

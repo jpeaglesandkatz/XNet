@@ -5,5 +5,8 @@
     },
     "custom": { "flip-v": true },
     "model": "xnet:block/antenna_base.obj"
+  },
+  "variants":{
+    "": { "model": "xnet:block/antenna_base.obj" }
   }
 }

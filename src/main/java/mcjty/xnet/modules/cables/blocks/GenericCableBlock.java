@@ -12,8 +12,8 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
@@ -26,11 +26,13 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.storage.loot.LootContext;
 import net.minecraftforge.client.model.data.ModelProperty;
 import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 
 public abstract class GenericCableBlock extends Block {
 
@@ -61,7 +63,9 @@ public abstract class GenericCableBlock extends Block {
     private static final VoxelShape SHAPE_BLOCK_UP = VoxelShapes.create(.2, .9, .2, .8, 1, .8);
     private static final VoxelShape SHAPE_BLOCK_DOWN = VoxelShapes.create(.2, 0, .2, .8, .1, .8);
 
-    public GenericCableBlock(Material material, String name) {
+    private final List<Item> items;
+
+    public GenericCableBlock(Material material, String name, List<Item> items) {
         super(Properties.create(material)
                 .hardnessAndResistance(1.0f)
                 .sound(SoundType.METAL)
@@ -70,6 +74,7 @@ public abstract class GenericCableBlock extends Block {
         );
         setRegistryName(name);
         makeShapes();
+        this.items = items;
     }
 
     private int calculateShapeIndex(ConnectorType north, ConnectorType south, ConnectorType west, ConnectorType east, ConnectorType up, ConnectorType down) {
@@ -123,39 +128,8 @@ public abstract class GenericCableBlock extends Block {
 
     @Override
     public ItemStack getItem(IBlockReader worldIn, BlockPos pos, BlockState state) {
-        ItemStack item = super.getItem(worldIn, pos, state);
-        return updateColorInStack(item, state.get(COLOR));
+        return new ItemStack(items.get(state.get(COLOR).ordinal()));
     }
-
-    protected ItemStack updateColorInStack(ItemStack item, CableColor color) {
-        if (color != null) {
-            CompoundNBT tag = item.getOrCreateTag();
-            // @todo 1.14
-//            CompoundNBT display = new CompoundNBT();
-//            String unlocname = getUnlocalizedName() + "_" + color.getName() + ".name";
-//            display.putString("LocName", unlocname);
-//            tag.put("display", display);
-        }
-        return item;
-    }
-
-    // @todo 1.14
-//    @Override
-//    public int damageDropped(BlockState state) {
-//        return state.getValue(COLOR).ordinal();
-//    }
-
-//    @SideOnly(Side.CLIENT)
-//    public void initModel() {
-//        ResourceLocation name = getRegistryName();
-//        for (CableColor color : CableColor.VALUES) {
-//            ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), color.ordinal(), new ModelResourceLocation(new ResourceLocation(name.getResourceDomain(), name.getResourcePath()+"item"), "color=" + color.name()));
-//        }
-//    }
-
-//    @SideOnly(Side.CLIENT)
-//    public void initItemModel() {
-//    }
 
     @Nullable
     protected BlockState getMimicBlock(IBlockReader blockAccess, BlockPos pos) {
@@ -306,6 +280,12 @@ public abstract class GenericCableBlock extends Block {
 //
 //        }
 //    }
+
+
+    @Override
+    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+        return super.getDrops(state, builder);
+    }
 
     @Override
     public BlockState updatePostPlacement(BlockState state, Direction direction, BlockState neighbourState, IWorld world, BlockPos current, BlockPos offset) {

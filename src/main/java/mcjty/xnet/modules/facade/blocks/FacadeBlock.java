@@ -9,6 +9,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.IFluidState;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -16,13 +17,14 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class FacadeBlock extends NetCableBlock {
 
     public static final String FACADE = "facade";
 
-    public FacadeBlock() {
-        super(Material.IRON, FACADE);
+    public FacadeBlock(List<Item> items) {
+        super(Material.IRON, FACADE, items);
         // @todo 1.14
 //        setHardness(0.8f);
     }

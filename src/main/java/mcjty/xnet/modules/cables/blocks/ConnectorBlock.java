@@ -34,6 +34,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -61,12 +62,12 @@ public class ConnectorBlock extends GenericCableBlock {
 
     public static final String CONNECTOR = "connector";
 
-    public ConnectorBlock() {
-        this(CONNECTOR);
+    public ConnectorBlock(List<Item> items) {
+        this(CONNECTOR, items);
     }
 
-    public ConnectorBlock(String name) {
-        super(Material.IRON, name);
+    public ConnectorBlock(String name, List<Item> items) {
+        super(Material.IRON, name, items);
     }
 
     @Override

@@ -12,6 +12,9 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.registries.ObjectHolder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CableSetup {
 
     @ObjectHolder(XNet.MODID + ":netcable")
@@ -64,18 +67,30 @@ public class CableSetup {
     @ObjectHolder(XNet.MODID + ":connector")
     public static ContainerType<GenericContainer> CONTAINER_CONNECTOR;
 
+    public static List<Item> CABLES = new ArrayList<>();
+    public static List<Item> CONNECTORS = new ArrayList<>();
+    public static List<Item> ADVANCED_CONNECTORS = new ArrayList<>();
+
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
-        event.getRegistry().register(new NetCableBlock());
-        event.getRegistry().register(new ConnectorBlock());
-        event.getRegistry().register(new AdvancedConnectorBlock());
+        event.getRegistry().register(new NetCableBlock(CABLES));
+        event.getRegistry().register(new ConnectorBlock(CONNECTORS));
+        event.getRegistry().register(new AdvancedConnectorBlock(ADVANCED_CONNECTORS));
     }
 
     public static void registerItems(RegistryEvent.Register<Item> event) {
         Item.Properties properties = new Item.Properties().group(XNet.setup.getTab());
         for (CableColor color : CableColor.VALUES) {
-            event.getRegistry().register(new ColorBlockItem(NETCABLE, properties, color).setRegistryName(NETCABLE.getRegistryName() + "_" + color.getName()));
-            event.getRegistry().register(new ColorBlockItem(CONNECTOR, properties, color).setRegistryName(CONNECTOR.getRegistryName() + "_" + color.getName()));
-            event.getRegistry().register(new ColorBlockItem(ADVANCED_CONNECTOR, properties, color).setRegistryName(ADVANCED_CONNECTOR.getRegistryName() + "_" + color.getName()));
+            ColorBlockItem cable = new ColorBlockItem(NETCABLE, properties, color);
+            CABLES.add(cable);
+            event.getRegistry().register(cable.setRegistryName(NETCABLE.getRegistryName() + "_" + color.getName()));
+
+            ColorBlockItem connector = new ColorBlockItem(CONNECTOR, properties, color);
+            CONNECTORS.add(connector);
+            event.getRegistry().register(connector.setRegistryName(CONNECTOR.getRegistryName() + "_" + color.getName()));
+
+            ColorBlockItem advancedConnector = new ColorBlockItem(ADVANCED_CONNECTOR, properties, color);
+            ADVANCED_CONNECTORS.add(advancedConnector);
+            event.getRegistry().register(advancedConnector.setRegistryName(ADVANCED_CONNECTOR.getRegistryName() + "_" + color.getName()));
         }
         event.getRegistry().register(new BlockItem(ADVANCED_CONNECTOR, properties).setRegistryName("advanced_connector"));
     }

@@ -7,6 +7,10 @@ import mcjty.xnet.modules.controller.ControllerSetup;
 import mcjty.xnet.modules.router.RouterSetup;
 import mcjty.xnet.modules.wireless.WirelessRouterSetup;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.world.storage.loot.ConstantRange;
+import net.minecraft.world.storage.loot.ItemLootEntry;
+import net.minecraft.world.storage.loot.LootPool;
+import net.minecraft.world.storage.loot.LootTable;
 
 public class LootTables extends BaseLootTableProvider {
 
@@ -26,7 +30,11 @@ public class LootTables extends BaseLootTableProvider {
         lootTables.put(WirelessRouterSetup.WIRELESS_ROUTER, createStandardTable("wireless_router", WirelessRouterSetup.WIRELESS_ROUTER));
 
         // @todo 1.14 the loottables below are not correct with regards to color!
-        lootTables.put(CableSetup.NETCABLE, createSimpleTable("cable", CableSetup.NETCABLE_BLUE));
+        LootPool.Builder builder = LootPool.builder()
+                .name("cable")
+                .rolls(ConstantRange.of(1))
+                .addEntry(ItemLootEntry.builder(CableSetup.NETCABLE_BLUE));
+        lootTables.put(CableSetup.NETCABLE, LootTable.builder().addLootPool(builder));
         lootTables.put(CableSetup.CONNECTOR, createStandardTable("connector", CableSetup.CONNECTOR));
         lootTables.put(CableSetup.ADVANCED_CONNECTOR, createStandardTable("advanced_connector", CableSetup.ADVANCED_CONNECTOR));
     }

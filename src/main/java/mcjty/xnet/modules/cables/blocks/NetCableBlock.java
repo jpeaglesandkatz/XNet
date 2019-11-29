@@ -5,22 +5,24 @@ import mcjty.xnet.modules.cables.CableColor;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
+import net.minecraft.item.Item;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class NetCableBlock extends GenericCableBlock {
 
     public static final String NETCABLE = "netcable";
 
-    public NetCableBlock() {
-        super(Material.CARPET, NETCABLE);
+    public NetCableBlock(List<Item> items) {
+        super(Material.CARPET, NETCABLE, items);
     }
 
-    public NetCableBlock(Material material, String name) {
-        super(material, name);
+    public NetCableBlock(Material material, String name, List<Item> items) {
+        super(material, name, items);
     }
 
     // @todo 1.14
