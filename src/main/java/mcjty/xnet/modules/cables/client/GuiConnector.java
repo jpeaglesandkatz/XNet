@@ -72,4 +72,9 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
 
         window.bind(XNetMessages.INSTANCE, "name", tileEntity, VALUE_NAME.getName());
     }
+
+    @Override
+    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+        drawWindow();
+    }
 }
