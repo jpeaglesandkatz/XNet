@@ -1,7 +1,6 @@
 package mcjty.xnet.setup;
 
 import mcjty.lib.font.TrueTypeFont;
-import mcjty.lib.setup.DefaultClientProxy;
 import mcjty.xnet.RenderWorldLastEventHandler;
 import mcjty.xnet.XNet;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -10,7 +9,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-public class ClientSetup extends DefaultClientProxy {
+public class ClientSetup {
 
     public static TrueTypeFont font;
 

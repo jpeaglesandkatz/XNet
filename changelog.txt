@@ -1,3 +1,6 @@
+1.8.4:
+- Fixed class loading problem on servers
+
 1.8.3:
 - First port to 1.14
 
