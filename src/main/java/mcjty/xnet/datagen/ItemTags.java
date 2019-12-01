@@ -3,36 +3,27 @@ package mcjty.xnet.datagen;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableSetup;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.TagsProvider;
-import net.minecraft.item.Item;
+import net.minecraft.data.ItemTagsProvider;
 import net.minecraft.tags.Tag;
-import net.minecraft.tags.TagCollection;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
 
-import java.nio.file.Path;
-
-public class ItemTags extends TagsProvider<Item> {
+public class ItemTags extends ItemTagsProvider {
 
     public ItemTags(DataGenerator generator) {
-        super(generator, Registry.ITEM);
+        super(generator);
     }
 
     @Override
     protected void registerTags() {
-        Tag.Builder.create()
+        getBuilder(CableSetup.TAG_CABLES)
                 .add(CableSetup.NETCABLE_BLUE, CableSetup.NETCABLE_YELLOW, CableSetup.NETCABLE_GREEN, CableSetup.NETCABLE_RED, CableSetup.NETCABLE_ROUTING)
                 .build(new ResourceLocation(XNet.MODID, "cables"));
-    }
-
-    @Override
-    protected void setCollection(TagCollection<Item> colectionIn) {
-
-    }
-
-    @Override
-    protected Path makePath(ResourceLocation id) {
-        return this.generator.getOutputFolder().resolve("data/" + id.getNamespace() + "/tags/items/" + id.getPath() + ".json");
+        getBuilder(CableSetup.TAG_CONNECTORS)
+                .add(CableSetup.CONNECTOR_BLUE, CableSetup.CONNECTOR_YELLOW, CableSetup.CONNECTOR_GREEN, CableSetup.CONNECTOR_RED, CableSetup.CONNECTOR_ROUTING)
+                .build(new ResourceLocation(XNet.MODID, "connectors"));
+        getBuilder(CableSetup.TAG_ADVANCED_CONNECTORS)
+                .add(CableSetup.ADVANCED_CONNECTOR_BLUE, CableSetup.ADVANCED_CONNECTOR_YELLOW, CableSetup.ADVANCED_CONNECTOR_GREEN, CableSetup.ADVANCED_CONNECTOR_RED, CableSetup.ADVANCED_CONNECTOR_ROUTING)
+                .build(new ResourceLocation(XNet.MODID, "advanced_connectors"));
     }
 
     @Override

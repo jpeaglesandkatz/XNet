@@ -3,6 +3,7 @@ Upcoming:
 
 1.8.4:
 - Fixed class loading problem on servers
+- Improved crafting recipes for cables, connectors and advanced connectors by using tags
 
 1.8.3:
 - First port to 1.14

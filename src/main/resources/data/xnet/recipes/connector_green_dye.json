@@ -6,7 +6,7 @@
       "tag": "forge:dyes/green"
     },
     {
-      "item": "xnet:connector_routing"
+      "tag": "xnet:connectors"
     }
   ],
   "result": {

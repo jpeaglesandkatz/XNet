@@ -6,7 +6,7 @@
       "tag": "forge:dyes/yellow"
     },
     {
-      "item": "xnet:advanced_connector"
+      "tag": "xnet:advanced_connectors"
     }
   ],
   "result": {

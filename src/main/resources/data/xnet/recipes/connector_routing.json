@@ -11,7 +11,7 @@
       "tag": "forge:nuggets/gold"
     },
     "C": {
-      "item": "xnet:connector_routing"
+      "tag": "xnet:connectors"
     },
     "r": {
       "item": "minecraft:redstone"

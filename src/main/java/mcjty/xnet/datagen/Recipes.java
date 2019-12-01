@@ -124,7 +124,7 @@ public class Recipes extends BaseRecipeProvider {
                 "1C1", "rgr", "1r1");
         build(consumer, ShapedRecipeBuilder.shapedRecipe(CableSetup.CONNECTOR_ROUTING)
                         .key('g', Tags.Items.NUGGETS_GOLD)
-                        .key('C', CableSetup.CONNECTOR)
+                        .key('C', CableSetup.TAG_CONNECTORS)
                         .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME, Items.CHEST)),
                 "rrr", "gCg", "rrr");
         build(consumer, ShapedRecipeBuilder.shapedRecipe(CableSetup.ADVANCED_CONNECTOR_BLUE)
@@ -165,35 +165,35 @@ public class Recipes extends BaseRecipeProvider {
                 .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME, Items.CHEST)));
         build(consumer, new ResourceLocation(XNet.MODID, "connector_blue_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableSetup.CONNECTOR_BLUE)
                 .addIngredient(Tags.Items.DYES_BLUE)
-                .addIngredient(CableSetup.CONNECTOR)
+                .addIngredient(CableSetup.TAG_CONNECTORS)
                 .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME, Items.CHEST)));
         build(consumer, new ResourceLocation(XNet.MODID, "connector_red_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableSetup.CONNECTOR_RED)
                 .addIngredient(Tags.Items.DYES_RED)
-                .addIngredient(CableSetup.CONNECTOR)
+                .addIngredient(CableSetup.TAG_CONNECTORS)
                 .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME, Items.CHEST)));
         build(consumer, new ResourceLocation(XNet.MODID, "connector_green_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableSetup.CONNECTOR_GREEN)
                 .addIngredient(Tags.Items.DYES_GREEN)
-                .addIngredient(CableSetup.CONNECTOR)
+                .addIngredient(CableSetup.TAG_CONNECTORS)
                 .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME, Items.CHEST)));
         build(consumer, new ResourceLocation(XNet.MODID, "connector_yellow_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableSetup.CONNECTOR_YELLOW)
                 .addIngredient(Tags.Items.DYES_YELLOW)
-                .addIngredient(CableSetup.CONNECTOR)
+                .addIngredient(CableSetup.TAG_CONNECTORS)
                 .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME, Items.CHEST)));
         build(consumer, new ResourceLocation(XNet.MODID, "advanced_connector_blue_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableSetup.ADVANCED_CONNECTOR_BLUE)
                 .addIngredient(Tags.Items.DYES_BLUE)
-                .addIngredient(CableSetup.ADVANCED_CONNECTOR)
+                .addIngredient(CableSetup.TAG_ADVANCED_CONNECTORS)
                 .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME, Items.CHEST)));
         build(consumer, new ResourceLocation(XNet.MODID, "advanced_connector_red_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableSetup.ADVANCED_CONNECTOR_RED)
                 .addIngredient(Tags.Items.DYES_RED)
-                .addIngredient(CableSetup.ADVANCED_CONNECTOR)
+                .addIngredient(CableSetup.TAG_ADVANCED_CONNECTORS)
                 .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME, Items.CHEST)));
         build(consumer, new ResourceLocation(XNet.MODID, "advanced_connector_green_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableSetup.ADVANCED_CONNECTOR_GREEN)
                 .addIngredient(Tags.Items.DYES_GREEN)
-                .addIngredient(CableSetup.ADVANCED_CONNECTOR)
+                .addIngredient(CableSetup.TAG_ADVANCED_CONNECTORS)
                 .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME, Items.CHEST)));
         build(consumer, new ResourceLocation(XNet.MODID, "advanced_connector_yellow_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableSetup.ADVANCED_CONNECTOR_YELLOW)
                 .addIngredient(Tags.Items.DYES_YELLOW)
-                .addIngredient(CableSetup.ADVANCED_CONNECTOR)
+                .addIngredient(CableSetup.TAG_ADVANCED_CONNECTORS)
                 .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME, Items.CHEST)));
         build(consumer, new ResourceLocation(XNet.MODID, "redstoneproxy_update"), ShapelessRecipeBuilder.shapelessRecipe(VariousSetup.REDSTONE_PROXY_UPD)
                 .addIngredient(VariousSetup.REDSTONE_PROXY)

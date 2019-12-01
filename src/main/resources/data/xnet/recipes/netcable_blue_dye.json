@@ -6,7 +6,7 @@
       "tag": "forge:dyes/blue"
     },
     {
-      "item": "xnet:netcable_routing"
+      "tag": "xnet:cables"
     }
   ],
   "result": {

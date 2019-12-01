@@ -71,6 +71,8 @@ public class CableSetup {
     public static ContainerType<GenericContainer> CONTAINER_CONNECTOR;
 
     public static final Tag<Item> TAG_CABLES = new ItemTags.Wrapper(new ResourceLocation(XNet.MODID, "cables"));
+    public static final Tag<Item> TAG_CONNECTORS = new ItemTags.Wrapper(new ResourceLocation(XNet.MODID, "connectors"));
+    public static final Tag<Item> TAG_ADVANCED_CONNECTORS = new ItemTags.Wrapper(new ResourceLocation(XNet.MODID, "advanced_connectors"));
 
     public static List<Item> CABLES = new ArrayList<>();
     public static List<Item> CONNECTORS = new ArrayList<>();
