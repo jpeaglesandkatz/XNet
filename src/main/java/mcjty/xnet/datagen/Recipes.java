@@ -149,19 +149,19 @@ public class Recipes extends BaseRecipeProvider {
                 "Co", "dr");
         build(consumer, new ResourceLocation(XNet.MODID, "netcable_blue_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableSetup.NETCABLE_BLUE)
                 .addIngredient(Tags.Items.DYES_BLUE)
-                .addIngredient(CableSetup.NETCABLE)
+                .addIngredient(CableSetup.TAG_CABLES)
                 .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME, Items.CHEST)));
         build(consumer, new ResourceLocation(XNet.MODID, "netcable_red_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableSetup.NETCABLE_RED)
                 .addIngredient(Tags.Items.DYES_RED)
-                .addIngredient(CableSetup.NETCABLE)
+                .addIngredient(CableSetup.TAG_CABLES)
                 .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME, Items.CHEST)));
         build(consumer, new ResourceLocation(XNet.MODID, "netcable_green_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableSetup.NETCABLE_GREEN)
                 .addIngredient(Tags.Items.DYES_GREEN)
-                .addIngredient(CableSetup.NETCABLE)
+                .addIngredient(CableSetup.TAG_CABLES)
                 .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME, Items.CHEST)));
         build(consumer, new ResourceLocation(XNet.MODID, "netcable_yellow_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableSetup.NETCABLE_YELLOW)
                 .addIngredient(Tags.Items.DYES_YELLOW)
-                .addIngredient(CableSetup.NETCABLE)
+                .addIngredient(CableSetup.TAG_CABLES)
                 .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME, Items.CHEST)));
         build(consumer, new ResourceLocation(XNet.MODID, "connector_blue_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableSetup.CONNECTOR_BLUE)
                 .addIngredient(Tags.Items.DYES_BLUE)

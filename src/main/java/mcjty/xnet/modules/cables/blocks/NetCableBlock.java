@@ -11,6 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
 import java.util.List;
 
 public class NetCableBlock extends GenericCableBlock {

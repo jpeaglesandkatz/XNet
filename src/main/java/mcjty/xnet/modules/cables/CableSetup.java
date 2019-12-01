@@ -8,7 +8,10 @@ import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.Tag;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.registries.ObjectHolder;
 
@@ -66,6 +69,8 @@ public class CableSetup {
 
     @ObjectHolder(XNet.MODID + ":connector")
     public static ContainerType<GenericContainer> CONTAINER_CONNECTOR;
+
+    public static final Tag<Item> TAG_CABLES = new ItemTags.Wrapper(new ResourceLocation(XNet.MODID, "cables"));
 
     public static List<Item> CABLES = new ArrayList<>();
     public static List<Item> CONNECTORS = new ArrayList<>();
