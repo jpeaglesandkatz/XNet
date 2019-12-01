@@ -706,14 +706,15 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         }
         tileEntity.getCapability(CapabilityEnergy.ENERGY).ifPresent(h -> {
             long currentRF = h.getEnergyStored();
-            energyBar.setValue(currentRF);
+            int max = h.getMaxEnergyStored();
+            energyBar.setValue(currentRF).setMaxValue(max);
         });
     }
 
     @Override
     protected void drawStackTooltips(int mouseX, int mouseY) {
-        int x = (int) (mouseX * width / minecraft.mainWindow.getWidth());
-        int y = (int) (mouseY * height / minecraft.mainWindow.getHeight() - 1);
+        int x = (mouseX * width / minecraft.mainWindow.getWidth());
+        int y = (mouseY * height / minecraft.mainWindow.getHeight() - 1);
         Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);
         if (widget instanceof BlockRender) {
             if ("block".equals(widget.getUserObject())) {
