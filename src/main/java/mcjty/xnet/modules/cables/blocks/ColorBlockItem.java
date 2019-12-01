@@ -34,6 +34,12 @@ public class ColorBlockItem extends BlockItem {
     }
 
     @Override
+    public String getTranslationKey() {
+        // We don't want the translation key of the block
+        return super.getDefaultTranslationKey();
+    }
+
+    @Override
     public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items) {
         items.add(new ItemStack(CableSetup.NETCABLE_BLUE));
         items.add(new ItemStack(CableSetup.NETCABLE_RED));

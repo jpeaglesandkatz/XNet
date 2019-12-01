@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed localized names for the colored cables, connectors, and advanced connectors
+
 1.8.4:
 - Fixed class loading problem on servers
 
