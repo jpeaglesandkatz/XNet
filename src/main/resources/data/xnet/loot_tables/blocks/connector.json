@@ -2,48 +2,97 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "name": "connector",
+      "name": "connector_blue",
       "rolls": 1,
       "entries": [
         {
           "type": "minecraft:item",
-          "functions": [
-            {
-              "function": "minecraft:copy_name",
-              "source": "block_entity"
-            },
-            {
-              "function": "minecraft:copy_nbt",
-              "source": "block_entity",
-              "ops": [
-                {
-                  "source": "Info",
-                  "target": "BlockEntityTag.Info",
-                  "op": "replace"
-                },
-                {
-                  "source": "Items",
-                  "target": "BlockEntityTag.Items",
-                  "op": "replace"
-                },
-                {
-                  "source": "Energy",
-                  "target": "BlockEntityTag.Energy",
-                  "op": "replace"
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_contents",
-              "entries": [
-                {
-                  "type": "minecraft:dynamic",
-                  "name": "minecraft:contents"
-                }
-              ]
-            }
-          ],
+          "name": "xnet:connector_blue"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "xnet:connector",
+          "properties": {
+            "color": "blue"
+          }
+        }
+      ]
+    },
+    {
+      "name": "connector_red",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "xnet:connector_red"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "xnet:connector",
+          "properties": {
+            "color": "red"
+          }
+        }
+      ]
+    },
+    {
+      "name": "connector_green",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "xnet:connector_green"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "xnet:connector",
+          "properties": {
+            "color": "green"
+          }
+        }
+      ]
+    },
+    {
+      "name": "connector_yellow",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "xnet:connector_yellow"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "xnet:connector",
+          "properties": {
+            "color": "yellow"
+          }
+        }
+      ]
+    },
+    {
+      "name": "connector_routing",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
           "name": "xnet:connector_routing"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "xnet:connector",
+          "properties": {
+            "color": "routing"
+          }
         }
       ]
     }

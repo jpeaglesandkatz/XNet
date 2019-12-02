@@ -1,3 +1,6 @@
+Upcoming:
+- The drops for cables, connectors and advanced connectors should now be correct
+
 1.8.5:
 - Fixed localized names for the colored cables, connectors, and advanced connectors
 - Fixed a problem in the controller where the current amount of power would not be shown correctly
