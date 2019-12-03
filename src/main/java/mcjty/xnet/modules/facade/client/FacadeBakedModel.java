@@ -36,7 +36,7 @@ public class FacadeBakedModel implements IDynamicBakedModel {
 
     private static void initTextures() {
         if (spriteCable == null) {
-            spriteCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":blocks/facade");
+            spriteCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":block/facade");
         }
     }
 

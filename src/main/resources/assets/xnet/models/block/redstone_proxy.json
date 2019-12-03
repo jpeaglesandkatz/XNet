@@ -1,6 +1,6 @@
 {
   "parent": "block/cube_all",
   "textures": {
-    "all": "xnet:blocks/machine_proxy"
+    "all": "xnet:block/machine_proxy"
   }
 }
