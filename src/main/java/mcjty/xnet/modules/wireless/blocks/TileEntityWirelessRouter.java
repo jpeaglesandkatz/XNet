@@ -4,6 +4,8 @@ import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.DefaultValue;
 import mcjty.lib.bindings.IValue;
+import mcjty.lib.blocks.BaseBlock;
+import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.container.EmptyContainer;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -16,6 +18,7 @@ import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.modules.cables.CableColor;
+import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.clientinfo.ControllerChannelClientInfo;
 import mcjty.xnet.config.ConfigSetup;
@@ -28,6 +31,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -64,10 +68,24 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
 
     private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, ConfigSetup.wirelessRouterMaxRF.get(), ConfigSetup.wirelessRouterRfPerTick.get()));
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Wireless Router")
-            .containerSupplier((windowId,player) -> new GenericContainer(WirelessRouterSetup.CONTAINER_WIRELESS_ROUTER, windowId, EmptyContainer.CONTAINER_FACTORY, getPos(), TileEntityWirelessRouter.this)));
+            .containerSupplier((windowId,player) -> new GenericContainer(WirelessRouterSetup.CONTAINER_WIRELESS_ROUTER.get(), windowId, EmptyContainer.CONTAINER_FACTORY, getPos(), TileEntityWirelessRouter.this)));
 
     public TileEntityWirelessRouter() {
-        super(TYPE_WIRELESS_ROUTER);
+        super(TYPE_WIRELESS_ROUTER.get());
+    }
+
+    public static BaseBlock createBlock() {
+        return new BaseBlock(new BlockBuilder()
+                .tileEntitySupplier(TileEntityWirelessRouter::new)
+                .info("message.xnet.shiftmessage")
+                .infoExtended("message.xnet.wireless_router")
+        ) {
+            @Override
+            protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+                super.fillStateContainer(builder);
+                builder.add(ERROR);
+            }
+        };
     }
 
     @Override
@@ -125,17 +143,17 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     }
 
     private int getAntennaTier() {
-        if (world.getBlockState(pos.up()).getBlock() != WirelessRouterSetup.ANTENNA_BASE) {
+        if (world.getBlockState(pos.up()).getBlock() != WirelessRouterSetup.ANTENNA_BASE.get()) {
             return TIER_INVALID;
         }
         Block aboveAntenna = world.getBlockState(pos.up(2)).getBlock();
-        if (aboveAntenna == WirelessRouterSetup.ANTENNA_DISH) {
+        if (aboveAntenna == WirelessRouterSetup.ANTENNA_DISH.get()) {
             return TIER_INF;
         }
-        if (aboveAntenna != WirelessRouterSetup.ANTENNA) {
+        if (aboveAntenna != WirelessRouterSetup.ANTENNA.get()) {
             return TIER_INVALID;
         }
-        if (world.getBlockState(pos.up(3)).getBlock() == WirelessRouterSetup.ANTENNA) {
+        if (world.getBlockState(pos.up(3)).getBlock() == WirelessRouterSetup.ANTENNA.get()) {
             return TIER_2;
         } else {
             return TIER_1;

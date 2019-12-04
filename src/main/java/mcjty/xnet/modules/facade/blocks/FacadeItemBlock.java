@@ -88,7 +88,7 @@ public class FacadeItemBlock extends BlockItem {
                     int amount = -1;
                     itemstack.grow(amount);
                 }
-            } else if (block == CableSetup.CONNECTOR || block == CableSetup.ADVANCED_CONNECTOR) {
+            } else if (block == CableSetup.CONNECTOR.get() || block == CableSetup.ADVANCED_CONNECTOR.get()) {
                 TileEntity te = world.getTileEntity(pos);
                 if (te instanceof ConnectorTileEntity) {
                     ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
@@ -102,7 +102,7 @@ public class FacadeItemBlock extends BlockItem {
                         return ActionResultType.FAIL;
                     }
                 }
-            } else if (block == FacadeSetup.FACADE) {
+            } else if (block == FacadeSetup.FACADE.get()) {
                 return ActionResultType.FAIL;
             } else {
                 setMimicBlock(itemstack, state);

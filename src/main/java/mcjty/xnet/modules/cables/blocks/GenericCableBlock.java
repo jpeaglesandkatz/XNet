@@ -1,6 +1,7 @@
 package mcjty.xnet.modules.cables.blocks;
 
 import mcjty.xnet.modules.cables.CableColor;
+import mcjty.xnet.modules.cables.CableSetup;
 import mcjty.xnet.modules.cables.ConnectorType;
 import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.multiblock.ColorId;
@@ -14,6 +15,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
@@ -63,18 +65,24 @@ public abstract class GenericCableBlock extends Block {
     private static final VoxelShape SHAPE_BLOCK_UP = VoxelShapes.create(.2, .9, .2, .8, 1, .8);
     private static final VoxelShape SHAPE_BLOCK_DOWN = VoxelShapes.create(.2, 0, .2, .8, .1, .8);
 
-    private final List<Item> items;
+    private final CableBlockType type;
 
-    public GenericCableBlock(Material material, String name, List<Item> items) {
+    public static enum CableBlockType {
+        CABLE,
+        CONNECTOR,
+        ADVANCED_CONNECTOR,
+        FACADE
+    }
+
+    public GenericCableBlock(Material material, CableBlockType type) {
         super(Properties.create(material)
                 .hardnessAndResistance(1.0f)
                 .sound(SoundType.METAL)
                 .harvestLevel(0)
                 .harvestTool(ToolType.PICKAXE)
         );
-        setRegistryName(name);
         makeShapes();
-        this.items = items;
+        this.type = type;
     }
 
     private int calculateShapeIndex(ConnectorType north, ConnectorType south, ConnectorType west, ConnectorType east, ConnectorType up, ConnectorType down) {
@@ -126,9 +134,42 @@ public abstract class GenericCableBlock extends Block {
         }
     }
 
+    private Item getItem(CableColor color) {
+        switch (type) {
+            case CABLE:
+                switch (color) {
+                    case BLUE: return CableSetup.NETCABLE_BLUE.get();
+                    case RED: return CableSetup.NETCABLE_RED.get();
+                    case YELLOW: return CableSetup.NETCABLE_YELLOW.get();
+                    case GREEN: return CableSetup.NETCABLE_GREEN.get();
+                    case ROUTING: return CableSetup.NETCABLE_ROUTING.get();
+                }
+                break;
+            case CONNECTOR:
+                switch (color) {
+                    case BLUE: return CableSetup.CONNECTOR_BLUE.get();
+                    case RED: return CableSetup.CONNECTOR_RED.get();
+                    case YELLOW: return CableSetup.CONNECTOR_YELLOW.get();
+                    case GREEN: return CableSetup.CONNECTOR_GREEN.get();
+                    case ROUTING: return CableSetup.CONNECTOR_ROUTING.get();
+                }
+                break;
+            case ADVANCED_CONNECTOR:
+                switch (color) {
+                    case BLUE: return CableSetup.ADVANCED_CONNECTOR_BLUE.get();
+                    case RED: return CableSetup.ADVANCED_CONNECTOR_RED.get();
+                    case YELLOW: return CableSetup.ADVANCED_CONNECTOR_YELLOW.get();
+                    case GREEN: return CableSetup.ADVANCED_CONNECTOR_GREEN.get();
+                    case ROUTING: return CableSetup.ADVANCED_CONNECTOR_ROUTING.get();
+                }
+                break;
+        }
+        return Items.AIR;
+    }
+
     @Override
     public ItemStack getItem(IBlockReader worldIn, BlockPos pos, BlockState state) {
-        return new ItemStack(items.get(state.get(COLOR).ordinal()));
+        return new ItemStack(getItem(state.get(COLOR)));
     }
 
     @Nullable

@@ -2,11 +2,10 @@ package mcjty.xnet.modules.cables.client;
 
 import com.google.common.base.Function;
 import mcjty.xnet.XNet;
-import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.modules.cables.CableColor;
-import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.ConnectorType;
-import mcjty.xnet.modules.cables.blocks.NetCableBlock;
+import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
+import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.*;
@@ -34,8 +33,8 @@ import static mcjty.xnet.modules.cables.client.CablePatterns.SpriteIdx.*;
 
 public class GenericCableBakedModel implements IDynamicBakedModel {
 
-    public static final ModelResourceLocation modelConnector = new ModelResourceLocation(XNet.MODID + ":" + ConnectorBlock.CONNECTOR);
-    public static final ModelResourceLocation modelCable = new ModelResourceLocation(XNet.MODID + ":" + NetCableBlock.NETCABLE);
+    public static final ModelResourceLocation modelConnector = new ModelResourceLocation(XNet.MODID + ":connector");
+    public static final ModelResourceLocation modelCable = new ModelResourceLocation(XNet.MODID + ":netcable");
 
     private TextureAtlasSprite spriteCable;
     private TextureAtlasSprite spriteConnector;

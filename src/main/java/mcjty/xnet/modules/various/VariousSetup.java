@@ -1,50 +1,37 @@
 package mcjty.xnet.modules.various;
 
 import mcjty.xnet.XNet;
-import mcjty.xnet.modules.various.items.ConnectorUpgradeItem;
-import mcjty.xnet.modules.various.items.XNetManualItem;
 import mcjty.xnet.modules.various.blocks.RedstoneProxyBlock;
 import mcjty.xnet.modules.various.blocks.RedstoneProxyUBlock;
+import mcjty.xnet.modules.various.items.ConnectorUpgradeItem;
+import mcjty.xnet.modules.various.items.XNetManualItem;
 import net.minecraft.block.Block;
-import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import static mcjty.xnet.XNet.MODID;
 
 public class VariousSetup {
 
-    @ObjectHolder(XNet.MODID + ":redstone_proxy")
-    public static RedstoneProxyBlock REDSTONE_PROXY;
-    @ObjectHolder(XNet.MODID + ":redstone_proxy_upd")
-    public static RedstoneProxyUBlock REDSTONE_PROXY_UPD;
+    public static final DeferredRegister<Item> ITEMS = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
+    public static final DeferredRegister<Block> BLOCKS = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
 
-    @ObjectHolder(XNet.MODID + ":xnet_manual")
-    public static XNetManualItem MANUAL;
-    @ObjectHolder(XNet.MODID + ":connector_upgrade")
-    public static ConnectorUpgradeItem UPGRADE;
-
-    public static void registerBlocks(RegistryEvent.Register<Block> event) {
-        event.getRegistry().register(new RedstoneProxyBlock());
-        event.getRegistry().register(new RedstoneProxyUBlock());
-
+    public static void register() {
+        BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
 
-    public static void registerItems(RegistryEvent.Register<Item> event) {
-        Item.Properties properties = new Item.Properties().group(XNet.setup.getTab());
-        event.getRegistry().register(new BlockItem(REDSTONE_PROXY, properties).setRegistryName("redstone_proxy"));
-        event.getRegistry().register(new BlockItem(REDSTONE_PROXY_UPD, properties).setRegistryName("redstone_proxy_upd"));
+    public static final RegistryObject<RedstoneProxyBlock> REDSTONE_PROXY = BLOCKS.register("redstone_proxy", RedstoneProxyBlock::new);
+    public static final RegistryObject<RedstoneProxyUBlock> REDSTONE_PROXY_UPD = BLOCKS.register("redstone_proxy_upd", RedstoneProxyUBlock::new);
+    public static final RegistryObject<Item> REDSTONE_PROXY_ITEM = ITEMS.register("redstone_proxy", () -> new BlockItem(REDSTONE_PROXY.get(), XNet.createStandardProperties()));
+    public static final RegistryObject<Item> REDSTONE_PROXY_UPD_ITEM = ITEMS.register("redstone_proxy_upd", () -> new BlockItem(REDSTONE_PROXY_UPD.get(), XNet.createStandardProperties()));
 
-        event.getRegistry().register(new XNetManualItem());
-        event.getRegistry().register(new ConnectorUpgradeItem());
-    }
-
-    public static void registerTiles(final RegistryEvent.Register<TileEntityType<?>> event) {
-    }
-
-    public static void registerContainers(final RegistryEvent.Register<ContainerType<?>> event) {
-    }
+    public static final RegistryObject<XNetManualItem> MANUAL = ITEMS.register("xnet_manual", XNetManualItem::new);
+    public static final RegistryObject<ConnectorUpgradeItem> UPGRADE = ITEMS.register("connector_upgrade", ConnectorUpgradeItem::new);
 
 //@todo 1.14
 //    @SideOnly(Side.CLIENT)

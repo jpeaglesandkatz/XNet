@@ -74,10 +74,10 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Connector")
-            .containerSupplier((windowId,player) -> new GenericContainer(CableSetup.CONTAINER_CONNECTOR, windowId, EmptyContainer.CONTAINER_FACTORY, getPos(), ConnectorTileEntity.this)));
+            .containerSupplier((windowId,player) -> new GenericContainer(CableSetup.CONTAINER_CONNECTOR.get(), windowId, EmptyContainer.CONTAINER_FACTORY, getPos(), ConnectorTileEntity.this)));
 
     public ConnectorTileEntity() {
-        this(TYPE_CONNECTOR);
+        this(TYPE_CONNECTOR.get());
     }
 
     protected ConnectorTileEntity(TileEntityType<?> type) {

@@ -7,7 +7,7 @@ import static mcjty.xnet.modules.cables.CableSetup.TYPE_ADVANCED_CONNECTOR;
 public class AdvancedConnectorTileEntity extends ConnectorTileEntity {
 
     public AdvancedConnectorTileEntity() {
-        super(TYPE_ADVANCED_CONNECTOR);
+        super(TYPE_ADVANCED_CONNECTOR.get());
     }
 
     @Override

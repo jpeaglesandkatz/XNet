@@ -41,20 +41,20 @@ public class ColorBlockItem extends BlockItem {
 
     @Override
     public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items) {
-        items.add(new ItemStack(CableSetup.NETCABLE_BLUE));
-        items.add(new ItemStack(CableSetup.NETCABLE_RED));
-        items.add(new ItemStack(CableSetup.NETCABLE_YELLOW));
-        items.add(new ItemStack(CableSetup.NETCABLE_GREEN));
-        items.add(new ItemStack(CableSetup.NETCABLE_ROUTING));
-        items.add(new ItemStack(CableSetup.CONNECTOR_BLUE));
-        items.add(new ItemStack(CableSetup.CONNECTOR_RED));
-        items.add(new ItemStack(CableSetup.CONNECTOR_YELLOW));
-        items.add(new ItemStack(CableSetup.CONNECTOR_GREEN));
-        items.add(new ItemStack(CableSetup.CONNECTOR_ROUTING));
-        items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_BLUE));
-        items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_RED));
-        items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_YELLOW));
-        items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_GREEN));
-        items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_ROUTING));
+        items.add(new ItemStack(CableSetup.NETCABLE_BLUE.get()));
+        items.add(new ItemStack(CableSetup.NETCABLE_RED.get()));
+        items.add(new ItemStack(CableSetup.NETCABLE_YELLOW.get()));
+        items.add(new ItemStack(CableSetup.NETCABLE_GREEN.get()));
+        items.add(new ItemStack(CableSetup.NETCABLE_ROUTING.get()));
+        items.add(new ItemStack(CableSetup.CONNECTOR_BLUE.get()));
+        items.add(new ItemStack(CableSetup.CONNECTOR_RED.get()));
+        items.add(new ItemStack(CableSetup.CONNECTOR_YELLOW.get()));
+        items.add(new ItemStack(CableSetup.CONNECTOR_GREEN.get()));
+        items.add(new ItemStack(CableSetup.CONNECTOR_ROUTING.get()));
+        items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_BLUE.get()));
+        items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_RED.get()));
+        items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_YELLOW.get()));
+        items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_GREEN.get()));
+        items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_ROUTING.get()));
     }
 }

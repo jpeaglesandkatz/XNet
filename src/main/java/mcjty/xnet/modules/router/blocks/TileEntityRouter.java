@@ -2,6 +2,8 @@ package mcjty.xnet.modules.router.blocks;
 
 import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.blocks.BaseBlock;
+import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.container.EmptyContainer;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericTileEntity;
@@ -15,6 +17,7 @@ import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.modules.cables.CableColor;
+import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.router.LocalChannelId;
 import mcjty.xnet.modules.router.RouterSetup;
 import mcjty.xnet.modules.router.client.GuiRouter;
@@ -26,6 +29,7 @@ import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WirelessChannelKey;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -33,6 +37,7 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.state.StateContainer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -68,10 +73,24 @@ public final class TileEntityRouter extends GenericTileEntity {
     private int channelCount = 0;
 
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Router")
-            .containerSupplier((windowId,player) -> new GenericContainer(RouterSetup.CONTAINER_ROUTER, windowId, EmptyContainer.CONTAINER_FACTORY, getPos(), TileEntityRouter.this)));
+            .containerSupplier((windowId,player) -> new GenericContainer(RouterSetup.CONTAINER_ROUTER.get(), windowId, EmptyContainer.CONTAINER_FACTORY, getPos(), TileEntityRouter.this)));
 
     public TileEntityRouter() {
-        super(TYPE_ROUTER);
+        super(TYPE_ROUTER.get());
+    }
+
+    public static BaseBlock createBlock() {
+        return new BaseBlock(new BlockBuilder()
+                .tileEntitySupplier(TileEntityRouter::new)
+                .info("message.xnet.shiftmessage")
+                .infoExtended("message.xnet.router")
+        ) {
+            @Override
+            protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+                super.fillStateContainer(builder);
+                builder.add(ERROR);
+            }
+        };
     }
 
     public void addPublishedChannels(Set<String> channels) {

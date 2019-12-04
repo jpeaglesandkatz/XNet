@@ -1,29 +1,24 @@
 package mcjty.xnet.modules.cables.blocks;
 
-import mcjty.xnet.modules.cables.ConnectorType;
 import mcjty.xnet.modules.cables.CableColor;
+import mcjty.xnet.modules.cables.ConnectorType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
-import net.minecraft.item.Item;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.List;
 
 public class NetCableBlock extends GenericCableBlock {
 
-    public static final String NETCABLE = "netcable";
-
-    public NetCableBlock(List<Item> items) {
-        super(Material.CARPET, NETCABLE, items);
+    public NetCableBlock(CableBlockType type) {
+        super(Material.CARPET, type);
     }
 
-    public NetCableBlock(Material material, String name, List<Item> items) {
-        super(material, name, items);
+    public NetCableBlock(Material material, CableBlockType type) {
+        super(material, type);
     }
 
     // @todo 1.14

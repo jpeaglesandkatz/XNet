@@ -2,7 +2,6 @@ package mcjty.xnet.modules.facade.client;
 
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
-import mcjty.xnet.modules.facade.blocks.FacadeBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.*;
@@ -25,7 +24,7 @@ import java.util.function.Function;
 
 public class FacadeBakedModel implements IDynamicBakedModel {
 
-    public static final ModelResourceLocation modelFacade = new ModelResourceLocation(XNet.MODID + ":" + FacadeBlock.FACADE);
+    public static final ModelResourceLocation modelFacade = new ModelResourceLocation(XNet.MODID + ":facade");
 
     private VertexFormat format;
     private static TextureAtlasSprite spriteCable;

@@ -21,10 +21,8 @@ import java.util.List;
 
 public class FacadeBlock extends NetCableBlock {
 
-    public static final String FACADE = "facade";
-
-    public FacadeBlock(List<Item> items) {
-        super(Material.IRON, FACADE, items);
+    public FacadeBlock(CableBlockType type) {
+        super(Material.IRON, type);
         // @todo 1.14
 //        setHardness(0.8f);
     }
@@ -65,7 +63,7 @@ public class FacadeBlock extends NetCableBlock {
 
     @Override
     public void harvestBlock(World worldIn, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity te, ItemStack stack) {
-        ItemStack item = new ItemStack(FacadeSetup.FACADE);
+        ItemStack item = new ItemStack(FacadeSetup.FACADE.get());
         BlockState mimicBlock;
         if (te instanceof FacadeTileEntity) {
             mimicBlock = ((FacadeTileEntity) te).getMimicBlock();
@@ -81,7 +79,7 @@ public class FacadeBlock extends NetCableBlock {
     public boolean removedByPlayer(BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, IFluidState fluid) {
         CableColor color = state.get(COLOR);
         this.onBlockHarvested(world, pos, state, player);
-        return world.setBlockState(pos, CableSetup.NETCABLE.getDefaultState().with(COLOR, color), world.isRemote ? 11 : 3);
+        return world.setBlockState(pos, CableSetup.NETCABLE.get().getDefaultState().with(COLOR, color), world.isRemote ? 11 : 3);
     }
 
     // @todo 1.14

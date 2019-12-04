@@ -15,7 +15,7 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
     private MimicBlockSupport mimicBlockSupport = new MimicBlockSupport();
 
     public FacadeTileEntity() {
-        super(FacadeSetup.TYPE_FACADE);
+        super(FacadeSetup.TYPE_FACADE.get());
     }
 
     @Override

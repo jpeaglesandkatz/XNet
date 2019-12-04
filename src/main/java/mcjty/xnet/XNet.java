@@ -6,10 +6,17 @@ import mcjty.xnet.apiimpl.XNetApi;
 import mcjty.xnet.compat.TOPSupport;
 import mcjty.xnet.compat.WAILASupport;
 import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.modules.cables.CableSetup;
+import mcjty.xnet.modules.controller.ControllerSetup;
+import mcjty.xnet.modules.facade.FacadeSetup;
+import mcjty.xnet.modules.router.RouterSetup;
+import mcjty.xnet.modules.various.VariousSetup;
 import mcjty.xnet.modules.various.client.GuiXNetManual;
+import mcjty.xnet.modules.wireless.WirelessRouterSetup;
 import mcjty.xnet.setup.ClientSetup;
 import mcjty.xnet.setup.ModSetup;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -41,13 +48,19 @@ public class XNet implements ModBase {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigSetup.CLIENT_CONFIG);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigSetup.COMMON_CONFIG);
 
+        VariousSetup.register();
+        ControllerSetup.register();
+        RouterSetup.register();
+        WirelessRouterSetup.register();
+        FacadeSetup.register();
+        CableSetup.register();
+
         FMLJavaModLoadingContext.get().getModEventBus().addListener((FMLCommonSetupEvent event) -> setup.init(event));
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::initClient);
 
         ConfigSetup.loadConfig(ConfigSetup.CLIENT_CONFIG, FMLPaths.CONFIGDIR.get().resolve("xnet-client.toml"));
         ConfigSetup.loadConfig(ConfigSetup.COMMON_CONFIG, FMLPaths.CONFIGDIR.get().resolve("xnet-common.toml"));
     }
-
 
 //    @Mod.EventHandler
 //    public void serverLoad(FMLServerStartingEvent event) {
@@ -93,4 +106,9 @@ public class XNet implements ModBase {
     public void handleWailaExtras() {
         WAILASupport.registerWailaExtras();
     }
+
+    public static Item.Properties createStandardProperties() {
+        return new Item.Properties().group(setup.getTab());
+    }
+
 }

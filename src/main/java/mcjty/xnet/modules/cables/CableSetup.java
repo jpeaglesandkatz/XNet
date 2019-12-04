@@ -2,132 +2,66 @@ package mcjty.xnet.modules.cables;
 
 import mcjty.lib.container.GenericContainer;
 import mcjty.xnet.XNet;
-import mcjty.xnet.modules.cables.blocks.ColorBlockItem;
 import mcjty.xnet.modules.cables.blocks.*;
+import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
-import java.util.List;
+import static mcjty.xnet.XNet.MODID;
 
 public class CableSetup {
 
-    @ObjectHolder(XNet.MODID + ":netcable")
-    public static NetCableBlock NETCABLE;
+    public static final DeferredRegister<Item> ITEMS = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
+    public static final DeferredRegister<Block> BLOCKS = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
+    public static final DeferredRegister<TileEntityType<?>> TILES = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES, MODID);
+    public static final DeferredRegister<ContainerType<?>> CONTAINERS = new DeferredRegister<>(ForgeRegistries.CONTAINERS, MODID);
 
-    @ObjectHolder(XNet.MODID + ":netcable_red")
-    public static Item NETCABLE_RED;
-    @ObjectHolder(XNet.MODID + ":netcable_green")
-    public static Item NETCABLE_GREEN;
-    @ObjectHolder(XNet.MODID + ":netcable_blue")
-    public static Item NETCABLE_BLUE;
-    @ObjectHolder(XNet.MODID + ":netcable_yellow")
-    public static Item NETCABLE_YELLOW;
-    @ObjectHolder(XNet.MODID + ":netcable_routing")
-    public static Item NETCABLE_ROUTING;
+    public static void register() {
+        BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        TILES.register(FMLJavaModLoadingContext.get().getModEventBus());
+        CONTAINERS.register(FMLJavaModLoadingContext.get().getModEventBus());
+    }
 
-    @ObjectHolder(XNet.MODID + ":connector")
-    public static ConnectorBlock CONNECTOR;
+    public static final RegistryObject<NetCableBlock> NETCABLE = BLOCKS.register("netcable", () -> new NetCableBlock(CableBlockType.CABLE));
+    public static final RegistryObject<Item> NETCABLE_RED = ITEMS.register("netcable_red", () -> new ColorBlockItem(NETCABLE.get(), XNet.createStandardProperties(), CableColor.RED));
+    public static final RegistryObject<Item> NETCABLE_GREEN = ITEMS.register("netcable_green", () -> new ColorBlockItem(NETCABLE.get(), XNet.createStandardProperties(), CableColor.GREEN));
+    public static final RegistryObject<Item> NETCABLE_BLUE = ITEMS.register("netcable_blue", () -> new ColorBlockItem(NETCABLE.get(), XNet.createStandardProperties(), CableColor.BLUE));
+    public static final RegistryObject<Item> NETCABLE_YELLOW = ITEMS.register("netcable_yellow", () -> new ColorBlockItem(NETCABLE.get(), XNet.createStandardProperties(), CableColor.YELLOW));
+    public static final RegistryObject<Item> NETCABLE_ROUTING = ITEMS.register("netcable_routing", () -> new ColorBlockItem(NETCABLE.get(), XNet.createStandardProperties(), CableColor.ROUTING));
 
-    @ObjectHolder(XNet.MODID + ":connector_red")
-    public static Item CONNECTOR_RED;
-    @ObjectHolder(XNet.MODID + ":connector_green")
-    public static Item CONNECTOR_GREEN;
-    @ObjectHolder(XNet.MODID + ":connector_blue")
-    public static Item CONNECTOR_BLUE;
-    @ObjectHolder(XNet.MODID + ":connector_yellow")
-    public static Item CONNECTOR_YELLOW;
-    @ObjectHolder(XNet.MODID + ":connector_routing")
-    public static Item CONNECTOR_ROUTING;
+    public static final RegistryObject<ConnectorBlock> CONNECTOR = BLOCKS.register("connector", () -> new ConnectorBlock(CableBlockType.CONNECTOR));
+    public static final RegistryObject<Item> CONNECTOR_RED = ITEMS.register("connector_red", () -> new ColorBlockItem(CONNECTOR.get(), XNet.createStandardProperties(), CableColor.RED));
+    public static final RegistryObject<Item> CONNECTOR_GREEN = ITEMS.register("connector_green", () -> new ColorBlockItem(CONNECTOR.get(), XNet.createStandardProperties(), CableColor.GREEN));
+    public static final RegistryObject<Item> CONNECTOR_BLUE = ITEMS.register("connector_blue", () -> new ColorBlockItem(CONNECTOR.get(), XNet.createStandardProperties(), CableColor.BLUE));
+    public static final RegistryObject<Item> CONNECTOR_YELLOW = ITEMS.register("connector_yellow", () -> new ColorBlockItem(CONNECTOR.get(), XNet.createStandardProperties(), CableColor.YELLOW));
+    public static final RegistryObject<Item> CONNECTOR_ROUTING = ITEMS.register("connector_routing", () -> new ColorBlockItem(CONNECTOR.get(), XNet.createStandardProperties(), CableColor.ROUTING));
 
-    @ObjectHolder(XNet.MODID + ":advanced_connector")
-    public static AdvancedConnectorBlock ADVANCED_CONNECTOR;
+    public static final RegistryObject<AdvancedConnectorBlock> ADVANCED_CONNECTOR = BLOCKS.register("advanced_connector", () -> new AdvancedConnectorBlock(CableBlockType.ADVANCED_CONNECTOR));
+    public static final RegistryObject<Item> ADVANCED_CONNECTOR_RED = ITEMS.register("advanced_connector_red", () -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), XNet.createStandardProperties(), CableColor.RED));
+    public static final RegistryObject<Item> ADVANCED_CONNECTOR_GREEN = ITEMS.register("advanced_connector_green", () -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), XNet.createStandardProperties(), CableColor.GREEN));
+    public static final RegistryObject<Item> ADVANCED_CONNECTOR_BLUE = ITEMS.register("advanced_connector_blue", () -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), XNet.createStandardProperties(), CableColor.BLUE));
+    public static final RegistryObject<Item> ADVANCED_CONNECTOR_YELLOW = ITEMS.register("advanced_connector_yellow", () -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), XNet.createStandardProperties(), CableColor.YELLOW));
+    public static final RegistryObject<Item> ADVANCED_CONNECTOR_ROUTING = ITEMS.register("advanced_connector_routing", () -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), XNet.createStandardProperties(), CableColor.ROUTING));
 
-    @ObjectHolder(XNet.MODID + ":advanced_connector_red")
-    public static Item ADVANCED_CONNECTOR_RED;
-    @ObjectHolder(XNet.MODID + ":advanced_connector_green")
-    public static Item ADVANCED_CONNECTOR_GREEN;
-    @ObjectHolder(XNet.MODID + ":advanced_connector_blue")
-    public static Item ADVANCED_CONNECTOR_BLUE;
-    @ObjectHolder(XNet.MODID + ":advanced_connector_yellow")
-    public static Item ADVANCED_CONNECTOR_YELLOW;
-    @ObjectHolder(XNet.MODID + ":advanced_connector_routing")
-    public static Item ADVANCED_CONNECTOR_ROUTING;
+    public static final RegistryObject<TileEntityType<?>> TYPE_CONNECTOR = TILES.register("connector", () -> TileEntityType.Builder.create(ConnectorTileEntity::new, CONNECTOR.get()).build(null));
+    public static final RegistryObject<TileEntityType<?>> TYPE_ADVANCED_CONNECTOR = TILES.register("advanced_connector", () -> TileEntityType.Builder.create(AdvancedConnectorTileEntity::new, ADVANCED_CONNECTOR.get()).build(null));
 
-    @ObjectHolder(XNet.MODID + ":connector")
-    public static TileEntityType<?> TYPE_CONNECTOR;
-    @ObjectHolder(XNet.MODID + ":advanced_connector")
-    public static TileEntityType<?> TYPE_ADVANCED_CONNECTOR;
-
-    @ObjectHolder(XNet.MODID + ":connector")
-    public static ContainerType<GenericContainer> CONTAINER_CONNECTOR;
+    public static final RegistryObject<ContainerType<GenericContainer>> CONTAINER_CONNECTOR = CONTAINERS.register("connector", GenericContainer::createContainerType);
 
     public static final Tag<Item> TAG_CABLES = new ItemTags.Wrapper(new ResourceLocation(XNet.MODID, "cables"));
     public static final Tag<Item> TAG_CONNECTORS = new ItemTags.Wrapper(new ResourceLocation(XNet.MODID, "connectors"));
     public static final Tag<Item> TAG_ADVANCED_CONNECTORS = new ItemTags.Wrapper(new ResourceLocation(XNet.MODID, "advanced_connectors"));
 
-    public static List<Item> CABLES = new ArrayList<>();
-    public static List<Item> CONNECTORS = new ArrayList<>();
-    public static List<Item> ADVANCED_CONNECTORS = new ArrayList<>();
-
-    public static void registerBlocks(RegistryEvent.Register<Block> event) {
-        event.getRegistry().register(new NetCableBlock(CABLES));
-        event.getRegistry().register(new ConnectorBlock(CONNECTORS));
-        event.getRegistry().register(new AdvancedConnectorBlock(ADVANCED_CONNECTORS));
-    }
-
-    public static void registerItems(RegistryEvent.Register<Item> event) {
-        Item.Properties properties = new Item.Properties().group(XNet.setup.getTab());
-        for (CableColor color : CableColor.VALUES) {
-            ColorBlockItem cable = new ColorBlockItem(NETCABLE, properties, color);
-            CABLES.add(cable);
-            event.getRegistry().register(cable.setRegistryName(NETCABLE.getRegistryName() + "_" + color.getName()));
-
-            ColorBlockItem connector = new ColorBlockItem(CONNECTOR, properties, color);
-            CONNECTORS.add(connector);
-            event.getRegistry().register(connector.setRegistryName(CONNECTOR.getRegistryName() + "_" + color.getName()));
-
-            ColorBlockItem advancedConnector = new ColorBlockItem(ADVANCED_CONNECTOR, properties, color);
-            ADVANCED_CONNECTORS.add(advancedConnector);
-            event.getRegistry().register(advancedConnector.setRegistryName(ADVANCED_CONNECTOR.getRegistryName() + "_" + color.getName()));
-        }
-        event.getRegistry().register(new BlockItem(ADVANCED_CONNECTOR, properties).setRegistryName("advanced_connector"));
-    }
-
-    public static void registerTiles(final RegistryEvent.Register<TileEntityType<?>> event) {
-        event.getRegistry().register(TileEntityType.Builder.create(ConnectorTileEntity::new, CONNECTOR).build(null).setRegistryName("connector"));
-        event.getRegistry().register(TileEntityType.Builder.create(AdvancedConnectorTileEntity::new, ADVANCED_CONNECTOR).build(null).setRegistryName("advanced_connector"));
-    }
-
-    public static void registerContainers(final RegistryEvent.Register<ContainerType<?>> event) {
-        event.getRegistry().register(GenericContainer.createContainerType("connector"));
-    }
-
-
-
-    // @todo 1.14
-//    @SideOnly(Side.CLIENT)
-//    public static void initClient() {
-//        netCableBlock.initModel();
-//        connectorBlock.initModel();
-//        advancedConnectorBlock.initModel();
-//    }
-//
-//    @SideOnly(Side.CLIENT)
-//    public static void initItemModels() {
-//        netCableBlock.initItemModel();
-//        connectorBlock.initItemModel();
-//        advancedConnectorBlock.initItemModel();
-//    }
-//
 //    @SideOnly(Side.CLIENT)
 //    public static void initColorHandlers(BlockColors blockColors) {
 //        connectorBlock.initColorHandler(blockColors);

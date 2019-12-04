@@ -36,7 +36,6 @@ public class ConnectorUpgradeItem extends Item {
         super(new Properties()
                 .group(XNet.setup.getTab())
         );
-        setRegistryName("connector_upgrade");
     }
 
     @Override
@@ -60,7 +59,7 @@ public class ConnectorUpgradeItem extends Item {
         PlayerEntity player = context.getPlayer();
         Block block = state.getBlock();
 
-        if (block == CableSetup.CONNECTOR) {
+        if (block == CableSetup.CONNECTOR.get()) {
             if (!world.isRemote) {
                 TileEntity te = world.getTileEntity(pos);
                 if (te instanceof ConnectorTileEntity) {
@@ -72,7 +71,7 @@ public class ConnectorUpgradeItem extends Item {
                     WorldBlob worldBlob = blobData.getWorldBlob(world);
                     ConsumerId consumer = worldBlob.getConsumerAt(pos);
                     ((ConnectorBlock)block).unlinkBlock(world, pos);
-                    world.setBlockState(pos, CableSetup.ADVANCED_CONNECTOR.getDefaultState().with(GenericCableBlock.COLOR, color));
+                    world.setBlockState(pos, CableSetup.ADVANCED_CONNECTOR.get().getDefaultState().with(GenericCableBlock.COLOR, color));
                     BlockState blockState = world.getBlockState(pos);
                     ((ConnectorBlock)blockState.getBlock()).createCableSegment(world, pos, consumer);
 
@@ -92,7 +91,7 @@ public class ConnectorUpgradeItem extends Item {
                 }
             }
             return ActionResultType.SUCCESS;
-        } else if (block == CableSetup.ADVANCED_CONNECTOR) {
+        } else if (block == CableSetup.ADVANCED_CONNECTOR.get()) {
             if (!world.isRemote) {
                 player.sendStatusMessage(new StringTextComponent(TextFormatting.YELLOW + "This connector is already advanced!"), false);
             }

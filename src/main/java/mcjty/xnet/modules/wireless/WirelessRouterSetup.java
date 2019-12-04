@@ -6,49 +6,73 @@ import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.container.GenericContainer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.config.ConfigSetup;
-import mcjty.xnet.modules.controller.blocks.TileEntityController;
-import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import static mcjty.xnet.XNet.MODID;
 
 public class WirelessRouterSetup {
 
+    public static final DeferredRegister<Item> ITEMS = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
+    public static final DeferredRegister<Block> BLOCKS = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
+    public static final DeferredRegister<TileEntityType<?>> TILES = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES, MODID);
+    public static final DeferredRegister<ContainerType<?>> CONTAINERS = new DeferredRegister<>(ForgeRegistries.CONTAINERS, MODID);
 
-    @ObjectHolder(XNet.MODID + ":wireless_router")
-    public static BaseBlock WIRELESS_ROUTER;
-    @ObjectHolder(XNet.MODID + ":antenna")
-    public static BaseBlock ANTENNA;
-    @ObjectHolder(XNet.MODID + ":antenna_base")
-    public static BaseBlock ANTENNA_BASE;
-    @ObjectHolder(XNet.MODID + ":antenna_dish")
-    public static BaseBlock ANTENNA_DISH;
+    public static void register() {
+        BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        TILES.register(FMLJavaModLoadingContext.get().getModEventBus());
+        CONTAINERS.register(FMLJavaModLoadingContext.get().getModEventBus());
+    }
 
-    @ObjectHolder(XNet.MODID + ":wireless_router")
-    public static TileEntityType<?> TYPE_WIRELESS_ROUTER;
-    @ObjectHolder(XNet.MODID + ":wireless_router")
-    public static ContainerType<GenericContainer> CONTAINER_WIRELESS_ROUTER;
+    public static final RegistryObject<BaseBlock> WIRELESS_ROUTER = BLOCKS.register("wireless_router", TileEntityWirelessRouter::createBlock);
+    public static final RegistryObject<Item> WIRELESS_ROUTER_ITEM = ITEMS.register("wireless_router", () -> new BlockItem(WIRELESS_ROUTER.get(), XNet.createStandardProperties()));
+    public static final RegistryObject<TileEntityType<?>> TYPE_WIRELESS_ROUTER = TILES.register("wireless_router", () -> TileEntityType.Builder.create(TileEntityWirelessRouter::new, WIRELESS_ROUTER.get()).build(null));
+    public static final RegistryObject<ContainerType<GenericContainer>> CONTAINER_WIRELESS_ROUTER = CONTAINERS.register("wireless_router", GenericContainer::createContainerType);
 
-    public static void registerBlocks(RegistryEvent.Register<Block> event) {
-        event.getRegistry().register(new BaseBlock("wireless_router", new BlockBuilder()
-                .tileEntitySupplier(TileEntityWirelessRouter::new)
+    public static final RegistryObject<BaseBlock> ANTENNA = BLOCKS.register("antenna", WirelessRouterSetup::createAntennaBlock);
+    public static final RegistryObject<Item> ANTENNA_ITEM = ITEMS.register("antenna", () -> new BlockItem(ANTENNA.get(), XNet.createStandardProperties()));
+    public static final RegistryObject<BaseBlock> ANTENNA_BASE = BLOCKS.register("antenna_base", WirelessRouterSetup::createAntennaBaseBlock);
+    public static final RegistryObject<Item> ANTENNA_BASE_ITEM = ITEMS.register("antenna_base", () -> new BlockItem(ANTENNA_BASE.get(), XNet.createStandardProperties()));
+    public static final RegistryObject<BaseBlock> ANTENNA_DISH = BLOCKS.register("antenna_dish", WirelessRouterSetup::createAntennaDishBlock);
+    public static final RegistryObject<Item> ANTENNA_DISH_ITEM = ITEMS.register("antenna_dish", () -> new BlockItem(ANTENNA_DISH.get(), XNet.createStandardProperties()));
+
+
+    private static BaseBlock createAntennaDishBlock() {
+        return new BaseBlock(new BlockBuilder()
                 .info("message.xnet.shiftmessage")
-                .infoExtended("message.xnet.wireless_router")
+                .infoExtended("message.xnet.antenna_dish")
+                .infoExtendedParameter(stack -> Integer.toString(ConfigSetup.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_INF].get()))
         ) {
             @Override
-            protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-                super.fillStateContainer(builder);
-                builder.add(TileEntityController.ERROR);
+            public RotationType getRotationType() {
+                return RotationType.HORIZROTATION;
             }
-        });
-        event.getRegistry().register(new BaseBlock("antenna", new BlockBuilder()
+        };
+    }
+
+    private static BaseBlock createAntennaBaseBlock() {
+        return new BaseBlock(new BlockBuilder()
+                .info("message.xnet.shiftmessage")
+                .infoExtended("message.xnet.antenna_base")
+        ) {
+            @Override
+            public RotationType getRotationType() {
+                return RotationType.NONE;
+            }
+        };
+    }
+
+    private static BaseBlock createAntennaBlock() {
+        return new BaseBlock(new BlockBuilder()
                 .info("message.xnet.shiftmessage")
                 .infoExtended("message.xnet.antenna")
                 .infoExtendedParameter(stack -> Integer.toString(ConfigSetup.antennaTier1Range.get()))
@@ -60,42 +84,6 @@ public class WirelessRouterSetup {
             public RotationType getRotationType() {
                 return RotationType.HORIZROTATION;
             }
-        });
-        event.getRegistry().register(new BaseBlock("antenna_base", new BlockBuilder()
-                .info("message.xnet.shiftmessage")
-                .infoExtended("message.xnet.antenna_base")
-        ) {
-            @Override
-            public RotationType getRotationType() {
-                return RotationType.NONE;
-            }
-        });
-        event.getRegistry().register(new BaseBlock("antenna_dish", new BlockBuilder()
-                .info("message.xnet.shiftmessage")
-                .infoExtended("message.xnet.antenna_dish")
-                .infoExtendedParameter(stack -> Integer.toString(ConfigSetup.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_INF].get()))
-        ) {
-            @Override
-            public RotationType getRotationType() {
-                return RotationType.HORIZROTATION;
-            }
-        });
+        };
     }
-
-    public static void registerItems(RegistryEvent.Register<Item> event) {
-        Item.Properties properties = new Item.Properties().group(XNet.setup.getTab());
-        event.getRegistry().register(new BlockItem(WirelessRouterSetup.WIRELESS_ROUTER, properties).setRegistryName("wireless_router"));
-        event.getRegistry().register(new BlockItem(WirelessRouterSetup.ANTENNA, properties).setRegistryName("antena"));
-        event.getRegistry().register(new BlockItem(WirelessRouterSetup.ANTENNA_BASE, properties).setRegistryName("antena_base"));
-        event.getRegistry().register(new BlockItem(WirelessRouterSetup.ANTENNA_DISH, properties).setRegistryName("antena_dish"));
-    }
-
-    public static void registerTiles(final RegistryEvent.Register<TileEntityType<?>> event) {
-        event.getRegistry().register(TileEntityType.Builder.create(TileEntityRouter::new, WirelessRouterSetup.WIRELESS_ROUTER).build(null).setRegistryName("wireless_router"));
-    }
-
-    public static void registerContainers(final RegistryEvent.Register<ContainerType<?>> event) {
-        event.getRegistry().register(GenericContainer.createContainerType("wireless_router"));
-    }
-
 }

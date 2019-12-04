@@ -21,7 +21,6 @@ public class RedstoneProxyUBlock extends RedstoneProxyBlock {
 
     public RedstoneProxyUBlock() {
         super(Material.IRON);
-        setRegistryName("redstone_proxy_upd");
     }
 
     @Override

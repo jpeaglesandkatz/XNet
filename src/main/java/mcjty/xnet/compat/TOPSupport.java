@@ -19,13 +19,13 @@ public class TOPSupport {
     public static void registerTopExtras() {
         TOPCompatibility.GetTheOneProbe.probe.registerBlockDisplayOverride((mode, probeInfo, player, world, blockState, data) -> {
             Block block = blockState.getBlock();
-            if (block == FacadeSetup.FACADE) {
+            if (block == FacadeSetup.FACADE.get()) {
                 String modid = XNet.MODNAME;
 
                 ItemStack pickBlock = data.getPickBlock();
                 TileEntity te = world.getTileEntity(data.getPos());
                 if (te instanceof FacadeTileEntity) {
-                    pickBlock = new ItemStack(CableSetup.NETCABLE, 1);
+                    pickBlock = new ItemStack(CableSetup.NETCABLE.get(), 1);
                 }
 
                 if (!pickBlock.isEmpty()) {

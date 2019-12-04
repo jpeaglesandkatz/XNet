@@ -18,7 +18,6 @@ public class RedstoneProxyBlock extends Block {
 
     public RedstoneProxyBlock() {
         this(Material.IRON);
-        setRegistryName("redstone_proxy");
     }
 
     public RedstoneProxyBlock(Material materialIn) {

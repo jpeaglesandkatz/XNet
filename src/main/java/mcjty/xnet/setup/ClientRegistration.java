@@ -32,10 +32,10 @@ public class ClientRegistration {
     @SubscribeEvent
     public static void init(FMLClientSetupEvent event) {
 //        InformationScreenRenderer.register();
-        GenericGuiContainer.register(ControllerSetup.CONTAINER_CONTROLLER, GuiController::new);
-        GenericGuiContainer.register(RouterSetup.CONTAINER_ROUTER, GuiRouter::new);
-        GenericGuiContainer.register(WirelessRouterSetup.CONTAINER_WIRELESS_ROUTER, GuiWirelessRouter::new);
-        GenericGuiContainer.register(CableSetup.CONTAINER_CONNECTOR, GuiConnector::new);
+        GenericGuiContainer.register(ControllerSetup.CONTAINER_CONTROLLER.get(), GuiController::new);
+        GenericGuiContainer.register(RouterSetup.CONTAINER_ROUTER.get(), GuiRouter::new);
+        GenericGuiContainer.register(WirelessRouterSetup.CONTAINER_WIRELESS_ROUTER.get(), GuiWirelessRouter::new);
+        GenericGuiContainer.register(CableSetup.CONTAINER_CONNECTOR.get(), GuiConnector::new);
         OBJLoader.INSTANCE.addDomain(XNet.MODID);
     }
 

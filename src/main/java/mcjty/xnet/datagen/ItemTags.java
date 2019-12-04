@@ -4,7 +4,6 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableSetup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.ItemTagsProvider;
-import net.minecraft.tags.Tag;
 import net.minecraft.util.ResourceLocation;
 
 public class ItemTags extends ItemTagsProvider {
@@ -16,13 +15,13 @@ public class ItemTags extends ItemTagsProvider {
     @Override
     protected void registerTags() {
         getBuilder(CableSetup.TAG_CABLES)
-                .add(CableSetup.NETCABLE_BLUE, CableSetup.NETCABLE_YELLOW, CableSetup.NETCABLE_GREEN, CableSetup.NETCABLE_RED, CableSetup.NETCABLE_ROUTING)
+                .add(CableSetup.NETCABLE_BLUE.get(), CableSetup.NETCABLE_YELLOW.get(), CableSetup.NETCABLE_GREEN.get(), CableSetup.NETCABLE_RED.get(), CableSetup.NETCABLE_ROUTING.get())
                 .build(new ResourceLocation(XNet.MODID, "cables"));
         getBuilder(CableSetup.TAG_CONNECTORS)
-                .add(CableSetup.CONNECTOR_BLUE, CableSetup.CONNECTOR_YELLOW, CableSetup.CONNECTOR_GREEN, CableSetup.CONNECTOR_RED, CableSetup.CONNECTOR_ROUTING)
+                .add(CableSetup.CONNECTOR_BLUE.get(), CableSetup.CONNECTOR_YELLOW.get(), CableSetup.CONNECTOR_GREEN.get(), CableSetup.CONNECTOR_RED.get(), CableSetup.CONNECTOR_ROUTING.get())
                 .build(new ResourceLocation(XNet.MODID, "connectors"));
         getBuilder(CableSetup.TAG_ADVANCED_CONNECTORS)
-                .add(CableSetup.ADVANCED_CONNECTOR_BLUE, CableSetup.ADVANCED_CONNECTOR_YELLOW, CableSetup.ADVANCED_CONNECTOR_GREEN, CableSetup.ADVANCED_CONNECTOR_RED, CableSetup.ADVANCED_CONNECTOR_ROUTING)
+                .add(CableSetup.ADVANCED_CONNECTOR_BLUE.get(), CableSetup.ADVANCED_CONNECTOR_YELLOW.get(), CableSetup.ADVANCED_CONNECTOR_GREEN.get(), CableSetup.ADVANCED_CONNECTOR_RED.get(), CableSetup.ADVANCED_CONNECTOR_ROUTING.get())
                 .build(new ResourceLocation(XNet.MODID, "advanced_connectors"));
     }
 

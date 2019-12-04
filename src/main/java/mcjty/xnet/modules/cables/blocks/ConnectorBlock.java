@@ -34,7 +34,6 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -60,14 +59,8 @@ import java.util.List;
 
 public class ConnectorBlock extends GenericCableBlock {
 
-    public static final String CONNECTOR = "connector";
-
-    public ConnectorBlock(List<Item> items) {
-        this(CONNECTOR, items);
-    }
-
-    public ConnectorBlock(String name, List<Item> items) {
-        super(Material.IRON, name, items);
+    public ConnectorBlock(CableBlockType type) {
+        super(Material.IRON, type);
     }
 
     @Override
@@ -96,7 +89,7 @@ public class ConnectorBlock extends GenericCableBlock {
                     @Nullable
                     @Override
                     public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
-                        return new GenericContainer(CableSetup.CONTAINER_CONNECTOR, id, EmptyContainer.CONTAINER_FACTORY, pos, genericTileEntity);
+                        return new GenericContainer(CableSetup.CONTAINER_CONNECTOR.get(), id, EmptyContainer.CONTAINER_FACTORY, pos, genericTileEntity);
                     }
                 }, pos);
             }
@@ -110,7 +103,7 @@ public class ConnectorBlock extends GenericCableBlock {
             // If we are in mimic mode then the drop will be the facade as the connector will remain there
             ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
             if (connectorTileEntity.getMimicBlock() != null) {
-                ItemStack item = new ItemStack(FacadeSetup.FACADE);
+                ItemStack item = new ItemStack(FacadeSetup.FACADE.get());
                 FacadeItemBlock.setMimicBlock(item, connectorTileEntity.getMimicBlock());
                 connectorTileEntity.setMimicBlock(null);
                 spawnAsEntity(worldIn, pos, item);
@@ -382,7 +375,7 @@ public class ConnectorBlock extends GenericCableBlock {
             tooltip.add(new StringTextComponent(TextFormatting.BLUE + "Place connector next to block or"));
             tooltip.add(new StringTextComponent(TextFormatting.BLUE + "machine that should be connected"));
             tooltip.add(new StringTextComponent(TextFormatting.BLUE + "to the network"));
-            boolean advanced = this == CableSetup.ADVANCED_CONNECTOR;
+            boolean advanced = this == CableSetup.ADVANCED_CONNECTOR.get();
             int maxrf = advanced ? ConfigSetup.maxRfAdvancedConnector.get() : ConfigSetup.maxRfConnector.get();
             tooltip.add(new StringTextComponent(TextFormatting.GRAY + "" + TextFormatting.BOLD + "Max RF: " + TextFormatting.WHITE + maxrf));
             if (advanced) {

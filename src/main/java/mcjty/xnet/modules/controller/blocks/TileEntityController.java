@@ -3,6 +3,8 @@ package mcjty.xnet.modules.controller.blocks;
 import com.google.gson.*;
 import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.blocks.BaseBlock;
+import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -39,6 +41,7 @@ import mcjty.xnet.multiblock.*;
 import mcjty.xnet.network.PacketControllerError;
 import mcjty.xnet.network.PacketJsonToClipboard;
 import mcjty.xnet.network.XNetMessages;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -47,6 +50,7 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -115,16 +119,30 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, ConfigSetup.controllerMaxRF.get(), ConfigSetup.controllerRfPerTick.get()));
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
-            .containerSupplier((windowId,player) -> new GenericContainer(ControllerSetup.CONTAINER_CONTROLLER, windowId, CONTAINER_FACTORY, getPos(), TileEntityController.this))
+            .containerSupplier((windowId,player) -> new GenericContainer(ControllerSetup.CONTAINER_CONTROLLER.get(), windowId, CONTAINER_FACTORY, getPos(), TileEntityController.this))
             .energyHandler(energyHandler));
 
     private NetworkChecker networkChecker = null;
 
     public TileEntityController() {
-        super(TYPE_CONTROLLER);
+        super(TYPE_CONTROLLER.get());
         for (int i = 0; i < MAX_CHANNELS; i++) {
             channels[i] = null;
         }
+    }
+
+    public static BaseBlock createBlock() {
+        return new BaseBlock(new BlockBuilder()
+                .tileEntitySupplier(TileEntityController::new)
+                .info("message.xnet.shiftmessage")
+                .infoExtended("message.xnet.controller")
+        ) {
+            @Override
+            protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+                super.fillStateContainer(builder);
+                builder.add(ERROR);
+            }
+        };
     }
 
     @Nonnull
@@ -467,7 +485,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
                         BlockPos consumerPos = findConsumerPosition(worldBlob, sidedConsumer.getConsumerId());
                         if (consumerPos != null) {
                             SidedPos pos = new SidedPos(consumerPos.offset(sidedConsumer.getSide()), sidedConsumer.getSide().getOpposite());
-                            boolean advanced = world.getBlockState(consumerPos).getBlock() == CableSetup.ADVANCED_CONNECTOR;
+                            boolean advanced = world.getBlockState(consumerPos).getBlock() == CableSetup.ADVANCED_CONNECTOR.get();
                             ConnectorClientInfo ci = new ConnectorClientInfo(pos, sidedConsumer.getConsumerId(), channel.getType(), info.getConnectorSettings());
                             clientInfo.getConnectors().put(sidedConsumer, ci);
                         } else {
@@ -563,7 +581,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             throw new RuntimeException("What?");
         }
         SidedConsumer id = new SidedConsumer(consumerId, pos.getSide().getOpposite());
-        boolean advanced = world.getBlockState(consumerPos).getBlock() == CableSetup.ADVANCED_CONNECTOR;
+        boolean advanced = world.getBlockState(consumerPos).getBlock() == CableSetup.ADVANCED_CONNECTOR.get();
         ConnectorInfo info = channels[channel].createConnector(id, advanced);
         markAsDirty();
         return info;
