@@ -41,10 +41,9 @@ public class XNetMessages {
         net.registerMessage(id(), PacketJsonToClipboard.class, PacketJsonToClipboard::toBytes, PacketJsonToClipboard::new, PacketJsonToClipboard::handle);
         net.registerMessage(id(), PacketControllerError.class, PacketControllerError::toBytes, PacketControllerError::new, PacketControllerError::handle);
 
-        PacketHandler.debugRegister("XNet", net, id(), PacketRequestDataFromServer.class, PacketRequestDataFromServer::toBytes, PacketRequestDataFromServer::new,
-                new ChannelBoundHandler<>(net, PacketRequestDataFromServer::handle));
+        net.registerMessage(id(), PacketRequestDataFromServer.class, PacketRequestDataFromServer::toBytes, PacketRequestDataFromServer::new, new ChannelBoundHandler<>(net, PacketRequestDataFromServer::handle));
 
-        PacketHandler.registerStandardMessages("XNet - standard", id(), net);
+        PacketHandler.registerStandardMessages(id(), net);
     }
 
     private static int packetId = 0;
