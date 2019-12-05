@@ -1,4 +1,4 @@
-package mcjty.xnet;
+package mcjty.xnet.setup;
 
 import mcjty.xnet.multiblock.XNetWirelessChannels;
 import net.minecraftforge.event.TickEvent;

@@ -4,7 +4,7 @@ import mcjty.lib.McJtyLib;
 import mcjty.lib.network.IClientCommandHandler;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.Logging;
-import mcjty.xnet.clientinfo.ControllerChannelClientInfo;
+import mcjty.xnet.client.ControllerChannelClientInfo;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;

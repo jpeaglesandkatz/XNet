@@ -4,8 +4,6 @@ import mcjty.lib.McJtyLib;
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultModSetup;
 import mcjty.lib.varia.Logging;
-import mcjty.xnet.CommandHandler;
-import mcjty.xnet.ForgeEventHandlers;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.energy.EnergyChannelType;
 import mcjty.xnet.apiimpl.fluids.FluidChannelType;
@@ -33,9 +31,8 @@ public class ModSetup extends DefaultModSetup {
         McJtyLib.registerMod(XNet.instance);    // @todo why only xnet?
 
         MinecraftForge.EVENT_BUS.register(new ForgeEventHandlers());
-//        NetworkRegistry.INSTANCE.registerGuiHandler(XNet.instance, new GuiProxy());
 
-        CommandHandler.registerCommands();
+//        CommandHandler.registerCommands();
 
         XNetMessages.registerMessages("xnet");
 

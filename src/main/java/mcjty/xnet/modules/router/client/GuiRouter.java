@@ -10,7 +10,7 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.xnet.XNet;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
-import mcjty.xnet.clientinfo.ControllerChannelClientInfo;
+import mcjty.xnet.client.ControllerChannelClientInfo;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.network.PacketGetLocalChannelsRouter;
 import mcjty.xnet.network.PacketGetRemoteChannelsRouter;

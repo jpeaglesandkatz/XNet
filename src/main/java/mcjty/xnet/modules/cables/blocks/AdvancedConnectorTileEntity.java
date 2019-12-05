@@ -1,6 +1,6 @@
 package mcjty.xnet.modules.cables.blocks;
 
-import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.setup.Config;
 
 import static mcjty.xnet.modules.cables.CableSetup.TYPE_ADVANCED_CONNECTOR;
 
@@ -12,6 +12,6 @@ public class AdvancedConnectorTileEntity extends ConnectorTileEntity {
 
     @Override
     public int getMaxEnergy() {
-        return ConfigSetup.maxRfAdvancedConnector.get();
+        return Config.maxRfAdvancedConnector.get();
     }
 }

@@ -4,7 +4,7 @@ import mcjty.lib.McJtyLib;
 import mcjty.lib.network.IClientCommandHandler;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.Logging;
-import mcjty.xnet.clientinfo.ConnectedBlockClientInfo;
+import mcjty.xnet.client.ConnectedBlockClientInfo;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -54,7 +54,7 @@ public class PacketConnectedBlocksReady {
             buf.writeInt(-1);
         } else {
             buf.writeInt(list.size());
-            for (mcjty.xnet.clientinfo.ConnectedBlockClientInfo item : list) {
+            for (mcjty.xnet.client.ConnectedBlockClientInfo item : list) {
                 item.writeToBuf(buf);
             }
         }

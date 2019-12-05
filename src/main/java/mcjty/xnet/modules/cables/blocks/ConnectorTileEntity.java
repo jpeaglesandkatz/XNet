@@ -15,7 +15,7 @@ import mcjty.rftoolsbase.api.xnet.tiles.IConnectorTile;
 import mcjty.xnet.modules.cables.CableSetup;
 import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.modules.facade.MimicBlockSupport;
-import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.setup.Config;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
 import net.minecraft.block.Block;
@@ -257,7 +257,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     public int getMaxEnergy() {
-        return ConfigSetup.maxRfConnector.get();
+        return Config.maxRfConnector.get();
     }
 
     private int receiveEnergyInternal(Direction from, int maxReceive, boolean simulate) {

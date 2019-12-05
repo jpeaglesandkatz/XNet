@@ -30,11 +30,11 @@ import mcjty.xnet.modules.controller.ConnectedBlockInfo;
 import mcjty.xnet.modules.controller.ControllerSetup;
 import mcjty.xnet.modules.controller.KnownUnsidedBlocks;
 import mcjty.xnet.modules.controller.client.GuiController;
-import mcjty.xnet.clientinfo.ChannelClientInfo;
-import mcjty.xnet.clientinfo.ConnectedBlockClientInfo;
-import mcjty.xnet.clientinfo.ConnectorClientInfo;
-import mcjty.xnet.clientinfo.ConnectorInfo;
-import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.client.ChannelClientInfo;
+import mcjty.xnet.client.ConnectedBlockClientInfo;
+import mcjty.xnet.client.ConnectorClientInfo;
+import mcjty.xnet.client.ConnectorInfo;
+import mcjty.xnet.setup.Config;
 import mcjty.xnet.logic.ChannelInfo;
 import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.multiblock.*;
@@ -117,7 +117,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     private Map<SidedConsumer, IConnectorSettings> cachedRoutedConnectors[] = new Map[MAX_CHANNELS];
     private Map<WirelessChannelKey, Integer> wirelessVersions = new HashMap<>();
 
-    private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, ConfigSetup.controllerMaxRF.get(), ConfigSetup.controllerRfPerTick.get()));
+    private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get()));
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
             .containerSupplier((windowId,player) -> new GenericContainer(ControllerSetup.CONTAINER_CONTROLLER.get(), windowId, CONTAINER_FACTORY, getPos(), TileEntityController.this))
             .energyHandler(energyHandler));
@@ -248,7 +248,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
             checkNetwork(worldBlob);
 
-            if (!checkAndConsumeRF(ConfigSetup.controllerRFT.get())) {
+            if (!checkAndConsumeRF(Config.controllerRFT.get())) {
                 return;
             }
 
@@ -256,7 +256,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             int newcolors = 0;
             for (int i = 0; i < MAX_CHANNELS; i++) {
                 if (channels[i] != null && channels[i].isEnabled()) {
-                    if (checkAndConsumeRF(ConfigSetup.controllerChannelRFT.get())) {
+                    if (checkAndConsumeRF(Config.controllerChannelRFT.get())) {
                         channels[i].getChannelSettings().tick(i, this);
                     }
                     newcolors |= channels[i].getChannelSettings().getColors();

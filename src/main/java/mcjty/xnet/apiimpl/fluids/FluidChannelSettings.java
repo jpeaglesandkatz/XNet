@@ -12,7 +12,7 @@ import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.xnet.api.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
-import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.setup.Config;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -151,7 +151,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                         toextract -= remaining;
                         if (inserted.isEmpty() || toextract <= 0) continue extractorsLoop;
                     } while(remaining > 0);
-                    if (context.checkAndConsumeRF(ConfigSetup.controllerOperationRFT.get())) {
+                    if (context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
                         FluidStack stack = fetchFluid(handler, false, extractMatcher, toextract);
                         if (stack.isEmpty()) {
                             throw new NullPointerException(handler.getClass().getName() + " misbehaved! handler.drain(" + toextract + ", true) returned null, even though handler.drain(" + toextract + ", false) did not");

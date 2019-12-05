@@ -6,7 +6,7 @@ import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
-import mcjty.xnet.clientinfo.ConnectorInfo;
+import mcjty.xnet.client.ConnectorInfo;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.Direction;

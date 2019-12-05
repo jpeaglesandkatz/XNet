@@ -5,7 +5,7 @@ import mcjty.lib.blocks.RotationType;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.container.GenericContainer;
 import mcjty.xnet.XNet;
-import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.setup.Config;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
@@ -50,7 +50,7 @@ public class WirelessRouterSetup {
         return new BaseBlock(new BlockBuilder()
                 .info("message.xnet.shiftmessage")
                 .infoExtended("message.xnet.antenna_dish")
-                .infoExtendedParameter(stack -> Integer.toString(ConfigSetup.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_INF].get()))
+                .infoExtendedParameter(stack -> Integer.toString(Config.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_INF].get()))
         ) {
             @Override
             public RotationType getRotationType() {
@@ -75,10 +75,10 @@ public class WirelessRouterSetup {
         return new BaseBlock(new BlockBuilder()
                 .info("message.xnet.shiftmessage")
                 .infoExtended("message.xnet.antenna")
-                .infoExtendedParameter(stack -> Integer.toString(ConfigSetup.antennaTier1Range.get()))
-                .infoExtendedParameter(stack -> Integer.toString(ConfigSetup.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_1].get()))
-                .infoExtendedParameter(stack -> Integer.toString(ConfigSetup.antennaTier2Range.get()))
-                .infoExtendedParameter(stack -> Integer.toString(ConfigSetup.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_2].get()))
+                .infoExtendedParameter(stack -> Integer.toString(Config.antennaTier1Range.get()))
+                .infoExtendedParameter(stack -> Integer.toString(Config.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_1].get()))
+                .infoExtendedParameter(stack -> Integer.toString(Config.antennaTier2Range.get()))
+                .infoExtendedParameter(stack -> Integer.toString(Config.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_2].get()))
         ) {
             @Override
             public RotationType getRotationType() {

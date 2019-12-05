@@ -1,4 +1,4 @@
-package mcjty.xnet.config;
+package mcjty.xnet.setup;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
@@ -9,7 +9,7 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import java.nio.file.Path;
 import java.util.List;
 
-public class ConfigSetup {
+public class Config {
     public static final String CATEGORY_GENERAL = "general";
 
     public static ForgeConfigSpec.IntValue controllerMaxRF;

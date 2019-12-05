@@ -14,7 +14,7 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.api.helper.DefaultChannelSettings;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.compat.RFToolsSupport;
-import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.setup.Config;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -261,7 +261,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 List<Pair<SidedConsumer, ItemConnectorSettings>> inserted = new ArrayList<>();
                 int remaining = insertStackSimulate(inserted, context, stack);
                 if (!inserted.isEmpty()) {
-                    if (context.checkAndConsumeRF(ConfigSetup.controllerOperationRFT.get())) {
+                    if (context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
                         insertStackReal(context, inserted, fetchItem(handler, false, extractMatcher, settings.getStackMode(), settings.getExtractAmount(), toextract - remaining, index, startIdx));
                     }
                     break;

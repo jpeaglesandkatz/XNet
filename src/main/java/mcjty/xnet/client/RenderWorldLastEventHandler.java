@@ -1,13 +1,14 @@
-package mcjty.xnet;
+package mcjty.xnet.client;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.ConnectorType;
 import mcjty.xnet.modules.facade.blocks.FacadeBlock;
 import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
-import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
@@ -85,7 +86,7 @@ public class RenderWorldLastEventHandler {
                         TileEntity te = world.getTileEntity(c);
                         if (te instanceof IFacadeSupport) {
                             BlockState facadeId = ((IFacadeSupport) te).getMimicBlock();
-                            if (((!ConfigSetup.showNonFacadedCablesWhileSneaking.get()) || (!p.isSneaking())) && facadeId == null && !(block instanceof FacadeBlock)) {
+                            if (((!Config.showNonFacadedCablesWhileSneaking.get()) || (!p.isSneaking())) && facadeId == null && !(block instanceof FacadeBlock)) {
                                 continue;
                             }
                         }

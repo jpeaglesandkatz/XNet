@@ -3,14 +3,15 @@ package mcjty.xnet.setup;
 
 import com.google.common.collect.Lists;
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.xnet.client.RenderWorldLastEventHandler;
 import mcjty.xnet.XNet;
-import mcjty.xnet.modules.cables.ConnectorType;
-import mcjty.xnet.modules.cables.client.GuiConnector;
+import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.CableSetup;
+import mcjty.xnet.modules.cables.ConnectorType;
+import mcjty.xnet.modules.cables.client.GenericCableBakedModel;
+import mcjty.xnet.modules.cables.client.GuiConnector;
 import mcjty.xnet.modules.controller.ControllerSetup;
 import mcjty.xnet.modules.controller.client.GuiController;
-import mcjty.xnet.modules.cables.CableColor;
-import mcjty.xnet.modules.cables.client.GenericCableBakedModel;
 import mcjty.xnet.modules.router.RouterSetup;
 import mcjty.xnet.modules.router.client.GuiRouter;
 import mcjty.xnet.modules.wireless.WirelessRouterSetup;
@@ -20,6 +21,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -91,6 +93,10 @@ public class ClientRegistration {
                     }
                 });
     }
-//    }
+
+    @SubscribeEvent
+    public void renderWorldLastEvent(RenderWorldLastEvent evt) {
+        RenderWorldLastEventHandler.tick(evt);
+    }
 
 }

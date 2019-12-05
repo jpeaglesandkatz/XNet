@@ -8,7 +8,7 @@ import mcjty.lib.varia.EnergyTools;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectable;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.xnet.XNet;
-import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.setup.Config;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.CableSetup;
 import mcjty.xnet.modules.cables.ConnectorType;
@@ -376,7 +376,7 @@ public class ConnectorBlock extends GenericCableBlock {
             tooltip.add(new StringTextComponent(TextFormatting.BLUE + "machine that should be connected"));
             tooltip.add(new StringTextComponent(TextFormatting.BLUE + "to the network"));
             boolean advanced = this == CableSetup.ADVANCED_CONNECTOR.get();
-            int maxrf = advanced ? ConfigSetup.maxRfAdvancedConnector.get() : ConfigSetup.maxRfConnector.get();
+            int maxrf = advanced ? Config.maxRfAdvancedConnector.get() : Config.maxRfConnector.get();
             tooltip.add(new StringTextComponent(TextFormatting.GRAY + "" + TextFormatting.BOLD + "Max RF: " + TextFormatting.WHITE + maxrf));
             if (advanced) {
                 tooltip.add(new StringTextComponent(TextFormatting.GRAY + "Allow access to different sides"));

@@ -1,4 +1,4 @@
-package mcjty.xnet.clientinfo;
+package mcjty.xnet.client;
 
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;

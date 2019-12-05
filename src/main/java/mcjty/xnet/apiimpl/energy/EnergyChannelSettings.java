@@ -13,7 +13,7 @@ import mcjty.xnet.api.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
-import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.setup.Config;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -109,7 +109,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
                     Integer rate = settings.getRate();
                     if (rate == null) {
                         boolean advanced = ConnectorBlock.isAdvancedConnector(world, connectorPos);
-                        rate = advanced ? ConfigSetup.maxRfRateAdvanced.get() : ConfigSetup.maxRfRateNormal.get();
+                        rate = advanced ? Config.maxRfRateAdvanced.get() : Config.maxRfRateNormal.get();
                     }
                     connectorTE.setEnergyInputFrom(side, rate);
 
@@ -136,7 +136,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             return;
         }
 
-        if (!context.checkAndConsumeRF(ConfigSetup.controllerOperationRFT.get())) {
+        if (!context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
             // Not enough energy for this operation
             return;
         }
@@ -195,7 +195,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
                     Integer rate = settings.getRate();
                     if (rate == null) {
                         boolean advanced = ConnectorBlock.isAdvancedConnector(world, extractorPos);
-                        rate = advanced ? ConfigSetup.maxRfRateAdvanced.get() : ConfigSetup.maxRfRateNormal.get();
+                        rate = advanced ? Config.maxRfRateAdvanced.get() : Config.maxRfRateNormal.get();
                     }
                     int totransfer = Math.min(rate, energy);
                     long e = EnergyTools.receiveEnergy(te, settings.getFacing(), totransfer);

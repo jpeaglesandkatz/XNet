@@ -17,12 +17,11 @@ import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.modules.cables.CableColor;
-import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.router.LocalChannelId;
 import mcjty.xnet.modules.router.RouterSetup;
 import mcjty.xnet.modules.router.client.GuiRouter;
-import mcjty.xnet.clientinfo.ControllerChannelClientInfo;
-import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.client.ControllerChannelClientInfo;
+import mcjty.xnet.setup.Config;
 import mcjty.xnet.logic.ChannelInfo;
 import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.multiblock.ColorId;
@@ -108,7 +107,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     }
 
     public boolean inError() {
-        return channelCount > ConfigSetup.maxPublishedChannels.get();
+        return channelCount > Config.maxPublishedChannels.get();
     }
 
     public int getChannelCount() {

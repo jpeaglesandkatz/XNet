@@ -1,4 +1,4 @@
-package mcjty.xnet;
+package mcjty.xnet.client;
 
 import net.minecraft.util.math.BlockPos;
 

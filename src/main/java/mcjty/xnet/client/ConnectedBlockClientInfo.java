@@ -1,4 +1,4 @@
-package mcjty.xnet.clientinfo;
+package mcjty.xnet.client;
 
 import mcjty.lib.network.NetworkTools;
 import mcjty.lib.varia.OrientationTools;

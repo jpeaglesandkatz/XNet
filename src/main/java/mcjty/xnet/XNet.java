@@ -3,9 +3,9 @@ package mcjty.xnet;
 
 import mcjty.lib.base.ModBase;
 import mcjty.xnet.apiimpl.XNetApi;
+import mcjty.xnet.client.ClientInfo;
 import mcjty.xnet.compat.TOPSupport;
 import mcjty.xnet.compat.WAILASupport;
-import mcjty.xnet.config.ConfigSetup;
 import mcjty.xnet.modules.cables.CableSetup;
 import mcjty.xnet.modules.controller.ControllerSetup;
 import mcjty.xnet.modules.facade.FacadeSetup;
@@ -13,7 +13,7 @@ import mcjty.xnet.modules.router.RouterSetup;
 import mcjty.xnet.modules.various.VariousSetup;
 import mcjty.xnet.modules.various.client.GuiXNetManual;
 import mcjty.xnet.modules.wireless.WirelessRouterSetup;
-import mcjty.xnet.setup.ClientSetup;
+import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.ModSetup;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -30,10 +30,6 @@ public class XNet implements ModBase {
     public static final String MODID = "xnet";
     public static final String MODNAME = "XNet";
 
-    public static final String MIN_FORGE11_VER = "13.19.0.2176";
-    public static final String MIN_MCJTYLIB_VER = "3.5.0";
-    public static final String MIN_RFTOOLS_VER = "7.50";
-
     public static ModSetup setup = new ModSetup();
 
     public ClientInfo clientInfo = new ClientInfo();
@@ -45,8 +41,8 @@ public class XNet implements ModBase {
     public XNet() {
         instance = this;
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigSetup.CLIENT_CONFIG);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigSetup.COMMON_CONFIG);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_CONFIG);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_CONFIG);
 
         VariousSetup.register();
         ControllerSetup.register();
@@ -56,10 +52,9 @@ public class XNet implements ModBase {
         CableSetup.register();
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener((FMLCommonSetupEvent event) -> setup.init(event));
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::initClient);
 
-        ConfigSetup.loadConfig(ConfigSetup.CLIENT_CONFIG, FMLPaths.CONFIGDIR.get().resolve("xnet-client.toml"));
-        ConfigSetup.loadConfig(ConfigSetup.COMMON_CONFIG, FMLPaths.CONFIGDIR.get().resolve("xnet-common.toml"));
+        Config.loadConfig(Config.CLIENT_CONFIG, FMLPaths.CONFIGDIR.get().resolve("xnet-client.toml"));
+        Config.loadConfig(Config.COMMON_CONFIG, FMLPaths.CONFIGDIR.get().resolve("xnet-common.toml"));
     }
 
 //    @Mod.EventHandler

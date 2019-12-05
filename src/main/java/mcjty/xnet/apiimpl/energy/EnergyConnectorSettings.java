@@ -8,7 +8,7 @@ import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.xnet.api.helper.AbstractConnectorSettings;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
-import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.setup.Config;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
@@ -79,7 +79,7 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
                 .label("Rate")
                 .integer(TAG_RATE,
                         (energyMode == EnergyMode.EXT ? "Max energy extraction rate" : "Max energy insertion rate") +
-                        "|(limited to " + (advanced ? ConfigSetup.maxRfRateAdvanced.get() : ConfigSetup.maxRfRateNormal.get()) + " per tick)", rate, 40)
+                        "|(limited to " + (advanced ? Config.maxRfRateAdvanced.get() : Config.maxRfRateNormal.get()) + " per tick)", rate, 40)
                 .shift(10)
                 .label(energyMode == EnergyMode.EXT ? "Min" : "Max")
                 .integer(TAG_MINMAX, energyMode == EnergyMode.EXT ? "Disable extraction if energy|is too low" : "Disable insertion if energy|is too high", minmax, 50);
@@ -135,7 +135,7 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
         setIntegerSafe(object, "priority", priority);
         setIntegerSafe(object, "rate", rate);
         setIntegerSafe(object, "minmax", minmax);
-        if (rate != null && rate > ConfigSetup.maxRfRateNormal.get()) {
+        if (rate != null && rate > Config.maxRfRateNormal.get()) {
             object.add("advancedneeded", new JsonPrimitive(true));
         }
         return object;

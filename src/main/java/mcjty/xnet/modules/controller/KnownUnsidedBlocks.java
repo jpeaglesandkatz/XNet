@@ -1,6 +1,6 @@
 package mcjty.xnet.modules.controller;
 
-import mcjty.xnet.config.ConfigSetup;
+import mcjty.xnet.setup.Config;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.HashSet;
@@ -12,7 +12,7 @@ public class KnownUnsidedBlocks {
 
     public static boolean isUnsided(ResourceLocation resourceLocation) {
         if (UNSIDED_BLOCKS.isEmpty()) {
-            for (String block : ConfigSetup.unsidedBlocks.get()) {
+            for (String block : Config.unsidedBlocks.get()) {
                 UNSIDED_BLOCKS.add(new ResourceLocation(block));
             }
         }
