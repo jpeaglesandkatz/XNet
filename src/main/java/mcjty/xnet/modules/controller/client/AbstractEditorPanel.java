@@ -9,7 +9,7 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.xnet.XNet;
 import mcjty.rftoolsbase.api.xnet.channels.RSMode;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
-import mcjty.xnet.network.XNetMessages;
+import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;

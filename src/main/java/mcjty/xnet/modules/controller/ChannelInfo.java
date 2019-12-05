@@ -1,4 +1,4 @@
-package mcjty.xnet.logic;
+package mcjty.xnet.modules.controller;
 
 import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.XNet;

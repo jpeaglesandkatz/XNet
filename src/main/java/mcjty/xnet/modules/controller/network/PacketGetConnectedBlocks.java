@@ -1,11 +1,12 @@
-package mcjty.xnet.network;
+package mcjty.xnet.modules.controller.network;
 
 import mcjty.lib.network.ICommandHandler;
 import mcjty.lib.network.TypedMapTools;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
-import mcjty.xnet.modules.router.blocks.TileEntityRouter;
-import mcjty.xnet.client.ControllerChannelClientInfo;
+import mcjty.xnet.modules.controller.blocks.TileEntityController;
+import mcjty.xnet.client.ConnectedBlockClientInfo;
+import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -15,20 +16,20 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class PacketGetLocalChannelsRouter {
+public class PacketGetConnectedBlocks {
 
     protected BlockPos pos;
     protected TypedMap params;
 
-    public PacketGetLocalChannelsRouter() {
+    public PacketGetConnectedBlocks() {
     }
 
-    public PacketGetLocalChannelsRouter(PacketBuffer buf) {
+    public PacketGetConnectedBlocks(PacketBuffer buf) {
         pos = buf.readBlockPos();
         params = TypedMapTools.readArguments(buf);
     }
 
-    public PacketGetLocalChannelsRouter(BlockPos pos) {
+    public PacketGetConnectedBlocks(BlockPos pos) {
         this.pos = pos;
         this.params = TypedMap.EMPTY;
     }
@@ -43,8 +44,8 @@ public class PacketGetLocalChannelsRouter {
         ctx.enqueueWork(() -> {
             TileEntity te = ctx.getSender().getEntityWorld().getTileEntity(pos);
             ICommandHandler commandHandler = (ICommandHandler) te;
-            List<ControllerChannelClientInfo> list = commandHandler.executeWithResultList(TileEntityRouter.CMD_GETCHANNELS, params, Type.create(ControllerChannelClientInfo.class));
-            XNetMessages.INSTANCE.sendTo(new PacketLocalChannelsRouterReady(pos, TileEntityRouter.CLIENTCMD_CHANNELSREADY, list), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            List<ConnectedBlockClientInfo> list = commandHandler.executeWithResultList(TileEntityController.CMD_GETCONNECTEDBLOCKS, params, Type.create(ConnectedBlockClientInfo.class));
+            XNetMessages.INSTANCE.sendTo(new PacketConnectedBlocksReady(pos, TileEntityController.CLIENTCMD_CONNECTEDBLOCKSREADY, list), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
         });
         ctx.setPacketHandled(true);
     }

@@ -35,12 +35,12 @@ import mcjty.xnet.client.ConnectedBlockClientInfo;
 import mcjty.xnet.client.ConnectorClientInfo;
 import mcjty.xnet.client.ConnectorInfo;
 import mcjty.xnet.setup.Config;
-import mcjty.xnet.logic.ChannelInfo;
+import mcjty.xnet.modules.controller.ChannelInfo;
 import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.multiblock.*;
-import mcjty.xnet.network.PacketControllerError;
-import mcjty.xnet.network.PacketJsonToClipboard;
-import mcjty.xnet.network.XNetMessages;
+import mcjty.xnet.modules.controller.network.PacketControllerError;
+import mcjty.xnet.modules.controller.network.PacketJsonToClipboard;
+import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
@@ -71,7 +71,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static mcjty.xnet.modules.controller.ControllerSetup.TYPE_CONTROLLER;
-import static mcjty.xnet.logic.ChannelInfo.MAX_CHANNELS;
+import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 
 public final class TileEntityController extends GenericTileEntity implements ITickableTileEntity, IControllerContext {
 

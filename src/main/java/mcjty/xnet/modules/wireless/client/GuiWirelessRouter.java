@@ -5,7 +5,7 @@ import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
-import mcjty.xnet.network.XNetMessages;
+import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 

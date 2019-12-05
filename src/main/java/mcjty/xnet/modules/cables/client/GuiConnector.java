@@ -13,7 +13,7 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
-import mcjty.xnet.network.XNetMessages;
+import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.Direction;
 

@@ -22,7 +22,7 @@ import mcjty.xnet.modules.router.RouterSetup;
 import mcjty.xnet.modules.router.client.GuiRouter;
 import mcjty.xnet.client.ControllerChannelClientInfo;
 import mcjty.xnet.setup.Config;
-import mcjty.xnet.logic.ChannelInfo;
+import mcjty.xnet.modules.controller.ChannelInfo;
 import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WirelessChannelKey;
@@ -54,7 +54,7 @@ import java.util.stream.Stream;
 
 import static mcjty.xnet.modules.controller.blocks.TileEntityController.ERROR;
 import static mcjty.xnet.modules.router.RouterSetup.TYPE_ROUTER;
-import static mcjty.xnet.logic.ChannelInfo.MAX_CHANNELS;
+import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 
 public final class TileEntityRouter extends GenericTileEntity {
 

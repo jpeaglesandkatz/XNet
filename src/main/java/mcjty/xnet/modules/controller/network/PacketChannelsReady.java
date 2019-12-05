@@ -1,4 +1,4 @@
-package mcjty.xnet.network;
+package mcjty.xnet.modules.controller.network;
 
 import mcjty.lib.McJtyLib;
 import mcjty.lib.network.IClientCommandHandler;

@@ -31,9 +31,9 @@ import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.client.ChannelClientInfo;
 import mcjty.xnet.client.ConnectedBlockClientInfo;
 import mcjty.xnet.client.ConnectorClientInfo;
-import mcjty.xnet.network.PacketGetChannels;
-import mcjty.xnet.network.PacketGetConnectedBlocks;
-import mcjty.xnet.network.XNetMessages;
+import mcjty.xnet.modules.controller.network.PacketGetChannels;
+import mcjty.xnet.modules.controller.network.PacketGetConnectedBlocks;
+import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
@@ -54,7 +54,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static mcjty.xnet.modules.controller.blocks.TileEntityController.*;
-import static mcjty.xnet.logic.ChannelInfo.MAX_CHANNELS;
+import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 
 public class GuiController extends GenericGuiContainer<TileEntityController, GenericContainer> {
 

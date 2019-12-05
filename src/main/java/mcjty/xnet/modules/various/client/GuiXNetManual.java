@@ -9,7 +9,7 @@ import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextPage;
 import mcjty.xnet.XNet;
-import mcjty.xnet.network.XNetMessages;
+import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;

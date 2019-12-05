@@ -1,4 +1,4 @@
-package mcjty.xnet.network;
+package mcjty.xnet.modules.controller.network;
 
 import mcjty.lib.network.NetworkTools;
 import mcjty.xnet.modules.controller.client.GuiController;
@@ -7,30 +7,29 @@ import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
+public class PacketJsonToClipboard {
 
-public class PacketControllerError {
-
-    private String error;
+    private String json;
 
     public void toBytes(PacketBuffer buf) {
-        NetworkTools.writeStringUTF8(buf, error);
+        NetworkTools.writeStringUTF8(buf, json);
     }
 
-    public PacketControllerError() {
+    public PacketJsonToClipboard() {
     }
 
-    public PacketControllerError(PacketBuffer buf) {
-        error = NetworkTools.readStringUTF8(buf);
+    public PacketJsonToClipboard(PacketBuffer buf) {
+        json = NetworkTools.readStringUTF8(buf);
     }
 
-    public PacketControllerError(String error) {
-        this.error = error;
+    public PacketJsonToClipboard(String json) {
+        this.json = json;
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            GuiController.showError(error);
+            GuiController.toClipboard(json);
         });
         ctx.setPacketHandled(true);
     }

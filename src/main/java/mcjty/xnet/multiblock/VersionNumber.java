@@ -1,4 +1,4 @@
-package mcjty.xnet.logic;
+package mcjty.xnet.multiblock;
 
 public class VersionNumber {
 

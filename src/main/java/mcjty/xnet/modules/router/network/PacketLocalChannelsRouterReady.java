@@ -1,4 +1,4 @@
-package mcjty.xnet.network;
+package mcjty.xnet.modules.router.network;
 
 import mcjty.lib.McJtyLib;
 import mcjty.lib.network.IClientCommandHandler;
@@ -14,16 +14,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class PacketRemoteChannelsRouterReady {
+public class PacketLocalChannelsRouterReady {
 
     public BlockPos pos;
     public List<ControllerChannelClientInfo> list;
     public String command;
 
-    public PacketRemoteChannelsRouterReady() {
+    public PacketLocalChannelsRouterReady() {
     }
 
-    public PacketRemoteChannelsRouterReady(PacketBuffer buf) {
+    public PacketLocalChannelsRouterReady(PacketBuffer buf) {
         pos = buf.readBlockPos();
         command = buf.readString(32767);
 
@@ -37,14 +37,15 @@ public class PacketRemoteChannelsRouterReady {
                 } else {
                     result = null;
                 }
-                list.add(result);
+                ControllerChannelClientInfo item = result;
+                list.add(item);
             }
         } else {
             list = null;
         }
     }
 
-    public PacketRemoteChannelsRouterReady(BlockPos pos, String command, List<ControllerChannelClientInfo> list) {
+    public PacketLocalChannelsRouterReady(BlockPos pos, String command, List<ControllerChannelClientInfo> list) {
         this.pos = pos;
         this.command = command;
         this.list = new ArrayList<>();
@@ -81,4 +82,21 @@ public class PacketRemoteChannelsRouterReady {
         });
         ctx.setPacketHandled(true);
     }
+
+    // @todo 1.14?
+//    public static class Handler implements IMessageHandler<PacketLocalChannelsRouterReady, IMessage> {
+//        @Override
+//        public IMessage onMessage(PacketLocalChannelsRouterReady message, MessageContext ctx) {
+//            XNet.proxy.addScheduledTaskClient(() -> handle(message, ctx));
+//            return null;
+//        }
+//
+//        private void handle(PacketLocalChannelsRouterReady message, MessageContext ctx) {
+//            TileEntity te = XNet.proxy.getClientWorld().getTileEntity(message.pos);
+//            IClientCommandHandler clientCommandHandler = (IClientCommandHandler) te;
+//            if (!clientCommandHandler.receiveListFromServer(message.command, message.list, Type.create(ControllerChannelClientInfo.class))) {
+//                Logging.log("Command " + message.command + " was not handled!");
+//            }
+//        }
+//    }
 }

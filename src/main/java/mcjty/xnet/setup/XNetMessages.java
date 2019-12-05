@@ -1,9 +1,14 @@
-package mcjty.xnet.network;
+package mcjty.xnet.setup;
 
 import mcjty.lib.network.ChannelBoundHandler;
 import mcjty.lib.network.PacketHandler;
 import mcjty.lib.network.PacketRequestDataFromServer;
 import mcjty.xnet.XNet;
+import mcjty.xnet.modules.controller.network.*;
+import mcjty.xnet.modules.router.network.PacketGetLocalChannelsRouter;
+import mcjty.xnet.modules.router.network.PacketGetRemoteChannelsRouter;
+import mcjty.xnet.modules.router.network.PacketLocalChannelsRouterReady;
+import mcjty.xnet.modules.router.network.PacketRemoteChannelsRouterReady;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;

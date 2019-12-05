@@ -1,10 +1,10 @@
-package mcjty.xnet.network;
+package mcjty.xnet.modules.router.network;
 
 import mcjty.lib.McJtyLib;
 import mcjty.lib.network.IClientCommandHandler;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.Logging;
-import mcjty.xnet.client.ConnectedBlockClientInfo;
+import mcjty.xnet.client.ControllerChannelClientInfo;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -14,16 +14,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class PacketConnectedBlocksReady {
+public class PacketRemoteChannelsRouterReady {
 
     public BlockPos pos;
-    public List<ConnectedBlockClientInfo> list;
+    public List<ControllerChannelClientInfo> list;
     public String command;
 
-    public PacketConnectedBlocksReady() {
+    public PacketRemoteChannelsRouterReady() {
     }
 
-    public PacketConnectedBlocksReady(PacketBuffer buf) {
+    public PacketRemoteChannelsRouterReady(PacketBuffer buf) {
         pos = buf.readBlockPos();
         command = buf.readString(32767);
 
@@ -31,15 +31,20 @@ public class PacketConnectedBlocksReady {
         if (size != -1) {
             list = new ArrayList<>(size);
             for (int i = 0 ; i < size ; i++) {
-                ConnectedBlockClientInfo item = new ConnectedBlockClientInfo(buf);
-                list.add(item);
+                ControllerChannelClientInfo result;
+                if (buf.readBoolean()) {
+                    result = new ControllerChannelClientInfo(buf);
+                } else {
+                    result = null;
+                }
+                list.add(result);
             }
         } else {
             list = null;
         }
     }
 
-    public PacketConnectedBlocksReady(BlockPos pos, String command, List<ConnectedBlockClientInfo> list) {
+    public PacketRemoteChannelsRouterReady(BlockPos pos, String command, List<ControllerChannelClientInfo> list) {
         this.pos = pos;
         this.command = command;
         this.list = new ArrayList<>();
@@ -54,8 +59,13 @@ public class PacketConnectedBlocksReady {
             buf.writeInt(-1);
         } else {
             buf.writeInt(list.size());
-            for (mcjty.xnet.client.ConnectedBlockClientInfo item : list) {
-                item.writeToBuf(buf);
+            for (ControllerChannelClientInfo item : list) {
+                if (item == null) {
+                    buf.writeBoolean(false);
+                } else {
+                    buf.writeBoolean(true);
+                    item.writeToNBT(buf);
+                }
             }
         }
     }
@@ -65,7 +75,7 @@ public class PacketConnectedBlocksReady {
         ctx.enqueueWork(() -> {
             TileEntity te = McJtyLib.proxy.getClientWorld().getTileEntity(pos);
             IClientCommandHandler clientCommandHandler = (IClientCommandHandler) te;
-            if (!clientCommandHandler.receiveListFromServer(command, list, Type.create(ConnectedBlockClientInfo.class))) {
+            if (!clientCommandHandler.receiveListFromServer(command, list, Type.create(ControllerChannelClientInfo.class))) {
                 Logging.log("Command " + command + " was not handled!");
             }
         });
