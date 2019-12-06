@@ -1,5 +1,6 @@
 Upcoming:
 - The drops for cables, connectors and advanced connectors should now be correct
+- The xnet cables and connectors should no longer appear in all creative tabs
 
 1.8.5:
 - Fixed localized names for the colored cables, connectors, and advanced connectors

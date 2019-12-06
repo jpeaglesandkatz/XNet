@@ -1,5 +1,6 @@
 package mcjty.xnet.modules.cables.blocks;
 
+import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.CableSetup;
 import net.minecraft.block.Block;
@@ -41,20 +42,22 @@ public class ColorBlockItem extends BlockItem {
 
     @Override
     public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items) {
-        items.add(new ItemStack(CableSetup.NETCABLE_BLUE.get()));
-        items.add(new ItemStack(CableSetup.NETCABLE_RED.get()));
-        items.add(new ItemStack(CableSetup.NETCABLE_YELLOW.get()));
-        items.add(new ItemStack(CableSetup.NETCABLE_GREEN.get()));
-        items.add(new ItemStack(CableSetup.NETCABLE_ROUTING.get()));
-        items.add(new ItemStack(CableSetup.CONNECTOR_BLUE.get()));
-        items.add(new ItemStack(CableSetup.CONNECTOR_RED.get()));
-        items.add(new ItemStack(CableSetup.CONNECTOR_YELLOW.get()));
-        items.add(new ItemStack(CableSetup.CONNECTOR_GREEN.get()));
-        items.add(new ItemStack(CableSetup.CONNECTOR_ROUTING.get()));
-        items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_BLUE.get()));
-        items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_RED.get()));
-        items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_YELLOW.get()));
-        items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_GREEN.get()));
-        items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_ROUTING.get()));
+        if (XNet.setup.getTab().equals(group)) {
+            items.add(new ItemStack(CableSetup.NETCABLE_BLUE.get()));
+            items.add(new ItemStack(CableSetup.NETCABLE_RED.get()));
+            items.add(new ItemStack(CableSetup.NETCABLE_YELLOW.get()));
+            items.add(new ItemStack(CableSetup.NETCABLE_GREEN.get()));
+            items.add(new ItemStack(CableSetup.NETCABLE_ROUTING.get()));
+            items.add(new ItemStack(CableSetup.CONNECTOR_BLUE.get()));
+            items.add(new ItemStack(CableSetup.CONNECTOR_RED.get()));
+            items.add(new ItemStack(CableSetup.CONNECTOR_YELLOW.get()));
+            items.add(new ItemStack(CableSetup.CONNECTOR_GREEN.get()));
+            items.add(new ItemStack(CableSetup.CONNECTOR_ROUTING.get()));
+            items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_BLUE.get()));
+            items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_RED.get()));
+            items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_YELLOW.get()));
+            items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_GREEN.get()));
+            items.add(new ItemStack(CableSetup.ADVANCED_CONNECTOR_ROUTING.get()));
+        }
     }
 }
