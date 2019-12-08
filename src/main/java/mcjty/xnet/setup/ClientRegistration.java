@@ -3,11 +3,10 @@ package mcjty.xnet.setup;
 
 import com.google.common.collect.Lists;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.xnet.client.RenderWorldLastEventHandler;
+import mcjty.lib.varia.Tools;
 import mcjty.xnet.XNet;
-import mcjty.xnet.modules.cables.CableColor;
+import mcjty.xnet.client.RenderWorldLastEventHandler;
 import mcjty.xnet.modules.cables.CableSetup;
-import mcjty.xnet.modules.cables.ConnectorType;
 import mcjty.xnet.modules.cables.client.GenericCableBakedModel;
 import mcjty.xnet.modules.cables.client.GuiConnector;
 import mcjty.xnet.modules.controller.ControllerSetup;
@@ -27,6 +26,8 @@ import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.*;
 
 @Mod.EventBusSubscriber(modid = XNet.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientRegistration {
@@ -69,28 +70,8 @@ public class ClientRegistration {
                 .forEach(name -> {
                     ResourceLocation rl = new ResourceLocation(XNet.MODID, name);
                     event.getModelRegistry().put(new ModelResourceLocation(rl, ""), model);
-                    for (CableColor color : CableColor.VALUES) {
-                        for (ConnectorType up : ConnectorType.VALUES) {
-                            for (ConnectorType down : ConnectorType.VALUES) {
-                                for (ConnectorType north : ConnectorType.VALUES) {
-                                    for (ConnectorType south : ConnectorType.VALUES) {
-                                        for (ConnectorType east : ConnectorType.VALUES) {
-                                            for (ConnectorType west : ConnectorType.VALUES) {
-                                                event.getModelRegistry().put(new ModelResourceLocation(rl,
-                                                        "color=" + color.getName() +
-                                                                ",down=" + down.getName() +
-                                                                ",east=" + east.getName() +
-                                                                ",north=" + north.getName() +
-                                                                ",south=" + south.getName() +
-                                                                ",up=" + up.getName() +
-                                                                ",west=" + west.getName()), model);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    Tools.permutateProperties(s -> event.getModelRegistry().put(new ModelResourceLocation(rl, s), model),
+                            COLOR, DOWN, EAST, NORTH, SOUTH, UP, WEST);
                 });
     }
 
