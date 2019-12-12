@@ -2,19 +2,19 @@
   "type": "minecraft:crafting_shaped",
   "group": "xnet",
   "pattern": [
-    " i ",
-    " i ",
-    "iIi"
+    "IiI",
+    "IiI",
+    " i "
   ],
   "key": {
     "I": {
-      "item": "minecraft:iron_block"
+      "item": "minecraft:iron_bars"
     },
     "i": {
       "tag": "forge:ingots/iron"
     }
   },
   "result": {
-    "item": "xnet:antena_base"
+    "item": "xnet:antenna"
   }
 }

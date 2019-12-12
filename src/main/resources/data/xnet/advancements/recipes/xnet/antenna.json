@@ -2,11 +2,11 @@
   "parent": "minecraft:recipes/root",
   "rewards": {
     "recipes": [
-      "xnet:antena_dish"
+      "xnet:antenna"
     ]
   },
   "criteria": {
-    "trapdoor": {
+    "bars": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
@@ -14,7 +14,7 @@
             "item": "rftoolsbase:machine_frame"
           },
           {
-            "item": "minecraft:iron_trapdoor"
+            "item": "minecraft:iron_bars"
           }
         ]
       }
@@ -22,13 +22,13 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "xnet:antena_dish"
+        "recipe": "xnet:antenna"
       }
     }
   },
   "requirements": [
     [
-      "trapdoor",
+      "bars",
       "has_the_recipe"
     ]
   ]
