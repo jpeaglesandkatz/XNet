@@ -1,4 +1,5 @@
-Upcoming:
+1.8.6:
+- Updates to latest McJtyLib
 - The drops for cables, connectors and advanced connectors should now be correct
 - The xnet cables and connectors should no longer appear in all creative tabs
 
