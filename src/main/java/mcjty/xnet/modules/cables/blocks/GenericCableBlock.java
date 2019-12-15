@@ -27,6 +27,7 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.loot.LootContext;
 import net.minecraftforge.client.model.data.ModelProperty;
@@ -46,8 +47,9 @@ public abstract class GenericCableBlock extends Block {
     public static final EnumProperty<ConnectorType> UP = EnumProperty.<ConnectorType>create("up", ConnectorType.class);
     public static final EnumProperty<ConnectorType> DOWN = EnumProperty.<ConnectorType>create("down", ConnectorType.class);
 
-    public static final ModelProperty<BlockState> FACADEID = new ModelProperty<>();
     public static final EnumProperty<CableColor> COLOR = EnumProperty.<CableColor>create("color", CableColor.class);
+
+    public static final ModelProperty<BlockState> FACADEID = new ModelProperty<>();
 
     private static VoxelShape[] shapeCache = null;
 
@@ -338,6 +340,16 @@ public abstract class GenericCableBlock extends Block {
     public BlockState updatePostPlacement(BlockState state, Direction direction, BlockState neighbourState, IWorld world, BlockPos current, BlockPos offset) {
         return calculateState(world, current, state);
     }
+
+//    @Override
+//    public void onNeighborChange(BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbor) {
+//
+//    }
+//
+//    @Override
+//    public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
+//        super.neighborChanged(state, worldIn, pos, blockIn, fromPos, isMoving);
+//    }
 
     @Nullable
     @Override

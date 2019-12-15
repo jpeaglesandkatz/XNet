@@ -14,7 +14,7 @@ import mcjty.xnet.modules.cables.CableSetup;
 import mcjty.xnet.modules.cables.ConnectorType;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.facade.FacadeSetup;
-import mcjty.xnet.modules.facade.blocks.FacadeItemBlock;
+import mcjty.xnet.modules.facade.blocks.FacadeBlockItem;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.modules.various.blocks.RedstoneProxyBlock;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
@@ -105,7 +105,7 @@ public class ConnectorBlock extends GenericCableBlock {
             ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
             if (connectorTileEntity.getMimicBlock() != null) {
                 ItemStack item = new ItemStack(FacadeSetup.FACADE.get());
-                FacadeItemBlock.setMimicBlock(item, connectorTileEntity.getMimicBlock());
+                FacadeBlockItem.setMimicBlock(item, connectorTileEntity.getMimicBlock());
                 connectorTileEntity.setMimicBlock(null);
                 spawnAsEntity(worldIn, pos, item);
                 return;
@@ -171,6 +171,7 @@ public class ConnectorBlock extends GenericCableBlock {
     @Override
     public void neighborChanged(BlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
         checkRedstone(world, pos);
+        super.neighborChanged(state, world, pos, blockIn, fromPos, isMoving);
     }
 
     @Override
@@ -185,6 +186,7 @@ public class ConnectorBlock extends GenericCableBlock {
                 }
             }
         }
+        super.onNeighborChange(state, blockAccess, pos, neighbor);
     }
 
     @Override

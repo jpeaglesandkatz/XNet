@@ -9,7 +9,6 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.IFluidState;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -17,7 +16,6 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 public class FacadeBlock extends NetCableBlock {
 
@@ -70,7 +68,7 @@ public class FacadeBlock extends NetCableBlock {
         } else {
             mimicBlock = Blocks.COBBLESTONE.getDefaultState();
         }
-        FacadeItemBlock.setMimicBlock(item, mimicBlock);
+        FacadeBlockItem.setMimicBlock(item, mimicBlock);
 
         spawnAsEntity(worldIn, pos, item);
     }

@@ -9,18 +9,15 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.common.model.IModelState;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Function;
 
 public class FacadeBakedModel implements IDynamicBakedModel {
 
@@ -29,7 +26,7 @@ public class FacadeBakedModel implements IDynamicBakedModel {
     private VertexFormat format;
     private static TextureAtlasSprite spriteCable;
 
-    public FacadeBakedModel(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
+    public FacadeBakedModel(VertexFormat format) {
         this.format = format;
     }
 

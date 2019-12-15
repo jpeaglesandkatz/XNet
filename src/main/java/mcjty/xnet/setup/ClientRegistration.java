@@ -11,6 +11,7 @@ import mcjty.xnet.modules.cables.client.GenericCableBakedModel;
 import mcjty.xnet.modules.cables.client.GuiConnector;
 import mcjty.xnet.modules.controller.ControllerSetup;
 import mcjty.xnet.modules.controller.client.GuiController;
+import mcjty.xnet.modules.facade.client.FacadeBakedModel;
 import mcjty.xnet.modules.router.RouterSetup;
 import mcjty.xnet.modules.router.client.GuiRouter;
 import mcjty.xnet.modules.wireless.WirelessRouterSetup;
@@ -67,11 +68,19 @@ public class ClientRegistration {
     @SubscribeEvent
     public static void onModelBake(ModelBakeEvent event) {
         GenericCableBakedModel model = new GenericCableBakedModel(DefaultVertexFormats.BLOCK);
-        Lists.newArrayList("netcable", "connector", "advanced_connector", "facade").stream()
+        Lists.newArrayList("netcable", "connector", "advanced_connector").stream()
                 .forEach(name -> {
                     ResourceLocation rl = new ResourceLocation(XNet.MODID, name);
                     event.getModelRegistry().put(new ModelResourceLocation(rl, ""), model);
                     Tools.permutateProperties(s -> event.getModelRegistry().put(new ModelResourceLocation(rl, s), model),
+                            COLOR, DOWN, EAST, NORTH, SOUTH, UP, WEST);
+                });
+        FacadeBakedModel facadeModel = new FacadeBakedModel(DefaultVertexFormats.BLOCK);
+        Lists.newArrayList("facade").stream()
+                .forEach(name -> {
+                    ResourceLocation rl = new ResourceLocation(XNet.MODID, name);
+                    event.getModelRegistry().put(new ModelResourceLocation(rl, ""), facadeModel);
+                    Tools.permutateProperties(s -> event.getModelRegistry().put(new ModelResourceLocation(rl, s), facadeModel),
                             COLOR, DOWN, EAST, NORTH, SOUTH, UP, WEST);
                 });
     }
