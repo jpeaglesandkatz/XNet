@@ -15,9 +15,9 @@ import mcjty.rftoolsbase.api.xnet.tiles.IConnectorTile;
 import mcjty.xnet.modules.cables.CableSetup;
 import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.modules.facade.MimicBlockSupport;
-import mcjty.xnet.setup.Config;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
+import mcjty.xnet.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -91,17 +91,11 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     @Override
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
-        BlockState oldMimicBlock = mimicBlockSupport.getMimicBlock();
-        byte oldEnabled = enabled;
-
         super.onDataPacket(net, packet);
 
         if (world.isRemote) {
-            // If needed send a render update.
-            if (enabled != oldEnabled || mimicBlockSupport.getMimicBlock() != oldMimicBlock) {
-                ModelDataManager.requestModelDataRefresh(this);
-                world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
-            }
+            ModelDataManager.requestModelDataRefresh(this);
+            world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
         }
     }
 

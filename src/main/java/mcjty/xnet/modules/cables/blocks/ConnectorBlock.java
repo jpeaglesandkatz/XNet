@@ -36,6 +36,7 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -345,13 +346,12 @@ public class ConnectorBlock extends GenericCableBlock {
 //            return mimicBlock.shouldSideBeRendered(blockAccess, pos, side);
 //        }
 //    }
-//
-//    @Override
-//    @SideOnly(Side.CLIENT)
-//    public boolean canRenderInLayer(BlockState state, BlockRenderLayer layer) {
-//        return true; // delegated to GenericCableBakedModel#getQuads
-//    }
 
+
+    @Override
+    public boolean canRenderInLayer(BlockState state, BlockRenderLayer layer) {
+        return true;    // delegated to GenericCableBakedModel#getQuads
+    }
 
     @Override
     public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {

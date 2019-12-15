@@ -75,10 +75,11 @@ public class FacadeItemBlock extends BlockItem {
 
             if (block instanceof NetCableBlock) {
                 FacadeBlock facadeBlock = (FacadeBlock) this.getBlock();
-                BlockState placementState = facadeBlock.getStateForPlacement((BlockItemUseContext)context) // @todo 1.14 is this cast right?
+                BlockItemUseContext blockContext = new BlockItemUseContext(context);
+                BlockState placementState = facadeBlock.getStateForPlacement(blockContext)
                         .with(GenericCableBlock.COLOR, state.get(GenericCableBlock.COLOR));
 
-                if (placeBlock((BlockItemUseContext)context, placementState)) {
+                if (placeBlock(blockContext, placementState)) {
                     SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos), world, pos, player);
                     world.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
                     TileEntity te = world.getTileEntity(pos);

@@ -198,6 +198,11 @@ public abstract class GenericCableBlock extends Block {
 //    }
 
     @Override
+    public boolean isSolid(BlockState state) {
+        return false;
+    }
+
+    @Override
     public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
         if (getMimicBlock(world, pos) != null) {
             // In mimic mode we use original block
@@ -214,7 +219,8 @@ public abstract class GenericCableBlock extends Block {
         return shapeCache[index];
     }
 
-//    @Override
+
+    //    @Override
 //    @SideOnly(Side.CLIENT)
 //    @Optional.Method(modid = "waila")
 //    public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
@@ -311,7 +317,7 @@ public abstract class GenericCableBlock extends Block {
 //    }
 
 //    @Override
-//    public void update    Neighbors(BlockState state, IWorld world, BlockPos pos, int flags) {
+//    public void updateNeighbors(BlockState state, IWorld world, BlockPos pos, int flags) {
 //        super.updateNeighbors(state, world, pos, flags);
 //        for (Direction direction : OrientationTools.DIRECTION_VALUES) {
 //            BlockPos p = pos.offset(direction);
