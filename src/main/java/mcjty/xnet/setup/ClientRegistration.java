@@ -20,9 +20,9 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.obj.OBJLoader;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -40,6 +40,7 @@ public class ClientRegistration {
         GenericGuiContainer.register(WirelessRouterSetup.CONTAINER_WIRELESS_ROUTER.get(), GuiWirelessRouter::new);
         GenericGuiContainer.register(CableSetup.CONTAINER_CONNECTOR.get(), GuiConnector::new);
         OBJLoader.INSTANCE.addDomain(XNet.MODID);
+        MinecraftForge.EVENT_BUS.addListener(RenderWorldLastEventHandler::tick);
     }
 
 
@@ -74,10 +75,4 @@ public class ClientRegistration {
                             COLOR, DOWN, EAST, NORTH, SOUTH, UP, WEST);
                 });
     }
-
-    @SubscribeEvent
-    public void renderWorldLastEvent(RenderWorldLastEvent evt) {
-        RenderWorldLastEventHandler.tick(evt);
-    }
-
 }

@@ -336,9 +336,10 @@ public class RenderWorldLastEventHandler {
         }
 
         PlayerEntity p = mc.player;
-        double doubleX = p.lastTickPosX + (p.posX - p.lastTickPosX) * evt.getPartialTicks();
-        double doubleY = p.lastTickPosY + (p.posY - p.lastTickPosY) * evt.getPartialTicks();
-        double doubleZ = p.lastTickPosZ + (p.posZ - p.lastTickPosZ) * evt.getPartialTicks();
+        Vec3d eyePosition = p.getEyePosition(evt.getPartialTicks());
+        double doubleX = eyePosition.x;
+        double doubleY = eyePosition.y;
+        double doubleZ = eyePosition.z;
 
         GlStateManager.pushMatrix();
         GlStateManager.color3f(1.0f, 0, 0);
