@@ -31,6 +31,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.*;
+
 public class FacadeBlockItem extends BlockItem {
 
     public FacadeBlockItem(FacadeBlock block) {
@@ -75,7 +77,14 @@ public class FacadeBlockItem extends BlockItem {
                 FacadeBlock facadeBlock = (FacadeBlock) this.getBlock();
                 BlockItemUseContext blockContext = new ReplaceBlockItemUseContext(context);
                 BlockState placementState = facadeBlock.getStateForPlacement(blockContext)
-                        .with(GenericCableBlock.COLOR, state.get(GenericCableBlock.COLOR));
+                        .with(COLOR, state.get(COLOR))
+                        .with(NORTH, state.get(NORTH))
+                        .with(SOUTH, state.get(SOUTH))
+                        .with(WEST, state.get(WEST))
+                        .with(EAST, state.get(EAST))
+                        .with(UP, state.get(UP))
+                        .with(DOWN, state.get(DOWN))
+                        ;
 
                 if (placeBlock(blockContext, placementState)) {
                     SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos), world, pos, player);

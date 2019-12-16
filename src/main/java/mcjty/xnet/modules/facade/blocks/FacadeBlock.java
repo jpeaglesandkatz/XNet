@@ -11,6 +11,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.IFluidState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
@@ -46,6 +47,11 @@ public class FacadeBlock extends NetCableBlock {
 //        // We do not want the raytracing that happens in the GenericCableBlock
 //        return super.originalCollisionRayTrace(blockState, world, pos, start, end);
 //    }
+
+    @Override
+    public boolean canRenderInLayer(BlockState state, BlockRenderLayer layer) {
+        return true;    // delegated to GenericCableBakedModel#getQuads
+    }
 
 
     @Override

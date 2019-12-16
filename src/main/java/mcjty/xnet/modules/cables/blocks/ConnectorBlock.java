@@ -8,7 +8,6 @@ import mcjty.lib.varia.EnergyTools;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectable;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.xnet.XNet;
-import mcjty.xnet.setup.Config;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.CableSetup;
 import mcjty.xnet.modules.cables.ConnectorType;
@@ -21,6 +20,7 @@ import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
+import mcjty.xnet.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -33,7 +33,6 @@ import net.minecraft.fluid.IFluidState;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
@@ -226,16 +225,6 @@ public class ConnectorBlock extends GenericCableBlock {
             return connector.getPowerOut(side.getOpposite());
         }
         return 0;
-    }
-
-    @Nullable
-    @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
-//        World world = context.getWorld();
-//        BlockPos pos = context.getPos();
-//        BlockState state = world.getBlockState(pos);
-//        world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.NOTIFY_NEIGHBORS);
-        return super.getStateForPlacement(context);
     }
 
     @Override

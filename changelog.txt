@@ -1,5 +1,7 @@
 Upcoming:
 - Inventory hilighting from the controller works again
+- The facade block works much better now
+- Connectors now connect better (visually) when they are first placed
 
 1.8.6:
 - Updates to latest McJtyLib

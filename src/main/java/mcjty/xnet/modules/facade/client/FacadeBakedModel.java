@@ -4,7 +4,10 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.*;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.BlockRenderLayer;
@@ -20,8 +23,6 @@ import java.util.List;
 import java.util.Random;
 
 public class FacadeBakedModel implements IDynamicBakedModel {
-
-    public static final ModelResourceLocation modelFacade = new ModelResourceLocation(XNet.MODID + ":facade");
 
     private VertexFormat format;
     private static TextureAtlasSprite spriteCable;
@@ -81,6 +82,7 @@ public class FacadeBakedModel implements IDynamicBakedModel {
 
     @Override
     public TextureAtlasSprite getParticleTexture() {
+        initTextures();
         return spriteCable;
     }
 
