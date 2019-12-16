@@ -271,6 +271,10 @@ public abstract class GenericCableBlock extends Block {
         if (!world.isRemote) {
             createCableSegment(world, pos, stack);
         }
+        BlockState blockState = calculateState(world, pos, state);
+        if (state != blockState) {
+            world.setBlockState(pos, blockState);
+        }
     }
 
     protected void originalOnBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
@@ -356,7 +360,9 @@ public abstract class GenericCableBlock extends Block {
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         World world = context.getWorld();
         BlockPos pos = context.getPos();
-        return calculateState(world, pos, getDefaultState());
+        BlockState state = calculateState(world, pos, getDefaultState());
+        System.out.println("state = " + state);
+        return state;
     }
 
     @Nonnull
