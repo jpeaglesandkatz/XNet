@@ -74,7 +74,7 @@ public class XNet implements ModBase {
     public void openManual(PlayerEntity player, int bookIndex, String page) {
         GuiXNetManual.locatePage = page;
         // @todo 1.14
-//        player.openGui(XNet.instance, bookIndex, player.getEntityWorld(), (int) player.posX, (int) player.posY, (int) player.posZ);
+//        player.openGui(XNet.instance, bookIndex, player.getEntityWorld(), (int) player.getPosX(), (int) player.getPosY(), (int) player.getPosZ());
     }
 
     // @todo 1.14

@@ -23,7 +23,7 @@ public class XNetManualItem extends Item {
         ItemStack stack = player.getHeldItem(hand);
         if (world.isRemote) {
             // @todo 1.14
-//            player.openGui(XNet.instance, GuiProxy.GUI_MANUAL_XNET, player.getEntityWorld(), (int) player.posX, (int) player.posY, (int) player.posZ);
+//            player.openGui(XNet.instance, GuiProxy.GUI_MANUAL_XNET, player.getEntityWorld(), (int) player.getPosX(), (int) player.getPosY(), (int) player.getPosZ());
             return new ActionResult<>(ActionResultType.SUCCESS, stack);
         }
         return new ActionResult<>(ActionResultType.SUCCESS, stack);
