@@ -61,7 +61,7 @@ public class RenderWorldLastEventHandler {
         World world = mc.world;
 
         GlStateManager.pushMatrix();
-        GlStateManager.color3f(1.0f, 0, 0);
+        GlStateManager.color4f(1.0f, 0, 0, 1f);
         GlStateManager.lineWidth(2);
         Vec3d eyePosition = p.getEyePosition(evt.getPartialTicks());
         double doubleX = eyePosition.x;
@@ -86,7 +86,7 @@ public class RenderWorldLastEventHandler {
                         TileEntity te = world.getTileEntity(c);
                         if (te instanceof IFacadeSupport) {
                             BlockState facadeId = ((IFacadeSupport) te).getMimicBlock();
-                            if (((!Config.showNonFacadedCablesWhileSneaking.get()) || (!p.isSneaking())) && facadeId == null && !(block instanceof FacadeBlock)) {
+                            if (((!Config.showNonFacadedCablesWhileSneaking.get()) || (!p.func_225608_bj_ /*isSneaking*/())) && facadeId == null && !(block instanceof FacadeBlock)) {
                                 continue;
                             }
                         }
@@ -342,7 +342,7 @@ public class RenderWorldLastEventHandler {
         double doubleZ = eyePosition.z;
 
         GlStateManager.pushMatrix();
-        GlStateManager.color3f(1.0f, 0, 0);
+        GlStateManager.color4f(1.0f, 0, 0, 1);
         GlStateManager.lineWidth(3);
         GlStateManager.translated(-doubleX, -doubleY, -doubleZ);
 

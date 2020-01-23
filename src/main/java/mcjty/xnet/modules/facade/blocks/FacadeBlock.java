@@ -1,8 +1,8 @@
 package mcjty.xnet.modules.facade.blocks;
 
-import mcjty.xnet.modules.cables.blocks.NetCableBlock;
-import mcjty.xnet.modules.cables.CableSetup;
 import mcjty.xnet.modules.cables.CableColor;
+import mcjty.xnet.modules.cables.CableSetup;
+import mcjty.xnet.modules.cables.blocks.NetCableBlock;
 import mcjty.xnet.modules.facade.FacadeSetup;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -11,7 +11,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.IFluidState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
@@ -48,10 +47,11 @@ public class FacadeBlock extends NetCableBlock {
 //        return super.originalCollisionRayTrace(blockState, world, pos, start, end);
 //    }
 
-    @Override
-    public boolean canRenderInLayer(BlockState state, BlockRenderLayer layer) {
-        return true;    // delegated to GenericCableBakedModel#getQuads
-    }
+    // @todo 1.15
+//    @Override
+//    public boolean canRenderInLayer(BlockState state, BlockRenderLayer layer) {
+//        return true;    // delegated to GenericCableBakedModel#getQuads
+//    }
 
 
     @Override

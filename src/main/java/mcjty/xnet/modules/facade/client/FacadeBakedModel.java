@@ -8,11 +8,11 @@ import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
-import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
 
@@ -33,8 +33,13 @@ public class FacadeBakedModel implements IDynamicBakedModel {
 
     private static void initTextures() {
         if (spriteCable == null) {
-            spriteCable = Minecraft.getInstance().getTextureMap().getAtlasSprite(XNet.MODID + ":block/facade");
+            spriteCable = Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation(XNet.MODID, "block/facade"));
         }
+    }
+
+    @Override
+    public boolean func_230044_c_() {
+        return false;
     }
 
     @Nonnull
@@ -46,10 +51,11 @@ public class FacadeBakedModel implements IDynamicBakedModel {
         }
 
         BlockState facadeState = facadeId.getBlockState();
-        BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
-        if (layer != null && !facadeState.getBlock().canRenderInLayer(facadeState, layer)) { // always render in the null layer or the block-breaking textures don't show up
-            return Collections.emptyList();
-        }
+        // @todo 1.15
+//        BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
+//        if (layer != null && !facadeState.getBlock().canRenderInLayer(facadeState, layer)) { // always render in the null layer or the block-breaking textures don't show up
+//            return Collections.emptyList();
+//        }
         IBakedModel model = getModel(facadeState);
         try {
             return model.getQuads(state, side, rand);

@@ -199,10 +199,11 @@ public abstract class GenericCableBlock extends Block {
 //        return AABB_EMPTY;
 //    }
 
-    @Override
-    public boolean isSolid(BlockState state) {
-        return false;
-    }
+    // @todo 1.15
+//    @Override
+//    public boolean isSolid(BlockState state) {
+//        return false;
+//    }
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {

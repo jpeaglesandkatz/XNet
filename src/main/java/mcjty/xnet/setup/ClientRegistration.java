@@ -40,7 +40,8 @@ public class ClientRegistration {
         GenericGuiContainer.register(RouterSetup.CONTAINER_ROUTER.get(), GuiRouter::new);
         GenericGuiContainer.register(WirelessRouterSetup.CONTAINER_WIRELESS_ROUTER.get(), GuiWirelessRouter::new);
         GenericGuiContainer.register(CableSetup.CONTAINER_CONNECTOR.get(), GuiConnector::new);
-        OBJLoader.INSTANCE.addDomain(XNet.MODID);
+        // @todo 1.15
+//        OBJLoader.INSTANCE.addDomain(XNet.MODID);
         MinecraftForge.EVENT_BUS.addListener(RenderWorldLastEventHandler::tick);
     }
 

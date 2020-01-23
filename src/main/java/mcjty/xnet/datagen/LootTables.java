@@ -55,11 +55,13 @@ public class LootTables extends BaseLootTableProvider {
     }
 
     private LootPool.Builder getLootTableEntry(String cable_blue, Block cableBlock, Item cable, CableColor blue) {
-        return LootPool.builder()
-                .name(cable_blue)
-                .rolls(ConstantRange.of(1))
-                .addEntry(ItemLootEntry.builder(cable))
-                .acceptCondition(BlockStateProperty.builder(cableBlock).with(GenericCableBlock.COLOR, blue));
+        // @todo 1.15
+        return null;
+//        return LootPool.builder()
+//                .name(cable_blue)
+//                .rolls(ConstantRange.of(1))
+//                .addEntry(ItemLootEntry.builder(cable))
+//                .acceptCondition(BlockStateProperty.builder(cableBlock).with(GenericCableBlock.COLOR, blue));
     }
 
     @Override
