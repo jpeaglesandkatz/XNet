@@ -1,19 +1,15 @@
 package mcjty.xnet.modules.facade.client;
 
+import mcjty.lib.client.AbstractDynamicBakedModel;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
 
 import javax.annotation.Nonnull;
@@ -22,24 +18,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class FacadeBakedModel implements IDynamicBakedModel {
+public class FacadeBakedModel extends AbstractDynamicBakedModel {
 
-    private VertexFormat format;
+    public static final ResourceLocation TEXTURE_FACADE = new ResourceLocation(XNet.MODID, "block/facade");
+
     private static TextureAtlasSprite spriteCable;
-
-    public FacadeBakedModel(VertexFormat format) {
-        this.format = format;
-    }
 
     private static void initTextures() {
         if (spriteCable == null) {
-            spriteCable = Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation(XNet.MODID, "block/facade"));
+            spriteCable = getTexture(TEXTURE_FACADE);
         }
-    }
-
-    @Override
-    public boolean func_230044_c_() {
-        return false;
     }
 
     @Nonnull
@@ -72,34 +60,8 @@ public class FacadeBakedModel implements IDynamicBakedModel {
 
 
     @Override
-    public boolean isAmbientOcclusion() {
-        return true;
-    }
-
-    @Override
-    public boolean isGui3d() {
-        return false;
-    }
-
-    @Override
-    public boolean isBuiltInRenderer() {
-        return false;
-    }
-
-    @Override
     public TextureAtlasSprite getParticleTexture() {
         initTextures();
         return spriteCable;
     }
-
-    @Override
-    public ItemCameraTransforms getItemCameraTransforms() {
-        return ItemCameraTransforms.DEFAULT;
-    }
-
-    @Override
-    public ItemOverrideList getOverrides() {
-        return ItemOverrideList.EMPTY;
-    }
-
 }

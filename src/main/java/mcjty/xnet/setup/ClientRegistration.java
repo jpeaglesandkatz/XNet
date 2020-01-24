@@ -22,7 +22,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -77,7 +76,7 @@ public class ClientRegistration {
                     Tools.permutateProperties(s -> event.getModelRegistry().put(new ModelResourceLocation(rl, s), model),
                             COLOR, DOWN, EAST, NORTH, SOUTH, UP, WEST);
                 });
-        FacadeBakedModel facadeModel = new FacadeBakedModel(DefaultVertexFormats.BLOCK);
+        FacadeBakedModel facadeModel = new FacadeBakedModel();
         Lists.newArrayList("facade").stream()
                 .forEach(name -> {
                     ResourceLocation rl = new ResourceLocation(XNet.MODID, name);

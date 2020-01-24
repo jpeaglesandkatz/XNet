@@ -86,7 +86,7 @@ public class RenderWorldLastEventHandler {
                         TileEntity te = world.getTileEntity(c);
                         if (te instanceof IFacadeSupport) {
                             BlockState facadeId = ((IFacadeSupport) te).getMimicBlock();
-                            if (((!Config.showNonFacadedCablesWhileSneaking.get()) || (!p.func_225608_bj_ /*isSneaking*/())) && facadeId == null && !(block instanceof FacadeBlock)) {
+                            if (((!Config.showNonFacadedCablesWhileSneaking.get()) || (!p.isShiftKeyDown /*isSneaking*/())) && facadeId == null && !(block instanceof FacadeBlock)) {
                                 continue;
                             }
                         }

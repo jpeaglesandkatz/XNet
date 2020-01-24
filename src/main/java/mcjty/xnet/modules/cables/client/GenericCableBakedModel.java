@@ -1,7 +1,7 @@
 package mcjty.xnet.modules.cables.client;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
+import mcjty.lib.client.AbstractDynamicBakedModel;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.ConnectorType;
@@ -10,18 +10,18 @@ import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.*;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -34,10 +34,7 @@ import static mcjty.xnet.modules.cables.ConnectorType.BLOCK;
 import static mcjty.xnet.modules.cables.ConnectorType.CABLE;
 import static mcjty.xnet.modules.cables.client.CablePatterns.SpriteIdx.*;
 
-public class GenericCableBakedModel implements IDynamicBakedModel {
-
-    public static final ModelResourceLocation modelConnector = new ModelResourceLocation(XNet.MODID + ":connector");
-    public static final ModelResourceLocation modelCable = new ModelResourceLocation(XNet.MODID + ":netcable");
+public class GenericCableBakedModel extends AbstractDynamicBakedModel {
 
     private TextureAtlasSprite spriteCable;
     private TextureAtlasSprite spriteConnector;
@@ -78,29 +75,24 @@ public class GenericCableBakedModel implements IDynamicBakedModel {
         CablePatterns.PATTERNS.put(new CablePatterns.Pattern(true, true, true, true), new CablePatterns.QuadSetting(SPRITE_CROSS, 0));
     }
 
-    @Override
-    public boolean func_230044_c_() {
-        return false;
-    }
-
     private static void initTextures() {
         if (cableTextures == null) {
             CableTextures[] tt = new CableTextures[CableColor.VALUES.length];
             for (CableColor color : CableColor.VALUES) {
                 int i = color.ordinal();
                 tt[i] = new CableTextures();
-                tt[i].spriteConnector = Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation(XNet.MODID, "block/cable" + i + "/connector"));
-                tt[i].spriteAdvancedConnector = Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation(XNet.MODID + "block/cable" + i + "/advanced_connector"));
+                tt[i].spriteConnector = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/connector"));
+                tt[i].spriteAdvancedConnector = getTexture(new ResourceLocation(XNet.MODID + "block/cable" + i + "/advanced_connector"));
 
-                tt[i].spriteNormalCable = Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_netcable"));
-                tt[i].spriteNoneCable = Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_none_netcable"));
-                tt[i].spriteEndCable = Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_end_netcable"));
-                tt[i].spriteCornerCable = Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_corner_netcable"));
-                tt[i].spriteThreeCable = Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_three_netcable"));
-                tt[i].spriteCrossCable = Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_cross_netcable"));
+                tt[i].spriteNormalCable = getTexture(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_netcable"));
+                tt[i].spriteNoneCable = getTexture(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_none_netcable"));
+                tt[i].spriteEndCable = getTexture(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_end_netcable"));
+                tt[i].spriteCornerCable = getTexture(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_corner_netcable"));
+                tt[i].spriteThreeCable = getTexture(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_three_netcable"));
+                tt[i].spriteCrossCable = getTexture(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_cross_netcable"));
             }
 
-            spriteSide = Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation(XNet.MODID + "block/connector_side"));
+            spriteSide = getTexture(new ResourceLocation(XNet.MODID + "block/connector_side"));
             cableTextures = tt;
         }
     }
@@ -129,41 +121,6 @@ public class GenericCableBakedModel implements IDynamicBakedModel {
         this.format = format;
     }
 
-    private void putVertex(BakedQuadBuilder builder, Vec3d normal,
-                           double x, double y, double z, float u, float v, TextureAtlasSprite sprite, float color) {
-        ImmutableList<VertexFormatElement> elements = format.func_227894_c_().asList();
-        for (int e = 0; e < elements.size(); e++) {
-            switch (elements.get(e).getUsage()) {
-                case POSITION:
-                    builder.put(e, (float)x, (float)y, (float)z, 1.0f);
-                    break;
-                case COLOR:
-                    builder.put(e, color, color, color, 1.0f);
-                    break;
-                case UV:
-                    switch (elements.get(e).getIndex()) {
-                        case 0:
-                            float iu = sprite.getInterpolatedU(u);
-                            float iv = sprite.getInterpolatedV(v);
-                            builder.put(e, iu, iv);
-                            break;
-                        case 2:
-                            builder.put(e, 0f, 1f);
-                            break;
-                        default:
-                            builder.put(e);
-                            break;
-                    }
-                case NORMAL:
-                    builder.put(e, (float) normal.x, (float) normal.y, (float) normal.z, 0f);
-                    break;
-                default:
-                    builder.put(e);
-                    break;
-            }
-        }
-    }
-
     private BakedQuad createQuad(Vec3d v1, Vec3d v2, Vec3d v3, Vec3d v4, TextureAtlasSprite sprite, int rotation, float hilight) {
         switch (rotation) {
             case 0:
@@ -176,22 +133,6 @@ public class GenericCableBakedModel implements IDynamicBakedModel {
                 return createQuad(v4, v1, v2, v3, sprite, hilight);
         }
         return createQuad(v1, v2, v3, v4, sprite, hilight);
-    }
-
-    private BakedQuad createQuad(Vec3d v1, Vec3d v2, Vec3d v3, Vec3d v4, TextureAtlasSprite sprite, float hilight) {
-        Vec3d normal = v3.subtract(v2).crossProduct(v1.subtract(v2)).normalize();
-
-        BakedQuadBuilder builder = new BakedQuadBuilder(sprite);
-        builder.setQuadOrientation(Direction.getFacingFromVector(normal.x, normal.y, normal.z));
-        putVertex(builder, normal, v1.x, v1.y, v1.z, 0, 0, sprite, hilight);
-        putVertex(builder, normal, v2.x, v2.y, v2.z, 0, 16, sprite, hilight);
-        putVertex(builder, normal, v3.x, v3.y, v3.z, 16, 16, sprite, hilight);
-        putVertex(builder, normal, v4.x, v4.y, v4.z, 16, 0, sprite, hilight);
-        return builder.build();
-    }
-
-    private static Vec3d v(double x, double y, double z) {
-        return new Vec3d(x, y, z);
     }
 
     @Nonnull
