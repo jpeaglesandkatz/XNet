@@ -42,6 +42,7 @@ public class RenderWorldLastEventHandler {
     }
 
     private static void renderCables(RenderWorldLastEvent evt) {
+        // @todo 1.15
         Minecraft mc = Minecraft.getInstance();
 
         PlayerEntity p = mc.player;
@@ -319,6 +320,7 @@ public class RenderWorldLastEventHandler {
 
 
     private static void renderHilightedBlock(RenderWorldLastEvent evt) {
+        // @todo 1.15
         BlockPos c = XNet.instance.clientInfo.getHilightedBlock();
         if (c == null) {
             return;
