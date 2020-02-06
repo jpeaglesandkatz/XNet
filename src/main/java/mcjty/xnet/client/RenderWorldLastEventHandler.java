@@ -1,6 +1,10 @@
 package mcjty.xnet.client;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import mcjty.lib.client.CustomRenderTypes;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.ConnectorType;
@@ -12,8 +16,7 @@ import mcjty.xnet.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
@@ -59,23 +62,19 @@ public class RenderWorldLastEventHandler {
 
     private static void renderCablesInt(RenderWorldLastEvent evt, Minecraft mc) {
         PlayerEntity p = mc.player;
-        World world = mc.world;
 
-        GlStateManager.pushMatrix();
-        GlStateManager.color4f(1.0f, 0, 0, 1f);
-        GlStateManager.lineWidth(2);
-        Vec3d eyePosition = p.getEyePosition(evt.getPartialTicks());
-        double doubleX = eyePosition.x;
-        double doubleY = eyePosition.y;
-        double doubleZ = eyePosition.z;
-        GlStateManager.translated(-doubleX, -doubleY, -doubleZ);
+        MatrixStack matrixStack = evt.getMatrixStack();
+        IRenderTypeBuffer.Impl buffer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        IVertexBuilder builder = buffer.getBuffer(CustomRenderTypes.OVERLAY_LINES);
 
-        GlStateManager.disableDepthTest();
-        GlStateManager.disableTexture();
+        World world = p.getEntityWorld();
 
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+        matrixStack.push();
+
+        Vec3d projectedView = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
+        matrixStack.translate(-projectedView.x, -projectedView.y, -projectedView.z);
+
+        Matrix4f positionMatrix = matrixStack.getLast().getPositionMatrix();
 
         for (int dx = -20 ; dx <= 20 ; dx++) {
             for (int dy = -20 ; dy <= 20 ; dy++) {
@@ -124,17 +123,17 @@ public class RenderWorldLastEventHandler {
                         }
                         List<Rect> quads = getQuads(state);
                         for (Rect quad : quads) {
-                            renderRect(buffer, quad, c, r, g, b, 0.5f);
+                            renderRect(builder, positionMatrix, quad, c, r, g, b, 0.5f);
                         }
                     }
                 }
             }
         }
 
-        tessellator.draw();
+        matrixStack.pop();
 
-        GlStateManager.enableTexture();
-        GlStateManager.popMatrix();
+        RenderSystem.disableDepthTest();
+        buffer.finish(CustomRenderTypes.OVERLAY_LINES);
     }
 
 
@@ -307,15 +306,15 @@ public class RenderWorldLastEventHandler {
         return quads;
     }
 
-    public static void renderRect(BufferBuilder buffer, Rect rect, BlockPos p, float r, float g, float b, float a) {
-        buffer.pos(p.getX() + rect.v1.x, p.getY() + rect.v1.y, p.getZ() + rect.v1.z).color(r, g, b, a).endVertex();
-        buffer.pos(p.getX() + rect.v2.x, p.getY() + rect.v2.y, p.getZ() + rect.v2.z).color(r, g, b, a).endVertex();
-        buffer.pos(p.getX() + rect.v2.x, p.getY() + rect.v2.y, p.getZ() + rect.v2.z).color(r, g, b, a).endVertex();
-        buffer.pos(p.getX() + rect.v3.x, p.getY() + rect.v3.y, p.getZ() + rect.v3.z).color(r, g, b, a).endVertex();
-        buffer.pos(p.getX() + rect.v3.x, p.getY() + rect.v3.y, p.getZ() + rect.v3.z).color(r, g, b, a).endVertex();
-        buffer.pos(p.getX() + rect.v4.x, p.getY() + rect.v4.y, p.getZ() + rect.v4.z).color(r, g, b, a).endVertex();
-        buffer.pos(p.getX() + rect.v4.x, p.getY() + rect.v4.y, p.getZ() + rect.v4.z).color(r, g, b, a).endVertex();
-        buffer.pos(p.getX() + rect.v1.x, p.getY() + rect.v1.y, p.getZ() + rect.v1.z).color(r, g, b, a).endVertex();
+    public static void renderRect(IVertexBuilder buffer, Matrix4f positionMatrix, Rect rect, BlockPos p, float r, float g, float b, float a) {
+        buffer.pos(positionMatrix, (float)(p.getX() + rect.v1.x), (float)(p.getY() + rect.v1.y), (float)(p.getZ() + rect.v1.z)).color(r, g, b, a).endVertex();
+        buffer.pos(positionMatrix, (float)(p.getX() + rect.v2.x), (float)(p.getY() + rect.v2.y), (float)(p.getZ() + rect.v2.z)).color(r, g, b, a).endVertex();
+        buffer.pos(positionMatrix, (float)(p.getX() + rect.v2.x), (float)(p.getY() + rect.v2.y), (float)(p.getZ() + rect.v2.z)).color(r, g, b, a).endVertex();
+        buffer.pos(positionMatrix, (float)(p.getX() + rect.v3.x), (float)(p.getY() + rect.v3.y), (float)(p.getZ() + rect.v3.z)).color(r, g, b, a).endVertex();
+        buffer.pos(positionMatrix, (float)(p.getX() + rect.v3.x), (float)(p.getY() + rect.v3.y), (float)(p.getZ() + rect.v3.z)).color(r, g, b, a).endVertex();
+        buffer.pos(positionMatrix, (float)(p.getX() + rect.v4.x), (float)(p.getY() + rect.v4.y), (float)(p.getZ() + rect.v4.z)).color(r, g, b, a).endVertex();
+        buffer.pos(positionMatrix, (float)(p.getX() + rect.v4.x), (float)(p.getY() + rect.v4.y), (float)(p.getZ() + rect.v4.z)).color(r, g, b, a).endVertex();
+        buffer.pos(positionMatrix, (float)(p.getX() + rect.v1.x), (float)(p.getY() + rect.v1.y), (float)(p.getZ() + rect.v1.z)).color(r, g, b, a).endVertex();
     }
 
 

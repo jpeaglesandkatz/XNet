@@ -54,8 +54,6 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
     private static CableTextures[] cableTextures = null;
     private static TextureAtlasSprite spriteSide;
 
-    private VertexFormat format;
-
     static {
         CablePatterns.PATTERNS.put(new CablePatterns.Pattern(false, false, false, false), new CablePatterns.QuadSetting(SPRITE_NONE, 0));
         CablePatterns.PATTERNS.put(new CablePatterns.Pattern(true, false, false, false), new CablePatterns.QuadSetting(SPRITE_END, 3));
@@ -82,17 +80,17 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
                 int i = color.ordinal();
                 tt[i] = new CableTextures();
                 tt[i].spriteConnector = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/connector"));
-                tt[i].spriteAdvancedConnector = getTexture(new ResourceLocation(XNet.MODID + "block/cable" + i + "/advanced_connector"));
+                tt[i].spriteAdvancedConnector = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/advanced_connector"));
 
-                tt[i].spriteNormalCable = getTexture(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_netcable"));
-                tt[i].spriteNoneCable = getTexture(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_none_netcable"));
-                tt[i].spriteEndCable = getTexture(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_end_netcable"));
-                tt[i].spriteCornerCable = getTexture(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_corner_netcable"));
-                tt[i].spriteThreeCable = getTexture(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_three_netcable"));
-                tt[i].spriteCrossCable = getTexture(new ResourceLocation(XNet.MODID + "block/cable" + i + "/normal_cross_netcable"));
+                tt[i].spriteNormalCable = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/normal_netcable"));
+                tt[i].spriteNoneCable = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/normal_none_netcable"));
+                tt[i].spriteEndCable = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/normal_end_netcable"));
+                tt[i].spriteCornerCable = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/normal_corner_netcable"));
+                tt[i].spriteThreeCable = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/normal_three_netcable"));
+                tt[i].spriteCrossCable = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/normal_cross_netcable"));
             }
 
-            spriteSide = getTexture(new ResourceLocation(XNet.MODID + "block/connector_side"));
+            spriteSide = getTexture(new ResourceLocation(XNet.MODID, "block/connector_side"));
             cableTextures = tt;
         }
     }
@@ -117,8 +115,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         return cableTexture.spriteNoneCable;
     }
 
-    public GenericCableBakedModel(VertexFormat format) {
-        this.format = format;
+    public GenericCableBakedModel() {
     }
 
     private BakedQuad createQuad(Vec3d v1, Vec3d v2, Vec3d v3, Vec3d v4, TextureAtlasSprite sprite, int rotation, float hilight) {
@@ -149,7 +146,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
 //            }
             IBakedModel model = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getModel(facadeState);
             try {
-                return model.getQuads(state, side, rand);
+                return model.getQuads(state, side, rand, null);
             } catch (Exception e) {
                 return Collections.emptyList();
             }
@@ -158,7 +155,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         if (side != null) {
             return Collections.emptyList();
         }
-//        if (side != null || (state.getBlock() instanceof ConnectorBlock && MinecraftForgeClient.getRenderLayer() != BlockRenderLayer.CUTOUT_MIPPED)) {
+//        if (side != null || (state.getBlock() instanceof ConnectorBlock && MinecraftForgeClient.getRenderLayer() != RenderType.cutoutMipped())) {
 //            return Collections.emptyList();
 //        }
 

@@ -5,11 +5,13 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.data.IModelData;
 
 import javax.annotation.Nonnull;
@@ -39,14 +41,13 @@ public class FacadeBakedModel extends AbstractDynamicBakedModel {
         }
 
         BlockState facadeState = facadeId.getBlockState();
-        // @todo 1.15
-//        BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
+//        RenderType layer = MinecraftForgeClient.getRenderLayer();
 //        if (layer != null && !facadeState.getBlock().canRenderInLayer(facadeState, layer)) { // always render in the null layer or the block-breaking textures don't show up
 //            return Collections.emptyList();
 //        }
         IBakedModel model = getModel(facadeState);
         try {
-            return model.getQuads(state, side, rand);
+            return model.getQuads(state, side, rand, null);
         } catch (Exception e) {
             return Collections.emptyList();
         }

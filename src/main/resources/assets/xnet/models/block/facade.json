@@ -1,6 +1,3 @@
 {
-  "parent": "block/cube_all",
-  "textures": {
-    "all": "xnet:block/facade"
-  }
+  "loader": "xnet:facadeloader"
 }
