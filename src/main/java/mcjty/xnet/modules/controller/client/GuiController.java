@@ -22,15 +22,16 @@ import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Logging;
-import mcjty.xnet.XNet;
+import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
-import mcjty.xnet.modules.controller.blocks.TileEntityController;
+import mcjty.xnet.XNet;
 import mcjty.xnet.client.ChannelClientInfo;
 import mcjty.xnet.client.ConnectedBlockClientInfo;
 import mcjty.xnet.client.ConnectorClientInfo;
+import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.controller.network.PacketGetChannels;
 import mcjty.xnet.modules.controller.network.PacketGetConnectedBlocks;
 import mcjty.xnet.setup.XNetMessages;
@@ -53,8 +54,8 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static mcjty.xnet.modules.controller.blocks.TileEntityController.*;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.*;
 
 public class GuiController extends GenericGuiContainer<TileEntityController, GenericContainer> {
 
@@ -154,7 +155,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         }
         ConnectedBlockClientInfo c = fromServer_connectedBlocks.get(index);
         if (c != null) {
-            XNet.instance.clientInfo.hilightBlock(c.getPos().getPos(), System.currentTimeMillis() + 1000 * 5);
+            RFToolsBase.instance.clientInfo.hilightBlock(c.getPos().getPos(), System.currentTimeMillis() + 1000 * 5);
             Logging.message(minecraft.player, "The block is now highlighted");
             minecraft.player.closeScreen();
         }

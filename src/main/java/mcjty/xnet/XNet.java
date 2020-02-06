@@ -3,7 +3,6 @@ package mcjty.xnet;
 
 import mcjty.lib.base.ModBase;
 import mcjty.xnet.apiimpl.XNetApi;
-import mcjty.xnet.client.ClientInfo;
 import mcjty.xnet.compat.TOPSupport;
 import mcjty.xnet.compat.WAILASupport;
 import mcjty.xnet.modules.cables.CableSetup;
@@ -31,8 +30,6 @@ public class XNet implements ModBase {
     public static final String MODNAME = "XNet";
 
     public static ModSetup setup = new ModSetup();
-
-    public ClientInfo clientInfo = new ClientInfo();
 
     public static XNet instance;
 

@@ -1,23 +1,21 @@
 package mcjty.xnet.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import mcjty.lib.client.CustomRenderTypes;
-import mcjty.xnet.XNet;
-import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
-import mcjty.xnet.modules.cables.ConnectorType;
-import mcjty.xnet.modules.facade.blocks.FacadeBlock;
-import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.modules.cables.CableColor;
+import mcjty.xnet.modules.cables.ConnectorType;
+import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
+import mcjty.xnet.modules.facade.IFacadeSupport;
+import mcjty.xnet.modules.facade.blocks.FacadeBlock;
 import mcjty.xnet.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
@@ -27,7 +25,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,37 +34,27 @@ import static mcjty.xnet.modules.cables.ConnectorType.CABLE;
 
 public class RenderWorldLastEventHandler {
 
-    private static long lastTime = 0;
-
     public static void tick(RenderWorldLastEvent evt) {
-        renderHilightedBlock(evt);
-        renderCables(evt);
-    }
-
-    private static void renderCables(RenderWorldLastEvent evt) {
-        // @todo 1.15
         Minecraft mc = Minecraft.getInstance();
 
-        PlayerEntity p = mc.player;
-
-        ItemStack heldItem = p.getHeldItem(Hand.MAIN_HAND);
+        ItemStack heldItem = mc.player.getHeldItem(Hand.MAIN_HAND);
         if (!heldItem.isEmpty()) {
             if (heldItem.getItem() instanceof BlockItem) {
                 if (((BlockItem) heldItem.getItem()).getBlock() instanceof GenericCableBlock) {
-                    renderCablesInt(evt, mc);
+                    renderCables(evt, mc);
                 }
             }
         }
     }
 
-    private static void renderCablesInt(RenderWorldLastEvent evt, Minecraft mc) {
+    private static void renderCables(RenderWorldLastEvent evt, Minecraft mc) {
         PlayerEntity p = mc.player;
 
         MatrixStack matrixStack = evt.getMatrixStack();
         IRenderTypeBuffer.Impl buffer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
         IVertexBuilder builder = buffer.getBuffer(CustomRenderTypes.OVERLAY_LINES);
 
-        World world = p.getEntityWorld();
+        World world = mc.world;
 
         matrixStack.push();
 
@@ -86,9 +73,11 @@ public class RenderWorldLastEventHandler {
                         TileEntity te = world.getTileEntity(c);
                         if (te instanceof IFacadeSupport) {
                             BlockState facadeId = ((IFacadeSupport) te).getMimicBlock();
-                            if (((!Config.showNonFacadedCablesWhileSneaking.get()) || (!p.isShiftKeyDown /*isSneaking*/())) && facadeId == null && !(block instanceof FacadeBlock)) {
+                            if (((!Config.showNonFacadedCablesWhileSneaking.get()) || (!p.isShiftKeyDown())) && facadeId == null && !(block instanceof FacadeBlock)) {
                                 continue;
                             }
+                        } else if (!Config.showNonFacadedCablesWhileSneaking.get() || !p.isShiftKeyDown()) {
+                            continue;
                         }
                         CableColor color = state.get(GenericCableBlock.COLOR);
                         float r = 0;
@@ -315,52 +304,5 @@ public class RenderWorldLastEventHandler {
         buffer.pos(positionMatrix, (float)(p.getX() + rect.v4.x), (float)(p.getY() + rect.v4.y), (float)(p.getZ() + rect.v4.z)).color(r, g, b, a).endVertex();
         buffer.pos(positionMatrix, (float)(p.getX() + rect.v4.x), (float)(p.getY() + rect.v4.y), (float)(p.getZ() + rect.v4.z)).color(r, g, b, a).endVertex();
         buffer.pos(positionMatrix, (float)(p.getX() + rect.v1.x), (float)(p.getY() + rect.v1.y), (float)(p.getZ() + rect.v1.z)).color(r, g, b, a).endVertex();
-    }
-
-
-    private static void renderHilightedBlock(RenderWorldLastEvent evt) {
-        // @todo 1.15
-        BlockPos c = XNet.instance.clientInfo.getHilightedBlock();
-        if (c == null) {
-            return;
-        }
-        Minecraft mc = Minecraft.getInstance();
-        long time = System.currentTimeMillis();
-
-        if (time > XNet.instance.clientInfo.getExpireHilight()) {
-            XNet.instance.clientInfo.hilightBlock(null, -1);
-            return;
-        }
-
-        if (((time / 500) & 1) == 0) {
-            return;
-        }
-
-        PlayerEntity p = mc.player;
-        Vec3d eyePosition = p.getEyePosition(evt.getPartialTicks());
-        double doubleX = eyePosition.x;
-        double doubleY = eyePosition.y;
-        double doubleZ = eyePosition.z;
-
-        GlStateManager.pushMatrix();
-        GlStateManager.color4f(1.0f, 0, 0, 1);
-        GlStateManager.lineWidth(3);
-        GlStateManager.translated(-doubleX, -doubleY, -doubleZ);
-
-        GlStateManager.disableDepthTest();
-        GlStateManager.disableTexture();
-
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
-        float mx = c.getX();
-        float my = c.getY();
-        float mz = c.getZ();
-        buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-        mcjty.lib.client.RenderHelper.renderHighLightedBlocksOutline(buffer, mx, my, mz, 1.0f, 0.0f, 0.0f, 1.0f);
-
-        tessellator.draw();
-
-        GlStateManager.enableTexture();
-        GlStateManager.popMatrix();
     }
 }
