@@ -714,9 +714,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     @Override
     protected void drawStackTooltips(int mouseX, int mouseY) {
-        int x = (mouseX * width / minecraft.getMainWindow().getWidth());
-        int y = (mouseY * height / minecraft.getMainWindow().getHeight() - 1);
-        Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);
+        Widget<?> widget = window.getToplevel().getWidgetAtPosition(mouseX,mouseY);
         if (widget instanceof BlockRender) {
             if ("block".equals(widget.getUserObject())) {
                 //System.out.println("GuiController.drawStackTooltips");
