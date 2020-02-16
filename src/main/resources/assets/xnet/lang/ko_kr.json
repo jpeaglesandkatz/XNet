@@ -1,0 +1,54 @@
+{
+
+    "item.xnet.xnet_manual": "엑스넷 사용설명서",
+    "item.xnet.connector_upgrade": "연결기 업그레이드 키트",
+
+    "block.xnet.facade": "외벽",
+    "item.xnet.facade_blue": "파란색 외벽",
+    "item.xnet.facade_red": "빨강색 외벽",
+    "item.xnet.facade_yellow": "노란색 외벽",
+    "item.xnet.facade_green": "초록색 외벽",
+    "item.xnet.facade_routing": "전달용 외벽",
+
+    "block.xnet.connector": "연결기",
+    "item.xnet.connector_blue": "파란색 연결기",
+    "item.xnet.connector_red": "빨강색 연결기",
+    "item.xnet.connector_yellow": "노랑색 연결기",
+    "item.xnet.connector_green": "초록색 연결기",
+    "item.xnet.connector_routing": "전달용 연결기",
+
+    "block.xnet.advanced_connector": "강화 연결기",
+    "item.xnet.advanced_connector_blue": "파란색 강화 연결기",
+    "item.xnet.advanced_connector_red": "빨강색 강화 연결기",
+    "item.xnet.advanced_connector_yellow": "노랑색 강화 연결기",
+    "item.xnet.advanced_connector_green": "초록색 강화 연결기",
+    "item.xnet.advanced_connector_routing": "전달용 강화 연결기",
+
+    "block.xnet.netcable": "네트워크 케이블선",
+    "item.xnet.netcable_blue": "파란색 네트워크 케이블선",
+    "item.xnet.netcable_red": "빨강색 네트워크 케이블선",
+    "item.xnet.netcable_yellow": "노랑색 네트워크 케이블선",
+    "item.xnet.netcable_green": "초록색 네트워크 케이블선",
+    "item.xnet.netcable_routing": "전달용 네트워크 케이블선",
+
+    "block.xnet.redstone_proxy": "레드스톤 프록시",
+    "block.xnet.redstone_proxy_upd": "레드스톤 강화 프록시",
+
+    "block.xnet.controller": "제어기",
+    "block.xnet.router": "라우터",
+    "block.xnet.wireless_router": "무선 라우터",
+    "block.xnet.antenna": "안테나",
+    "block.xnet.antenna_base": "안테나 베이스",
+    "block.xnet.antenna_dish": "안테나 접시",
+
+    "itemGroup.XNet": "엑스넷",
+
+    "message.xnet.shiftmessage": "<Shift 입력>",
+
+    "message.xnet.router": "@f이 블록으로 여러 채널을 \n@f연결할 수 있습니다. (제어기)",
+    "message.xnet.wireless_router": "@f이 블록으로 여러 채널을 \n@f원격으로 연결할 수 있습니다.\n@f라우터 케이블선을 사용하여 \n@일반 라우터에 연결합니다.\n@6이를 위해 안테나가 필요합니다!",
+    "message.xnet.controller": "@f엑스넷의 자동화를 위한 \n@f기본 블록",
+    "message.xnet.antenna": "@f안테나 베이스 위에 \n@f1~2개의 안테나를 놓으세요.\n@61: 범위 %s (%s rf/t/channel)\n@62: 범위 %s (%s rf/t/channel)",
+    "message.xnet.antenna_base": "@f안테나 베이스는 \n@f무선 라우터 위에 설치해야 합니다.",
+    "message.xnet.antenna_dish": "@f안테나 접시는 \n@f안테나 베이스 위에 설치해야 하고\n@f매우 강력한 무선범위를 허용해야 합니다.\n@6(%s rf/t/channel)"
+}
