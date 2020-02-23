@@ -30,10 +30,15 @@ Base mod for all McJty mods
     ordering="NONE"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
     side="BOTH"
-# Here's another xnet
-[[dependencies.examplemod]]
-    modId="minecraft"
-    mandatory=true
-    versionRange="[1.14]"
-    ordering="NONE"
+[[dependencies.xnet]]
+    modId="mcjtylib"
+    mandatory=false
+#    versionRange="[1.14-3.5.8,1.14-4.0.0)"
+    ordering="AFTER"
+    side="BOTH"
+[[dependencies.xnet]]
+    modId="rftoolsbase"
+    mandatory=false
+#    versionRange="[1.14-0.0.5,1.14-1.0.0)"
+    ordering="AFTER"
     side="BOTH"

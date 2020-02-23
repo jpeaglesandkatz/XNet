@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed proper dependency reporting in case McJtyLib or RFToolsBase are missing
+
 1.8.7:
 - Inventory hilighting from the controller works again
 - The facade block works much better now
