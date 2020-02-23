@@ -95,7 +95,7 @@ public class ConnectedBlockClientInfo {
             }
         }
 
-        return stack.getItem().getTranslationKey(stack) + ".name";
+        return stack.getItem().getTranslationKey(stack);
     }
 
     private static CompoundNBT getSubCompound(ItemStack stack, String key) {
