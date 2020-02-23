@@ -7,6 +7,7 @@ import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.lib.gui.GuiTools;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.ButtonEvent;
@@ -14,11 +15,11 @@ import mcjty.lib.gui.events.DefaultSelectionEvent;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.layout.VerticalLayout;
+import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
-import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Logging;
@@ -714,8 +715,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     @Override
     protected void drawStackTooltips(int mouseX, int mouseY) {
-        int x = (mouseX * width / minecraft.getMainWindow().getWidth());
-        int y = (mouseY * height / minecraft.getMainWindow().getHeight() - 1);
+        int x = GuiTools.getRelativeX(this);
+        int y = GuiTools.getRelativeY(this);
         Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);
         if (widget instanceof BlockRender) {
             if ("block".equals(widget.getUserObject())) {
