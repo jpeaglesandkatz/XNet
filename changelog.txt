@@ -1,6 +1,8 @@
 Upcoming:
 - Darkere fixed some GUI translation keys
 - 'kr' translation file from Mindy
+- Fixed the models for the router and wireless router
+- Fixed various cable models
 
 2.0.1-alpha:
 - Fixed proper dependency reporting in case McJtyLib or RFToolsBase are missing

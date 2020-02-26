@@ -1,6 +1,11 @@
 {
-  "parent": "rftoolsbase:block/rftoolsblock",
+  "parent": "block/cube",
   "textures": {
-    "front": "xnet:block/machine_controller"
+    "down": "rftoolsbase:block/base/machinebottom",
+    "up": "rftoolsbase:block/base/machinetop",
+    "north": "xnet:block/machine_controller",
+    "south": "rftoolsbase:block/base/machineside",
+    "east": "rftoolsbase:block/base/machineside",
+    "west": "rftoolsbase:block/base/machineside"
   }
 }

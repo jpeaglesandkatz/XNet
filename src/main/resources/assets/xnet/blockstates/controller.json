@@ -1,16 +1,50 @@
 {
   "variants": {
-    "facing=north,error=false": { "model": "xnet:block/controller" },
-    "facing=south,error=false": { "model": "xnet:block/controller", "y": 180 },
-    "facing=west,error=false": { "model": "xnet:block/controller", "y": 270 },
-    "facing=east,error=false": { "model": "xnet:block/controller", "y": 90 },
-    "facing=up,error=false": { "model": "xnet:block/controller", "x": -90 },
-    "facing=down,error=false": { "model": "xnet:block/controller", "x": 90 },
-    "facing=north,error=true": { "model": "xnet:block/controller_error" },
-    "facing=south,error=true": { "model": "xnet:block/controller_error", "y": 180 },
-    "facing=west,error=true": { "model": "xnet:block/controller_error", "y": 270 },
-    "facing=east,error=true": { "model": "xnet:block/controller_error", "y": 90 },
-    "facing=up,error=true": { "model": "xnet:block/controller_error", "x": -90 },
-    "facing=down,error=true": { "model": "xnet:block/controller_error", "x": 90 }
+    "error=false,facing=down": {
+      "model": "xnet:block/controller",
+      "x": 90
+    },
+    "error=true,facing=down": {
+      "model": "xnet:block/controller_error",
+      "x": 90
+    },
+    "error=false,facing=up": {
+      "model": "xnet:block/controller",
+      "x": -90
+    },
+    "error=true,facing=up": {
+      "model": "xnet:block/controller_error",
+      "x": -90
+    },
+    "error=false,facing=north": {
+      "model": "xnet:block/controller"
+    },
+    "error=true,facing=north": {
+      "model": "xnet:block/controller_error"
+    },
+    "error=false,facing=south": {
+      "model": "xnet:block/controller",
+      "y": 180
+    },
+    "error=true,facing=south": {
+      "model": "xnet:block/controller_error",
+      "y": 180
+    },
+    "error=false,facing=west": {
+      "model": "xnet:block/controller",
+      "y": 270
+    },
+    "error=true,facing=west": {
+      "model": "xnet:block/controller_error",
+      "y": 270
+    },
+    "error=false,facing=east": {
+      "model": "xnet:block/controller",
+      "y": 90
+    },
+    "error=true,facing=east": {
+      "model": "xnet:block/controller_error",
+      "y": 90
+    }
   }
 }

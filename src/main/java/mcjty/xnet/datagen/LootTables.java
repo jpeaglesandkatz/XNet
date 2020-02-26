@@ -8,6 +8,7 @@ import mcjty.xnet.modules.controller.ControllerSetup;
 import mcjty.xnet.modules.router.RouterSetup;
 import mcjty.xnet.modules.various.VariousSetup;
 import mcjty.xnet.modules.wireless.WirelessRouterSetup;
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.item.Item;
@@ -54,14 +55,13 @@ public class LootTables extends BaseLootTableProvider {
                 .addLootPool(getLootTableEntry("advanced_connector_routing", CableSetup.ADVANCED_CONNECTOR.get(), CableSetup.ADVANCED_CONNECTOR_ROUTING.get(), CableColor.ROUTING)));
     }
 
-    private LootPool.Builder getLootTableEntry(String cable_blue, Block cableBlock, Item cable, CableColor blue) {
-        // @todo 1.15
-        return null;
-//        return LootPool.builder()
-//                .name(cable_blue)
-//                .rolls(ConstantRange.of(1))
-//                .addEntry(ItemLootEntry.builder(cable))
-//                .acceptCondition(BlockStateProperty.builder(cableBlock).with(GenericCableBlock.COLOR, blue));
+    private LootPool.Builder getLootTableEntry(String cableName, Block cableBlock, Item cable, CableColor color) {
+        return LootPool.builder()
+                .name(cableName)
+                .rolls(ConstantRange.of(1))
+                .addEntry(ItemLootEntry.builder(cable))
+                .acceptCondition(BlockStateProperty.builder(cableBlock)
+                        .fromProperties(StatePropertiesPredicate.Builder.newBuilder().withProp(GenericCableBlock.COLOR, color)));
     }
 
     @Override

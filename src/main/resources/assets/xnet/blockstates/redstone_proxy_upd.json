@@ -1,5 +1,7 @@
 {
   "variants": {
-    "": { "model": "xnet:block/redstone_proxy" }
+    "": {
+      "model": "xnet:block/redstone_proxy_upd"
+    }
   }
 }
