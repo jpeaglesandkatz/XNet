@@ -357,7 +357,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
 
     @Override
     public TextureAtlasSprite getParticleTexture() {
-        return spriteCable == null ? Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation("minecraft", "missingno")) : spriteCable;
+        return spriteCable == null ? Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation("minecraft", "missingno")) : spriteCable;
     }
 
     @Override

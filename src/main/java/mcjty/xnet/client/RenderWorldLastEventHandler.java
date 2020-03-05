@@ -61,7 +61,7 @@ public class RenderWorldLastEventHandler {
         Vec3d projectedView = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
         matrixStack.translate(-projectedView.x, -projectedView.y, -projectedView.z);
 
-        Matrix4f positionMatrix = matrixStack.getLast().getPositionMatrix();
+        Matrix4f positionMatrix = matrixStack.getLast().getMatrix();
 
         for (int dx = -20 ; dx <= 20 ; dx++) {
             for (int dy = -20 ; dy <= 20 ; dy++) {

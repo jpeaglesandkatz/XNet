@@ -83,9 +83,9 @@ public class ConnectorUpgradeItem extends Item {
 //                        world.notifyBlockUpdate(pos, blockState, blockState, 3);
 //                        player.inventory.decrStackSize(player.inventory.currentItem, 1);
 //                        player.openContainer.detectAndSendChanges();
-//                        player.sendStatusMessage(new TextComponentString(TextFormatting.GREEN + "Connector was upgraded"), false);
+//                        player.sendStatusMessage(new StringTextComponent(TextFormatting.GREEN + "Connector was upgraded"), false);
 //                    } else {
-//                        player.sendStatusMessage(new TextComponentString(TextFormatting.RED + "Something went wrong during upgrade!"), false);
+//                        player.sendStatusMessage(new StringTextComponent(TextFormatting.RED + "Something went wrong during upgrade!"), false);
 //                        return EnumActionResult.FAIL;
 //                    }
                 }
