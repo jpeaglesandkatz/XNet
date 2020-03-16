@@ -115,9 +115,6 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         return cableTexture.spriteNoneCable;
     }
 
-    public GenericCableBakedModel() {
-    }
-
     private BakedQuad createQuad(Vec3d v1, Vec3d v2, Vec3d v3, Vec3d v4, TextureAtlasSprite sprite, int rotation, float hilight) {
         switch (rotation) {
             case 0:
@@ -357,7 +354,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
 
     @Override
     public TextureAtlasSprite getParticleTexture() {
-        return spriteCable == null ? Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation("minecraft", "missingno")) : spriteCable;
+        return spriteCable == null ? getTexture(new ResourceLocation("minecraft", "missingno")) : spriteCable;
     }
 
     @Override
