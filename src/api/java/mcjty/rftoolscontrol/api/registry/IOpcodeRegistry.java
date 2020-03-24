@@ -1,6 +1,6 @@
-package mcjty.rftoolscontrol.api.registry;
+package mcjty.rftoolsbase.api.control.registry;
 
-import mcjty.rftoolscontrol.api.code.Opcode;
+import mcjty.rftoolsbase.api.control.code.Opcode;
 
 public interface IOpcodeRegistry {
 

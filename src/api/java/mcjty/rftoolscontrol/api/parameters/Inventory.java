@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.api.parameters;
+package mcjty.rftoolsbase.api.control.parameters;
 
 import net.minecraft.util.EnumFacing;
 import org.apache.commons.lang3.StringUtils;
