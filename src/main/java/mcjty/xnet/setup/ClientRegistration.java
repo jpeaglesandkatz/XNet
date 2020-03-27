@@ -14,6 +14,8 @@ import mcjty.xnet.modules.router.RouterSetup;
 import mcjty.xnet.modules.router.client.GuiRouter;
 import mcjty.xnet.modules.wireless.WirelessRouterSetup;
 import mcjty.xnet.modules.wireless.client.GuiWirelessRouter;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
@@ -34,5 +36,8 @@ public class ClientRegistration {
         MinecraftForge.EVENT_BUS.addListener(RenderWorldLastEventHandler::tick);
         ModelLoaderRegistry.registerLoader(new ResourceLocation(XNet.MODID, "cableloader"), new CableModelLoader());
         ModelLoaderRegistry.registerLoader(new ResourceLocation(XNet.MODID, "facadeloader"), new FacadeModelLoader());
+        RenderTypeLookup.setRenderLayer(WirelessRouterSetup.ANTENNA.get(), RenderType.getCutout());
+        RenderTypeLookup.setRenderLayer(WirelessRouterSetup.ANTENNA_DISH.get(), RenderType.getCutout());
+        RenderTypeLookup.setRenderLayer(WirelessRouterSetup.ANTENNA_BASE.get(), RenderType.getCutout());
     }
 }

@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed antenna models
+
 2.0.2-alpha:
 - Darkere fixed some GUI translation keys
 - 'kr' translation file from Mindy
