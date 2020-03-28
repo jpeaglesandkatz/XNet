@@ -8,10 +8,15 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.world.IBlockReader;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -45,6 +50,7 @@ public class WirelessRouterSetup {
     public static final RegistryObject<BaseBlock> ANTENNA_DISH = BLOCKS.register("antenna_dish", WirelessRouterSetup::createAntennaDishBlock);
     public static final RegistryObject<Item> ANTENNA_DISH_ITEM = ITEMS.register("antenna_dish", () -> new BlockItem(ANTENNA_DISH.get(), XNet.createStandardProperties()));
 
+    public static VoxelShape SMALLER_CUBE = VoxelShapes.create(0.01f, 0.01f, 0.01f, 0.99f, 0.99f, 0.99f);
 
     private static BaseBlock createAntennaDishBlock() {
         return new BaseBlock(new BlockBuilder()
@@ -55,6 +61,11 @@ public class WirelessRouterSetup {
             @Override
             public RotationType getRotationType() {
                 return RotationType.HORIZROTATION;
+            }
+
+            @Override
+            public VoxelShape getRenderShape(BlockState state, IBlockReader world, BlockPos pos) {
+                return SMALLER_CUBE;
             }
         };
     }
@@ -67,6 +78,11 @@ public class WirelessRouterSetup {
             @Override
             public RotationType getRotationType() {
                 return RotationType.NONE;
+            }
+
+            @Override
+            public VoxelShape getRenderShape(BlockState state, IBlockReader world, BlockPos pos) {
+                return SMALLER_CUBE;
             }
         };
     }
@@ -83,6 +99,11 @@ public class WirelessRouterSetup {
             @Override
             public RotationType getRotationType() {
                 return RotationType.HORIZROTATION;
+            }
+
+            @Override
+            public VoxelShape getRenderShape(BlockState state, IBlockReader world, BlockPos pos) {
+                return SMALLER_CUBE;
             }
         };
     }
