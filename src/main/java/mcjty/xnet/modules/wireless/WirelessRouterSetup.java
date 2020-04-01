@@ -3,10 +3,11 @@ package mcjty.xnet.modules.wireless;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RotationType;
 import mcjty.lib.builder.BlockBuilder;
+import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.GenericContainer;
 import mcjty.xnet.XNet;
-import mcjty.xnet.setup.Config;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
+import mcjty.xnet.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.container.ContainerType;
@@ -54,9 +55,9 @@ public class WirelessRouterSetup {
 
     private static BaseBlock createAntennaDishBlock() {
         return new BaseBlock(new BlockBuilder()
-                .info("message.xnet.shiftmessage")
-                .infoExtended("message.xnet.antenna_dish")
-                .infoExtendedParameter(stack -> Integer.toString(Config.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_INF].get()))
+                .info(TooltipBuilder.key("message.xnet.shiftmessage"))
+                .infoShift(TooltipBuilder.header(),
+                        TooltipBuilder.parameter("info", stack -> Integer.toString(Config.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_INF].get()) + " rf/t/channel"))
         ) {
             @Override
             public RotationType getRotationType() {
@@ -72,8 +73,8 @@ public class WirelessRouterSetup {
 
     private static BaseBlock createAntennaBaseBlock() {
         return new BaseBlock(new BlockBuilder()
-                .info("message.xnet.shiftmessage")
-                .infoExtended("message.xnet.antenna_base")
+                .info(TooltipBuilder.key("message.xnet.shiftmessage"))
+                .infoShift(TooltipBuilder.header())
         ) {
             @Override
             public RotationType getRotationType() {
@@ -89,12 +90,11 @@ public class WirelessRouterSetup {
 
     private static BaseBlock createAntennaBlock() {
         return new BaseBlock(new BlockBuilder()
-                .info("message.xnet.shiftmessage")
-                .infoExtended("message.xnet.antenna")
-                .infoExtendedParameter(stack -> Integer.toString(Config.antennaTier1Range.get()))
-                .infoExtendedParameter(stack -> Integer.toString(Config.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_1].get()))
-                .infoExtendedParameter(stack -> Integer.toString(Config.antennaTier2Range.get()))
-                .infoExtendedParameter(stack -> Integer.toString(Config.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_2].get()))
+                .info(TooltipBuilder.key("message.xnet.shiftmessage"))
+                .infoShift(TooltipBuilder.header(),
+                        TooltipBuilder.parameter("one", stack -> "range " + Integer.toString(Config.antennaTier1Range.get()) + " (" + Integer.toString(Config.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_1].get()) + " rf/t/channel)"),
+                        TooltipBuilder.parameter("two", stack -> "range " + Integer.toString(Config.antennaTier2Range.get()) + " (" + Integer.toString(Config.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_2].get()) + " rf/t/channel)")
+                )
         ) {
             @Override
             public RotationType getRotationType() {

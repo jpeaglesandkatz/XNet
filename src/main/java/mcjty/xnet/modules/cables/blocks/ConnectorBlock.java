@@ -1,9 +1,10 @@
 package mcjty.xnet.modules.cables.blocks;
 
-import mcjty.lib.McJtyLib;
+import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.EmptyContainer;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.EnergyTools;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectable;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
@@ -30,7 +31,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.fluid.IFluidState;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
@@ -42,7 +42,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
@@ -57,7 +56,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class ConnectorBlock extends GenericCableBlock {
+import static mcjty.lib.builder.TooltipBuilder.*;
+
+public class ConnectorBlock extends GenericCableBlock implements ITooltipSettings {
+
+    private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
+            .info(key("message.xnet.shiftmessage"))
+            .infoShift(header(), gold(stack -> isAdvancedConnector()),
+                    parameter("info", stack -> Integer.toString(isAdvancedConnector() ? Config.maxRfAdvancedConnector.get() : Config.maxRfConnector.get())));
 
     public ConnectorBlock(CableBlockType type) {
         super(Material.IRON, type);
@@ -124,7 +130,7 @@ public class ConnectorBlock extends GenericCableBlock {
             } else {
                 // We are in mimic mode. Don't remove the connector
                 this.onBlockHarvested(world, pos, state, player);
-                if(player.abilities.isCreativeMode) {
+                if (player.abilities.isCreativeMode) {
                     connectorTileEntity.setMimicBlock(null);
                 }
             }
@@ -133,38 +139,6 @@ public class ConnectorBlock extends GenericCableBlock {
         }
         return true;
     }
-
-// @todo 1.14
-//    @Override
-//    @Optional.Method(modid = "theoneprobe")
-//    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
-//        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-//        TileEntity te = world.getTileEntity(data.getPos());
-//        if (te instanceof ConnectorTileEntity) {
-//            String name = ((ConnectorTileEntity) te).getConnectorName();
-//            if (!name.isEmpty()) {
-//                probeInfo.text(TextStyleClass.LABEL + "Name: " + TextStyleClass.INFO + name);
-//            }
-//        }
-//    }
-
-
-
-    // @todo 1.14
-//    @Override
-//    @SideOnly(Side.CLIENT)
-//    public void initModel() {
-//        super.initModel();
-//        // To make sure that our ISBM model is chosen for all states we use this custom state mapper:
-//        StateMapperBase ignoreState = new StateMapperBase() {
-//            @Override
-//            protected ModelResourceLocation getModelResourceLocation(BlockState iBlockState) {
-//                return GenericCableBakedModel.modelConnector;
-//            }
-//        };
-//        ModelLoader.setCustomStateMapper(this, ignoreState);
-//    }
-
 
     @Override
     public void neighborChanged(BlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
@@ -304,9 +278,6 @@ public class ConnectorBlock extends GenericCableBlock {
         if (te == null) {
             return false;
         }
-        if (te instanceof IInventory) {
-            return true;
-        }
         if (EnergyTools.isEnergyTE(te, null)) {
             return true;
         }
@@ -337,7 +308,7 @@ public class ConnectorBlock extends GenericCableBlock {
 //        }
 //    }
 
-// @todo 1.15
+    // @todo 1.15
 //    @Override
 //    public boolean canRenderInLayer(BlockState state, BlockRenderLayer layer) {
 //        return true;    // delegated to GenericCableBakedModel#getQuads
@@ -360,22 +331,7 @@ public class ConnectorBlock extends GenericCableBlock {
     @Override
     public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         super.addInformation(stack, worldIn, tooltip, flagIn);
-
-        if (McJtyLib.proxy.isShiftKeyDown()) {
-            tooltip.add(new StringTextComponent(TextFormatting.BLUE + "Place connector next to block or"));
-            tooltip.add(new StringTextComponent(TextFormatting.BLUE + "machine that should be connected"));
-            tooltip.add(new StringTextComponent(TextFormatting.BLUE + "to the network"));
-            boolean advanced = this == CableSetup.ADVANCED_CONNECTOR.get();
-            int maxrf = advanced ? Config.maxRfAdvancedConnector.get() : Config.maxRfConnector.get();
-            tooltip.add(new StringTextComponent(TextFormatting.GRAY + "" + TextFormatting.BOLD + "Max RF: " + TextFormatting.WHITE + maxrf));
-            if (advanced) {
-                tooltip.add(new StringTextComponent(TextFormatting.GRAY + "Allow access to different sides"));
-                tooltip.add(new StringTextComponent(TextFormatting.GRAY + "Supports faster item transfer"));
-            }
-        } else {
-            tooltip.add(new StringTextComponent(TextFormatting.WHITE + "<Press Shift>"));
-        }
-
+        tooltipBuilder.makeTooltip(getRegistryName(), stack, tooltip);
     }
 
     @Override
@@ -395,7 +351,7 @@ public class ConnectorBlock extends GenericCableBlock {
         XNetBlobData blobData = XNetBlobData.get(world);
         WorldBlob worldBlob = blobData.getWorldBlob(world);
         CableColor color = world.getBlockState(pos).get(COLOR);
-        worldBlob.createNetworkConsumer(pos, new ColorId(color.ordinal()+1), consumer);
+        worldBlob.createNetworkConsumer(pos, new ColorId(color.ordinal() + 1), consumer);
         blobData.save();
     }
 

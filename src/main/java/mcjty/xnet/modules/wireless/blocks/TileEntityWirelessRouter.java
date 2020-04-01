@@ -6,6 +6,7 @@ import mcjty.lib.bindings.DefaultValue;
 import mcjty.lib.bindings.IValue;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
+import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.EmptyContainer;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -17,13 +18,14 @@ import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
+import mcjty.xnet.client.ControllerChannelClientInfo;
+import mcjty.xnet.compat.XNetTOPDriver;
+import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
-import mcjty.xnet.client.ControllerChannelClientInfo;
-import mcjty.xnet.setup.Config;
-import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.modules.wireless.WirelessRouterSetup;
 import mcjty.xnet.multiblock.*;
+import mcjty.xnet.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
@@ -75,9 +77,10 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
 
     public static BaseBlock createBlock() {
         return new BaseBlock(new BlockBuilder()
+                .topDriver(XNetTOPDriver.DRIVER)
                 .tileEntitySupplier(TileEntityWirelessRouter::new)
-                .info("message.xnet.shiftmessage")
-                .infoExtended("message.xnet.wireless_router")
+                .info(TooltipBuilder.key("message.xnet.shiftmessage"))
+                .infoShift(TooltipBuilder.header(), TooltipBuilder.gold())
         ) {
             @Override
             protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
@@ -354,39 +357,6 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
         CompoundNBT info = tagCompound.getCompound("Info");
         publicAccess = info.getBoolean("publicAcc");
     }
-
-    // @todo 1.14
-//    @Override
-//    @Optional.Method(modid = "theoneprobe")
-//    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
-//        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-//        XNetBlobData blobData = XNetBlobData.getBlobData(world);
-//        WorldBlob worldBlob = blobData.getWorldBlob(world);
-//        Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
-//        for (NetworkId networkId : networks) {
-//            probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId());
-//            if (mode != ProbeMode.EXTENDED) {
-//                break;
-//            }
-//        }
-//        if (inError()) {
-//            probeInfo.text(TextStyleClass.ERROR + "Missing antenna!");
-//        } else {
-////            probeInfo.text(TextStyleClass.LABEL + "Channels: " + TextStyleClass.INFO + getChannelCount());
-//        }
-//
-//        if (mode == ProbeMode.DEBUG) {
-//            BlobId blobId = worldBlob.getBlobAt(data.getPos());
-//            if (blobId != null) {
-//                probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
-//            }
-//            ColorId colorId = worldBlob.getColorAt(data.getPos());
-//            if (colorId != null) {
-//                probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
-//            }
-//        }
-//    }
-
 
     @Override
     public void onReplaced(World world, BlockPos pos, BlockState state, BlockState newstate) {

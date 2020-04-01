@@ -21,30 +21,6 @@ public class NetCableBlock extends GenericCableBlock {
         super(material, type);
     }
 
-    // @todo 1.14
-//    @Override
-//    @SideOnly(Side.CLIENT)
-//    public void initModel() {
-//        super.initModel();
-//
-//        // To make sure that our ISBM model is chosen for all states we use this custom state mapper:
-//        StateMapperBase ignoreState = new StateMapperBase() {
-//            @Override
-//            protected ModelResourceLocation getModelResourceLocation(BlockState iBlockState) {
-//                return GenericCableBakedModel.modelCable;
-//            }
-//        };
-//        ModelLoader.setCustomStateMapper(this, ignoreState);
-//    }
-
-//    @Override
-//    public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
-//        for (CableColor value : CableColor.VALUES) {
-//            items.add(updateColorInStack(new ItemStack(this, 1, value.ordinal()), value));
-//        }
-//    }
-
-
 //    @Nullable
 //    @Override
 //    public BlockState getStateForPlacement(BlockItemUseContext context) {

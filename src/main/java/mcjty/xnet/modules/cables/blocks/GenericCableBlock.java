@@ -1,5 +1,8 @@
 package mcjty.xnet.modules.cables.blocks;
 
+import mcjty.lib.compat.theoneprobe.TOPDriver;
+import mcjty.lib.compat.theoneprobe.TOPInfoProvider;
+import mcjty.xnet.compat.XNetTOPDriver;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.CableSetup;
 import mcjty.xnet.modules.cables.ConnectorType;
@@ -27,7 +30,6 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.loot.LootContext;
 import net.minecraftforge.client.model.data.ModelProperty;
@@ -37,7 +39,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class GenericCableBlock extends Block {
+public abstract class GenericCableBlock extends Block implements TOPInfoProvider {
 
     // Properties that indicate if there is the same block in a certain direction.
     public static final EnumProperty<ConnectorType> NORTH = EnumProperty.<ConnectorType>create("north", ConnectorType.class);
@@ -222,46 +224,6 @@ public abstract class GenericCableBlock extends Block {
         return shapeCache[index];
     }
 
-
-    //    @Override
-//    @SideOnly(Side.CLIENT)
-//    @Optional.Method(modid = "waila")
-//    public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
-//        return currenttip;
-//    }
-//
-//    @Override
-//    @Optional.Method(modid = "theoneprobe")
-//    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
-//        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
-//
-//        if (mode == ProbeMode.DEBUG) {
-//            BlobId blobId = worldBlob.getBlobAt(data.getPos());
-//            if (blobId != null) {
-//                probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
-//            }
-//            ColorId colorId = worldBlob.getColorAt(data.getPos());
-//            if (colorId != null) {
-//                probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
-//            }
-//        }
-//
-//        Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
-//        for (NetworkId network : networks) {
-//            if (mode == ProbeMode.DEBUG) {
-//                probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + network.getId() + ", V: " +
-//                    worldBlob.getNetworkVersion(network));
-//            } else {
-//                probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + network.getId());
-//            }
-//        }
-//
-//        ConsumerId consumerId = worldBlob.getConsumerAt(data.getPos());
-//        if (consumerId != null) {
-//            probeInfo.text(TextStyleClass.LABEL + "Consumer: " + TextStyleClass.INFO + consumerId.getId());
-//        }
-//    }
-
     public boolean isAdvancedConnector() {
         return false;
     }
@@ -386,4 +348,9 @@ public abstract class GenericCableBlock extends Block {
     }
 
     protected abstract ConnectorType getConnectorType(@Nonnull CableColor thisColor, IBlockReader world, BlockPos pos, Direction facing);
+
+    @Override
+    public TOPDriver getProbeDriver() {
+        return XNetTOPDriver.DRIVER;
+    }
 }

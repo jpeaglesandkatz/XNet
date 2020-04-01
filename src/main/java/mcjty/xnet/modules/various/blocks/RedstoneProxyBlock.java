@@ -1,20 +1,22 @@
 package mcjty.xnet.modules.various.blocks;
 
+import mcjty.lib.McJtyLib;
+import mcjty.lib.tooltips.ITooltipSettings;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class RedstoneProxyBlock extends Block {
+public class RedstoneProxyBlock extends Block implements ITooltipSettings {
 
     public RedstoneProxyBlock() {
         this(Material.IRON);
@@ -31,9 +33,12 @@ public class RedstoneProxyBlock extends Block {
 
     @Override
     public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        tooltip.add(new StringTextComponent("Acts as a proxy block for"));
-        tooltip.add(new StringTextComponent("redstone. XNet can connect to this"));
-        tooltip.add(new StringTextComponent(TextFormatting.YELLOW + "This version does no block update!"));
+        if (McJtyLib.proxy.isShiftKeyDown()) {
+            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy.header").applyTextStyle(TextFormatting.GREEN));
+            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy.gold").applyTextStyle(TextFormatting.GOLD));
+        } else {
+            tooltip.add(new TranslationTextComponent("message.xnet.shiftmessage"));
+        }
     }
 
 }

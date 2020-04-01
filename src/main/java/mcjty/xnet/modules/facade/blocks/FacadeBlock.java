@@ -106,32 +106,6 @@ public class FacadeBlock extends NetCableBlock {
     }
 
 
-// @todo 1.14
-//    @Override
-//    @SideOnly(Side.CLIENT)
-//    public void initModel() {
-//        // To make sure that our ISBM model is chosen for all states we use this custom state mapper:
-//        StateMapperBase ignoreState = new StateMapperBase() {
-//            @Override
-//            protected ModelResourceLocation getModelResourceLocation(BlockState iBlockState) {
-//                return FacadeBakedModel.modelFacade;
-//            }
-//        };
-//        ModelLoader.setCustomStateMapper(this, ignoreState);
-//    }
-
-    // @todo 1.14
-//    @Override
-//    @SideOnly(Side.CLIENT)
-//    public void initItemModel() {
-//        // For our item model we want to use a normal json model. This has to be called in
-//        // ClientProxy.init (not preInit) so that's why it is a separate method.
-//        Item itemBlock = ForgeRegistries.ITEMS.getValue(new ResourceLocation(XNet.MODID, FACADE));
-//        ModelResourceLocation itemModelResourceLocation = new ModelResourceLocation(getRegistryName(), "inventory");
-//        final int DEFAULT_ITEM_SUBTYPE = 0;
-//        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(itemBlock, DEFAULT_ITEM_SUBTYPE, itemModelResourceLocation);
-//    }
-
     // @todo 1.14
 //    @Override
 //    @SideOnly(Side.CLIENT)

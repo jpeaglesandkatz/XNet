@@ -5,6 +5,7 @@ import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
+import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -23,23 +24,24 @@ import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
 import mcjty.xnet.XNet;
-import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
-import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
-import mcjty.xnet.modules.cables.CableSetup;
-import mcjty.xnet.modules.controller.ConnectedBlockInfo;
-import mcjty.xnet.modules.controller.ControllerSetup;
-import mcjty.xnet.modules.controller.KnownUnsidedBlocks;
-import mcjty.xnet.modules.controller.client.GuiController;
 import mcjty.xnet.client.ChannelClientInfo;
 import mcjty.xnet.client.ConnectedBlockClientInfo;
 import mcjty.xnet.client.ConnectorClientInfo;
 import mcjty.xnet.client.ConnectorInfo;
-import mcjty.xnet.setup.Config;
-import mcjty.xnet.modules.controller.ChannelInfo;
+import mcjty.xnet.compat.XNetTOPDriver;
 import mcjty.xnet.logic.LogicTools;
-import mcjty.xnet.multiblock.*;
+import mcjty.xnet.modules.cables.CableSetup;
+import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
+import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
+import mcjty.xnet.modules.controller.ChannelInfo;
+import mcjty.xnet.modules.controller.ConnectedBlockInfo;
+import mcjty.xnet.modules.controller.ControllerSetup;
+import mcjty.xnet.modules.controller.KnownUnsidedBlocks;
+import mcjty.xnet.modules.controller.client.GuiController;
 import mcjty.xnet.modules.controller.network.PacketControllerError;
 import mcjty.xnet.modules.controller.network.PacketJsonToClipboard;
+import mcjty.xnet.multiblock.*;
+import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -70,8 +72,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static mcjty.xnet.modules.controller.ControllerSetup.TYPE_CONTROLLER;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
+import static mcjty.xnet.modules.controller.ControllerSetup.TYPE_CONTROLLER;
 
 public final class TileEntityController extends GenericTileEntity implements ITickableTileEntity, IControllerContext {
 
@@ -133,9 +135,10 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     public static BaseBlock createBlock() {
         return new BaseBlock(new BlockBuilder()
+                .topDriver(XNetTOPDriver.DRIVER)
                 .tileEntitySupplier(TileEntityController::new)
-                .info("message.xnet.shiftmessage")
-                .infoExtended("message.xnet.controller")
+                .info(TooltipBuilder.key("message.xnet.shiftmessage"))
+                .infoShift(TooltipBuilder.header())
         ) {
             @Override
             protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
@@ -227,6 +230,10 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     @Override
     public boolean matchColor(int colorMask) {
         return (colors & colorMask) == colorMask;
+    }
+
+    public int getColors() {
+        return colors;
     }
 
     @Override
@@ -1050,55 +1057,6 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         worldBlob.removeCableSegment(pos);
         blobData.save();
     }
-
-    // @todo 1.14
-//    @Override
-//    @Optional.Method(modid = "theoneprobe")
-//    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
-//        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-//
-//        WorldBlob worldBlob = XNetBlobData.getBlobData(world).getWorldBlob(world);
-//
-//        NetworkId networkId = getNetworkId();
-//        if (networkId != null) {
-//            if (mode == ProbeMode.DEBUG) {
-//                probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId() + ", V: " +
-//                        worldBlob.getNetworkVersion(networkId));
-//            } else {
-//                probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId());
-//            }
-//        }
-//
-//        if (mode == ProbeMode.DEBUG) {
-//            String s = "";
-//            for (NetworkId id : getNetworkChecker().getAffectedNetworks()) {
-//                s += id.getId() + " ";
-//                if (s.length() > 15) {
-//                    probeInfo.text(TextStyleClass.LABEL + "InfNet: " + TextStyleClass.INFO + s);
-//                    s = "";
-//                }
-//            }
-//            if (!s.isEmpty()) {
-//                probeInfo.text(TextStyleClass.LABEL + "InfNet: " + TextStyleClass.INFO + s);
-//            }
-//        }
-//        if (inError()) {
-//            probeInfo.text(TextStyleClass.ERROR + "Too many controllers on network!");
-//        }
-//
-//        if (mode == ProbeMode.DEBUG) {
-//            BlobId blobId = worldBlob.getBlobAt(data.getPos());
-//            if (blobId != null) {
-//                probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
-//            }
-//            ColorId colorId = worldBlob.getColorAt(data.getPos());
-//            if (colorId != null) {
-//                probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
-//            }
-//
-//            probeInfo.text(TextStyleClass.LABEL + "Color mask: " + colors);
-//        }
-//    }
 
     @Override
     public void checkRedstone(World world, BlockPos pos) {

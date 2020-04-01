@@ -16,18 +16,19 @@ import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
+import mcjty.xnet.client.ControllerChannelClientInfo;
+import mcjty.xnet.compat.XNetTOPDriver;
+import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.modules.cables.CableColor;
+import mcjty.xnet.modules.controller.ChannelInfo;
 import mcjty.xnet.modules.router.LocalChannelId;
 import mcjty.xnet.modules.router.RouterSetup;
 import mcjty.xnet.modules.router.client.GuiRouter;
-import mcjty.xnet.client.ControllerChannelClientInfo;
-import mcjty.xnet.setup.Config;
-import mcjty.xnet.modules.controller.ChannelInfo;
-import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WirelessChannelKey;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
+import mcjty.xnet.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
@@ -52,9 +53,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static mcjty.lib.builder.TooltipBuilder.header;
+import static mcjty.lib.builder.TooltipBuilder.key;
+import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.modules.controller.blocks.TileEntityController.ERROR;
 import static mcjty.xnet.modules.router.RouterSetup.TYPE_ROUTER;
-import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 
 public final class TileEntityRouter extends GenericTileEntity {
 
@@ -80,9 +83,10 @@ public final class TileEntityRouter extends GenericTileEntity {
 
     public static BaseBlock createBlock() {
         return new BaseBlock(new BlockBuilder()
+                .topDriver(XNetTOPDriver.DRIVER)
                 .tileEntitySupplier(TileEntityRouter::new)
-                .info("message.xnet.shiftmessage")
-                .infoExtended("message.xnet.router")
+                .info(key("message.xnet.shiftmessage"))
+                .infoShift(header())
         ) {
             @Override
             protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
@@ -372,39 +376,6 @@ public final class TileEntityRouter extends GenericTileEntity {
         }
         return false;
     }
-
-    // @todo 1.14
-//    @Override
-//    @Optional.Method(modid = "theoneprobe")
-//    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
-//        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-//        XNetBlobData blobData = XNetBlobData.getBlobData(world);
-//        WorldBlob worldBlob = blobData.getWorldBlob(world);
-//        Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
-//        for (NetworkId networkId : networks) {
-//            probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId());
-//            if (mode != ProbeMode.EXTENDED) {
-//                break;
-//            }
-//        }
-//        if (inError()) {
-//            probeInfo.text(TextStyleClass.ERROR + "Too many channels on router!");
-//        } else {
-//            probeInfo.text(TextStyleClass.LABEL + "Channels: " + TextStyleClass.INFO + getChannelCount());
-//        }
-//
-//        if (mode == ProbeMode.DEBUG) {
-//            BlobId blobId = worldBlob.getBlobAt(data.getPos());
-//            if (blobId != null) {
-//                probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
-//            }
-//            ColorId colorId = worldBlob.getColorAt(data.getPos());
-//            if (colorId != null) {
-//                probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
-//            }
-//        }
-//    }
-
 
     @Override
     public void onReplaced(World world, BlockPos pos, BlockState state, BlockState newstate) {

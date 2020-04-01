@@ -45,10 +45,32 @@
 
     "message.xnet.shiftmessage": "<Press Shift>",
 
-    "message.xnet.router": "@fWith this block you can connect\n@fmultiple channels (controllers)",
-    "message.xnet.wireless_router": "@fWith this block you can connect\n@fmultiple channels remotely\n@fConnect this to a normal router\n@fusing a router cable\n@6This needs an antenna!",
-    "message.xnet.controller": "@fThe base block for automation\n@fin XNet",
-    "message.xnet.antenna": "@fPlace one or two antenna's on\n@ftop of an antenna base.\n@6One: range %s (%s rf/t/channel)\n@6Two: range %s (%s rf/t/channel)",
-    "message.xnet.antenna_base": "@fAn antenna base has to be placed\n@fon top of a wireless router",
-    "message.xnet.antenna_dish": "@fAn antenna dish has to be placed\n@fon top of an antenna base and\n@fallows very extreme wireless range\n@6(%s rf/t/channel)"
+    "message.xnet.connector.header": "Place connector next to block or machine that should be connected to the network",
+    "message.xnet.connector.info": "Max RF: ",
+
+    "message.xnet.advanced_connector.header": "Place connector next to block or machine that should be connected to the network",
+    "message.xnet.advanced_connector.info": "Max RF: ",
+    "message.xnet.advanced_connector.gold": "Allow access to different sides. Supports faster item transfer",
+
+    "message.xnet.controller.header": "The base block for automation in XNet",
+
+    "message.xnet.router.header": "With this block you can connect multiple channels (controllers)",
+
+    "message.xnet.wireless_router.header": "With this block you can connect multiple channels remotely. Connect this to a normal router using a router cable",
+    "message.xnet.wireless_router.gold": "This needs an antenna on top to work!",
+
+    "message.xnet.antenna.header": "Place one or two antenna's on top of an antenna base",
+    "message.xnet.antenna.one": "One: ",
+    "message.xnet.antenna.two": "Two: ",
+
+    "message.xnet.antenna_base.header": "An antenna base has to be placed on top of a wireless router",
+    "message.xnet.antenna_dish.header": "An antenna dish has to be placed on top of an antenna base and allows very extreme wireless range",
+    "message.xnet.antenna_dish.info": "Power usage: ",
+
+    "message.xnet.redstone_proxy.header": "Acts as a proxy block for redstone. XNet can connect to this",
+    "message.xnet.redstone_proxy.gold": "This version does no block update!",
+
+    "message.xnet.redstone_proxy_upd.header": "Acts as a proxy block for redstone. XNet can connect to this",
+    "message.xnet.redstone_proxy_upd.gold": "This version does a block update!"
+
 }
