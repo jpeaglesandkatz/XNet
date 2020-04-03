@@ -45,6 +45,10 @@
 
     "message.xnet.shiftmessage": "<Press Shift>",
 
+    "message.xnet.facade.header": "This block can mimic other blocks and be used to cover XNet cables",
+    "message.xnet.facade.gold": "Right or sneak-right click on block to mimic. Right or sneak-right click on cable/connector to hide",
+    "message.xnet.facade.info": "Mimicing: ",
+
     "message.xnet.connector.header": "Place connector next to block or machine that should be connected to the network",
     "message.xnet.connector.info": "Max RF: ",
 
