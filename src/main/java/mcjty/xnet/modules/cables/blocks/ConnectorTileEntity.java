@@ -214,11 +214,6 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         info.putByte("enabled", enabled);
     }
 
-    @Override
-    public int getPowerLevel() {
-        return powerLevel;
-    }
-
     public void setConnectorName(String n) {
         this.name = n;
         markDirtyClient();
