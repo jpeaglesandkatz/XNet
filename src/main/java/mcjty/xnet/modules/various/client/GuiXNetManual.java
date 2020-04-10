@@ -84,7 +84,7 @@ public class GuiXNetManual extends GuiItemScreen {
     @Override
     public boolean mouseClicked(double x, double y, int button) {
         boolean rc = super.mouseClicked(x, y, button);
-        window.mouseClicked((int)x, (int)y, button);
+        window.mouseClicked(x, y, button);
         return rc;
     }
 

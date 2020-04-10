@@ -81,7 +81,7 @@ public class RFToolsSupport {
 
     public static int countItems(TileEntity te, ItemStack stack, int count) {
         IStorageScanner scanner = (IStorageScanner) te;
-        return scanner.countItems(stack, true, true, count);
+        return scanner.countItems(stack, true, count);
     }
 
     public static ItemStack insertItem(TileEntity te, ItemStack stack, boolean simulate) {
