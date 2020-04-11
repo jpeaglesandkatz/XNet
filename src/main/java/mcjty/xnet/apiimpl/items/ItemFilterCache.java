@@ -1,6 +1,7 @@
 package mcjty.xnet.apiimpl.items;
 
 import mcjty.lib.varia.ItemStackList;
+import mcjty.lib.varia.ItemStackTools;
 import mcjty.xnet.compat.ForestrySupport;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -25,9 +26,7 @@ public class ItemFilterCache {
         this.nbtMode = nbtMode;
         this.stacks = stacks;
         for (ItemStack s : stacks) {
-            for (ResourceLocation tag : s.getItem().getTags()) {
-                tagMatches.add(tag);
-            }
+            ItemStackTools.addCommonTags(s.getItem().getTags(), tagMatches);
         }
     }
 

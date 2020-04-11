@@ -2,6 +2,7 @@ Upcoming:
 - Fixed antenna models
 - Re-implemented TOP support for all XNet cables/connectors and machines
 - Used new tooltip system in McJtyLib
+- The oredictionary support in XNet has been replaced with the use of tags. If you enable 'tag matching' it tries to find common tags to match on
 
 2.0.2-alpha:
 - Darkere fixed some GUI translation keys
