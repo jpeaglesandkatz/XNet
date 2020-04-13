@@ -182,7 +182,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
             } else {
                 ItemFilterCache filterCache = new ItemFilterCache(metaMode, tagsMode, blacklist, nbtMode, filterList);
                 if (filterMatcher != null) {
-                    matcher = stack -> filterMatcher.test(stack) && filterCache.match(stack);
+                    matcher = stack -> filterMatcher.test(stack) || filterCache.match(stack);
                 } else {
                     matcher = filterCache::match;
                 }
