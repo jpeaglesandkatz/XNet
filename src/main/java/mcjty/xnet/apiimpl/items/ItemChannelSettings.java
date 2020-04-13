@@ -227,7 +227,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
 
     private int tickItemHandler(IControllerContext context, ItemConnectorSettings settings, IItemHandler handler, int startIdx) {
-        Predicate<ItemStack> extractMatcher = settings.getMatcher();
+        Predicate<ItemStack> extractMatcher = settings.getMatcher(context);
 
         Integer count = settings.getCount();
         int amount = 0;
@@ -287,7 +287,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             Pair<SidedConsumer, ItemConnectorSettings> entry = itemConsumers.get(i);
             ItemConnectorSettings settings = entry.getValue();
 
-            if (settings.getMatcher().test(stack)) {
+            if (settings.getMatcher(context).test(stack)) {
                 BlockPos consumerPos = context.findConsumerPosition(entry.getKey().getConsumerId());
                 if (consumerPos != null) {
                     if (!WorldTools.chunkLoaded(world, consumerPos)) {
@@ -311,7 +311,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
                     if (RFToolsSupport.isStorageScanner(te)) {
                         if (count != null) {
-                            int amount = RFToolsSupport.countItems(te, settings.getMatcher(), count);
+                            int amount = RFToolsSupport.countItems(te, settings.getMatcher(context), count);
                             int caninsert = count - amount;
                             if (caninsert <= 0) {
                                 continue;
@@ -329,7 +329,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                         LazyOptional<IItemHandler> itemHandler = getItemHandlerAt(te, settings.getFacing());
                         if (itemHandler.isPresent()) {
                             if (count != null) {
-                                int amount = countItems(itemHandler, settings.getMatcher());
+                                int amount = countItems(itemHandler, settings.getMatcher(context));
                                 int caninsert = count - amount;
                                 if (caninsert <= 0) {
                                     continue;
@@ -383,7 +383,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 int toinsert = total;
                 Integer count = settings.getCount();
                 if (count != null) {
-                    int amount = RFToolsSupport.countItems(te, settings.getMatcher(), count);
+                    int amount = RFToolsSupport.countItems(te, settings.getMatcher(context), count);
                     int caninsert = count - amount;
                     if (caninsert <= 0) {
                         continue;
@@ -421,7 +421,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 int toinsert = total;
                 Integer count = settings.getCount();
                 if (count != null) {
-                    int amount = countItems(handler, settings.getMatcher());
+                    int amount = countItems(handler, settings.getMatcher(context));
                     int caninsert = count - amount;
                     if (caninsert <= 0) {
                         continue;

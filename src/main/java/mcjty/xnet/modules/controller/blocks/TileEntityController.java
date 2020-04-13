@@ -114,7 +114,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         @Override
         protected void setup() {
             box(SlotDefinition.specific(s -> s.getItem() instanceof FilterModuleItem),
-                    CONTAINER_CONTAINER, SLOT_FILTER, 17, 5, FILTER_SLOTS, 1);
+                    CONTAINER_CONTAINER, SLOT_FILTER, 17, 4, FILTER_SLOTS, 1);
             playerSlots(91, 157);
         }
     };

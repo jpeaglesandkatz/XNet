@@ -3,6 +3,7 @@ Upcoming:
 - Re-implemented TOP support for all XNet cables/connectors and machines
 - Used new tooltip system in McJtyLib
 - The oredictionary support in XNet has been replaced with the use of tags. If you enable 'tag matching' it tries to find common tags to match on
+- XNet now also supports the filter module from RFToolsBase. Up to 4 filters can be placed in the controller and used in item connectors
 
 2.0.2-alpha:
 - Darkere fixed some GUI translation keys

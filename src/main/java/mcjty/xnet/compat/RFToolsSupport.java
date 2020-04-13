@@ -22,7 +22,7 @@ public class RFToolsSupport {
 
     public static void tickStorageScanner(IControllerContext context, ItemConnectorSettings settings, TileEntity te, ItemChannelSettings channelSettings) {
         IStorageScanner scanner = (IStorageScanner) te;
-        Predicate<ItemStack> extractMatcher = settings.getMatcher();
+        Predicate<ItemStack> extractMatcher = settings.getMatcher(context);
 
         Integer count = settings.getCount();
         int amount = 0;

@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.lib.varia.ItemStackTools;
+import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
 import mcjty.xnet.XNet;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
@@ -36,6 +37,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     public static final String TAG_PRIORITY = "priority";
     public static final String TAG_COUNT = "count";
     public static final String TAG_FILTER = "flt";
+    public static final String TAG_FILTER_IDX = "fltIdx";
     public static final String TAG_BLACKLIST = "blacklist";
 
     public static final int FILTER_SIZE = 18;
@@ -68,7 +70,9 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     @Nullable private Integer priority = 0;
     @Nullable private Integer count = null;
     @Nullable private Integer extractAmount = null;
+
     private ItemStackList filters = ItemStackList.create(FILTER_SIZE);
+    private int filterIndex = -1;
 
     // Cached matcher for items
     private Predicate<ItemStack> matcher = null;
@@ -141,17 +145,26 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         gui
                 .nl()
 
-                .toggleText(TAG_BLACKLIST, "Enable blacklist mode", "BL", blacklist).shift(2)
-                .toggleText(TAG_TAGS, "Tag matching", "Tags", tagsMode).shift(2)
-                .toggleText(TAG_META, "Metadata matching", "Meta", metaMode).shift(2)
-                .toggleText(TAG_NBT, "NBT matching", "NBT", nbtMode)
+                .toggleText(TAG_BLACKLIST, "Enable blacklist mode", "BL", blacklist).shift(0)
+                .toggleText(TAG_TAGS, "Tag matching", "Tags", tagsMode).shift(0)
+                .toggleText(TAG_META, "Metadata matching", "Meta", metaMode).shift(0)
+                .toggleText(TAG_NBT, "NBT matching", "NBT", nbtMode).shift(0)
+                .choices(TAG_FILTER_IDX, "Filter Index", getFilterIndexString(), "<Off>", "1", "2", "3", "4")
                 .nl();
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             gui.ghostSlot(TAG_FILTER + i, filters.get(i));
         }
     }
 
-    public Predicate<ItemStack> getMatcher() {
+    private String getFilterIndexString() {
+        if (filterIndex == -1) {
+            return "<Off>";
+        } else {
+            return Integer.toString(filterIndex);
+        }
+    }
+
+    public Predicate<ItemStack> getMatcher(IControllerContext context) {
         if (matcher == null) {
             ItemStackList filterList = ItemStackList.create();
             for (ItemStack stack : filters) {
@@ -159,14 +172,31 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
                     filterList.add(stack);
                 }
             }
+            Predicate<ItemStack> filterMatcher = getIndexFilterMatcher(context);
             if (filterList.isEmpty()) {
-                matcher = itemStack -> true;
+                if (filterMatcher != null) {
+                    matcher = filterMatcher;
+                } else {
+                    matcher = itemStack -> true;
+                }
             } else {
                 ItemFilterCache filterCache = new ItemFilterCache(metaMode, tagsMode, blacklist, nbtMode, filterList);
-                matcher = filterCache::match;
+                if (filterMatcher != null) {
+                    matcher = stack -> filterMatcher.test(stack) && filterCache.match(stack);
+                } else {
+                    matcher = filterCache::match;
+                }
             }
         }
         return matcher;
+    }
+
+    @Nullable
+    private Predicate<ItemStack> getIndexFilterMatcher(IControllerContext context) {
+        if (filterIndex == -1) {
+            return null;
+        }
+        return s -> context.getIndexedFilter(filterIndex-1).test(s);
     }
 
     public StackMode getStackMode() {
@@ -194,6 +224,10 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
 
     public int getSpeed() {
         return speed;
+    }
+
+    public int getFilterIndex() {
+        return filterIndex;
     }
 
     private static final Set<String> INSERT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_COUNT, TAG_PRIORITY, TAG_TAGS, TAG_META, TAG_NBT, TAG_BLACKLIST);
@@ -229,6 +263,8 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         if (speed == 0) {
             speed = 4;
         }
+        String idx = (String) data.get(TAG_FILTER_IDX);
+        this.filterIndex = "<Off>".equalsIgnoreCase(idx) ? -1 : Integer.parseInt(idx);
         tagsMode = Boolean.TRUE.equals(data.get(TAG_TAGS));
         metaMode = Boolean.TRUE.equals(data.get(TAG_META));
         nbtMode = Boolean.TRUE.equals(data.get(TAG_NBT));
@@ -258,6 +294,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         setIntegerSafe(object, "extractamount", extractAmount);
         setIntegerSafe(object, "count", count);
         setIntegerSafe(object, "speed", speed);
+        setIntegerSafe(object, "filterindex", filterIndex);
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             if (!filters.get(i).isEmpty()) {
                 object.add("filter" + i, ItemStackTools.itemStackToJson(filters.get(i)));
@@ -284,6 +321,11 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         extractAmount = getIntegerSafe(object, "extractamount");
         count = getIntegerSafe(object, "count");
         speed = getIntegerNotNull(object, "speed");
+        if (object.has("filterindex")) {
+            filterIndex = getIntegerNotNull(object, "filterindex");
+        } else {
+            filterIndex = -1;
+        }
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             if (object.has("filter" + i)) {
                 filters.set(i, ItemStackTools.jsonToItemStack(object.get("filter" + i).getAsJsonObject()));
@@ -309,6 +351,11 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
                 speed = 2;
             }
             speed *= 2;
+        }
+        if (tag.contains("filterindex")) {
+            filterIndex = tag.getInt("filterindex");
+        } else {
+            filterIndex = -1;
         }
         tagsMode = tag.getBoolean("tagsMode");
         metaMode = tag.getBoolean("metaMode");
@@ -347,6 +394,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         tag.putByte("extractMode", (byte) extractMode.ordinal());
         tag.putByte("stackMode", (byte) stackMode.ordinal());
         tag.putInt("spd", speed);
+        tag.putInt("filterindex", filterIndex);
         tag.putBoolean("tagsMode", tagsMode);
         tag.putBoolean("metaMode", metaMode);
         tag.putBoolean("nbtMode", nbtMode);
