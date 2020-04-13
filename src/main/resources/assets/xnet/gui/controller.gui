@@ -6,7 +6,7 @@ window {
         bg2('xnet:textures/gui/controller.png')
         bgoffset(80)
         panel('','horizontal') {
-            hint(41,1,124,24)
+            hint(41,18,124,24)
             togglebutton('channel1','1') {
                 channel('channel1')
                 desired(14,-1)
@@ -77,11 +77,11 @@ window {
         }
         textfield('searchbar') {
             channel('searchbar')
-            hint(5,21,89,14)
+            hint(5,4,89,14)
         }
         energybar('energybar') {
             channel('energybar')
-            hint(5,7,35,11)
+            hint(5,24,35,11)
             horizontal(true)
             showtext(false)
         }

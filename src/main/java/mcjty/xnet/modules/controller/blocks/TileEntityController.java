@@ -6,8 +6,7 @@ import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.builder.TooltipBuilder;
-import mcjty.lib.container.ContainerFactory;
-import mcjty.lib.container.GenericContainer;
+import mcjty.lib.container.*;
 import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
@@ -23,6 +22,8 @@ import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
+import mcjty.rftoolsbase.modules.various.FilterModuleCache;
+import mcjty.rftoolsbase.modules.various.items.FilterModuleItem;
 import mcjty.xnet.XNet;
 import mcjty.xnet.client.ChannelClientInfo;
 import mcjty.xnet.client.ConnectedBlockClientInfo;
@@ -64,11 +65,13 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.items.CapabilityItemHandler;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -102,9 +105,16 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     public static final BooleanProperty ERROR = BooleanProperty.create("error");
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(0) {
+    public static final int SLOT_FILTER = 0;
+    public static final int FILTER_SLOTS = 4;
+
+    private Predicate<ItemStack> filterCaches[] = new Predicate[FILTER_SLOTS];
+
+    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(FILTER_SLOTS) {
         @Override
         protected void setup() {
+            box(SlotDefinition.specific(s -> s.getItem() instanceof FilterModuleItem),
+                    CONTAINER_CONTAINER, SLOT_FILTER, 17, 5, FILTER_SLOTS, 1);
             playerSlots(91, 157);
         }
     };
@@ -119,9 +129,14 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     private Map<SidedConsumer, IConnectorSettings> cachedRoutedConnectors[] = new Map[MAX_CHANNELS];
     private Map<WirelessChannelKey, Integer> wirelessVersions = new HashMap<>();
 
+    private NoDirectionItemHander items = createItemHandler();
+    private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
+    private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
+
     private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get()));
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
             .containerSupplier((windowId,player) -> new GenericContainer(ControllerSetup.CONTAINER_CONTROLLER.get(), windowId, CONTAINER_FACTORY, getPos(), TileEntityController.this))
+            .itemHandler(itemHandler)
             .energyHandler(energyHandler));
 
     private NetworkChecker networkChecker = null;
@@ -131,6 +146,24 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         for (int i = 0; i < MAX_CHANNELS; i++) {
             channels[i] = null;
         }
+    }
+
+    @Nonnull
+    @Override
+    public Predicate<ItemStack> getIndexedFilter(int idx) {
+        if (idx < 0 || idx >= FILTER_SLOTS) {
+            return stack -> false;
+        }
+        if (filterCaches[idx] == null) {
+            ItemStack stack = items.getStackInSlot(idx);
+            if (stack.getItem() instanceof FilterModuleItem) {
+                FilterModuleCache cache = new FilterModuleCache(stack);
+                filterCaches[idx] = cache::match;
+            } else {
+                filterCaches[idx] = s -> false;
+            }
+        }
+        return filterCaches[idx];
     }
 
     public static BaseBlock createBlock() {
@@ -1101,12 +1134,31 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         }
     }
 
+    private NoDirectionItemHander createItemHandler() {
+        return new NoDirectionItemHander(TileEntityController.this, CONTAINER_FACTORY) {
+
+            @Override
+            protected void onUpdate(int index) {
+                super.onUpdate(index);
+                for (int i = 0 ; i < FILTER_SLOTS ; i++) {
+                    filterCaches[i] = null;
+                }
+            }
+
+            @Override
+            public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+                return stack.getItem() instanceof FilterModuleItem;
+            }
+        };
+    }
+
+
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
-//        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-//            return itemHandler.cast();
-//        }
+        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+            return automationItemHandler.cast();
+        }
         if (cap == CapabilityEnergy.ENERGY) {
             return energyHandler.cast();
         }
