@@ -1,8 +1,8 @@
 package mcjty.xnet.client;
 
 import mcjty.lib.network.NetworkTools;
-import mcjty.xnet.XNet;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
+import mcjty.xnet.XNet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 

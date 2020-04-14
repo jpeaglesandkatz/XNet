@@ -1,11 +1,11 @@
 package mcjty.xnet.modules.various.items;
 
-import mcjty.xnet.XNet;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
+import mcjty.xnet.XNet;
+import mcjty.xnet.modules.cables.CableColor;
+import mcjty.xnet.modules.cables.CableSetup;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
-import mcjty.xnet.modules.cables.CableSetup;
-import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
