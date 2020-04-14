@@ -22,7 +22,6 @@ import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
-import mcjty.rftoolsbase.modules.various.FilterModuleCache;
 import mcjty.rftoolsbase.modules.various.items.FilterModuleItem;
 import mcjty.xnet.XNet;
 import mcjty.xnet.client.ChannelClientInfo;
@@ -157,8 +156,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         if (filterCaches[idx] == null) {
             ItemStack stack = items.getStackInSlot(idx);
             if (stack.getItem() instanceof FilterModuleItem) {
-                FilterModuleCache cache = new FilterModuleCache(stack);
-                filterCaches[idx] = cache::match;
+                filterCaches[idx] = FilterModuleItem.getCache(stack);
             } else {
                 filterCaches[idx] = s -> false;
             }
