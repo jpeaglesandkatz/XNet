@@ -3,8 +3,6 @@ package mcjty.xnet.modules.various.client;
 import mcjty.lib.gui.GuiItemScreen;
 import mcjty.lib.gui.GuiTools;
 import mcjty.lib.gui.Window;
-import mcjty.lib.gui.layout.HorizontalLayout;
-import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
@@ -13,7 +11,7 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.util.ResourceLocation;
 
-import java.awt.*;
+import static mcjty.lib.gui.widgets.Widgets.*;
 
 public class GuiXNetManual extends GuiItemScreen {
 
@@ -51,21 +49,21 @@ public class GuiXNetManual extends GuiItemScreen {
         int k = (this.width - this.xSize) / 2;
         int l = (this.height - this.ySize) / 2;
 
-        textPage = new TextPage(XNet.instance, minecraft, this).setText(manualText).setArrowImage(iconGuiElements, 144, 0).setCraftingGridImage(iconGuiElements, 0, 192);
+        textPage = new TextPage(XNet.instance).setText(manualText).arrowImage(iconGuiElements, 144, 0).craftingGridImage(iconGuiElements, 0, 192);
 
-        prevButton = new Button(minecraft, this).setText("<").addButtonEvent(parent -> {
+        prevButton = button("<").event(() -> {
             textPage.prevPage();
             window.setTextFocus(textPage);
         });
-        pageLabel = new Label(minecraft, this).setText("0 / 0");
-        nextButton = new Button(minecraft, this).setText(">").addButtonEvent(parent -> {
+        pageLabel = label("0 / 0");
+        nextButton = button(">").event(() -> {
             textPage.nextPage();
             window.setTextFocus(textPage);
         });
-        Panel buttonPanel = new Panel(minecraft, this).setLayout(new HorizontalLayout()).setDesiredHeight(16).addChild(prevButton).addChild(pageLabel).addChild(nextButton);
+        Panel buttonPanel = horizontal().desiredHeight(16).children(prevButton, pageLabel, nextButton);
 
-        Panel toplevel = new Panel(minecraft, this).setFilledRectThickness(2).setLayout(new VerticalLayout()).addChild(textPage).addChild(buttonPanel);
-        toplevel.setBounds(new Rectangle(k, l, xSize, ySize));
+        Panel toplevel = vertical().filledRectThickness(2).children(textPage, buttonPanel);
+        toplevel.bounds(k, l, xSize, ySize);
 
         window = new Window(this, toplevel);
         window.setTextFocus(textPage);
@@ -113,9 +111,9 @@ public class GuiXNetManual extends GuiItemScreen {
 
         int index = textPage.getPageIndex();
         int count = textPage.getPageCount();
-        pageLabel.setText((index + 1) + "/" + count);
-        prevButton.setEnabled(index > 0);
-        nextButton.setEnabled(index < count - 1);
+        pageLabel.text((index + 1) + "/" + count);
+        prevButton.enabled(index > 0);
+        nextButton.enabled(index < count - 1);
 
         window.draw();
         java.util.List<String> tooltips = window.getTooltips();

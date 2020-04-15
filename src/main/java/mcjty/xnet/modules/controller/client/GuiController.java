@@ -12,14 +12,10 @@ import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.ButtonEvent;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
-import mcjty.lib.gui.layout.HorizontalLayout;
-import mcjty.lib.gui.layout.PositionalLayout;
-import mcjty.lib.gui.layout.VerticalLayout;
-import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Button;
-import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
+import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Logging;
@@ -55,6 +51,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.modules.controller.blocks.TileEntityController.*;
 
@@ -135,9 +132,9 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         searchBar = window.findChild("searchbar");
         connectorList = window.findChild("connectors");
 
-        connectorList.addSelectionEvent(new DefaultSelectionEvent() {
+        connectorList.event(new DefaultSelectionEvent() {
             @Override
-            public void doubleClick(Widget<?> parent, int index) {
+            public void doubleClick(int index) {
                 hilightSelectedContainer(index);
             }
         });
@@ -192,7 +189,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             int sel = connectorList.getSelected();
             if (sel > 0) {
                 sel--;
-                connectorList.setSelected(sel);
+                connectorList.selected(sel);
                 selectConnectorEditor(connectorPositions.get(sel), getSelectedChannel());
             }
             return true;
@@ -201,7 +198,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             if (sel != -1) {
                 if (sel < connectorList.getChildCount() - 1) {
                     sel++;
-                    connectorList.setSelected(sel);
+                    connectorList.selected(sel);
                     selectConnectorEditor(connectorPositions.get(sel), getSelectedChannel());
                 }
             }
@@ -237,7 +234,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         showingConnector = null;
         for (int j = 0 ; j < MAX_CHANNELS ; j++) {
             if (j != finalI) {
-                channelButtons[j].setPressed(false);
+                channelButtons[j].pressed(false);
                 editingChannel = finalI;
             }
         }
@@ -264,7 +261,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private void removeChannel() {
-        showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Really remove channel " + (getSelectedChannel() + 1) + "?", parent -> {
+        showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Really remove channel " + (getSelectedChannel() + 1) + "?", () -> {
             sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_REMOVECHANNEL,
                     TypedMap.builder()
                             .put(PARAM_INDEX, getSelectedChannel())
@@ -303,7 +300,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         }
         if (editingChannel != -1 && showingChannel != editingChannel) {
             showingChannel = editingChannel;
-            channelButtons[editingChannel].setPressed(true);
+            channelButtons[editingChannel].pressed(true);
 
             copyConnector = null;
             channelEditPanel.removeChildren();
@@ -318,46 +315,37 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                             .text(TAG_NAME, "Channel name", info.getChannelName(), 65);
                     info.getChannelSettings().createGui(editor);
 
-                    Button remove = new Button(minecraft, this).setText("x")
-                            .setTextOffset(0, -1)
-                            .setTooltips("Remove this channel")
-                            .setLayoutHint(new PositionalLayout.PositionalHint(151, 1, 9, 10))
-                            .addButtonEvent(parent -> removeChannel());
-                    channelEditPanel.addChild(remove);
+                    Button remove = button(151, 1, 9, 10, "x")
+                            .textOffset(0, -1)
+                            .tooltips("Remove this channel")
+                            .event(this::removeChannel);
+                    channelEditPanel.children(remove);
                     editor.setState(info.getChannelSettings());
 
-                    Button copyChannel = new Button(minecraft, this)
-                            .setText("C")
-                            .setTooltips("Copy this channel to", "the clipboard")
-                            .setLayoutHint(new PositionalLayout.PositionalHint(134, 19, 25, 14))
-                            .addButtonEvent(parent -> copyChannel());
-                    channelEditPanel.addChild(copyChannel);
+                    Button copyChannel = button(134, 19, 25, 14, "C")
+                            .tooltips("Copy this channel to", "the clipboard")
+                            .event(this::copyChannel);
+                    channelEditPanel.children(copyChannel);
 
-                    copyConnector = new Button(minecraft, this)
-                            .setText("C")
-                            .setTooltips("Copy this connector", "to the clipboard")
-                            .setLayoutHint(new PositionalLayout.PositionalHint(114, 19, 25, 14))
-                            .addButtonEvent(parent -> copyConnector());
-                    channelEditPanel.addChild(copyConnector);
+                    copyConnector = button(114, 19, 25, 14, "C")
+                            .tooltips("Copy this connector", "to the clipboard")
+                            .event(this::copyConnector);
+                    channelEditPanel.children(copyConnector);
 
                 } else {
-                    ChoiceLabel type = new ChoiceLabel(minecraft, this)
-                            .setLayoutHint(new PositionalLayout.PositionalHint(5, 3, 95, 14));
+                    ChoiceLabel type = new ChoiceLabel()
+                            .hint(5, 3, 95, 14);
                     for (IChannelType channelType : XNet.xNetApi.getChannels().values()) {
-                        type.addChoices(channelType.getID());       // Show names?
+                        type.choices(channelType.getID());       // Show names?
                     }
-                    Button create = new Button(minecraft, this)
-                            .setText("Create")
-                            .setLayoutHint(new PositionalLayout.PositionalHint(100, 3, 53, 14))
-                            .addButtonEvent(parent -> createChannel(type.getCurrentChoice()));
+                    Button create = button(100, 3, 53, 14, "Create")
+                            .event(() -> createChannel(type.getCurrentChoice()));
 
-                    Button paste = new Button(minecraft, this)
-                            .setText("Paste")
-                            .setTooltips("Create a new channel", "from the clipboard")
-                            .setLayoutHint(new PositionalLayout.PositionalHint(100, 17, 53, 14))
-                            .addButtonEvent(parent -> pasteChannel());
+                    Button paste = button(100, 17, 53, 14, "Paste")
+                            .tooltips("Create a new channel", "from the clipboard")
+                            .event(this::pasteChannel);
 
-                    channelEditPanel.addChild(type).addChild(create).addChild(paste);
+                    channelEditPanel.children(type, create, paste);
                 }
             }
         } else if (showingChannel != -1 && editingChannel == -1) {
@@ -371,28 +359,27 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     public static void showMessage(Minecraft mc, Screen gui, WindowManager windowManager, int x, int y, String title, ButtonEvent okEvent) {
-        Panel ask = new Panel(mc, gui)
-                .setLayout(new VerticalLayout())
-                .setFilledBackground(0xff666666, 0xffaaaaaa)
-                .setFilledRectThickness(1);
-        ask.setBounds(new Rectangle(x, y, 200, 40));
+        Panel ask = vertical()
+                .filledBackground(0xff666666, 0xffaaaaaa)
+                .filledRectThickness(1);
+        ask.bounds(x, y, 200, 40);
         Window askWindow = windowManager.createModalWindow(ask);
-        ask.addChild(new Label(mc, gui).setText(title));
-        Panel buttons = new Panel(mc, gui).setLayout(new HorizontalLayout()).setDesiredWidth(100).setDesiredHeight(18);
+        ask.children(label(title));
+        Panel buttons = horizontal().desiredWidth(100).desiredHeight(18);
         if (okEvent != null) {
-            buttons.addChild(new Button(mc, gui).setText("Cancel").addButtonEvent((parent -> {
+            buttons.children(button("Cancel").event((() -> {
                 windowManager.closeWindow(askWindow);
             })));
-            buttons.addChild(new Button(mc, gui).setText("OK").addButtonEvent(parent -> {
+            buttons.children(button("OK").event(() -> {
                 windowManager.closeWindow(askWindow);
-                okEvent.buttonClicked(parent);
+                okEvent.buttonClicked();
             }));
         } else {
-            buttons.addChild(new Button(mc, gui).setText("OK").addButtonEvent((parent -> {
+            buttons.children(button("OK").event((() -> {
                 windowManager.closeWindow(askWindow);
             })));
         }
-        ask.addChild(buttons);
+        ask.children(buttons);
     }
 
     private void copyConnector() {
@@ -521,30 +508,25 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                     SidedConsumer sidedConsumer = new SidedConsumer(clientInfo.getConsumerId(), side.getOpposite());
                     ConnectorClientInfo connectorInfo = info.getConnectors().get(sidedConsumer);
 
-                    Button remove = new Button(minecraft, this).setText("x")
-                            .setTextOffset(0, -1)
-                            .setTooltips("Remove this connector")
-                            .setLayoutHint(new PositionalLayout.PositionalHint(151, 1, 9, 10))
-                            .addButtonEvent(parent -> removeConnector(editingConnector));
+                    Button remove = button(151, 1, 9, 10, "x")
+                            .textOffset(0, -1)
+                            .tooltips("Remove this connector")
+                            .event(() -> removeConnector(editingConnector));
 
                     ConnectorEditorPanel editor = new ConnectorEditorPanel(connectorEditPanel, minecraft, this, editingChannel, editingConnector);
 
                     connectorInfo.getConnectorSettings().createGui(editor);
-                    connectorEditPanel.addChild(remove);
+                    connectorEditPanel.children(remove);
                     editor.setState(connectorInfo.getConnectorSettings());
                 } else {
-                    Button create = new Button(minecraft, this)
-                            .setText("Create")
-                            .setLayoutHint(new PositionalLayout.PositionalHint(85, 20, 60, 14))
-                            .addButtonEvent(parent -> createConnector(editingConnector));
-                    connectorEditPanel.addChild(create);
+                    Button create = button(85, 20, 60, 14, "Create")
+                            .event(() -> createConnector(editingConnector));
+                    connectorEditPanel.children(create);
 
-                    Button paste = new Button(minecraft, this)
-                            .setText("Paste")
-                            .setTooltips("Create a new connector", "from the clipboard")
-                            .setLayoutHint(new PositionalLayout.PositionalHint(85, 40, 60, 14))
-                            .addButtonEvent(parent -> pasteConnector());
-                    connectorEditPanel.addChild(paste);
+                    Button paste = button(85, 40, 60, 14, "Paste")
+                            .tooltips("Create a new connector", "from the clipboard")
+                            .event(this::pasteConnector);
+                    connectorEditPanel.children(paste);
                 }
             }
         } else if (showingConnector != null && editingConnector == null) {
@@ -604,58 +586,58 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
             int color = StyleConfig.colorTextInListNormal;
 
-            Panel panel = new Panel(minecraft, this).setLayout(new HorizontalLayout().setHorizontalMargin(0).setSpacing(0));
+            Panel panel = horizontal(0, 0);
             if (!selectedText.isEmpty()) {
                 if (blockName.toLowerCase().contains(selectedText)) {
-                    panel.setFilledBackground(0xffddeeaa);
+                    panel.filledBackground(0xffddeeaa);
                 }
             }
             BlockRender br;
             if (coordinate.equals(prevPos)) {
-                br = new BlockRender(minecraft, this);
+                br = new BlockRender();
             } else {
-                br = new BlockRender(minecraft, this).setRenderItem(connectedBlock.getConnectedBlock());
+                br = new BlockRender().renderItem(connectedBlock.getConnectedBlock());
                 prevPos = coordinate;
             }
-            br.setUserObject("block");
-            panel.addChild(br);
+            br.userObject("block");
+            panel.children(br);
             if (!name.isEmpty()) {
-                br.setTooltips(TextFormatting.GREEN + "Connector: " + TextFormatting.WHITE + name,
+                br.tooltips(TextFormatting.GREEN + "Connector: " + TextFormatting.WHITE + name,
                         TextFormatting.GREEN + "Block: " + TextFormatting.WHITE + blockName,
                         TextFormatting.GREEN + "Position: " + TextFormatting.WHITE + BlockPosTools.toString(coordinate),
                         TextFormatting.WHITE + "(doubleclick to highlight)");
             } else {
-                br.setTooltips(TextFormatting.GREEN + "Block: " + TextFormatting.WHITE + blockName,
+                br.tooltips(TextFormatting.GREEN + "Block: " + TextFormatting.WHITE + blockName,
                         TextFormatting.GREEN + "Position: " + TextFormatting.WHITE + BlockPosTools.toString(coordinate),
                         TextFormatting.WHITE + "(doubleclick to highlight)");
             }
 
-            panel.addChild(new Label(minecraft, this).setText(sidedPos.getSide().getName().substring(0, 1).toUpperCase()).setColor(color).setDesiredWidth(18));
+            panel.children(label(sidedPos.getSide().getName().substring(0, 1).toUpperCase()).color(color).desiredWidth(18));
             for (int i = 0 ; i < MAX_CHANNELS ; i++) {
-                Button but = new Button(minecraft, this).setDesiredWidth(14);
+                Button but = new Button().desiredWidth(14);
                 ChannelClientInfo info = fromServer_channels.get(i);
                 if (info != null) {
                     ConnectorClientInfo clientInfo = findClientInfo(info, sidedPos);
                     if (clientInfo != null) {
                         IndicatorIcon icon = clientInfo.getConnectorSettings().getIndicatorIcon();
                         if (icon != null) {
-                            but.setImage(icon.getImage(), icon.getU(), icon.getV(), icon.getIw(), icon.getIh());
+                            but.image(icon.getImage(), icon.getU(), icon.getV(), icon.getIw(), icon.getIh());
                         }
                         String indicator = clientInfo.getConnectorSettings().getIndicator();
-                        but.setText(indicator != null ? indicator : "");
+                        but.text(indicator != null ? indicator : "");
                     }
                 }
                 int finalI = i;
-                but.addButtonEvent(parent -> selectConnectorEditor(sidedPos, finalI));
-                panel.addChild(but);
+                but.event(() -> selectConnectorEditor(sidedPos, finalI));
+                panel.children(but);
             }
-            connectorList.addChild(panel);
+            connectorList.children(panel);
             connectorPositions.add(sidedPos);
         }
 
-        connectorList.setSelected(sel);
+        connectorList.selected(sel);
         if (delayedSelectedChannel != -1) {
-            connectorList.setSelected(delayedSelectedLine);
+            connectorList.selected(delayedSelectedLine);
             selectConnectorEditor(delayedSelectedConnector, delayedSelectedChannel);
         }
         delayedSelectedChannel = -1;
@@ -676,7 +658,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         if (listsReady() && copyConnector != null && editingChannel != -1) {
             ChannelClientInfo info = fromServer_channels.get(editingChannel);
             ConnectorClientInfo clientInfo = findClientInfo(info, editingConnector);
-            copyConnector.setEnabled(clientInfo != null);
+            copyConnector.enabled(clientInfo != null);
         }
         if (fromServer_channels != null) {
             for (int i = 0; i < MAX_CHANNELS; i++) {
@@ -685,17 +667,17 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 if (info != null) {
                     IndicatorIcon icon = info.getChannelSettings().getIndicatorIcon();
                     if (icon != null) {
-                        channelButtons[i].setImage(icon.getImage(), icon.getU(), icon.getV(), icon.getIw(), icon.getIh());
+                        channelButtons[i].image(icon.getImage(), icon.getU(), icon.getV(), icon.getIw(), icon.getIh());
                     }
                     String indicator = info.getChannelSettings().getIndicator();
                     if (indicator != null) {
-                        channelButtons[i].setText(indicator + channel);
+                        channelButtons[i].text(indicator + channel);
                     } else {
-                        channelButtons[i].setText(channel);
+                        channelButtons[i].text(channel);
                     }
                 } else {
-                    channelButtons[i].setImage(null, 0, 0, 0, 0);
-                    channelButtons[i].setText(channel);
+                    channelButtons[i].image(null, 0, 0, 0, 0);
+                    channelButtons[i].text(channel);
                 }
             }
         }
@@ -709,7 +691,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         tileEntity.getCapability(CapabilityEnergy.ENERGY).ifPresent(h -> {
             long currentRF = h.getEnergyStored();
             int max = h.getMaxEnergyStored();
-            energyBar.setValue(currentRF).setMaxValue(max);
+            energyBar.value(currentRF).maxValue(max);
         });
     }
 

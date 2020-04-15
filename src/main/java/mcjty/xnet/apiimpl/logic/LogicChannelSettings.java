@@ -2,14 +2,14 @@ package mcjty.xnet.apiimpl.logic;
 
 import com.google.gson.JsonObject;
 import mcjty.lib.varia.WorldTools;
-import mcjty.xnet.XNet;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
-import mcjty.xnet.api.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
+import mcjty.xnet.XNet;
+import mcjty.xnet.api.helper.DefaultChannelSettings;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;

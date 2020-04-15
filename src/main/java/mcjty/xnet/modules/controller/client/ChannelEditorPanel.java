@@ -36,7 +36,7 @@ public class ChannelEditorPanel extends AbstractEditorPanel {
 
     public void setState(IChannelSettings settings) {
         for (Map.Entry<String, Widget<?>> entry : components.entrySet()) {
-            entry.getValue().setEnabled(settings.isEnabled(entry.getKey()));
+            entry.getValue().enabled(settings.isEnabled(entry.getKey()));
         }
     }
 }

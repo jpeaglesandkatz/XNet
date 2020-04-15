@@ -1,14 +1,13 @@
 package mcjty.xnet.modules.controller.client;
 
 import mcjty.lib.gui.events.BlockRenderEvent;
-import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
-import mcjty.xnet.XNet;
 import mcjty.rftoolsbase.api.xnet.channels.RSMode;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
+import mcjty.xnet.XNet;
 import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
@@ -17,6 +16,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static mcjty.lib.gui.widgets.Widgets.textfield;
 
 public abstract class AbstractEditorPanel implements IEditorGui {
 
@@ -104,26 +105,23 @@ public abstract class AbstractEditorPanel implements IEditorGui {
     public IEditorGui label(String txt) {
         int w = mc.fontRenderer.getStringWidth(txt)+5;
         fitWidth(w);
-        Label label = new Label(mc, gui).setText(txt);
-        label.setLayoutHint(new PositionalLayout.PositionalHint(x, y, w, 14));
-        panel.addChild(label);
+        Label label = Widgets.label(x, y, w, 14, txt);
+        panel.children(label);
         x += w;
         return this;
     }
 
     @Override
     public IEditorGui text(String tag, String tooltip, String value, int width) {
-        int w = width;
-        fitWidth(w);
-        TextField text = new TextField(mc, gui).setText(value)
-                .setTooltips(parseTooltips(tooltip))
-                .setLayoutHint(new PositionalLayout.PositionalHint(x, y, w, 14));
+        fitWidth(width);
+        TextField text = textfield(x, y, width, 14).text(value)
+                .tooltips(parseTooltips(tooltip));
         data.put(tag, value);
-        text.addTextEnterEvent((parent, newText) -> update(tag, newText));
-        text.addTextEvent((parent, newText) -> update(tag, newText));
-        panel.addChild(text);
+        text.addTextEnterEvent((newText) -> update(tag, newText));
+        text.event((newText) -> update(tag, newText));
+        panel.children(text);
         components.put(tag, text);
-        x += w;
+        x += width;
         return this;
     }
 
@@ -149,17 +147,15 @@ public abstract class AbstractEditorPanel implements IEditorGui {
 
     @Override
     public IEditorGui integer(String tag, String tooltip, Integer value, int width, Integer maximum) {
-        int w = width;
-        fitWidth(w);
-        TextField text = new TextField(mc, gui).setText(value == null ? "" : value.toString())
-                .setTooltips(parseTooltips(tooltip))
-                .setLayoutHint(new PositionalLayout.PositionalHint(x, y, w, 14));
+        fitWidth(width);
+        TextField text = textfield(x, y, width, 14).text(value == null ? "" : value.toString())
+                .tooltips(parseTooltips(tooltip));
         data.put(tag, value);
-        text.addTextEnterEvent((parent, newText) -> update(tag, parseInt(newText, maximum)));
-        text.addTextEvent((parent, newText) -> update(tag, parseInt(newText, maximum)));
-        panel.addChild(text);
+        text.addTextEnterEvent((newText) -> update(tag, parseInt(newText, maximum)));
+        text.event((newText) -> update(tag, parseInt(newText, maximum)));
+        panel.children(text);
         components.put(tag, text);
-        x += w;
+        x += width;
         return this;
     }
 
@@ -176,17 +172,15 @@ public abstract class AbstractEditorPanel implements IEditorGui {
 
     @Override
     public IEditorGui real(String tag, String tooltip, Double value, int width) {
-        int w = width;
-        fitWidth(w);
-        TextField text = new TextField(mc, gui).setText(value == null ? "" : value.toString())
-                .setTooltips(parseTooltips(tooltip))
-                .setLayoutHint(new PositionalLayout.PositionalHint(x, y, w, 14));
+        fitWidth(width);
+        TextField text = textfield(x, y, width, 14).text(value == null ? "" : value.toString())
+                .tooltips(parseTooltips(tooltip));
         data.put(tag, value);
-        text.addTextEnterEvent((parent, newText) -> update(tag, parseDouble(newText)));
-        text.addTextEvent((parent, newText) -> update(tag, parseDouble(newText)));
-        panel.addChild(text);
+        text.addTextEnterEvent((newText) -> update(tag, parseDouble(newText)));
+        text.event((newText) -> update(tag, parseDouble(newText)));
+        panel.children(text);
         components.put(tag, text);
-        x += w;
+        x += width;
         return this;
     }
 
@@ -194,12 +188,12 @@ public abstract class AbstractEditorPanel implements IEditorGui {
     public IEditorGui toggle(String tag, String tooltip, boolean value) {
         int w = 12;
         fitWidth(w);
-        ToggleButton toggle = new ToggleButton(mc, gui).setCheckMarker(true).setPressed(value)
-                .setTooltips(parseTooltips(tooltip))
-                .setLayoutHint(new PositionalLayout.PositionalHint(x, y, w, 14));
+        ToggleButton toggle = new ToggleButton().checkMarker(true).pressed(value)
+                .tooltips(parseTooltips(tooltip))
+                .hint(x, y, w, 14);
         data.put(tag, value);
-        toggle.addButtonEvent(parent -> update(tag, toggle.isPressed()));
-        panel.addChild(toggle);
+        toggle.event(() -> update(tag, toggle.isPressed()));
+        panel.children(toggle);
         components.put(tag, toggle);
         x += w;
         return this;
@@ -209,13 +203,13 @@ public abstract class AbstractEditorPanel implements IEditorGui {
     public IEditorGui toggleText(String tag, String tooltip, String text, boolean value) {
         int w = mc.fontRenderer.getStringWidth(text) + 10;
         fitWidth(w);
-        ToggleButton toggle = new ToggleButton(mc, gui).setCheckMarker(false).setPressed(value)
-                .setText(text)
-                .setTooltips(parseTooltips(tooltip))
-                .setLayoutHint(new PositionalLayout.PositionalHint(x, y, w, 14));
+        ToggleButton toggle = new ToggleButton().checkMarker(false).pressed(value)
+                .text(text)
+                .tooltips(parseTooltips(tooltip))
+                .hint(x, y, w, 14);
         data.put(tag, value);
-        toggle.addButtonEvent(parent -> update(tag, toggle.isPressed()));
-        panel.addChild(toggle);
+        toggle.event(() -> update(tag, toggle.isPressed()));
+        panel.children(toggle);
         components.put(tag, toggle);
         x += w;
         return this;
@@ -225,12 +219,12 @@ public abstract class AbstractEditorPanel implements IEditorGui {
     public IEditorGui colors(String tag, String tooltip, Integer current, Integer... colors) {
         int w = 14;
         fitWidth(w);
-        ColorChoiceLabel choice = new ColorChoiceLabel(mc, gui).addColors(colors).setCurrentColor(current)
-                .setTooltips(parseTooltips(tooltip))
-                .setLayoutHint(new PositionalLayout.PositionalHint(x, y, w, 14));
+        ColorChoiceLabel choice = new ColorChoiceLabel().colors(colors).currentColor(current)
+                .tooltips(parseTooltips(tooltip))
+                .hint(x, y, w, 14);
         data.put(tag, current);
-        choice.addChoiceEvent((parent, newChoice) -> update(tag, newChoice));
-        panel.addChild(choice);
+        choice.event((newChoice) -> update(tag, newChoice));
+        panel.children(choice);
         components.put(tag, choice);
         x += w;
         return this;
@@ -244,12 +238,12 @@ public abstract class AbstractEditorPanel implements IEditorGui {
         }
 
         fitWidth(w);
-        ChoiceLabel choice = new ChoiceLabel(mc, gui).addChoices(values).setChoice(current)
-                .setTooltips(parseTooltips(tooltip))
-                .setLayoutHint(new PositionalLayout.PositionalHint(x, y, w, 14));
+        ChoiceLabel choice = new ChoiceLabel().choices(values).choice(current)
+                .tooltips(parseTooltips(tooltip))
+                .hint(x, y, w, 14);
         data.put(tag, current);
-        choice.addChoiceEvent((parent, newChoice) -> update(tag, newChoice));
-        panel.addChild(choice);
+        choice.event((newChoice) -> update(tag, newChoice));
+        panel.children(choice);
         components.put(tag, choice);
         x += w;
         return this;
@@ -269,11 +263,11 @@ public abstract class AbstractEditorPanel implements IEditorGui {
     public IEditorGui redstoneMode(String tag, RSMode current) {
         int w = 14;
         fitWidth(w);
-        ImageChoiceLabel redstoneMode = new ImageChoiceLabel(mc, gui)
-                .addChoice("Ignored", "Redstone mode:\nIgnored", iconGuiElements, 1, 1)
-                .addChoice("Off", "Redstone mode:\nOff to activate", iconGuiElements, 17, 1)
-                .addChoice("On", "Redstone mode:\nOn to activate", iconGuiElements, 33, 1)
-                .addChoice("Pulse", "Do one operation\non a pulse", iconGuiElements, 49, 1);
+        ImageChoiceLabel redstoneMode = new ImageChoiceLabel()
+                .choice("Ignored", "Redstone mode:\nIgnored", iconGuiElements, 1, 1)
+                .choice("Off", "Redstone mode:\nOff to activate", iconGuiElements, 17, 1)
+                .choice("On", "Redstone mode:\nOn to activate", iconGuiElements, 33, 1)
+                .choice("Pulse", "Do one operation\non a pulse", iconGuiElements, 49, 1);
         switch (current) {
             case IGNORED:
                 redstoneMode.setCurrentChoice("Ignored");
@@ -288,10 +282,10 @@ public abstract class AbstractEditorPanel implements IEditorGui {
                 redstoneMode.setCurrentChoice("Pulse");
                 break;
         }
-        redstoneMode.setLayoutHint(new PositionalLayout.PositionalHint(x, y, w, 14));
+        redstoneMode.hint(x, y, w, 14);
         data.put(tag, current.name());
-        redstoneMode.addChoiceEvent((parent, newChoice) -> update(tag, newChoice));
-        panel.addChild(redstoneMode);
+        redstoneMode.event((newChoice) -> update(tag, newChoice));
+        panel.children(redstoneMode);
         components.put(tag, redstoneMode);
         x += w;
         return this;
@@ -301,33 +295,33 @@ public abstract class AbstractEditorPanel implements IEditorGui {
     public IEditorGui ghostSlot(String tag, ItemStack stack) {
         int w = 16;
         fitWidth(w);
-        BlockRender blockRender = new BlockRender(mc, gui)
-                .setRenderItem(stack)
-                .setDesiredWidth(18).setDesiredHeight(18)
-                .setFilledRectThickness(-1).setFilledBackground(0xff888888);
-        blockRender.addSelectionEvent(new BlockRenderEvent() {
+        BlockRender blockRender = new BlockRender()
+                .renderItem(stack)
+                .desiredWidth(18).desiredHeight(18)
+                .filledRectThickness(-1).filledBackground(0xff888888);
+        blockRender.event(new BlockRenderEvent() {
             @Override
-            public void select(Widget widget) {
+            public void select() {
                 ItemStack holding = Minecraft.getInstance().player.inventory.getItemStack();
                 if (holding.isEmpty()) {
                     update(tag, holding);
-                    blockRender.setRenderItem(null);
+                    blockRender.renderItem(null);
                 } else {
                     ItemStack copy = holding.copy();
                     copy.setCount(1);
-                    blockRender.setRenderItem(copy);
+                    blockRender.renderItem(copy);
                     update(tag, copy);
                 }
             }
 
             @Override
-            public void doubleClick(Widget widget) {
+            public void doubleClick() {
 
             }
         });
-        blockRender.setLayoutHint(new PositionalLayout.PositionalHint(x, y-1, 17, 17));
+        blockRender.hint(x, y-1, 17, 17);
         data.put(tag, stack);
-        panel.addChild(blockRender);
+        panel.children(blockRender);
         components.put(tag, blockRender);
         x += w;
         return this;

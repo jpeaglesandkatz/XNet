@@ -3,13 +3,11 @@ package mcjty.xnet.modules.router.client;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
-import mcjty.lib.gui.layout.HorizontalLayout;
-import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
-import mcjty.xnet.XNet;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
+import mcjty.xnet.XNet;
 import mcjty.xnet.client.ControllerChannelClientInfo;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.modules.router.network.PacketGetLocalChannelsRouter;
@@ -21,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.List;
 
+import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.xnet.modules.router.blocks.TileEntityRouter.*;
 
 public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericContainer> {
@@ -82,24 +81,24 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         needsRefresh = false;
 
         localChannelList.removeChildren();
-        localChannelList.setRowheight(40);
+        localChannelList.rowheight(40);
         int sel = localChannelList.getSelected();
 
         for (ControllerChannelClientInfo channel : fromServer_localChannels) {
-            localChannelList.addChild(makeChannelLine(channel, true));
+            localChannelList.children(makeChannelLine(channel, true));
         }
 
-        localChannelList.setSelected(sel);
+        localChannelList.selected(sel);
 
         remoteChannelList.removeChildren();
-        remoteChannelList.setRowheight(40);
+        remoteChannelList.rowheight(40);
         sel = remoteChannelList.getSelected();
 
         for (ControllerChannelClientInfo channel : fromServer_remoteChannels) {
-            remoteChannelList.addChild(makeChannelLine(channel, false));
+            remoteChannelList.children(makeChannelLine(channel, false));
         }
 
-        remoteChannelList.setSelected(sel);
+        remoteChannelList.selected(sel);
     }
 
     private Panel makeChannelLine(ControllerChannelClientInfo channel, boolean local) {
@@ -109,36 +108,39 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         IChannelType type = channel.getChannelType();
         int index = channel.getIndex();
 
-        Panel panel = new Panel(minecraft, this).setLayout(new PositionalLayout()).setDesiredHeight(30);
-        Panel panel1 = new Panel(minecraft, this).setLayout(new HorizontalLayout().setHorizontalMargin(0).setSpacing(0)).setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 160, 13));
+        Panel panel = positional().desiredHeight(30);
+        Panel panel1 = horizontal(0, 0).hint(0, 0, 160, 13);
         int labelColor = 0xff2244aa;
         // @todo, better way to show remote channels
         if (channel.isRemote()) {
             labelColor = 0xffaa1133;
         }
-        panel1.addChild(new Label(minecraft, this).setText("Ch").setColor(labelColor));
-        panel1.addChild(new Label(minecraft, this).setText(name));
-        panel1.addChild(new Label(minecraft, this).setText(">").setColor(labelColor));
+        panel1.children(
+                label("Ch").color(labelColor),
+                label(name),
+                label(">").color(labelColor));
         if (channel.isRemote()) {
-            panel1.addChild(new ImageLabel(minecraft, this).setImage(iconGuiElements, 48, 80).setDesiredWidth(16));
+            panel1.children(new ImageLabel().image(iconGuiElements, 48, 80).desiredWidth(16));
         }
         if (local) {
-            TextField pubName = new TextField(minecraft, this).setText(publishedName).setDesiredWidth(50).setDesiredHeight(13)
-                    .addTextEvent((parent, newText) -> updatePublish(controllerPos, index, newText));
-            panel1.addChild(pubName);
+            TextField pubName = new TextField().text(publishedName).desiredWidth(50).desiredHeight(13)
+                    .event((newText) -> updatePublish(controllerPos, index, newText));
+            panel1.children(pubName);
         } else {
-            panel1.addChild(new Label(minecraft, this).setText(publishedName).setColor(0xff33ff00));
+            panel1.children(label(publishedName).color(0xff33ff00));
         }
 
-        Panel panel2 = new Panel(minecraft, this).setLayout(new HorizontalLayout().setHorizontalMargin(0).setSpacing(0)).setLayoutHint(new PositionalLayout.PositionalHint(0, 13, 160, 13));
-        panel2.addChild(new Label(minecraft, this).setText("Pos").setColor(labelColor));
-        panel2.addChild(new Label(minecraft, this).setText(BlockPosTools.toString(controllerPos)));
+        Panel panel2 = horizontal(0, 0).hint(0, 13, 160, 13)
+                .children(
+                        label("Pos").color(labelColor),
+                        label(BlockPosTools.toString(controllerPos)));
 
-        Panel panel3 = new Panel(minecraft, this).setLayout(new HorizontalLayout().setHorizontalMargin(0).setSpacing(0)).setLayoutHint(new PositionalLayout.PositionalHint(0, 26, 160, 13));
-        panel3.addChild(new Label(minecraft, this).setText("Index").setColor(labelColor));
-        panel3.addChild(new Label(minecraft, this).setText(index + " (" + type.getName() + ")"));
+        Panel panel3 = horizontal(0, 0).hint(0, 26, 160, 13)
+                .children(
+                        label("Index").color(labelColor),
+                        label(index + " (" + type.getName() + ")"));
 
-        panel.addChild(panel1).addChild(panel2).addChild(panel3);
+        panel.children(panel1, panel2, panel3);
         return panel;
     }
 

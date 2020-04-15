@@ -147,7 +147,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         return channelToWireless.entrySet().stream().filter(pair -> {
             WirelessChannelKey key = pair.getKey();
             return (owner == null && key.getOwner() == null) || (owner != null && (key.getOwner() == null || owner.equals(key.getOwner())));
-        }).map(pair -> pair.getValue());
+        }).map(Map.Entry::getValue);
     }
 
     @Override
