@@ -66,12 +66,12 @@ window {
             horizmargin(3)
         }
         panel('channeleditpanel','positional') {
-            hint(171,5,161,37)
+            hint(170,4,163,38)
             bgthickness(-1)
             bgfilled1(-7631989)
         }
         panel('connectoreditpanel','positional') {
-            hint(171,45,161,108)
+            hint(170,45,163,108)
             bgthickness(-1)
             bgfilled1(-7631989)
         }
