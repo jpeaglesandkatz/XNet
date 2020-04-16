@@ -22,7 +22,7 @@ import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
-import mcjty.rftoolsbase.modules.various.items.FilterModuleItem;
+import mcjty.rftoolsbase.modules.filter.items.FilterModuleItem;
 import mcjty.xnet.XNet;
 import mcjty.xnet.client.ChannelClientInfo;
 import mcjty.xnet.client.ConnectedBlockClientInfo;
