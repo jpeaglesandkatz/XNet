@@ -164,7 +164,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             if (extractorPos != null) {
                 Direction side = entry.getKey().getSide();
                 BlockPos pos = extractorPos.offset(side);
-                if (!WorldTools.chunkLoaded(world, pos)) {
+                if (!WorldTools.isLoaded(world, pos)) {
                     continue;
                 }
 
@@ -290,7 +290,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             if (settings.getMatcher(context).test(stack)) {
                 BlockPos consumerPos = context.findConsumerPosition(entry.getKey().getConsumerId());
                 if (consumerPos != null) {
-                    if (!WorldTools.chunkLoaded(world, consumerPos)) {
+                    if (!WorldTools.isLoaded(world, consumerPos)) {
                         continue;
                     }
 

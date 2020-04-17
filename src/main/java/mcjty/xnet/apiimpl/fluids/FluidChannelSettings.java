@@ -107,7 +107,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             if (extractorPos != null) {
                 Direction side = entry.getKey().getSide();
                 BlockPos pos = extractorPos.offset(side);
-                if (!WorldTools.chunkLoaded(world, pos)) {
+                if (!WorldTools.isLoaded(world, pos)) {
                     continue;
                 }
 
@@ -191,7 +191,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             if (settings.getMatcher() == null || settings.getMatcher().equals(stack)) {
                 BlockPos consumerPos = context.findConsumerPosition(entry.getKey().getConsumerId());
                 if (consumerPos != null) {
-                    if (!WorldTools.chunkLoaded(world, consumerPos)) {
+                    if (!WorldTools.isLoaded(world, consumerPos)) {
                         continue;
                     }
                     if (checkRedstone(world, settings, consumerPos)) {

@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import mcjty.lib.varia.FluidTools;
-import mcjty.lib.varia.ItemStackTools;
+import mcjty.lib.varia.JSonTools;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.xnet.XNet;
@@ -182,7 +182,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         setIntegerSafe(object, "minmax", minmax);
         setIntegerSafe(object, "speed", speed);
         if (!filter.isEmpty()) {
-            object.add("filter", ItemStackTools.itemStackToJson(filter));
+            object.add("filter", JSonTools.itemStackToJson(filter));
         }
         if (rate != null && rate > Config.maxFluidRateNormal.get()) {
             object.add("advancedneeded", new JsonPrimitive(true));
@@ -202,7 +202,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         minmax = getIntegerSafe(object, "minmax");
         speed = getIntegerNotNull(object, "speed");
         if (object.has("filter")) {
-            filter = ItemStackTools.jsonToItemStack(object.get("filter").getAsJsonObject());
+            filter = JSonTools.jsonToItemStack(object.get("filter").getAsJsonObject());
         } else {
             filter = ItemStack.EMPTY;
         }

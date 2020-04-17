@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import mcjty.lib.varia.ItemStackList;
-import mcjty.lib.varia.ItemStackTools;
+import mcjty.lib.varia.JSonTools;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
@@ -297,7 +297,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         setIntegerSafe(object, "filterindex", filterIndex);
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             if (!filters.get(i).isEmpty()) {
-                object.add("filter" + i, ItemStackTools.itemStackToJson(filters.get(i)));
+                object.add("filter" + i, JSonTools.itemStackToJson(filters.get(i)));
             }
         }
         if (speed == 1) {
@@ -328,7 +328,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         }
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             if (object.has("filter" + i)) {
-                filters.set(i, ItemStackTools.jsonToItemStack(object.get("filter" + i).getAsJsonObject()));
+                filters.set(i, JSonTools.jsonToItemStack(object.get("filter" + i).getAsJsonObject()));
             } else {
                 filters.set(i, ItemStack.EMPTY);
             }

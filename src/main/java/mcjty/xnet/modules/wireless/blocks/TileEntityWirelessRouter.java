@@ -205,7 +205,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
             return false;
         }
         return LogicTools.consumers(otherWorld, wirelessRouter.getNetworkId())
-                .filter(consumerPos -> WorldTools.chunkLoaded(otherWorld, consumerPos))
+                .filter(consumerPos -> WorldTools.isLoaded(otherWorld, consumerPos))
                 .anyMatch(consumerPos -> LogicTools.wirelessRouters(otherWorld, consumerPos)
                         .anyMatch(this::inRange));
     }
@@ -276,7 +276,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
             info.getRouters().keySet().stream()
                     // Don't do this for ourselves
                     .filter(routerPos -> routerPos.getDimension() != world.getDimension().getType() || !routerPos.getCoordinate().equals(pos))
-                    .filter(routerPos -> WorldTools.chunkLoaded(WorldTools.getWorld(world, routerPos.getDimension()), routerPos.getCoordinate()))
+                    .filter(routerPos -> WorldTools.isLoaded(WorldTools.getWorld(world, routerPos.getDimension()), routerPos.getCoordinate()))
                     .forEach(routerPos -> {
                         ServerWorld otherWorld = WorldTools.getWorld(world, routerPos.getDimension());
                         TileEntity otherTE = otherWorld.getTileEntity(routerPos.getCoordinate());

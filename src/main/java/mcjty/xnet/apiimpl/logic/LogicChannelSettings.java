@@ -87,7 +87,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
             if (connectorPos != null) {
                 Direction side = entry.getKey().getSide();
                 BlockPos pos = connectorPos.offset(side);
-                if (!WorldTools.chunkLoaded(world, pos)) {
+                if (!WorldTools.isLoaded(world, pos)) {
                     // If it is not chunkloaded we just use the color settings as we last remembered it
                     colors |= settings.getColorMask();
                     continue;
@@ -124,7 +124,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
             BlockPos connectorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
             if (connectorPos != null) {
                 Direction side = entry.getKey().getSide();
-                if (!WorldTools.chunkLoaded(world, connectorPos)) {
+                if (!WorldTools.isLoaded(world, connectorPos)) {
                     continue;
                 }
 

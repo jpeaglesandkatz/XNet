@@ -31,7 +31,7 @@ public class LogicTools {
         if (controllerPos == null) {
             return null;
         }
-        if (!WorldTools.chunkLoaded(world, controllerPos)) {
+        if (!WorldTools.isLoaded(world, controllerPos)) {
             return null;
         }
         TileEntity te = world.getTileEntity(controllerPos);

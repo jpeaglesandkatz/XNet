@@ -82,7 +82,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
 
                 Direction side = entry.getKey().getSide();
                 BlockPos energyPos = connectorPos.offset(side);
-                if (!WorldTools.chunkLoaded(world, energyPos)) {
+                if (!WorldTools.isLoaded(world, energyPos)) {
                     continue;
                 }
 
@@ -171,7 +171,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             if (extractorPos != null) {
                 Direction side = entry.getKey().getSide();
                 BlockPos pos = extractorPos.offset(side);
-                if (!WorldTools.chunkLoaded(world, pos)) {
+                if (!WorldTools.isLoaded(world, pos)) {
                     continue;
                 }
                 TileEntity te = world.getTileEntity(pos);

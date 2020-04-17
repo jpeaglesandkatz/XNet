@@ -5,7 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import mcjty.lib.varia.ItemStackTools;
+import mcjty.lib.varia.JSonTools;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.xnet.XNet;
@@ -178,7 +178,7 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
             setEnumSafe(o, "operator", sensor.getOperator());
             setIntegerSafe(o, "amount", sensor.getAmount());
             if (!sensor.getFilter().isEmpty()) {
-                o.add("filter", ItemStackTools.itemStackToJson(sensor.getFilter()));
+                o.add("filter", JSonTools.itemStackToJson(sensor.getFilter()));
             }
             sensorArray.add(o);
         }
@@ -204,7 +204,7 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
             sensor.setOutputColor(getEnumSafe(o, "outputcolor", EnumStringTranslators::getColor));
             sensor.setSensorMode(getEnumSafe(o, "sensormode", EnumStringTranslators::getSensorMode));
             if (o.has("filter")) {
-                sensor.setFilter(ItemStackTools.jsonToItemStack(o.get("filter").getAsJsonObject()));
+                sensor.setFilter(JSonTools.jsonToItemStack(o.get("filter").getAsJsonObject()));
             } else {
                 sensor.setFilter(ItemStack.EMPTY);
             }
