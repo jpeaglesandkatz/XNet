@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "group": "xnet",
   "pattern": [
     "s1s",
     "rgr",

@@ -26,7 +26,6 @@ public class Recipes extends BaseRecipeProvider {
         super(generatorIn);
         add('F', mcjty.rftoolsbase.modules.various.VariousSetup.MACHINE_FRAME.get());
         add('A', mcjty.rftoolsbase.modules.various.VariousSetup.MACHINE_BASE.get());
-        group("xnet");
     }
 
     @Override

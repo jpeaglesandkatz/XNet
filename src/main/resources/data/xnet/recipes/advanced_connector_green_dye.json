@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "group": "xnet",
   "ingredients": [
     {
       "tag": "forge:dyes/green"
