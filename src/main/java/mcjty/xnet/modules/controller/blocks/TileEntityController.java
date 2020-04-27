@@ -6,7 +6,10 @@ import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.builder.TooltipBuilder;
-import mcjty.lib.container.*;
+import mcjty.lib.container.AutomationFilterItemHander;
+import mcjty.lib.container.ContainerFactory;
+import mcjty.lib.container.GenericContainer;
+import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
@@ -74,6 +77,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static mcjty.lib.container.ContainerFactory.CONTAINER_CONTAINER;
+import static mcjty.lib.container.SlotDefinition.specific;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.modules.controller.ControllerSetup.TYPE_CONTROLLER;
 
@@ -109,14 +114,10 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     private Predicate<ItemStack> filterCaches[] = new Predicate[FILTER_SLOTS];
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(FILTER_SLOTS) {
-        @Override
-        protected void setup() {
-            box(SlotDefinition.specific(s -> s.getItem() instanceof FilterModuleItem),
-                    CONTAINER_CONTAINER, SLOT_FILTER, 17, 5, FILTER_SLOTS, 1);
-            playerSlots(91, 157);
-        }
-    };
+    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(FILTER_SLOTS)
+            .box(specific(s -> s.getItem() instanceof FilterModuleItem),
+                    CONTAINER_CONTAINER, SLOT_FILTER, 17, 5, FILTER_SLOTS, 1)
+            .playerSlots(91, 157);
 
     private NetworkId networkId;
 

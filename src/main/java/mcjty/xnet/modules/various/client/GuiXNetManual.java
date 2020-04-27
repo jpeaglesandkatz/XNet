@@ -1,7 +1,7 @@
 package mcjty.xnet.modules.various.client;
 
 import mcjty.lib.gui.GuiItemScreen;
-import mcjty.lib.varia.GuiTools;
+import mcjty.lib.client.GuiTools;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Label;

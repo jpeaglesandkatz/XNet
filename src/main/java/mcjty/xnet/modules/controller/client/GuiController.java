@@ -7,7 +7,7 @@ import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.varia.GuiTools;
+import mcjty.lib.client.GuiTools;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.ButtonEvent;
