@@ -64,6 +64,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -114,10 +115,10 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     private Predicate<ItemStack> filterCaches[] = new Predicate[FILTER_SLOTS];
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(FILTER_SLOTS)
+    public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(FILTER_SLOTS)
             .box(specific(s -> s.getItem() instanceof FilterModuleItem),
                     CONTAINER_CONTAINER, SLOT_FILTER, 17, 5, FILTER_SLOTS, 1)
-            .playerSlots(91, 157);
+            .playerSlots(91, 157));
 
     private NetworkId networkId;
 
@@ -135,7 +136,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get()));
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
-            .containerSupplier((windowId,player) -> new GenericContainer(ControllerSetup.CONTAINER_CONTROLLER.get(), windowId, CONTAINER_FACTORY, getPos(), TileEntityController.this))
+            .containerSupplier((windowId,player) -> new GenericContainer(ControllerSetup.CONTAINER_CONTROLLER.get(), windowId, CONTAINER_FACTORY.get(), getPos(), TileEntityController.this))
             .itemHandler(itemHandler)
             .energyHandler(energyHandler));
 
@@ -1134,7 +1135,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     }
 
     private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(TileEntityController.this, CONTAINER_FACTORY) {
+        return new NoDirectionItemHander(TileEntityController.this, CONTAINER_FACTORY.get()) {
 
             @Override
             protected void onUpdate(int index) {

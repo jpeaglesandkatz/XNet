@@ -75,7 +75,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     private int channelCount = 0;
 
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Router")
-            .containerSupplier((windowId,player) -> new GenericContainer(RouterSetup.CONTAINER_ROUTER.get(), windowId, EmptyContainer.CONTAINER_FACTORY, getPos(), TileEntityRouter.this)));
+            .containerSupplier((windowId,player) -> new GenericContainer(RouterSetup.CONTAINER_ROUTER.get(), windowId, EmptyContainer.CONTAINER_FACTORY.get(), getPos(), TileEntityRouter.this)));
 
     public TileEntityRouter() {
         super(TYPE_ROUTER.get());
