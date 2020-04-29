@@ -6,6 +6,7 @@ Upcoming:
 - XNet now also supports the filter module from RFToolsBase. Up to 4 filters can be placed in the controller and used in item connectors
 - The processor console module can now also be used as an item in the tablet
 - Fixed the recipes for the vanilla recipe book
+- Moved most of the configs from common to server (so that they are saved with the world and synced to the client)
 
 2.0.2-alpha:
 - Darkere fixed some GUI translation keys
