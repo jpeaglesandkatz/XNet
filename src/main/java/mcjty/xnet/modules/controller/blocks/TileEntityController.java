@@ -16,6 +16,7 @@ import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.Cached;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
@@ -113,7 +114,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     public static final int SLOT_FILTER = 0;
     public static final int FILTER_SLOTS = 4;
 
-    private Predicate<ItemStack> filterCaches[] = new Predicate[FILTER_SLOTS];
+    private final Predicate<ItemStack> filterCaches[] = new Predicate[FILTER_SLOTS];
 
     public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(FILTER_SLOTS)
             .box(specific(s -> s.getItem() instanceof FilterModuleItem),
@@ -126,21 +127,21 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     private int colors = 0;
 
     // Cached/transient data
-    private Map<SidedConsumer, IConnectorSettings> cachedConnectors[] = new Map[MAX_CHANNELS];
-    private Map<SidedConsumer, IConnectorSettings> cachedRoutedConnectors[] = new Map[MAX_CHANNELS];
-    private Map<WirelessChannelKey, Integer> wirelessVersions = new HashMap<>();
+    private final Map<SidedConsumer, IConnectorSettings> cachedConnectors[] = new Map[MAX_CHANNELS];
+    private final Map<SidedConsumer, IConnectorSettings> cachedRoutedConnectors[] = new Map[MAX_CHANNELS];
+    private final Map<WirelessChannelKey, Integer> wirelessVersions = new HashMap<>();
 
-    private NoDirectionItemHander items = createItemHandler();
-    private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
-    private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
+    private final NoDirectionItemHander items = createItemHandler();
+    private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
+    private final LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
-    private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get()));
-    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
+    private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get()));
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
             .containerSupplier((windowId,player) -> new GenericContainer(ControllerSetup.CONTAINER_CONTROLLER.get(), windowId, CONTAINER_FACTORY.get(), getPos(), TileEntityController.this))
             .itemHandler(itemHandler)
             .energyHandler(energyHandler));
 
-    private NetworkChecker networkChecker = null;
+    private final Cached<NetworkChecker> networkChecker = Cached.of(this::createNetworkChecker);
 
     public TileEntityController() {
         super(TYPE_CONTROLLER.get());
@@ -181,28 +182,23 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         };
     }
 
-    @Nonnull
-    public NetworkChecker getNetworkChecker() {
-        if (networkChecker == null) {
-            networkChecker = new NetworkChecker();
-            networkChecker.add(networkId);
-            WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
-            LogicTools.routers(world, networkId)
-                    .forEach(router -> {
-                        networkChecker.add(worldBlob.getNetworksAt(router.getPos()));
-                        // We're only interested in one network. The other router networks are all same topology
-                        NetworkId routerNetwork = worldBlob.getNetworkAt(router.getPos());
-                        if (routerNetwork != null) {
-                            LogicTools.routers(world, routerNetwork)
-                                    .filter(r -> router != r)
-                                    .forEach(r -> LogicTools.connectors(world, r.getPos())
-                                            .forEach(connectorPos -> networkChecker.add(worldBlob.getNetworkAt(connectorPos))));
-                        }
-                    });
-
-//            networkChecker.dump();
-        }
-        return networkChecker;
+    private NetworkChecker createNetworkChecker() {
+        NetworkChecker checker = new NetworkChecker();
+        checker.add(networkId);
+        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
+        LogicTools.routers(world, networkId)
+                .forEach(router -> {
+                    checker.add(worldBlob.getNetworksAt(router.getPos()));
+                    // We're only interested in one network. The other router networks are all same topology
+                    NetworkId routerNetwork = worldBlob.getNetworkAt(router.getPos());
+                    if (routerNetwork != null) {
+                        LogicTools.routers(world, routerNetwork)
+                                .filter(r -> router != r)
+                                .forEach(r -> LogicTools.connectors(world, r.getPos())
+                                        .forEach(connectorPos -> checker.add(worldBlob.getNetworkAt(connectorPos))));
+                    }
+                });
+        return checker;
     }
 
     @Override
@@ -222,7 +218,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         if (networkId != null && networkId.equals(this.networkId)) {
             return;
         }
-        networkChecker = null;
+        networkChecker.clear();
         this.networkId = networkId;
         markDirtyQuick();
     }
@@ -231,8 +227,12 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         return channels;
     }
 
+    public Cached<NetworkChecker> getNetworkChecker() {
+        return networkChecker;
+    }
+
     private void checkNetwork(WorldBlob worldBlob) {
-        if (networkId != null && getNetworkChecker().isDirtyAndMarkClean(worldBlob)) {
+        if (networkId != null && networkChecker.get().isDirtyAndMarkClean(worldBlob)) {
             cleanCaches();
             return;
         }

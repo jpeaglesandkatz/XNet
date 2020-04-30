@@ -67,8 +67,8 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
 
     private int globalChannelVersion = -1;      // Used to detect if a wireless channel has been published and we might need to recheck
 
-    private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.wirelessRouterMaxRF.get(), Config.wirelessRouterRfPerTick.get()));
-    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Wireless Router")
+    private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.wirelessRouterMaxRF.get(), Config.wirelessRouterRfPerTick.get()));
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Wireless Router")
             .containerSupplier((windowId,player) -> new GenericContainer(WirelessRouterSetup.CONTAINER_WIRELESS_ROUTER.get(), windowId, EmptyContainer.CONTAINER_FACTORY.get(), getPos(), TileEntityWirelessRouter.this)));
 
     public TileEntityWirelessRouter() {

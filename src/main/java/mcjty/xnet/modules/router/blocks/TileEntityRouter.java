@@ -71,10 +71,10 @@ public final class TileEntityRouter extends GenericTileEntity {
     public static final String CMD_GETREMOTECHANNELS = "getRemoteChannelInfo";
     public static final String CLIENTCMD_CHANNELSREMOTEREADY = "channelsRemoteReady";
 
-    private Map<LocalChannelId, String> publishedChannels = new HashMap<>();
+    private final Map<LocalChannelId, String> publishedChannels = new HashMap<>();
     private int channelCount = 0;
 
-    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Router")
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Router")
             .containerSupplier((windowId,player) -> new GenericContainer(RouterSetup.CONTAINER_ROUTER.get(), windowId, EmptyContainer.CONTAINER_FACTORY.get(), getPos(), TileEntityRouter.this)));
 
     public TileEntityRouter() {

@@ -48,7 +48,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     public static final Key<Integer> PARAM_FACING = new Key<>("facing", Type.INTEGER);
     public static final Key<Boolean> PARAM_ENABLED = new Key<>("enabled", Type.BOOLEAN);
 
-    private MimicBlockSupport mimicBlockSupport = new MimicBlockSupport();
+    private final MimicBlockSupport mimicBlockSupport = new MimicBlockSupport();
 
     private int energy = 0;
     private int inputFromSide[] = new int[] { 0, 0, 0, 0, 0, 0 };
@@ -60,9 +60,9 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     private byte enabled = 0x3f;
 
-    private LazyOptional<SidedHandler>[] sidedStorages;
+    private final LazyOptional<SidedHandler>[] sidedStorages;
 
-    private Block[] cachedNeighbours = new Block[OrientationTools.DIRECTION_VALUES.length];
+    private final Block[] cachedNeighbours = new Block[OrientationTools.DIRECTION_VALUES.length];
 
     public static final Key<String> VALUE_NAME = new Key<>("name", Type.STRING);
 

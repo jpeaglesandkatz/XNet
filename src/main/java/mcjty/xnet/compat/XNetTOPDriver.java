@@ -141,7 +141,7 @@ public class XNetTOPDriver implements TOPDriver {
 
                 if (mode == ProbeMode.DEBUG) {
                     String s = "";
-                    for (NetworkId id : te.getNetworkChecker().getAffectedNetworks()) {
+                    for (NetworkId id : te.getNetworkChecker().get().getAffectedNetworks()) {
                         s += id.getId() + " ";
                         if (s.length() > 15) {
                             probeInfo.text(TextStyleClass.LABEL + "InfNet: " + TextStyleClass.INFO + s);
