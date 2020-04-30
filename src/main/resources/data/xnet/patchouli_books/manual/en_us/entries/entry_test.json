@@ -1,0 +1,11 @@
+{
+  "name": "XNet Entry",
+  "icon": "minecraft:writable_book",
+  "category": "xnet:category_test",
+  "pages": [
+    {
+      "type": "text",
+      "text": "This is a XNet entry, but it should show up!"
+    }
+  ]
+}
