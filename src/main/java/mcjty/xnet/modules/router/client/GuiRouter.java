@@ -2,6 +2,7 @@ package mcjty.xnet.modules.router.client;
 
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
@@ -34,7 +35,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
     private static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
 
     public GuiRouter(TileEntityRouter router, GenericContainer container, PlayerInventory inventory) {
-        super(XNet.instance, router, container, inventory, 0 /* @todo 1.14 GuiProxy.GUI_MANUAL_XNET*/, "router");
+        super(XNet.instance, router, container, inventory,  /* @todo 1.14 GuiProxy.GUI_MANUAL_XNET*/ ManualEntry.EMPTY);
     }
 
     @Override

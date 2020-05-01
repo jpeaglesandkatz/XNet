@@ -2,6 +2,7 @@ package mcjty.xnet.modules.cables.client;
 
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
@@ -29,7 +30,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
 //    }
 
     public GuiConnector(ConnectorTileEntity tileEntity, GenericContainer container, PlayerInventory inventory) {
-        super(XNet.instance, tileEntity, container, inventory, 0 /*@todo 1.14 GuiProxy.GUI_MANUAL_XNET*/, "connector");
+        super(XNet.instance, tileEntity, container, inventory,  /*@todo 1.14 GuiProxy.GUI_MANUAL_XNET*/ ManualEntry.EMPTY);
 
         xSize = WIDTH;
         ySize = HEIGHT;

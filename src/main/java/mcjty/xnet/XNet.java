@@ -10,11 +10,9 @@ import mcjty.xnet.modules.controller.ControllerSetup;
 import mcjty.xnet.modules.facade.FacadeSetup;
 import mcjty.xnet.modules.router.RouterSetup;
 import mcjty.xnet.modules.various.VariousSetup;
-import mcjty.xnet.modules.various.client.GuiXNetManual;
 import mcjty.xnet.modules.wireless.WirelessRouterSetup;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.ModSetup;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -61,13 +59,6 @@ public class XNet implements ModBase {
     @Override
     public String getModId() {
         return MODID;
-    }
-
-    @Override
-    public void openManual(PlayerEntity player, int bookIndex, String page) {
-        GuiXNetManual.locatePage = page;
-        // @todo 1.14
-//        player.openGui(XNet.instance, bookIndex, player.getEntityWorld(), (int) player.getPosX(), (int) player.getPosY(), (int) player.getPosZ());
     }
 
     // @todo 1.14

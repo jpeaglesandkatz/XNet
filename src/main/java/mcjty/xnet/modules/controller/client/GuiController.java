@@ -8,6 +8,7 @@ import mcjty.lib.client.RenderHelper;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.client.GuiTools;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.ButtonEvent;
@@ -91,7 +92,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     private boolean needsRefresh = true;
 
     public GuiController(TileEntityController controller, GenericContainer container, PlayerInventory inventory) {
-        super(XNet.instance, controller, container, inventory, 0 /*@todo 1.14*/, "controller");
+        super(XNet.instance, controller, container, inventory,  /*@todo 1.14*/ ManualEntry.EMPTY);
         openController = this;
     }
 

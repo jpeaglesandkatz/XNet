@@ -4,7 +4,6 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.modules.various.blocks.RedstoneProxyBlock;
 import mcjty.xnet.modules.various.blocks.RedstoneProxyUBlock;
 import mcjty.xnet.modules.various.items.ConnectorUpgradeItem;
-import mcjty.xnet.modules.various.items.XNetManualItem;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -30,7 +29,6 @@ public class VariousSetup {
     public static final RegistryObject<Item> REDSTONE_PROXY_ITEM = ITEMS.register("redstone_proxy", () -> new BlockItem(REDSTONE_PROXY.get(), XNet.createStandardProperties()));
     public static final RegistryObject<Item> REDSTONE_PROXY_UPD_ITEM = ITEMS.register("redstone_proxy_upd", () -> new BlockItem(REDSTONE_PROXY_UPD.get(), XNet.createStandardProperties()));
 
-    public static final RegistryObject<XNetManualItem> MANUAL = ITEMS.register("xnet_manual", XNetManualItem::new);
     public static final RegistryObject<ConnectorUpgradeItem> UPGRADE = ITEMS.register("connector_upgrade", ConnectorUpgradeItem::new);
 
 //@todo 1.14
