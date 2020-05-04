@@ -75,6 +75,24 @@
     "message.xnet.redstone_proxy.gold": "This version does no block update!",
 
     "message.xnet.redstone_proxy_upd.header": "Acts as a proxy block for redstone. XNet can connect to this",
-    "message.xnet.redstone_proxy_upd.gold": "This version does a block update!"
+    "message.xnet.redstone_proxy_upd.gold": "This version does a block update!",
 
+    "xnet.category.main": "XNet",
+    "xnet.category.main.description": "XNet is a mod about item, fluid, and power distribution. It does this in a very efficient way",
+    "xnet.category.simple": "Simple Network",
+    "xnet.category.simple.description": "A simple network",
+    "xnet.category.network": "Multiple Networks",
+    "xnet.category.network.description": "Connecting multiple networks with a Router",
+    "xnet.category.wireless": "Wireless Networks",
+    "xnet.category.wireless.description": "Connecting multiple networks wirelessly",
+    "xnet.entry.controller": "Controller",
+    "xnet.page.controller0": "The Controller is the most important block of this mod. In this machine you control edit the different channels and define how items, liquids, or power move through those channels",
+    "xnet.entry.cables": "Cables",
+    "xnet.page.cables0": "There are four colored cables that don't interphere with each other",
+    "xnet.entry.connector": "Connectors",
+    "xnet.page.connector0": "To actually connect your cable to a block or machine you need a Connector",
+    "xnet.entry.router": "Router",
+    "xnet.page.router0": "The router allows connection of multiple networks. This needs routing cables",
+    "xnet.entry.wireless_router": "Wireless Router",
+    "xnet.page.wireless_router0": "Wireless connection of networks. @todo"
 }

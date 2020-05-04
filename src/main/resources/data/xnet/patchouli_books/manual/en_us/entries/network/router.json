@@ -1,0 +1,12 @@
+{
+  "name": "xnet.entry.router",
+  "icon": "xnet:router",
+  "category": "xnet:category_xnet_network",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "text",
+      "text": "xnet.page.router0"
+    }
+  ]
+}

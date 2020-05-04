@@ -4,11 +4,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
+import mcjty.lib.client.GuiTools;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.client.GuiTools;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.ButtonEvent;
@@ -25,6 +24,7 @@ import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.xnet.XNet;
 import mcjty.xnet.client.ChannelClientInfo;
 import mcjty.xnet.client.ConnectedBlockClientInfo;
@@ -92,7 +92,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     private boolean needsRefresh = true;
 
     public GuiController(TileEntityController controller, GenericContainer container, PlayerInventory inventory) {
-        super(XNet.instance, controller, container, inventory,  /*@todo 1.14*/ ManualEntry.EMPTY);
+        super(XNet.instance, controller, container, inventory, ManualHelper.create("xnet:simple/controller"));
         openController = this;
     }
 

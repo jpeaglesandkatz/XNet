@@ -1,0 +1,7 @@
+{
+  "name": "xnet.category.network",
+  "description": "xnet.category.network.description",
+  "parent": "xnet:category_xnet",
+  "icon": "xnet:router",
+  "sortnum": 20
+}

@@ -1,0 +1,12 @@
+{
+  "name": "xnet.entry.connector",
+  "icon": "xnet:connector_red",
+  "category": "xnet:category_xnet_simple",
+  "sortnum": 30,
+  "pages": [
+    {
+      "type": "text",
+      "text": "xnet.page.connector0"
+    }
+  ]
+}

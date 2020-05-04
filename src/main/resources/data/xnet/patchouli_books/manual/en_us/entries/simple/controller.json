@@ -1,0 +1,12 @@
+{
+  "name": "xnet.entry.controller",
+  "icon": "xnet:controller",
+  "category": "xnet:category_xnet_simple",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "text",
+      "text": "xnet.page.controller0"
+    }
+  ]
+}

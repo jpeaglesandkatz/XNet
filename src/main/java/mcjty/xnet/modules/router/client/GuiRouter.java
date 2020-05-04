@@ -8,6 +8,7 @@ import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.xnet.XNet;
 import mcjty.xnet.client.ControllerChannelClientInfo;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
@@ -35,7 +36,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
     private static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
 
     public GuiRouter(TileEntityRouter router, GenericContainer container, PlayerInventory inventory) {
-        super(XNet.instance, router, container, inventory,  /* @todo 1.14 GuiProxy.GUI_MANUAL_XNET*/ ManualEntry.EMPTY);
+        super(XNet.instance, router, container, inventory, ManualHelper.create("xnet:network/router"));
     }
 
     @Override

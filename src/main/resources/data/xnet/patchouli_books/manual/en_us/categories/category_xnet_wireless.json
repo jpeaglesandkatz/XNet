@@ -1,0 +1,7 @@
+{
+  "name": "xnet.category.wireless",
+  "description": "xnet.category.wireless.description",
+  "parent": "xnet:category_xnet",
+  "icon": "xnet:antenna",
+  "sortnum": 30
+}
