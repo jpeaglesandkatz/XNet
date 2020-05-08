@@ -1,4 +1,4 @@
-Upcoming:
+2.1.0-beta:
 - Fixed antenna models
 - Re-implemented TOP support for all XNet cables/connectors and machines
 - Used new tooltip system in McJtyLib
