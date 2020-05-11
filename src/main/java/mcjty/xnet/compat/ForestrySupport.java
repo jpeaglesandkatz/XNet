@@ -7,6 +7,7 @@ import net.minecraftforge.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public final class ForestrySupport {
     public enum Tag {
@@ -18,8 +19,8 @@ public final class ForestrySupport {
     	MAX_HEALTH("MaxH", 32),	// Bees, Butterflies
     	AGE("Age", 64);			// Butterflies
 
-    	private String name;
-    	private int flag;
+    	private final String name;
+    	private final int flag;
 	
     	Tag(String name, int flag) {
     		this.name = name;
@@ -78,7 +79,7 @@ public final class ForestrySupport {
      */
     public static ItemStack sanitize(ItemStack item, int flags) {
 	    CompoundNBT tagCompound = item.getTag().copy();
-	    ArrayList<Tag> tagsToRemove = new ArrayList<>();
+	    List<Tag> tagsToRemove = new ArrayList<>();
 	    switch (item.getItem().getRegistryName().toString()) {
 	        case QUEEN_BEE:
 	        case PRINCESS_BEE:
@@ -107,7 +108,7 @@ public final class ForestrySupport {
 	    return item;
     }
 
-    private static CompoundNBT removeTags(ArrayList<Tag> tagsToRemove, CompoundNBT compound, int flags) {
+    private static CompoundNBT removeTags(Iterable<Tag> tagsToRemove, CompoundNBT compound, int flags) {
 	    for (Tag tag : tagsToRemove) {
 	        if ((flags & tag.flag) == tag.flag && compound.contains(tag.name)) {
 		        compound.remove(tag.name);

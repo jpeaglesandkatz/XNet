@@ -35,18 +35,16 @@ import static mcjty.xnet.modules.cables.client.CablePatterns.SpriteIdx.*;
 public class GenericCableBakedModel extends AbstractDynamicBakedModel {
 
     private TextureAtlasSprite spriteCable;
-    private TextureAtlasSprite spriteConnector;
 
     public static class CableTextures {
-        TextureAtlasSprite spriteConnector;
-        TextureAtlasSprite spriteAdvancedConnector;
-
-        TextureAtlasSprite spriteNoneCable;
-        TextureAtlasSprite spriteNormalCable;
-        TextureAtlasSprite spriteEndCable;
-        TextureAtlasSprite spriteCornerCable;
-        TextureAtlasSprite spriteThreeCable;
-        TextureAtlasSprite spriteCrossCable;
+        private TextureAtlasSprite spriteConnector;
+        private TextureAtlasSprite spriteAdvancedConnector;
+        private TextureAtlasSprite spriteNoneCable;
+        private TextureAtlasSprite spriteNormalCable;
+        private TextureAtlasSprite spriteEndCable;
+        private TextureAtlasSprite spriteCornerCable;
+        private TextureAtlasSprite spriteThreeCable;
+        private TextureAtlasSprite spriteCrossCable;
     }
 
     private static CableTextures[] cableTextures = null;
@@ -169,6 +167,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         CableTextures ct = cableTextures[index];
         spriteCable = ct.spriteNormalCable;
         GenericCableBlock block = (GenericCableBlock) state.getBlock();
+        TextureAtlasSprite spriteConnector;
         if (block.isAdvancedConnector()) {
             spriteConnector = ct.spriteAdvancedConnector;
         } else {
