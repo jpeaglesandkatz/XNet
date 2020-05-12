@@ -1,4 +1,4 @@
-Upcoming:
+2.1.2-beta:
 - AKAStacks fixed a problem with breaking facades causing the network to unlink
 
 2.1.1-beta:
