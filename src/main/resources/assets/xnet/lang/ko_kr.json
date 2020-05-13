@@ -67,7 +67,7 @@
     "message.xnet.antenna.one": "1: ",
     "message.xnet.antenna.two": "2: ",
 
-    message.xnet.antenna_base.header": "안테나 베이스는 무선 라우터 위에 설치해야 합니다.",
+    "message.xnet.antenna_base.header": "안테나 베이스는 무선 라우터 위에 설치해야 합니다.",
     "message.xnet.antenna_dish.header": "안테나 접시는 안테나 베이스 위에 설치해야 하고 매우 강력한 무선범위를 허용해야 합니다.",
     "message.xnet.antenna_dish.info": "전력 사용: ",
     
