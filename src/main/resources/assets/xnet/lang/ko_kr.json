@@ -75,7 +75,7 @@
     "message.xnet.redstone_proxy.gold": "이 버전은 업데이트를 차단하지 않습니다!",
 
     "message.xnet.redstone_proxy_upd.header": "레드스톤의 프록시 블록 역할을 합니다. 엑스넷은 여기에 연결할 수 있습니다.",
-    "message.xnet.redstone_proxy_upd.gold": "이 버전은 업데이트를 차단합니다!"
+    "message.xnet.redstone_proxy_upd.gold": "이 버전은 업데이트를 차단합니다!",
 
     "xnet.category.main": "엑스넷",
     "xnet.category.main.description": "엑스넷은 아이템, 유체 및 전력 분배에 대한 모드입니다. 매우 효율적인 방법으로 이 작업을 수행합니다.",
