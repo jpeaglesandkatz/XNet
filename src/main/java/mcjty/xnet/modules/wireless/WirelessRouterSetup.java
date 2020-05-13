@@ -5,10 +5,9 @@ import mcjty.lib.blocks.RotationType;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.GenericContainer;
-import mcjty.xnet.XNet;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import mcjty.xnet.setup.Config;
-import net.minecraft.block.Block;
+import mcjty.xnet.setup.Registration;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
@@ -19,37 +18,26 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
 
-import static mcjty.xnet.XNet.MODID;
+import static mcjty.xnet.setup.Registration.*;
 
 public class WirelessRouterSetup {
 
-    public static final DeferredRegister<Item> ITEMS = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
-    public static final DeferredRegister<Block> BLOCKS = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
-    public static final DeferredRegister<TileEntityType<?>> TILES = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES, MODID);
-    public static final DeferredRegister<ContainerType<?>> CONTAINERS = new DeferredRegister<>(ForgeRegistries.CONTAINERS, MODID);
-
     public static void register() {
-        BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        TILES.register(FMLJavaModLoadingContext.get().getModEventBus());
-        CONTAINERS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        // Needed to force class loading
     }
 
     public static final RegistryObject<BaseBlock> WIRELESS_ROUTER = BLOCKS.register("wireless_router", TileEntityWirelessRouter::createBlock);
-    public static final RegistryObject<Item> WIRELESS_ROUTER_ITEM = ITEMS.register("wireless_router", () -> new BlockItem(WIRELESS_ROUTER.get(), XNet.createStandardProperties()));
+    public static final RegistryObject<Item> WIRELESS_ROUTER_ITEM = ITEMS.register("wireless_router", () -> new BlockItem(WIRELESS_ROUTER.get(), Registration.createStandardProperties()));
     public static final RegistryObject<TileEntityType<?>> TYPE_WIRELESS_ROUTER = TILES.register("wireless_router", () -> TileEntityType.Builder.create(TileEntityWirelessRouter::new, WIRELESS_ROUTER.get()).build(null));
     public static final RegistryObject<ContainerType<GenericContainer>> CONTAINER_WIRELESS_ROUTER = CONTAINERS.register("wireless_router", GenericContainer::createContainerType);
 
     public static final RegistryObject<BaseBlock> ANTENNA = BLOCKS.register("antenna", WirelessRouterSetup::createAntennaBlock);
-    public static final RegistryObject<Item> ANTENNA_ITEM = ITEMS.register("antenna", () -> new BlockItem(ANTENNA.get(), XNet.createStandardProperties()));
+    public static final RegistryObject<Item> ANTENNA_ITEM = ITEMS.register("antenna", () -> new BlockItem(ANTENNA.get(), Registration.createStandardProperties()));
     public static final RegistryObject<BaseBlock> ANTENNA_BASE = BLOCKS.register("antenna_base", WirelessRouterSetup::createAntennaBaseBlock);
-    public static final RegistryObject<Item> ANTENNA_BASE_ITEM = ITEMS.register("antenna_base", () -> new BlockItem(ANTENNA_BASE.get(), XNet.createStandardProperties()));
+    public static final RegistryObject<Item> ANTENNA_BASE_ITEM = ITEMS.register("antenna_base", () -> new BlockItem(ANTENNA_BASE.get(), Registration.createStandardProperties()));
     public static final RegistryObject<BaseBlock> ANTENNA_DISH = BLOCKS.register("antenna_dish", WirelessRouterSetup::createAntennaDishBlock);
-    public static final RegistryObject<Item> ANTENNA_DISH_ITEM = ITEMS.register("antenna_dish", () -> new BlockItem(ANTENNA_DISH.get(), XNet.createStandardProperties()));
+    public static final RegistryObject<Item> ANTENNA_DISH_ITEM = ITEMS.register("antenna_dish", () -> new BlockItem(ANTENNA_DISH.get(), Registration.createStandardProperties()));
 
     public static VoxelShape SMALLER_CUBE = VoxelShapes.create(0.01f, 0.01f, 0.01f, 0.99f, 0.99f, 0.99f);
 

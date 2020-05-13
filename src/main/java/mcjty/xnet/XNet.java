@@ -5,14 +5,9 @@ import mcjty.lib.base.ModBase;
 import mcjty.xnet.apiimpl.XNetApi;
 import mcjty.xnet.compat.TOPSupport;
 import mcjty.xnet.compat.WAILASupport;
-import mcjty.xnet.modules.cables.CableSetup;
-import mcjty.xnet.modules.controller.ControllerSetup;
-import mcjty.xnet.modules.facade.FacadeSetup;
-import mcjty.xnet.modules.router.RouterSetup;
-import mcjty.xnet.modules.various.VariousSetup;
-import mcjty.xnet.modules.wireless.WirelessRouterSetup;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.ModSetup;
+import mcjty.xnet.setup.Registration;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -38,12 +33,7 @@ public class XNet implements ModBase {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_CONFIG);
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.SERVER_CONFIG);
 
-        VariousSetup.register();
-        ControllerSetup.register();
-        RouterSetup.register();
-        WirelessRouterSetup.register();
-        FacadeSetup.register();
-        CableSetup.register();
+        Registration.register();
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener((FMLCommonSetupEvent event) -> setup.init(event));
     }
@@ -84,10 +74,6 @@ public class XNet implements ModBase {
     @Override
     public void handleWailaExtras() {
         WAILASupport.registerWailaExtras();
-    }
-
-    public static Item.Properties createStandardProperties() {
-        return new Item.Properties().group(setup.getTab());
     }
 
 }
