@@ -99,25 +99,25 @@ public class Recipes extends BaseRecipeProvider {
         build(consumer, ShapedRecipeBuilder.shapedRecipe(CableSetup.CONNECTOR_BLUE.get())
                         .key('g', Tags.Items.INGOTS_GOLD)
                         .key('1', Tags.Items.DYES_BLUE)
-                        .key('C', Items.CHEST)
+                        .key('C', Tags.Items.CHESTS)
                         .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(mcjty.rftoolsbase.modules.various.VariousSetup.MACHINE_FRAME.get(), Items.CHEST)),
                 "1C1", "rgr", "1r1");
         build(consumer, ShapedRecipeBuilder.shapedRecipe(CableSetup.CONNECTOR_RED.get())
                         .key('g', Tags.Items.INGOTS_GOLD)
                         .key('1', Tags.Items.DYES_RED)
-                        .key('C', Items.CHEST)
+                        .key('C', Tags.Items.CHESTS)
                         .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(mcjty.rftoolsbase.modules.various.VariousSetup.MACHINE_FRAME.get(), Items.CHEST)),
                 "1C1", "rgr", "1r1");
         build(consumer, ShapedRecipeBuilder.shapedRecipe(CableSetup.CONNECTOR_GREEN.get())
                         .key('g', Tags.Items.INGOTS_GOLD)
                         .key('1', Tags.Items.DYES_GREEN)
-                        .key('C', Items.CHEST)
+                        .key('C', Tags.Items.CHESTS)
                         .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(mcjty.rftoolsbase.modules.various.VariousSetup.MACHINE_FRAME.get(), Items.CHEST)),
                 "1C1", "rgr", "1r1");
         build(consumer, ShapedRecipeBuilder.shapedRecipe(CableSetup.CONNECTOR_YELLOW.get())
                         .key('g', Tags.Items.INGOTS_GOLD)
                         .key('1', Tags.Items.DYES_YELLOW)
-                        .key('C', Items.CHEST)
+                        .key('C', Tags.Items.CHESTS)
                         .addCriterion("chest", InventoryChangeTrigger.Instance.forItems(mcjty.rftoolsbase.modules.various.VariousSetup.MACHINE_FRAME.get(), Items.CHEST)),
                 "1C1", "rgr", "1r1");
         build(consumer, ShapedRecipeBuilder.shapedRecipe(CableSetup.CONNECTOR_ROUTING.get())

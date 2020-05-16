@@ -13,7 +13,7 @@
       "tag": "forge:dyes/green"
     },
     "C": {
-      "item": "minecraft:chest"
+      "tag": "forge:chests"
     },
     "r": {
       "item": "minecraft:redstone"

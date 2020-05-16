@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed some recipes so they work with any chest instead of only vanilla chests
+
 2.1.2-beta:
 - AKAStacks fixed a problem with breaking facades causing the network to unlink
 
