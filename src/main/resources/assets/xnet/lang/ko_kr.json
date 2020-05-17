@@ -41,7 +41,7 @@
     "block.xnet.antenna_base": "안테나 베이스",
     "block.xnet.antenna_dish": "안테나 접시",
 
-    "itemGroup.XNet": "엑스넷",
+    "itemGroup.xnet": "엑스넷",
 
     "message.xnet.shiftmessage": "<Shift 입력>",
 
