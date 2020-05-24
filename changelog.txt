@@ -1,4 +1,4 @@
-Upcoming:
+2.1.3-beta:
 - Fixed some recipes so they work with any chest instead of only vanilla chests
 
 2.1.2-beta:
