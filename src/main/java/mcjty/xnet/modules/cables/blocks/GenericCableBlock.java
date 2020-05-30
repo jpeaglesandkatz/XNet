@@ -255,7 +255,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 
     @Override
     public void onReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (newState.getBlock() != state.getBlock() && !(newState.getBlock() instanceof FacadeBlock)) {
+        if (newState.getBlock() != state.getBlock() && !(newState.getBlock() instanceof GenericCableBlock)) {
             unlinkBlock(world, pos);
         }
         super.onReplaced(state, world, pos, newState, isMoving);
