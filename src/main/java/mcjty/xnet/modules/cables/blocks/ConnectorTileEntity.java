@@ -67,6 +67,14 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     public static final Key<String> VALUE_NAME = new Key<>("name", Type.STRING);
 
     @Override
+    public void remove() {
+        super.remove();
+        if (world.isRemote && getMimicBlock() != null) {
+            world.setBlockState(pos, getBlockState());
+        }
+    }
+
+    @Override
     public IValue<?>[] getValues() {
         return new IValue[] {
                 new DefaultValue<>(VALUE_NAME, this::getConnectorName, this::setConnectorName),
