@@ -324,9 +324,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         World world = context.getWorld();
         BlockPos pos = context.getPos();
-        BlockState state = calculateState(world, pos, getDefaultState());
-        System.out.println("state = " + state);
-        return state;
+        return calculateState(world, pos, getDefaultState());
     }
 
     @Nonnull
