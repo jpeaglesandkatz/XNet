@@ -17,6 +17,8 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.Constants.BlockFlags;
 
 import javax.annotation.Nullable;
 
@@ -86,13 +88,16 @@ public class FacadeBlock extends NetCableBlock {
         CableColor color = state.get(COLOR);
         BlockState defaultState = CableSetup.NETCABLE.get().getDefaultState().with(COLOR, color);
         BlockState newState = this.calculateState(world, pos, defaultState);
-        return world.setBlockState(pos, newState, world.getWorld().isRemote ? 11 : 3);
+        return world.setBlockState(pos, newState, world.getWorld().isRemote
+                ? BlockFlags.BLOCK_UPDATE + BlockFlags.NOTIFY_NEIGHBORS + BlockFlags.RERENDER_MAIN_THREAD
+                : BlockFlags.BLOCK_UPDATE + BlockFlags.NOTIFY_NEIGHBORS);
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
     public void onPlayerDestroy(IWorld world, BlockPos pos, BlockState state) {
-        replaceWithCable(world, pos, state);
+        if (world.isRemote()) {
+            replaceWithCable(world, pos, state);
+        }
     }
 
     @Override
