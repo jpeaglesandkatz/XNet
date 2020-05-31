@@ -13,7 +13,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 
@@ -79,11 +82,22 @@ public class FacadeBlock extends NetCableBlock {
         spawnAsEntity(worldIn, pos, item);
     }
 
+    private boolean replaceWithCable(IWorld world, BlockPos pos, BlockState state) {
+        CableColor color = state.get(COLOR);
+        BlockState defaultState = CableSetup.NETCABLE.get().getDefaultState().with(COLOR, color);
+        BlockState newState = this.calculateState(world, pos, defaultState);
+        return world.setBlockState(pos, newState, world.getWorld().isRemote ? 11 : 3);
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void onPlayerDestroy(IWorld world, BlockPos pos, BlockState state) {
+        replaceWithCable(world, pos, state);
+    }
+
     @Override
     public boolean removedByPlayer(BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, IFluidState fluid) {
-        CableColor color = state.get(COLOR);
-        this.onBlockHarvested(world, pos, state, player);
-        return world.setBlockState(pos, CableSetup.NETCABLE.get().getDefaultState().with(COLOR, color), world.isRemote ? 11 : 3);
+        return replaceWithCable(world, pos, state);
     }
 
     // @todo 1.14
