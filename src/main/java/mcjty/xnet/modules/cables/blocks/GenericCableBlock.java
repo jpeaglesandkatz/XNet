@@ -85,6 +85,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
                 .sound(SoundType.METAL)
                 .harvestLevel(0)
                 .harvestTool(ToolType.PICKAXE)
+                .notSolid()
         );
         makeShapes();
         this.type = type;
@@ -200,12 +201,6 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 //    @SideOnly(Side.CLIENT)
 //    public AxisAlignedBB getSelectedBoundingBox(BlockState state, World worldIn, BlockPos pos) {
 //        return AABB_EMPTY;
-//    }
-
-    // @todo 1.15
-//    @Override
-//    public boolean isSolid(BlockState state) {
-//        return false;
 //    }
 
     @Override
