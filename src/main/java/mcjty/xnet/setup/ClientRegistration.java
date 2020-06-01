@@ -9,11 +9,14 @@ import mcjty.xnet.modules.cables.client.CableModelLoader;
 import mcjty.xnet.modules.cables.client.GuiConnector;
 import mcjty.xnet.modules.controller.ControllerSetup;
 import mcjty.xnet.modules.controller.client.GuiController;
+import mcjty.xnet.modules.facade.FacadeSetup;
+import mcjty.xnet.modules.facade.client.FacadeBlockColor;
 import mcjty.xnet.modules.facade.client.FacadeModelLoader;
 import mcjty.xnet.modules.router.RouterSetup;
 import mcjty.xnet.modules.router.client.GuiRouter;
 import mcjty.xnet.modules.wireless.WirelessRouterSetup;
 import mcjty.xnet.modules.wireless.client.GuiWirelessRouter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.util.ResourceLocation;
@@ -39,5 +42,7 @@ public class ClientRegistration {
         RenderTypeLookup.setRenderLayer(WirelessRouterSetup.ANTENNA.get(), RenderType.getCutout());
         RenderTypeLookup.setRenderLayer(WirelessRouterSetup.ANTENNA_DISH.get(), RenderType.getCutout());
         RenderTypeLookup.setRenderLayer(WirelessRouterSetup.ANTENNA_BASE.get(), RenderType.getCutout());
+        Minecraft.getInstance().getBlockColors().register(new FacadeBlockColor(),
+                FacadeSetup.FACADE.get(), CableSetup.CONNECTOR.get(), CableSetup.ADVANCED_CONNECTOR.get());
     }
 }
