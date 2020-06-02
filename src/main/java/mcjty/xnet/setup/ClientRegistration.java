@@ -27,8 +27,16 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
+import java.util.function.Predicate;
+
 @Mod.EventBusSubscriber(modid = XNet.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientRegistration {
+
+    private static class RenderTypeFacade implements Predicate<RenderType> {
+        public boolean test(RenderType type) {
+            return type.equals(RenderType.getCutout()) || type.equals(RenderType.getSolid());
+        }
+    }
 
     @SubscribeEvent
     public static void init(FMLClientSetupEvent event) {
@@ -42,6 +50,9 @@ public class ClientRegistration {
         RenderTypeLookup.setRenderLayer(WirelessRouterSetup.ANTENNA.get(), RenderType.getCutout());
         RenderTypeLookup.setRenderLayer(WirelessRouterSetup.ANTENNA_DISH.get(), RenderType.getCutout());
         RenderTypeLookup.setRenderLayer(WirelessRouterSetup.ANTENNA_BASE.get(), RenderType.getCutout());
+        RenderTypeLookup.setRenderLayer(FacadeSetup.FACADE.get(), new RenderTypeFacade());
+        RenderTypeLookup.setRenderLayer(CableSetup.CONNECTOR.get(), new RenderTypeFacade());
+        RenderTypeLookup.setRenderLayer(CableSetup.ADVANCED_CONNECTOR.get(), new RenderTypeFacade());
         Minecraft.getInstance().getBlockColors().register(new FacadeBlockColor(),
                 FacadeSetup.FACADE.get(), CableSetup.CONNECTOR.get(), CableSetup.ADVANCED_CONNECTOR.get());
     }
