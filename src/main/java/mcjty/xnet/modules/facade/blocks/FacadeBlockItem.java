@@ -51,8 +51,8 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
     private static String getMimickingString(ItemStack stack) {
         CompoundNBT tag = stack.getTag();
         if (tag != null) {
-            String mimic = tag.getString("mimic");
-            Block value = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(mimic));
+            CompoundNBT mimic = tag.getCompound("mimic");
+            Block value = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(mimic.getString("Name")));
             if (value != null) {
                 ItemStack s = new ItemStack(value, 1);
                 if (s.getItem() != null) {
