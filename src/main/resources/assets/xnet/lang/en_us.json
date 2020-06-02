@@ -41,7 +41,7 @@
     "block.xnet.antenna_base": "Antenna Base",
     "block.xnet.antenna_dish": "Antenna Dish",
 
-    "itemGroup.XNet": "XNet",
+    "itemGroup.xnet": "XNet",
 
     "message.xnet.shiftmessage": "<Press Shift>",
 
