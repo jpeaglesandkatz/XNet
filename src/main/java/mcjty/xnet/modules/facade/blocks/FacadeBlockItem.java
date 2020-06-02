@@ -40,15 +40,15 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
     private TooltipBuilder tooltipBuilder = new TooltipBuilder()
             .info(header(),
-                    gold(stack -> !isMimicing(stack)),
-                    parameter("info", FacadeBlockItem::isMimicing, FacadeBlockItem::getMimicingString));
+                    gold(stack -> !isMimicking(stack)),
+                    parameter("info", FacadeBlockItem::isMimicking, FacadeBlockItem::getMimickingString));
 
-    private static boolean isMimicing(ItemStack stack) {
+    private static boolean isMimicking(ItemStack stack) {
         CompoundNBT tag = stack.getTag();
         return tag != null && tag.contains("mimic");
     }
 
-    private static String getMimicingString(ItemStack stack) {
+    private static String getMimickingString(ItemStack stack) {
         CompoundNBT tag = stack.getTag();
         if (tag != null) {
             String mimic = tag.getString("mimic");
@@ -144,7 +144,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
             } else {
                 setMimicBlock(itemstack, state);
                 if (world.isRemote) {
-                    player.sendStatusMessage(new StringTextComponent("Facade is now mimicing " + block.getTranslationKey()), false);
+                    player.sendStatusMessage(new StringTextComponent("Facade is now mimicking " + block.getTranslationKey()), false);
                 }
             }
             return ActionResultType.SUCCESS;
