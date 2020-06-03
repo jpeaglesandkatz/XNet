@@ -1,7 +1,12 @@
 Upcoming:
-- 'kyleedwardsny' fixed some rendering issues when breaking facades
 - Fixed the item model for XNet facades
-- 'kyleedwardsny' fixed the cable blocks being solid
+- 'kyleedwardsny' fixed various things related to the facades:
+    - Fixed some rendering issues when breaking facades
+    - Fixed the cable blocks being solid
+    - Consolidate all cable/facade rendering into GenericCableBakedModel and remove the redundant FacadeBakedModel and everything related to it. This reduces the amount of code that has to be maintained.
+    - Fix a possible performance regression in #414 that was pointed out on Discord. Now, the cable quads only get returned in the solid rendering layer, and quads for the mimicked block only get returned if the mimicked block's canRenderInLayer() is true.
+    - Allow facade/cable rendering in all layers, ensuring that translucency works in addition to cutouts and solids.
+    - Always render the cable even if there is also a facade, so that translucent and cutout blocks show the cable inside.
 
 2.1.3-beta:
 - Fixed some recipes so they work with any chest instead of only vanilla chests
