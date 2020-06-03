@@ -11,7 +11,6 @@ import mcjty.xnet.modules.controller.ControllerSetup;
 import mcjty.xnet.modules.controller.client.GuiController;
 import mcjty.xnet.modules.facade.FacadeSetup;
 import mcjty.xnet.modules.facade.client.FacadeBlockColor;
-import mcjty.xnet.modules.facade.client.FacadeModelLoader;
 import mcjty.xnet.modules.router.RouterSetup;
 import mcjty.xnet.modules.router.client.GuiRouter;
 import mcjty.xnet.modules.wireless.WirelessRouterSetup;
@@ -32,12 +31,6 @@ import java.util.function.Predicate;
 @Mod.EventBusSubscriber(modid = XNet.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientRegistration {
 
-    private static class RenderTypeFacade implements Predicate<RenderType> {
-        public boolean test(RenderType type) {
-            return type.equals(RenderType.getCutout()) || type.equals(RenderType.getSolid());
-        }
-    }
-
     @SubscribeEvent
     public static void init(FMLClientSetupEvent event) {
         GenericGuiContainer.register(ControllerSetup.CONTAINER_CONTROLLER.get(), GuiController::new);
@@ -46,13 +39,12 @@ public class ClientRegistration {
         GenericGuiContainer.register(CableSetup.CONTAINER_CONNECTOR.get(), GuiConnector::new);
         MinecraftForge.EVENT_BUS.addListener(RenderWorldLastEventHandler::tick);
         ModelLoaderRegistry.registerLoader(new ResourceLocation(XNet.MODID, "cableloader"), new CableModelLoader());
-        ModelLoaderRegistry.registerLoader(new ResourceLocation(XNet.MODID, "facadeloader"), new FacadeModelLoader());
         RenderTypeLookup.setRenderLayer(WirelessRouterSetup.ANTENNA.get(), RenderType.getCutout());
         RenderTypeLookup.setRenderLayer(WirelessRouterSetup.ANTENNA_DISH.get(), RenderType.getCutout());
         RenderTypeLookup.setRenderLayer(WirelessRouterSetup.ANTENNA_BASE.get(), RenderType.getCutout());
-        RenderTypeLookup.setRenderLayer(FacadeSetup.FACADE.get(), new RenderTypeFacade());
-        RenderTypeLookup.setRenderLayer(CableSetup.CONNECTOR.get(), new RenderTypeFacade());
-        RenderTypeLookup.setRenderLayer(CableSetup.ADVANCED_CONNECTOR.get(), new RenderTypeFacade());
+        RenderTypeLookup.setRenderLayer(FacadeSetup.FACADE.get(), (RenderType) -> true);
+        RenderTypeLookup.setRenderLayer(CableSetup.CONNECTOR.get(), (RenderType) -> true);
+        RenderTypeLookup.setRenderLayer(CableSetup.ADVANCED_CONNECTOR.get(), (RenderType) -> true);
         Minecraft.getInstance().getBlockColors().register(new FacadeBlockColor(),
                 FacadeSetup.FACADE.get(), CableSetup.CONNECTOR.get(), CableSetup.ADVANCED_CONNECTOR.get());
     }
