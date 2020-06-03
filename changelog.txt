@@ -1,4 +1,4 @@
-Upcoming:
+2.1.4-beta:
 - Fixed the item model for XNet facades
 - 'kyleedwardsny' fixed various things related to the facades:
     - Fixed some rendering issues when breaking facades
