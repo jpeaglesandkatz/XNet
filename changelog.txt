@@ -1,6 +1,9 @@
+Upcoming:
+- Kyle Edwards changed facade blocks to copy mimic block from other facade blocks
+
 2.1.4-beta:
 - Fixed the item model for XNet facades
-- 'kyleedwardsny' fixed various things related to the facades:
+- Kyle Edwards fixed various things related to the facades:
     - Fixed some rendering issues when breaking facades
     - Fixed the cable blocks being solid
     - Consolidate all cable/facade rendering into GenericCableBakedModel and remove the redundant FacadeBakedModel and everything related to it. This reduces the amount of code that has to be maintained.
