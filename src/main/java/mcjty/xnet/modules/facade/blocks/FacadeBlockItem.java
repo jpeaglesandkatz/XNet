@@ -5,8 +5,8 @@ import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableSetup;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
-import mcjty.xnet.modules.cables.blocks.NetCableBlock;
 import mcjty.xnet.modules.facade.FacadeSetup;
+import mcjty.xnet.modules.facade.IFacadeSupport;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -69,6 +69,15 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
             .group(XNet.setup.getTab()));
     }
 
+    private static void userSetMimicBlock(@Nonnull ItemStack item, BlockState mimicBlock, ItemUseContext context) {
+        World world = context.getWorld();
+        PlayerEntity player = context.getPlayer();
+        setMimicBlock(item, mimicBlock);
+        if (world.isRemote) {
+            player.sendStatusMessage(new StringTextComponent("Facade is now mimicking " + mimicBlock.getBlock().getTranslationKey()), false);
+        }
+    }
+
     public static void setMimicBlock(@Nonnull ItemStack item, BlockState mimicBlock) {
         CompoundNBT tagCompound = new CompoundNBT();
         CompoundNBT nbt = NBTUtil.writeBlockState(mimicBlock);
@@ -102,7 +111,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
         if (!itemstack.isEmpty()) {
 
-            if (block instanceof NetCableBlock) {
+            if (block == CableSetup.NETCABLE.get()) {
                 FacadeBlock facadeBlock = (FacadeBlock) this.getBlock();
                 BlockItemUseContext blockContext = new ReplaceBlockItemUseContext(context);
                 BlockState placementState = facadeBlock.getStateForPlacement(blockContext)
@@ -136,16 +145,21 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
                         int amount = -1;
                         itemstack.grow(amount);
                     } else {
-                        return ActionResultType.FAIL;
+                        userSetMimicBlock(itemstack, connectorTileEntity.getMimicBlock(), context);
                     }
                 }
             } else if (block == FacadeSetup.FACADE.get()) {
-                return ActionResultType.FAIL;
-            } else {
-                setMimicBlock(itemstack, state);
-                if (world.isRemote) {
-                    player.sendStatusMessage(new StringTextComponent("Facade is now mimicking " + block.getTranslationKey()), false);
+                TileEntity te = world.getTileEntity(pos);
+                if (!(te instanceof IFacadeSupport)) {
+                    return ActionResultType.FAIL;
                 }
+                IFacadeSupport facade = (IFacadeSupport) te;
+                if (facade.getMimicBlock() == null) {
+                    return ActionResultType.FAIL;
+                }
+                userSetMimicBlock(itemstack, facade.getMimicBlock(), context);
+            } else {
+                userSetMimicBlock(itemstack, state, context);
             }
             return ActionResultType.SUCCESS;
         } else {
