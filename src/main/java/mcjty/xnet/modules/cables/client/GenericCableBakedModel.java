@@ -132,7 +132,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         List<BakedQuad> quads = new ArrayList<>();
         RenderType layer = MinecraftForgeClient.getRenderLayer();
 
-        if (side == null && layer.equals(RenderType.getSolid())) {
+        if (side == null && (layer == null || layer.equals(RenderType.getSolid()))) {
             // Called with the blockstate from our block. Here we get the values of the six properties and pass that to
             // our baked model implementation.
             ConnectorType north = state.get(GenericCableBlock.NORTH);
