@@ -20,6 +20,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
 
 import javax.annotation.Nonnull;
@@ -314,7 +315,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
             if (layer == null || RenderTypeLookup.canRenderInLayer(facadeState, layer)) { // always render in the null layer or the block-breaking textures don't show up
                 IBakedModel model = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getModel(facadeState);
                 try {
-                    quads.addAll(model.getQuads(state, side, rand, null));
+                    quads.addAll(model.getQuads(state, side, rand, EmptyModelData.INSTANCE));
                 } catch (Exception e) {
                 }
             }
