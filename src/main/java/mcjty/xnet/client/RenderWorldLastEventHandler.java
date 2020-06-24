@@ -73,10 +73,10 @@ public class RenderWorldLastEventHandler {
                         TileEntity te = world.getTileEntity(c);
                         if (te instanceof IFacadeSupport) {
                             BlockState facadeId = ((IFacadeSupport) te).getMimicBlock();
-                            if (((!Config.showNonFacadedCablesWhileSneaking.get()) || (!p.isShiftKeyDown())) && facadeId == null && !(block instanceof FacadeBlock)) {
+                            if (((!Config.showNonFacadedCablesWhileSneaking.get()) || (!p.isSneaking())) && facadeId == null && !(block instanceof FacadeBlock)) {
                                 continue;
                             }
-                        } else if (!Config.showNonFacadedCablesWhileSneaking.get() || !p.isShiftKeyDown()) {
+                        } else if (!Config.showNonFacadedCablesWhileSneaking.get() || !p.isSneaking()) {
                             continue;
                         }
                         CableColor color = state.get(GenericCableBlock.COLOR);

@@ -27,7 +27,7 @@ public class RedstoneProxyUBlock extends RedstoneProxyBlock implements ITooltipS
 
     @Override
     public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        if (McJtyLib.proxy.isShiftKeyDown()) {
+        if (McJtyLib.proxy.isSneaking()) {
             tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy_upd.header").applyTextStyle(TextFormatting.GREEN));
             tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy_upd.gold").applyTextStyle(TextFormatting.GOLD));
         } else {

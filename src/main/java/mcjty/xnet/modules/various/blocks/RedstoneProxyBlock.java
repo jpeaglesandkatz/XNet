@@ -33,7 +33,7 @@ public class RedstoneProxyBlock extends Block implements ITooltipSettings {
 
     @Override
     public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        if (McJtyLib.proxy.isShiftKeyDown()) {
+        if (McJtyLib.proxy.isSneaking()) {
             tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy.header").applyTextStyle(TextFormatting.GREEN));
             tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy.gold").applyTextStyle(TextFormatting.GOLD));
         } else {
