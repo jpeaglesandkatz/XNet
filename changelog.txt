@@ -1,3 +1,6 @@
+2.1.6-beta:
+- Update for latest McJtyLib
+
 2.1.5-beta:
 - Kyle Edwards changed facade blocks to copy mimic block from other facade blocks
 - Kyle Edwards fixed rendering of damaged cables
