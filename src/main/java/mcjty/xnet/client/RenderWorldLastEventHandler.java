@@ -15,14 +15,14 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 
@@ -58,7 +58,7 @@ public class RenderWorldLastEventHandler {
 
         matrixStack.push();
 
-        Vec3d projectedView = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
+        Vector3d projectedView = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
         matrixStack.translate(-projectedView.x, -projectedView.y, -projectedView.z);
 
         Matrix4f positionMatrix = matrixStack.getLast().getMatrix();
@@ -126,17 +126,17 @@ public class RenderWorldLastEventHandler {
     }
 
 
-    private static Vec3d v(double x, double y, double z) {
-        return new Vec3d(x, y, z);
+    private static Vector3d v(double x, double y, double z) {
+        return new Vector3d(x, y, z);
     }
 
     private static class Rect {
-        public Vec3d v1;
-        public Vec3d v2;
-        public Vec3d v3;
-        public Vec3d v4;
+        public Vector3d v1;
+        public Vector3d v2;
+        public Vector3d v3;
+        public Vector3d v4;
 
-        public Rect(Vec3d v1, Vec3d v2, Vec3d v3, Vec3d v4) {
+        public Rect(Vector3d v1, Vector3d v2, Vector3d v3, Vector3d v4) {
             this.v1 = v1;
             this.v2 = v2;
             this.v3 = v3;

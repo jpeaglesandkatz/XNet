@@ -44,7 +44,7 @@ public class FacadeBlock extends NetCableBlock {
     // @todo 1.14
 //    @Nullable
 //    @Override
-//    public RayTraceResult collisionRayTrace(BlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
+//    public RayTraceResult collisionRayTrace(BlockState blockState, World world, BlockPos pos, Vector3d start, Vector3d end) {
 //        // We do not want the raytracing that happens in the GenericCableBlock
 //        return super.originalCollisionRayTrace(blockState, world, pos, start, end);
 //    }
