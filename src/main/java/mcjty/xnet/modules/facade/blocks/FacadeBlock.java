@@ -85,7 +85,7 @@ public class FacadeBlock extends NetCableBlock {
         CableColor color = state.get(COLOR);
         BlockState defaultState = CableSetup.NETCABLE.get().getDefaultState().with(COLOR, color);
         BlockState newState = this.calculateState(world, pos, defaultState);
-        return world.setBlockState(pos, newState, world.getWorld().isRemote
+        return world.setBlockState(pos, newState, world.isRemote()
                 ? BlockFlags.BLOCK_UPDATE + BlockFlags.NOTIFY_NEIGHBORS + BlockFlags.RERENDER_MAIN_THREAD
                 : BlockFlags.BLOCK_UPDATE + BlockFlags.NOTIFY_NEIGHBORS);
     }
