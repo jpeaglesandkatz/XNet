@@ -148,6 +148,7 @@ public class IntPos {
         int dx = getX();
         int dy = getY();
         int dz = getZ();
-        return cpos.getBlock(dx, dy, dz);
+        return new BlockPos((cpos.x << 4) + dx, dy, (cpos.z << 4) + dz);
+//        return cpos.getBlock(dx, dy, dz);
     }
 }

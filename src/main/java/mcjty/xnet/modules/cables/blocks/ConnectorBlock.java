@@ -30,10 +30,12 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootParameters;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
@@ -46,8 +48,6 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.loot.LootContext;
-import net.minecraft.world.storage.loot.LootParameters;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -120,7 +120,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     }
 
     @Override
-    public boolean removedByPlayer(BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, IFluidState fluid) {
+    public boolean removedByPlayer(BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid) {
         TileEntity te = world.getTileEntity(pos);
         if (te instanceof ConnectorTileEntity) {
             ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
@@ -320,7 +320,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         ServerWorld world = builder.getWorld();
         for (ItemStack drop : drops) {
             WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
-            ConsumerId consumer = worldBlob.getConsumerAt(builder.get(LootParameters.POSITION));
+            ConsumerId consumer = worldBlob.getConsumerAt(new BlockPos(builder.get(LootParameters.field_237457_g_ /* @todo 1.16 POSITION*/)));
             if (consumer != null) {
                 drop.getOrCreateTag().putInt("consumerId", consumer.getId());
             }

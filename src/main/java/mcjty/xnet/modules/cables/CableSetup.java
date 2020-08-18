@@ -7,6 +7,7 @@ import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
 import mcjty.xnet.setup.Registration;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
+import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.tileentity.TileEntityType;
@@ -47,9 +48,9 @@ public class CableSetup {
 
     public static final RegistryObject<ContainerType<GenericContainer>> CONTAINER_CONNECTOR = CONTAINERS.register("connector", GenericContainer::createContainerType);
 
-    public static final Tag<Item> TAG_CABLES = new ItemTags.Wrapper(new ResourceLocation(XNet.MODID, "cables"));
-    public static final Tag<Item> TAG_CONNECTORS = new ItemTags.Wrapper(new ResourceLocation(XNet.MODID, "connectors"));
-    public static final Tag<Item> TAG_ADVANCED_CONNECTORS = new ItemTags.Wrapper(new ResourceLocation(XNet.MODID, "advanced_connectors"));
+    public static final ITag.INamedTag<Item> TAG_CABLES = ItemTags.makeWrapperTag(XNet.MODID+":cables");
+    public static final ITag.INamedTag<Item> TAG_CONNECTORS = ItemTags.makeWrapperTag(XNet.MODID+":connectors");
+    public static final ITag.INamedTag<Item> TAG_ADVANCED_CONNECTORS = ItemTags.makeWrapperTag(XNet.MODID+":advanced_connectors");
 
 //    @SideOnly(Side.CLIENT)
 //    public static void initColorHandlers(BlockColors blockColors) {

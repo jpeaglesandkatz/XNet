@@ -2,6 +2,7 @@ package mcjty.xnet.modules.controller.client;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
@@ -613,7 +614,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                         TextFormatting.WHITE + "(doubleclick to highlight)");
             }
 
-            panel.children(label(sidedPos.getSide().getName().substring(0, 1).toUpperCase()).color(color).desiredWidth(18));
+            panel.children(label(sidedPos.getSide().getString().substring(0, 1).toUpperCase()).color(color).desiredWidth(18));
             for (int i = 0 ; i < MAX_CHANNELS ; i++) {
                 Button but = new Button().desiredWidth(14);
                 ChannelClientInfo info = fromServer_channels.get(i);
@@ -651,7 +652,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float v, int x1, int x2) {
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float v, int x1, int x2) {
         requestListsIfNeeded();
         populateList();
         refreshChannelEditor();
@@ -682,7 +683,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 }
             }
         }
-        drawWindow(xxx);
+        drawWindow(matrixStack);
         int channel = getSelectedChannel();
         if (channel != -1) {
             int x = (int) window.getToplevel().getBounds().getX();

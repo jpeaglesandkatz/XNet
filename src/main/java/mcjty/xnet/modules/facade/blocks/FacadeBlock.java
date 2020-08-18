@@ -8,7 +8,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -85,7 +85,7 @@ public class FacadeBlock extends NetCableBlock {
         CableColor color = state.get(COLOR);
         BlockState defaultState = CableSetup.NETCABLE.get().getDefaultState().with(COLOR, color);
         BlockState newState = this.calculateState(world, pos, defaultState);
-        return world.setBlockState(pos, newState, world.getWorld().isRemote
+        return world.setBlockState(pos, newState, world.isRemote()
                 ? BlockFlags.BLOCK_UPDATE + BlockFlags.NOTIFY_NEIGHBORS + BlockFlags.RERENDER_MAIN_THREAD
                 : BlockFlags.BLOCK_UPDATE + BlockFlags.NOTIFY_NEIGHBORS);
     }
@@ -98,7 +98,7 @@ public class FacadeBlock extends NetCableBlock {
     }
 
     @Override
-    public boolean removedByPlayer(BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, IFluidState fluid) {
+    public boolean removedByPlayer(BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid) {
         return replaceWithCable(world, pos, state);
     }
 

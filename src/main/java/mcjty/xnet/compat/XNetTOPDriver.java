@@ -28,6 +28,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
 import java.util.HashMap;
@@ -82,28 +83,28 @@ public class XNetTOPDriver implements TOPDriver {
                 if (mode == ProbeMode.DEBUG) {
                     BlobId blobId = worldBlob.getBlobAt(data.getPos());
                     if (blobId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
+                        probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId()));    // @todo 1.16
                     }
 
                     ColorId colorId = worldBlob.getColorAt(data.getPos());
                     if (colorId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
+                        probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId()));  // @todo 1.16
                     }
                 }
 
                 Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
                 for (NetworkId network : networks) {
                     if (mode == ProbeMode.DEBUG) {
-                        probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + network.getId() + ", V: " +
-                                worldBlob.getNetworkVersion(network));
+                        probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + network.getId() + ", V: " +
+                                worldBlob.getNetworkVersion(network)));  // @todo 1.16
                     } else {
-                        probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + network.getId());
+                        probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + network.getId()));    // @todo 1.16
                     }
                 }
 
                 ConsumerId consumerId = worldBlob.getConsumerAt(data.getPos());
                 if (consumerId != null) {
-                    probeInfo.text(TextStyleClass.LABEL + "Consumer: " + TextStyleClass.INFO + consumerId.getId());
+                    probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Consumer: " + TextStyleClass.INFO + consumerId.getId()));    // @todo 1.16
                 }
             }, "Bad block!");
         }
@@ -116,7 +117,7 @@ public class XNetTOPDriver implements TOPDriver {
             Tools.safeConsume(world.getTileEntity(data.getPos()), (ConnectorTileEntity te) -> {
                 String name = te.getConnectorName();
                 if (!name.isEmpty()) {
-                    probeInfo.text(TextStyleClass.LABEL + "Name: " + TextStyleClass.INFO + name);
+                    probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Name: " + TextStyleClass.INFO + name));  // @todo 1.16
                 }
             }, "Bad tile entity!");
         }
@@ -132,10 +133,10 @@ public class XNetTOPDriver implements TOPDriver {
                 NetworkId networkId = te.getNetworkId();
                 if (networkId != null) {
                     if (mode == ProbeMode.DEBUG) {
-                        probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId() + ", V: " +
-                                worldBlob.getNetworkVersion(networkId));
+                        probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId() + ", V: " +
+                                worldBlob.getNetworkVersion(networkId)));    // @todo 1.16
                     } else {
-                        probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId());
+                        probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId()));  // @todo 1.16
                     }
                 }
 
@@ -144,29 +145,29 @@ public class XNetTOPDriver implements TOPDriver {
                     for (NetworkId id : te.getNetworkChecker().get().getAffectedNetworks()) {
                         s += id.getId() + " ";
                         if (s.length() > 15) {
-                            probeInfo.text(TextStyleClass.LABEL + "InfNet: " + TextStyleClass.INFO + s);
+                            probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "InfNet: " + TextStyleClass.INFO + s));   // @todo 1.16
                             s = "";
                         }
                     }
                     if (!s.isEmpty()) {
-                        probeInfo.text(TextStyleClass.LABEL + "InfNet: " + TextStyleClass.INFO + s);
+                        probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "InfNet: " + TextStyleClass.INFO + s));   // @todo 1.16
                     }
                 }
                 if (blockState.get(TileEntityController.ERROR)) {
-                    probeInfo.text(TextStyleClass.ERROR + "Too many controllers on network!");
+                    probeInfo.text(new StringTextComponent(TextStyleClass.ERROR + "Too many controllers on network!")); // @todo 1.16
                 }
 
                 if (mode == ProbeMode.DEBUG) {
                     BlobId blobId = worldBlob.getBlobAt(data.getPos());
                     if (blobId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
+                        probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId()));    // @todo 1.16
                     }
                     ColorId colorId = worldBlob.getColorAt(data.getPos());
                     if (colorId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
+                        probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId()));  // @todo 1.16
                     }
 
-                    probeInfo.text(TextStyleClass.LABEL + "Color mask: " + te.getColors());
+                    probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Color mask: " + te.getColors()));    // @todo 1.16
                 }
             }, "Bad tile entity!");
         }
@@ -181,25 +182,25 @@ public class XNetTOPDriver implements TOPDriver {
                 WorldBlob worldBlob = blobData.getWorldBlob(world);
                 Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
                 for (NetworkId networkId : networks) {
-                    probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId());
+                    probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId()));  // @todo 1.16
                     if (mode != ProbeMode.EXTENDED) {
                         break;
                     }
                 }
                 if (blockState.get(TileEntityController.ERROR)) {
-                    probeInfo.text(TextStyleClass.ERROR + "Too many channels on router!");
+                    probeInfo.text(new StringTextComponent(TextStyleClass.ERROR + "Too many channels on router!")); // @todo 1.16
                 } else {
-                    probeInfo.text(TextStyleClass.LABEL + "Channels: " + TextStyleClass.INFO + te.getChannelCount());
+                    probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Channels: " + TextStyleClass.INFO + te.getChannelCount()));  // @todo 1.16
                 }
 
                 if (mode == ProbeMode.DEBUG) {
                     BlobId blobId = worldBlob.getBlobAt(data.getPos());
                     if (blobId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
+                        probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId()));    // @todo 1.16
                     }
                     ColorId colorId = worldBlob.getColorAt(data.getPos());
                     if (colorId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
+                        probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId()));  // @todo 1.16
                     }
                 }
             }, "Bad tile entity!");
@@ -215,25 +216,25 @@ public class XNetTOPDriver implements TOPDriver {
                 WorldBlob worldBlob = blobData.getWorldBlob(world);
                 Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
                 for (NetworkId networkId : networks) {
-                    probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId());
+                    probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId()));  // @todo 1.16
                     if (mode != ProbeMode.EXTENDED) {
                         break;
                     }
                 }
                 if (blockState.get(TileEntityController.ERROR)) {
-                    probeInfo.text(TextStyleClass.ERROR + "Missing antenna!");
+                    probeInfo.text(new StringTextComponent(TextStyleClass.ERROR + "Missing antenna!")); // @todo 1.16
                 } else {
-//            probeInfo.text(TextStyleClass.LABEL + "Channels: " + TextStyleClass.INFO + getChannelCount());
+//            probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Channels: " + TextStyleClass.INFO + getChannelCount()));   // @todo 1.16
                 }
 
                 if (mode == ProbeMode.DEBUG) {
                     BlobId blobId = worldBlob.getBlobAt(data.getPos());
                     if (blobId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
+                        probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId()));    // @todo 1.16
                     }
                     ColorId colorId = worldBlob.getColorAt(data.getPos());
                     if (colorId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
+                        probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId()));  // @todo 1.16
                     }
                 }
             }, "Bad tile entity!");

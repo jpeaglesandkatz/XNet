@@ -166,7 +166,8 @@ public class ChunkBlob {
         for (int cx = 0 ; cx < 16 ; cx++) {
             for (int cz = 0 ; cz < 16 ; cz++) {
                 for (int cy = 0 ; cy < 256 ; cy++) {
-                    BlockPos pos = chunkPos.getBlock(cx, cy, cz);
+                    BlockPos pos = new BlockPos((chunkPos.x << 4) + cx, cy, (chunkPos.z << 4) + cz);
+//                    BlockPos pos = chunkPos.getBlock(cx, cy, cz);
                     Block block = world.getBlockState(pos).getBlock();
                     boolean hasid = block == CableSetup.CONNECTOR.get() || block == CableSetup.ADVANCED_CONNECTOR.get() || block == CableSetup.NETCABLE.get() || block == ControllerSetup.CONTROLLER.get() || block == FacadeSetup.FACADE.get();
                     if (hasid != blobAllocations.containsKey(new IntPos(pos))) {

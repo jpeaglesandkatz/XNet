@@ -1,6 +1,7 @@
 package mcjty.xnet.multiblock;
 
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.GlobalCoordinate;
 import mcjty.lib.worlddata.AbstractWorldData;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
@@ -11,7 +12,6 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
@@ -33,7 +33,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
     private int globalChannelVersion = 0;
 
-    public void transmitChannel(String channel, @Nonnull IChannelType channelType, @Nullable UUID ownerUUID, DimensionType dimension, BlockPos wirelessRouterPos, NetworkId network) {
+    public void transmitChannel(String channel, @Nonnull IChannelType channelType, @Nullable UUID ownerUUID, DimensionId dimension, BlockPos wirelessRouterPos, NetworkId network) {
         WirelessChannelInfo channelInfo;
         WirelessChannelKey key = new WirelessChannelKey(channel, channelType, ownerUUID);
         if (channelToWireless.containsKey(key)) {
@@ -171,7 +171,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     private void readRouters(ListNBT tagList, WirelessChannelInfo channelInfo) {
         for (int i = 0 ; i < tagList.size() ; i++) {
             CompoundNBT tc = tagList.getCompound(i);
-            DimensionType dim = DimensionType.byName(new ResourceLocation(tc.getString("dim")));
+            DimensionId dim = DimensionId.fromResourceLocation(new ResourceLocation(tc.getString("dim")));
             GlobalCoordinate pos = new GlobalCoordinate(new BlockPos(tc.getInt("x"), tc.getInt("y"), tc.getInt("z")), dim);
             WirelessRouterInfo info = new WirelessRouterInfo(pos);
             info.setAge(tc.getInt("age"));

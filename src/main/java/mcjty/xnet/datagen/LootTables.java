@@ -12,11 +12,11 @@ import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.item.Item;
-import net.minecraft.world.storage.loot.ConstantRange;
-import net.minecraft.world.storage.loot.ItemLootEntry;
-import net.minecraft.world.storage.loot.LootPool;
-import net.minecraft.world.storage.loot.LootTable;
-import net.minecraft.world.storage.loot.conditions.BlockStateProperty;
+import net.minecraft.loot.ConstantRange;
+import net.minecraft.loot.ItemLootEntry;
+import net.minecraft.loot.LootPool;
+import net.minecraft.loot.LootTable;
+import net.minecraft.loot.conditions.BlockStateProperty;
 
 public class LootTables extends BaseLootTableProvider {
 

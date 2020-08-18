@@ -1,5 +1,6 @@
 package mcjty.xnet.multiblock;
 
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
@@ -9,9 +10,8 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,7 +19,7 @@ import java.util.*;
 
 public class WorldBlob implements IWorldBlob {
 
-    private final DimensionType dimensionType;
+    private final DimensionId dimensionType;
     private final Map<Long, ChunkBlob> chunkBlobMap = new HashMap<>();
     private int lastNetworkId = 0;              // Network ID
     private int lastConsumerId = 0;             // Network consumer ID
@@ -39,11 +39,11 @@ public class WorldBlob implements IWorldBlob {
     // Transient map containing all providers and their position
     private final Map<NetworkId, BlockPos> providerPositions = new HashMap<>();
 
-    public WorldBlob(DimensionType dimensionType) {
+    public WorldBlob(DimensionId dimensionType) {
         this.dimensionType = dimensionType;
     }
 
-    public DimensionType getDimensionType() {
+    public DimensionId getDimensionType() {
         return dimensionType;
     }
 
@@ -302,7 +302,7 @@ public class WorldBlob implements IWorldBlob {
 
                 for (Direction facing : OrientationTools.HORIZONTAL_DIRECTION_VALUES) {
                     if (pos.isBorder(facing)) {
-                        Vec3i vec = facing.getDirectionVec();
+                        Vector3i vec = facing.getDirectionVec();
                         ChunkBlob adjacent = chunkBlobMap.get(
                                 ChunkPos.asLong(chunkPos.x+vec.getX(), chunkPos.z+vec.getZ()));
                         if (adjacent != null) {

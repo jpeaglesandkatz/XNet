@@ -75,7 +75,8 @@ public class ConnectorUpgradeItem extends Item {
                     BlockState blockState = world.getBlockState(pos);
                     ((ConnectorBlock)blockState.getBlock()).createCableSegment(world, pos, consumer);
 
-                    te = TileEntity.create(tag);
+                    // @todo 1.16
+//                    te = TileEntity.create(tag);
                     // @todo 1.14
 //                    if (te != null) {
 //                        world.getChunkFromBlockCoords(pos).addTileEntity(te);

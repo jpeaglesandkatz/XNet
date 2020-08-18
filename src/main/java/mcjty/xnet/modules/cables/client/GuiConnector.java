@@ -1,5 +1,6 @@
 package mcjty.xnet.modules.cables.client;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
@@ -50,7 +51,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
         Panel togglePanel = horizontal().
                 children(label("Directions:"));
         for (Direction facing : OrientationTools.DIRECTION_VALUES) {
-            toggleButtons[facing.ordinal()] = new ToggleButton().text(facing.getName().substring(0, 1).toUpperCase())
+            toggleButtons[facing.ordinal()] = new ToggleButton().text(facing.getString().substring(0, 1).toUpperCase())
                 .event(() -> {
                     sendServerCommandTyped(XNetMessages.INSTANCE, ConnectorTileEntity.CMD_ENABLE,
                             TypedMap.builder()
@@ -70,7 +71,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-        drawWindow(xxx);
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+        drawWindow(matrixStack);
     }
 }

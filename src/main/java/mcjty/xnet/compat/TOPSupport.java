@@ -8,6 +8,7 @@ import mcjty.xnet.modules.facade.blocks.FacadeTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.text.StringTextComponent;
 
 import static mcjty.theoneprobe.api.IProbeInfo.ENDLOC;
 import static mcjty.theoneprobe.api.IProbeInfo.STARTLOC;
@@ -33,11 +34,11 @@ public class TOPSupport {
                             .item(pickBlock)
                             .vertical()
                             .itemLabel(pickBlock)
-                            .text(MODNAME + modid);
+                            .text(new StringTextComponent(MODNAME + modid));    // @todo 1.16
                 } else {
                     probeInfo.vertical()
-                            .text(NAME + getBlockUnlocalizedName(block))
-                            .text(MODNAME + modid);
+                            .text(new StringTextComponent(NAME + getBlockUnlocalizedName(block)))   // @todo 1.16
+                            .text(new StringTextComponent(MODNAME + modid));    // @todo 1.16
                 }
 
                 return true;

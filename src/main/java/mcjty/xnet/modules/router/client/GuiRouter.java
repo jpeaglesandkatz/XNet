@@ -1,5 +1,6 @@
 package mcjty.xnet.modules.router.client;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
@@ -159,9 +160,9 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
 
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float v, int x1, int x2) {
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float v, int x1, int x2) {
         requestListsIfNeeded();
         populateList();
-        drawWindow(xxx);
+        drawWindow(matrixStack);
     }
 }
