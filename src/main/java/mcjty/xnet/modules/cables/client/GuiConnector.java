@@ -2,7 +2,6 @@ package mcjty.xnet.modules.cables.client;
 
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
@@ -72,6 +71,6 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-        drawWindow();
+        drawWindow(xxx);
     }
 }

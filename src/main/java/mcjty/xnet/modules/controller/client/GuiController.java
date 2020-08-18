@@ -682,7 +682,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 }
             }
         }
-        drawWindow();
+        drawWindow(xxx);
         int channel = getSelectedChannel();
         if (channel != -1) {
             int x = (int) window.getToplevel().getBounds().getX();

@@ -2,7 +2,6 @@ package mcjty.xnet.modules.router.client;
 
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
@@ -163,6 +162,6 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
     protected void drawGuiContainerBackgroundLayer(float v, int x1, int x2) {
         requestListsIfNeeded();
         populateList();
-        drawWindow();
+        drawWindow(xxx);
     }
 }

@@ -2,7 +2,6 @@ package mcjty.xnet.modules.wireless.client;
 
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.xnet.XNet;
@@ -26,6 +25,6 @@ public class GuiWirelessRouter extends GenericGuiContainer<TileEntityWirelessRou
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-        drawWindow();
+        drawWindow(xxx);
     }
 }
