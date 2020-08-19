@@ -353,8 +353,8 @@ public class WorldBlob implements IWorldBlob {
         lastConsumerId = compound.getInt("lastConsumer");
         if (compound.contains("chunks")) {
             ListNBT chunks = (ListNBT) compound.get("chunks");
-            for (int i = 0 ; i < chunks.size() ; i++) {
-                CompoundNBT tc = (CompoundNBT) chunks.get(i);
+            for (net.minecraft.nbt.INBT chunk : chunks) {
+                CompoundNBT tc = (CompoundNBT) chunk;
                 int chunkX = tc.getInt("chunkX");
                 int chunkZ = tc.getInt("chunkZ");
                 ChunkBlob blob = new ChunkBlob(new ChunkPos(chunkX, chunkZ));

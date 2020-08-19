@@ -43,8 +43,8 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
         worldBlobMap.clear();
         if (compound.contains("worlds")) {
             ListNBT worlds = (ListNBT) compound.get("worlds");
-            for (int i = 0 ; i < worlds.size() ; i++) {
-                CompoundNBT tc = (CompoundNBT) worlds.get(i);
+            for (net.minecraft.nbt.INBT world : worlds) {
+                CompoundNBT tc = (CompoundNBT) world;
                 String dimtype = tc.getString("dimtype");
                 DimensionId dim = DimensionId.fromResourceLocation(new ResourceLocation(dimtype));
                 WorldBlob blob = new WorldBlob(dim);

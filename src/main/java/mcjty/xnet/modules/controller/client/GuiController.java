@@ -698,7 +698,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     @Override
-    protected void drawStackTooltips(int mouseX, int mouseY) {
+    protected void drawStackTooltips(MatrixStack matrixStack, int mouseX, int mouseY) {
         int x = GuiTools.getRelativeX(this);
         int y = GuiTools.getRelativeY(this);
         Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);
@@ -708,6 +708,6 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 return;     // Don't do the normal tooltip rendering
             }
         }
-        super.drawStackTooltips(mouseX, mouseY);
+        super.drawStackTooltips(matrixStack, mouseX, mouseY);
     }
 }
