@@ -1,5 +1,6 @@
 package mcjty.xnet.multiblock;
 
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
@@ -11,7 +12,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,7 +19,7 @@ import java.util.*;
 
 public class WorldBlob implements IWorldBlob {
 
-    private final DimensionType dimensionType;
+    private final DimensionId dimensionType;
     private final Map<Long, ChunkBlob> chunkBlobMap = new HashMap<>();
     private int lastNetworkId = 0;              // Network ID
     private int lastConsumerId = 0;             // Network consumer ID
@@ -39,11 +39,11 @@ public class WorldBlob implements IWorldBlob {
     // Transient map containing all providers and their position
     private final Map<NetworkId, BlockPos> providerPositions = new HashMap<>();
 
-    public WorldBlob(DimensionType dimensionType) {
+    public WorldBlob(DimensionId dimensionType) {
         this.dimensionType = dimensionType;
     }
 
-    public DimensionType getDimensionType() {
+    public DimensionId getDimensionType() {
         return dimensionType;
     }
 
@@ -353,8 +353,8 @@ public class WorldBlob implements IWorldBlob {
         lastConsumerId = compound.getInt("lastConsumer");
         if (compound.contains("chunks")) {
             ListNBT chunks = (ListNBT) compound.get("chunks");
-            for (int i = 0 ; i < chunks.size() ; i++) {
-                CompoundNBT tc = (CompoundNBT) chunks.get(i);
+            for (net.minecraft.nbt.INBT chunk : chunks) {
+                CompoundNBT tc = (CompoundNBT) chunk;
                 int chunkX = tc.getInt("chunkX");
                 int chunkZ = tc.getInt("chunkZ");
                 ChunkBlob blob = new ChunkBlob(new ChunkPos(chunkX, chunkZ));

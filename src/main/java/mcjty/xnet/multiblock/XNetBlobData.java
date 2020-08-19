@@ -6,7 +6,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -16,7 +15,7 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
 
     private static final String NAME = "XNetBlobData";
 
-    private final Map<DimensionType, WorldBlob> worldBlobMap = new HashMap<>();
+    private final Map<DimensionId, WorldBlob> worldBlobMap = new HashMap<>();
 
     public XNetBlobData(String name) {
         super(name);
@@ -28,20 +27,12 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
     }
 
     public WorldBlob getWorldBlob(World world) {
-        return getWorldBlob(world.getDimension().getType());
-    }
-
-    // @todo REMOVE ME
-    public WorldBlob getWorldBlob(DimensionType type) {
-        if (!worldBlobMap.containsKey(type)) {
-            worldBlobMap.put(type, new WorldBlob(type));
-        }
-        return worldBlobMap.get(type);
+        return getWorldBlob(DimensionId.fromWorld(world));
     }
 
     public WorldBlob getWorldBlob(DimensionId type) {
         if (!worldBlobMap.containsKey(type)) {
-            worldBlobMap.put(type.getInternalType(), new WorldBlob(type.getInternalType()));
+            worldBlobMap.put(type, new WorldBlob(type));
         }
         return worldBlobMap.get(type);
     }
@@ -52,10 +43,10 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
         worldBlobMap.clear();
         if (compound.contains("worlds")) {
             ListNBT worlds = (ListNBT) compound.get("worlds");
-            for (int i = 0 ; i < worlds.size() ; i++) {
-                CompoundNBT tc = (CompoundNBT) worlds.get(i);
+            for (net.minecraft.nbt.INBT world : worlds) {
+                CompoundNBT tc = (CompoundNBT) world;
                 String dimtype = tc.getString("dimtype");
-                DimensionType dim = DimensionType.byName(new ResourceLocation(dimtype));
+                DimensionId dim = DimensionId.fromResourceLocation(new ResourceLocation(dimtype));
                 WorldBlob blob = new WorldBlob(dim);
                 blob.readFromNBT(tc);
                 worldBlobMap.put(dim, blob);
@@ -66,7 +57,7 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
     @Override
     public CompoundNBT write(CompoundNBT compound) {
         ListNBT list = new ListNBT();
-        for (Map.Entry<DimensionType, WorldBlob> entry : worldBlobMap.entrySet()) {
+        for (Map.Entry<DimensionId, WorldBlob> entry : worldBlobMap.entrySet()) {
             WorldBlob blob = entry.getValue();
             CompoundNBT tc = new CompoundNBT();
             tc.putString("dimtype", blob.getDimensionType().getRegistryName().toString());
