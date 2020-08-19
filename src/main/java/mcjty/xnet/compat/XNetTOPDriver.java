@@ -5,10 +5,10 @@ import mcjty.lib.compat.theoneprobe.TOPDriver;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
+import mcjty.theoneprobe.api.CompoundText;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.ProbeMode;
-import mcjty.theoneprobe.api.TextStyleClass;
 import mcjty.xnet.modules.cables.CableSetup;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
@@ -33,6 +33,8 @@ import net.minecraft.world.World;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static mcjty.theoneprobe.api.TextStyleClass.ERROR;
 
 public class XNetTOPDriver implements TOPDriver {
 
@@ -82,28 +84,28 @@ public class XNetTOPDriver implements TOPDriver {
                 if (mode == ProbeMode.DEBUG) {
                     BlobId blobId = worldBlob.getBlobAt(data.getPos());
                     if (blobId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
+                        probeInfo.text(CompoundText.createLabelInfo("Blob: ", blobId.getId()));
                     }
 
                     ColorId colorId = worldBlob.getColorAt(data.getPos());
                     if (colorId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
+                        probeInfo.text(CompoundText.createLabelInfo("Color: ", colorId.getId()));
                     }
                 }
 
                 Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
                 for (NetworkId network : networks) {
                     if (mode == ProbeMode.DEBUG) {
-                        probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + network.getId() + ", V: " +
-                                worldBlob.getNetworkVersion(network));
+                        probeInfo.text(CompoundText.createLabelInfo("Network: ", network.getId() + ", V: " +
+                                worldBlob.getNetworkVersion(network)));
                     } else {
-                        probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + network.getId());
+                        probeInfo.text(CompoundText.createLabelInfo("Network: ", network.getId()));
                     }
                 }
 
                 ConsumerId consumerId = worldBlob.getConsumerAt(data.getPos());
                 if (consumerId != null) {
-                    probeInfo.text(TextStyleClass.LABEL + "Consumer: " + TextStyleClass.INFO + consumerId.getId());
+                    probeInfo.text(CompoundText.createLabelInfo("Consumer: ", consumerId.getId()));
                 }
             }, "Bad block!");
         }
@@ -116,7 +118,7 @@ public class XNetTOPDriver implements TOPDriver {
             Tools.safeConsume(world.getTileEntity(data.getPos()), (ConnectorTileEntity te) -> {
                 String name = te.getConnectorName();
                 if (!name.isEmpty()) {
-                    probeInfo.text(TextStyleClass.LABEL + "Name: " + TextStyleClass.INFO + name);
+                    probeInfo.text(CompoundText.createLabelInfo("Name: ", name));
                 }
             }, "Bad tile entity!");
         }
@@ -132,10 +134,10 @@ public class XNetTOPDriver implements TOPDriver {
                 NetworkId networkId = te.getNetworkId();
                 if (networkId != null) {
                     if (mode == ProbeMode.DEBUG) {
-                        probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId() + ", V: " +
-                                worldBlob.getNetworkVersion(networkId));
+                        probeInfo.text(CompoundText.createLabelInfo("Network: ",networkId.getId() + ", V: " +
+                                worldBlob.getNetworkVersion(networkId)));
                     } else {
-                        probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId());
+                        probeInfo.text(CompoundText.createLabelInfo("Network: ", networkId.getId()));
                     }
                 }
 
@@ -144,29 +146,29 @@ public class XNetTOPDriver implements TOPDriver {
                     for (NetworkId id : te.getNetworkChecker().get().getAffectedNetworks()) {
                         s += id.getId() + " ";
                         if (s.length() > 15) {
-                            probeInfo.text(TextStyleClass.LABEL + "InfNet: " + TextStyleClass.INFO + s);
+                            probeInfo.text(CompoundText.createLabelInfo("InfNet: ", s));
                             s = "";
                         }
                     }
                     if (!s.isEmpty()) {
-                        probeInfo.text(TextStyleClass.LABEL + "InfNet: " + TextStyleClass.INFO + s);
+                        probeInfo.text(CompoundText.createLabelInfo("InfNet: ", s));
                     }
                 }
                 if (blockState.get(TileEntityController.ERROR)) {
-                    probeInfo.text(TextStyleClass.ERROR + "Too many controllers on network!");
+                    probeInfo.text(CompoundText.create().style(ERROR).text("Too many controllers on network!"));
                 }
 
                 if (mode == ProbeMode.DEBUG) {
                     BlobId blobId = worldBlob.getBlobAt(data.getPos());
                     if (blobId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
+                        probeInfo.text(CompoundText.createLabelInfo("Blob: ", blobId.getId()));
                     }
                     ColorId colorId = worldBlob.getColorAt(data.getPos());
                     if (colorId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
+                        probeInfo.text(CompoundText.createLabelInfo("Color: ", colorId.getId()));
                     }
 
-                    probeInfo.text(TextStyleClass.LABEL + "Color mask: " + te.getColors());
+                    probeInfo.text(CompoundText.createLabelInfo("Color mask: ", te.getColors()));
                 }
             }, "Bad tile entity!");
         }
@@ -181,25 +183,25 @@ public class XNetTOPDriver implements TOPDriver {
                 WorldBlob worldBlob = blobData.getWorldBlob(world);
                 Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
                 for (NetworkId networkId : networks) {
-                    probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId());
+                    probeInfo.text(CompoundText.createLabelInfo("Network: ", networkId.getId()));
                     if (mode != ProbeMode.EXTENDED) {
                         break;
                     }
                 }
                 if (blockState.get(TileEntityController.ERROR)) {
-                    probeInfo.text(TextStyleClass.ERROR + "Too many channels on router!");
+                    probeInfo.text(CompoundText.create().style(ERROR).text("Too many channels on router!"));
                 } else {
-                    probeInfo.text(TextStyleClass.LABEL + "Channels: " + TextStyleClass.INFO + te.getChannelCount());
+                    probeInfo.text(CompoundText.createLabelInfo("Channels: ", te.getChannelCount()));
                 }
 
                 if (mode == ProbeMode.DEBUG) {
                     BlobId blobId = worldBlob.getBlobAt(data.getPos());
                     if (blobId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
+                        probeInfo.text(CompoundText.createLabelInfo("Blob: ", blobId.getId()));
                     }
                     ColorId colorId = worldBlob.getColorAt(data.getPos());
                     if (colorId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
+                        probeInfo.text(CompoundText.createLabelInfo("Color: ", colorId.getId()));
                     }
                 }
             }, "Bad tile entity!");
@@ -215,13 +217,13 @@ public class XNetTOPDriver implements TOPDriver {
                 WorldBlob worldBlob = blobData.getWorldBlob(world);
                 Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
                 for (NetworkId networkId : networks) {
-                    probeInfo.text(TextStyleClass.LABEL + "Network: " + TextStyleClass.INFO + networkId.getId());
+                    probeInfo.text(CompoundText.createLabelInfo("Network: ", networkId.getId()));
                     if (mode != ProbeMode.EXTENDED) {
                         break;
                     }
                 }
                 if (blockState.get(TileEntityController.ERROR)) {
-                    probeInfo.text(TextStyleClass.ERROR + "Missing antenna!");
+                    probeInfo.text(CompoundText.create().style(ERROR).text("Missing antenna!"));
                 } else {
 //            probeInfo.text(TextStyleClass.LABEL + "Channels: " + TextStyleClass.INFO + getChannelCount());
                 }
@@ -229,11 +231,11 @@ public class XNetTOPDriver implements TOPDriver {
                 if (mode == ProbeMode.DEBUG) {
                     BlobId blobId = worldBlob.getBlobAt(data.getPos());
                     if (blobId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Blob: " + TextStyleClass.INFO + blobId.getId());
+                        probeInfo.text(CompoundText.createLabelInfo("Blob: ", blobId.getId()));
                     }
                     ColorId colorId = worldBlob.getColorAt(data.getPos());
                     if (colorId != null) {
-                        probeInfo.text(TextStyleClass.LABEL + "Color: " + TextStyleClass.INFO + colorId.getId());
+                        probeInfo.text(CompoundText.createLabelInfo("Color: ", colorId.getId()));
                     }
                 }
             }, "Bad tile entity!");

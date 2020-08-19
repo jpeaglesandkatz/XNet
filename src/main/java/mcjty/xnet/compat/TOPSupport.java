@@ -1,6 +1,7 @@
 package mcjty.xnet.compat;
 
 import mcjty.lib.compat.theoneprobe.TOPCompatibility;
+import mcjty.theoneprobe.api.CompoundText;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableSetup;
 import mcjty.xnet.modules.facade.FacadeSetup;
@@ -9,10 +10,7 @@ import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
-import static mcjty.theoneprobe.api.IProbeInfo.ENDLOC;
-import static mcjty.theoneprobe.api.IProbeInfo.STARTLOC;
 import static mcjty.theoneprobe.api.TextStyleClass.MODNAME;
-import static mcjty.theoneprobe.api.TextStyleClass.NAME;
 
 public class TOPSupport {
 
@@ -33,11 +31,11 @@ public class TOPSupport {
                             .item(pickBlock)
                             .vertical()
                             .itemLabel(pickBlock)
-                            .text(MODNAME + modid);
+                            .text(CompoundText.create().style(MODNAME).text(modid));
                 } else {
                     probeInfo.vertical()
-                            .text(NAME + getBlockUnlocalizedName(block))
-                            .text(MODNAME + modid);
+                            .text(CompoundText.create().name(block.getTranslationKey()))
+                            .text(CompoundText.create().style(MODNAME).text(modid));
                 }
 
                 return true;
@@ -46,7 +44,7 @@ public class TOPSupport {
         });
     }
 
-    private static String getBlockUnlocalizedName(Block block) {
-        return STARTLOC + block.getTranslationKey() + ".name" + ENDLOC;
-    }
+//    private static String getBlockUnlocalizedName(Block block) {
+//        return STARTLOC + block.getTranslationKey() + ".name" + ENDLOC;
+//    }
 }
