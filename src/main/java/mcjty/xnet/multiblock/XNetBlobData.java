@@ -1,5 +1,6 @@
 package mcjty.xnet.multiblock;
 
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.worlddata.AbstractWorldData;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -30,9 +31,17 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
         return getWorldBlob(world.getDimension().getType());
     }
 
+    // @todo REMOVE ME
     public WorldBlob getWorldBlob(DimensionType type) {
         if (!worldBlobMap.containsKey(type)) {
             worldBlobMap.put(type, new WorldBlob(type));
+        }
+        return worldBlobMap.get(type);
+    }
+
+    public WorldBlob getWorldBlob(DimensionId type) {
+        if (!worldBlobMap.containsKey(type)) {
+            worldBlobMap.put(type.getInternalType(), new WorldBlob(type.getInternalType()));
         }
         return worldBlobMap.get(type);
     }

@@ -13,6 +13,7 @@ import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
@@ -261,7 +262,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
                         long energyStored = h.getEnergy();
                         if (Config.wirelessRouterRfPerChannel[tier].get() <= energyStored) {
                             h.consumeEnergy(Config.wirelessRouterRfPerChannel[tier].get());
-                            wirelessData.transmitChannel(name, channelType, ownerUUID, world.getDimension().getType(),
+                            wirelessData.transmitChannel(name, channelType, ownerUUID, DimensionId.fromWorld(world),
                                     pos, networkId);
                         }
                     });
@@ -275,7 +276,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
         if (info != null) {
             info.getRouters().keySet().stream()
                     // Don't do this for ourselves
-                    .filter(routerPos -> routerPos.getDimension() != world.getDimension().getType() || !routerPos.getCoordinate().equals(pos))
+                    .filter(routerPos -> !routerPos.getDimension().sameDimension(world) || !routerPos.getCoordinate().equals(pos))
                     .filter(routerPos -> WorldTools.isLoaded(WorldTools.getWorld(world, routerPos.getDimension()), routerPos.getCoordinate()))
                     .forEach(routerPos -> {
                         ServerWorld otherWorld = WorldTools.getWorld(world, routerPos.getDimension());
