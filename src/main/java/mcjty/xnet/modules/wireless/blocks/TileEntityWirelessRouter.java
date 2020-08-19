@@ -276,7 +276,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
         if (info != null) {
             info.getRouters().keySet().stream()
                     // Don't do this for ourselves
-                    .filter(routerPos -> routerPos.getDimension() != DimensionId.fromWorld(world) || !routerPos.getCoordinate().equals(pos))
+                    .filter(routerPos -> !routerPos.getDimension().sameDimension(world) || !routerPos.getCoordinate().equals(pos))
                     .filter(routerPos -> WorldTools.isLoaded(WorldTools.getWorld(world, routerPos.getDimension()), routerPos.getCoordinate()))
                     .forEach(routerPos -> {
                         ServerWorld otherWorld = WorldTools.getWorld(world, routerPos.getDimension());
