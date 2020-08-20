@@ -226,7 +226,7 @@ public class XNetTOPDriver implements TOPDriver {
                 if (blockState.get(TileEntityController.ERROR)) {
                     probeInfo.text(CompoundText.create().style(ERROR).text("Missing antenna!"));
                 } else {
-//            probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Channels: " + TextStyleClass.INFO + getChannelCount()));   // @todo 1.16
+//            probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Channels: " + TextStyleClass.INFO + getChannelCount()));
                 }
 
                 if (mode == ProbeMode.DEBUG) {

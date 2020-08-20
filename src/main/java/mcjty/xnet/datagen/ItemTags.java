@@ -1,15 +1,13 @@
 package mcjty.xnet.datagen;
 
-import mcjty.xnet.XNet;
-import mcjty.xnet.modules.cables.CableSetup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.ItemTagsProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.data.ForgeBlockTagsProvider;
 
 public class ItemTags extends ItemTagsProvider {
 
     public ItemTags(DataGenerator generator) {
-        super(generator, null); // @todo 1.16
+        super(generator, new ForgeBlockTagsProvider(generator));
     }
 
     @Override
