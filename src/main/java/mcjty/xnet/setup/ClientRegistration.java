@@ -20,13 +20,12 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-
-import java.util.function.Predicate;
 
 @Mod.EventBusSubscriber(modid = XNet.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientRegistration {
@@ -38,7 +37,6 @@ public class ClientRegistration {
         GenericGuiContainer.register(WirelessRouterSetup.CONTAINER_WIRELESS_ROUTER.get(), GuiWirelessRouter::new);
         GenericGuiContainer.register(CableSetup.CONTAINER_CONNECTOR.get(), GuiConnector::new);
         MinecraftForge.EVENT_BUS.addListener(RenderWorldLastEventHandler::tick);
-        ModelLoaderRegistry.registerLoader(new ResourceLocation(XNet.MODID, "cableloader"), new CableModelLoader());
         RenderTypeLookup.setRenderLayer(WirelessRouterSetup.ANTENNA.get(), RenderType.getCutout());
         RenderTypeLookup.setRenderLayer(WirelessRouterSetup.ANTENNA_DISH.get(), RenderType.getCutout());
         RenderTypeLookup.setRenderLayer(WirelessRouterSetup.ANTENNA_BASE.get(), RenderType.getCutout());
@@ -47,5 +45,10 @@ public class ClientRegistration {
         RenderTypeLookup.setRenderLayer(CableSetup.ADVANCED_CONNECTOR.get(), (RenderType) -> true);
         Minecraft.getInstance().getBlockColors().register(new FacadeBlockColor(),
                 FacadeSetup.FACADE.get(), CableSetup.CONNECTOR.get(), CableSetup.ADVANCED_CONNECTOR.get());
+    }
+
+    @SubscribeEvent
+    public static void onModelLoad(ModelRegistryEvent event) {
+        ModelLoaderRegistry.registerLoader(new ResourceLocation(XNet.MODID, "cableloader"), new CableModelLoader());
     }
 }
