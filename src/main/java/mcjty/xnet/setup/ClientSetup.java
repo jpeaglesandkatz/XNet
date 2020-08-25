@@ -19,19 +19,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DeferredWorkQueue;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-@Mod.EventBusSubscriber(modid = XNet.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ClientRegistration {
+public class ClientSetup {
 
-    @SubscribeEvent
     public static void init(FMLClientSetupEvent event) {
         DeferredWorkQueue.runLater(() -> {
             GenericGuiContainer.register(ControllerSetup.CONTAINER_CONTROLLER.get(), GuiController::new);
@@ -52,8 +47,7 @@ public class ClientRegistration {
         RenderTypeLookup.setRenderLayer(CableSetup.ADVANCED_CONNECTOR.get(), (RenderType) -> true);
     }
 
-    @SubscribeEvent
-    public static void onModelLoad(ModelRegistryEvent event) {
+    public static void modelInit(ModelRegistryEvent event) {
         ModelLoaderRegistry.registerLoader(new ResourceLocation(XNet.MODID, "cableloader"), new CableModelLoader());
     }
 }
