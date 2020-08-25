@@ -8,7 +8,7 @@ import mcjty.xnet.apiimpl.energy.EnergyChannelType;
 import mcjty.xnet.apiimpl.fluids.FluidChannelType;
 import mcjty.xnet.apiimpl.items.ItemChannelType;
 import mcjty.xnet.apiimpl.logic.LogicChannelType;
-import mcjty.xnet.compat.TOPSupport;
+import mcjty.xnet.compat.TopExtras;
 import mcjty.xnet.modules.controller.ControllerSetup;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
@@ -57,7 +57,7 @@ public class ModSetup extends DefaultModSetup {
         MainCompatHandler.registerTOP();
 
         if (ModList.get().isLoaded("theoneprobe")) {
-            TOPSupport.registerTopExtras();
+            TopExtras.register();
         }
     }
 }
