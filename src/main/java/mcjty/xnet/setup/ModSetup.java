@@ -32,7 +32,6 @@ public class ModSetup extends DefaultModSetup {
         });
 
         MinecraftForge.EVENT_BUS.register(new ForgeEventHandlers());
-
 //        CommandHandler.registerCommands();
 
         XNetMessages.registerMessages("xnet");
