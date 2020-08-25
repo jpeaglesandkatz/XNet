@@ -2,7 +2,6 @@ package mcjty.xnet.compat;
 
 import mcjty.lib.compat.theoneprobe.TOPCompatibility;
 import mcjty.theoneprobe.api.CompoundText;
-import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableSetup;
 import mcjty.xnet.modules.facade.FacadeSetup;
 import mcjty.xnet.modules.facade.blocks.FacadeTileEntity;
@@ -18,7 +17,7 @@ public class TOPSupport {
         TOPCompatibility.GetTheOneProbe.probe.registerBlockDisplayOverride((mode, probeInfo, player, world, blockState, data) -> {
             Block block = blockState.getBlock();
             if (block == FacadeSetup.FACADE.get()) {
-                String modid = XNet.MODNAME;
+                String modid = "XNet";
 
                 ItemStack pickBlock = data.getPickBlock();
                 TileEntity te = world.getTileEntity(data.getPos());

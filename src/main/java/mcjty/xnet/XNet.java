@@ -1,14 +1,10 @@
 package mcjty.xnet;
 
 
-import mcjty.lib.base.ModBase;
 import mcjty.xnet.apiimpl.XNetApi;
-import mcjty.xnet.compat.TOPSupport;
-import mcjty.xnet.compat.WAILASupport;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.ModSetup;
 import mcjty.xnet.setup.Registration;
-import net.minecraft.item.Item;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -16,10 +12,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(XNet.MODID)
-public class XNet implements ModBase {
+public class XNet {
 
     public static final String MODID = "xnet";
-    public static final String MODNAME = "XNet";
 
     public static ModSetup setup = new ModSetup();
 
@@ -46,11 +41,6 @@ public class XNet implements ModBase {
 //        event.registerServerCommand(new CommandCheck());
 //    }
 
-    @Override
-    public String getModId() {
-        return MODID;
-    }
-
     // @todo 1.14
 //    @Mod.EventHandler
 //    public void imcCallback(FMLInterModComms.IMCEvent event) {
@@ -65,15 +55,4 @@ public class XNet implements ModBase {
 //            }
 //        }
 //    }
-
-    @Override
-    public void handleTopExtras() {
-        TOPSupport.registerTopExtras();
-    }
-
-    @Override
-    public void handleWailaExtras() {
-        WAILASupport.registerWailaExtras();
-    }
-
 }

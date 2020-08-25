@@ -92,7 +92,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     private boolean needsRefresh = true;
 
     public GuiController(TileEntityController controller, GenericContainer container, PlayerInventory inventory) {
-        super(XNet.instance, controller, container, inventory, ManualHelper.create("xnet:simple/controller"));
+        super(controller, container, inventory, ManualHelper.create("xnet:simple/controller"));
         openController = this;
     }
 
