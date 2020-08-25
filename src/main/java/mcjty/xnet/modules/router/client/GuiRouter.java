@@ -36,7 +36,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
     private static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
 
     public GuiRouter(TileEntityRouter router, GenericContainer container, PlayerInventory inventory) {
-        super(XNet.instance, router, container, inventory, ManualHelper.create("xnet:network/router"));
+        super(router, container, inventory, ManualHelper.create("xnet:network/router"));
     }
 
     @Override
