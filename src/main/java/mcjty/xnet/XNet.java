@@ -6,6 +6,8 @@ import mcjty.xnet.setup.ClientSetup;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.ModSetup;
 import mcjty.xnet.setup.Registration;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -31,8 +33,10 @@ public class XNet {
         Registration.register();
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(setup::init);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::init);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::modelInit);
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::init);
+            FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::modelInit);
+        });
     }
 
 //    @Mod.EventHandler
