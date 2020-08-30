@@ -9,7 +9,7 @@ import mcjty.xnet.apiimpl.fluids.FluidChannelType;
 import mcjty.xnet.apiimpl.items.ItemChannelType;
 import mcjty.xnet.apiimpl.logic.LogicChannelType;
 import mcjty.xnet.compat.TopExtras;
-import mcjty.xnet.modules.controller.ControllerSetup;
+import mcjty.xnet.modules.controller.ControllerModule;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DeferredWorkQueue;
@@ -21,7 +21,7 @@ public class ModSetup extends DefaultModSetup {
     public static boolean rftoolsControl = false;
 
     public ModSetup() {
-        createTab("xnet", () -> new ItemStack(ControllerSetup.CONTROLLER.get()));
+        createTab("xnet", () -> new ItemStack(ControllerModule.CONTROLLER.get()));
     }
 
     @Override

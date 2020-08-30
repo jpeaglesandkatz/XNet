@@ -24,7 +24,7 @@ import mcjty.xnet.compat.XNetTOPDriver;
 import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
-import mcjty.xnet.modules.wireless.WirelessRouterSetup;
+import mcjty.xnet.modules.wireless.WirelessRouterModule;
 import mcjty.xnet.multiblock.*;
 import mcjty.xnet.setup.Config;
 import net.minecraft.block.Block;
@@ -51,7 +51,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static mcjty.xnet.modules.controller.blocks.TileEntityController.ERROR;
-import static mcjty.xnet.modules.wireless.WirelessRouterSetup.TYPE_WIRELESS_ROUTER;
+import static mcjty.xnet.modules.wireless.WirelessRouterModule.TYPE_WIRELESS_ROUTER;
 
 public final class TileEntityWirelessRouter extends GenericTileEntity implements ITickableTileEntity {
 
@@ -70,7 +70,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
 
     private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.wirelessRouterMaxRF.get(), Config.wirelessRouterRfPerTick.get()));
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Wireless Router")
-            .containerSupplier((windowId,player) -> new GenericContainer(WirelessRouterSetup.CONTAINER_WIRELESS_ROUTER.get(), windowId, EmptyContainer.CONTAINER_FACTORY.get(), getPos(), TileEntityWirelessRouter.this)));
+            .containerSupplier((windowId,player) -> new GenericContainer(WirelessRouterModule.CONTAINER_WIRELESS_ROUTER.get(), windowId, EmptyContainer.CONTAINER_FACTORY.get(), getPos(), TileEntityWirelessRouter.this)));
 
     public TileEntityWirelessRouter() {
         super(TYPE_WIRELESS_ROUTER.get());
@@ -146,17 +146,17 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     }
 
     private int getAntennaTier() {
-        if (world.getBlockState(pos.up()).getBlock() != WirelessRouterSetup.ANTENNA_BASE.get()) {
+        if (world.getBlockState(pos.up()).getBlock() != WirelessRouterModule.ANTENNA_BASE.get()) {
             return TIER_INVALID;
         }
         Block aboveAntenna = world.getBlockState(pos.up(2)).getBlock();
-        if (aboveAntenna == WirelessRouterSetup.ANTENNA_DISH.get()) {
+        if (aboveAntenna == WirelessRouterModule.ANTENNA_DISH.get()) {
             return TIER_INF;
         }
-        if (aboveAntenna != WirelessRouterSetup.ANTENNA.get()) {
+        if (aboveAntenna != WirelessRouterModule.ANTENNA.get()) {
             return TIER_INVALID;
         }
-        if (world.getBlockState(pos.up(3)).getBlock() == WirelessRouterSetup.ANTENNA.get()) {
+        if (world.getBlockState(pos.up(3)).getBlock() == WirelessRouterModule.ANTENNA.get()) {
             return TIER_2;
         } else {
             return TIER_1;

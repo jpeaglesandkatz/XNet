@@ -22,7 +22,7 @@ import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.controller.ChannelInfo;
 import mcjty.xnet.modules.router.LocalChannelId;
-import mcjty.xnet.modules.router.RouterSetup;
+import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.router.client.GuiRouter;
 import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WirelessChannelKey;
@@ -57,7 +57,7 @@ import static mcjty.lib.builder.TooltipBuilder.header;
 import static mcjty.lib.builder.TooltipBuilder.key;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.modules.controller.blocks.TileEntityController.ERROR;
-import static mcjty.xnet.modules.router.RouterSetup.TYPE_ROUTER;
+import static mcjty.xnet.modules.router.RouterModule.TYPE_ROUTER;
 
 public final class TileEntityRouter extends GenericTileEntity {
 
@@ -75,7 +75,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     private int channelCount = 0;
 
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Router")
-            .containerSupplier((windowId,player) -> new GenericContainer(RouterSetup.CONTAINER_ROUTER.get(), windowId, EmptyContainer.CONTAINER_FACTORY.get(), getPos(), TileEntityRouter.this)));
+            .containerSupplier((windowId,player) -> new GenericContainer(RouterModule.CONTAINER_ROUTER.get(), windowId, EmptyContainer.CONTAINER_FACTORY.get(), getPos(), TileEntityRouter.this)));
 
     public TileEntityRouter() {
         super(TYPE_ROUTER.get());

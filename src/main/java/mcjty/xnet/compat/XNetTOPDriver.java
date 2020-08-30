@@ -9,16 +9,16 @@ import mcjty.theoneprobe.api.CompoundText;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.ProbeMode;
-import mcjty.xnet.modules.cables.CableSetup;
+import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
-import mcjty.xnet.modules.controller.ControllerSetup;
+import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
-import mcjty.xnet.modules.facade.FacadeSetup;
-import mcjty.xnet.modules.router.RouterSetup;
+import mcjty.xnet.modules.facade.FacadeModule;
+import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
-import mcjty.xnet.modules.wireless.WirelessRouterSetup;
+import mcjty.xnet.modules.wireless.WirelessRouterModule;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import mcjty.xnet.multiblock.BlobId;
 import mcjty.xnet.multiblock.ColorId;
@@ -47,15 +47,15 @@ public class XNetTOPDriver implements TOPDriver {
         Block block = blockState.getBlock();
         ResourceLocation id = block.getRegistryName();
         if (!drivers.containsKey(id)) {
-            if (block == CableSetup.NETCABLE.get() || block == FacadeSetup.FACADE.get()) {
+            if (block == CableModule.NETCABLE.get() || block == FacadeModule.FACADE.get()) {
                 drivers.put(id, new CableDriver());
             } else if (block instanceof ConnectorBlock) {
                 drivers.put(id, new ConnectorDriver());
-            } else if (block == ControllerSetup.CONTROLLER.get()) {
+            } else if (block == ControllerModule.CONTROLLER.get()) {
                 drivers.put(id, new ControllerDriver());
-            } else if (block == RouterSetup.ROUTER.get()) {
+            } else if (block == RouterModule.ROUTER.get()) {
                 drivers.put(id, new RouterDriver());
-            } else if (block == WirelessRouterSetup.WIRELESS_ROUTER.get()) {
+            } else if (block == WirelessRouterModule.WIRELESS_ROUTER.get()) {
                 drivers.put(id, new WirelessRouterDriver());
             } else {
                 drivers.put(id, new DefaultDriver());

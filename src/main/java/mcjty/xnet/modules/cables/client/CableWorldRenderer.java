@@ -1,4 +1,4 @@
-package mcjty.xnet.client;
+package mcjty.xnet.modules.cables.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -32,7 +32,7 @@ import java.util.List;
 import static mcjty.xnet.modules.cables.ConnectorType.BLOCK;
 import static mcjty.xnet.modules.cables.ConnectorType.CABLE;
 
-public class RenderWorldLastEventHandler {
+public class CableWorldRenderer {
 
     public static void tick(RenderWorldLastEvent evt) {
         Minecraft mc = Minecraft.getInstance();

@@ -12,7 +12,7 @@ import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.tiles.IConnectorTile;
-import mcjty.xnet.modules.cables.CableSetup;
+import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.modules.facade.MimicBlockSupport;
 import mcjty.xnet.multiblock.WorldBlob;
@@ -40,7 +40,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static mcjty.xnet.modules.cables.CableSetup.TYPE_CONNECTOR;
+import static mcjty.xnet.modules.cables.CableModule.TYPE_CONNECTOR;
 
 public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSupport, IConnectorTile {
 
@@ -82,7 +82,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Connector")
-            .containerSupplier((windowId,player) -> new GenericContainer(CableSetup.CONTAINER_CONNECTOR.get(), windowId, EmptyContainer.CONTAINER_FACTORY.get(), getPos(), ConnectorTileEntity.this)));
+            .containerSupplier((windowId,player) -> new GenericContainer(CableModule.CONTAINER_CONNECTOR.get(), windowId, EmptyContainer.CONTAINER_FACTORY.get(), getPos(), ConnectorTileEntity.this)));
 
     public ConnectorTileEntity() {
         this(TYPE_CONNECTOR.get());
