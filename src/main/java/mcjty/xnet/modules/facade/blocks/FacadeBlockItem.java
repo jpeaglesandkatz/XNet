@@ -3,9 +3,9 @@ package mcjty.xnet.modules.facade.blocks;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.xnet.XNet;
-import mcjty.xnet.modules.cables.CableSetup;
+import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
-import mcjty.xnet.modules.facade.FacadeSetup;
+import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.facade.IFacadeSupport;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -111,7 +111,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
         if (!itemstack.isEmpty()) {
 
-            if (block == CableSetup.NETCABLE.get()) {
+            if (block == CableModule.NETCABLE.get()) {
                 FacadeBlock facadeBlock = (FacadeBlock) this.getBlock();
                 BlockItemUseContext blockContext = new ReplaceBlockItemUseContext(context);
                 BlockState placementState = facadeBlock.getStateForPlacement(blockContext)
@@ -134,7 +134,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
                     int amount = -1;
                     itemstack.grow(amount);
                 }
-            } else if (block == CableSetup.CONNECTOR.get() || block == CableSetup.ADVANCED_CONNECTOR.get()) {
+            } else if (block == CableModule.CONNECTOR.get() || block == CableModule.ADVANCED_CONNECTOR.get()) {
                 TileEntity te = world.getTileEntity(pos);
                 if (te instanceof ConnectorTileEntity) {
                     ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
@@ -148,7 +148,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
                         userSetMimicBlock(itemstack, connectorTileEntity.getMimicBlock(), context);
                     }
                 }
-            } else if (block == FacadeSetup.FACADE.get()) {
+            } else if (block == FacadeModule.FACADE.get()) {
                 TileEntity te = world.getTileEntity(pos);
                 if (!(te instanceof IFacadeSupport)) {
                     return ActionResultType.FAIL;

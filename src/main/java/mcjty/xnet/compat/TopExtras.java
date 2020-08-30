@@ -2,8 +2,8 @@ package mcjty.xnet.compat;
 
 import mcjty.theoneprobe.api.CompoundText;
 import mcjty.theoneprobe.api.ITheOneProbe;
-import mcjty.xnet.modules.cables.CableSetup;
-import mcjty.xnet.modules.facade.FacadeSetup;
+import mcjty.xnet.modules.cables.CableModule;
+import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.facade.blocks.FacadeTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
@@ -38,13 +38,13 @@ public class TopExtras {
     private static void registerTopExtras(ITheOneProbe probe) {
         probe.registerBlockDisplayOverride((mode, probeInfo, player, world, blockState, data) -> {
             Block block = blockState.getBlock();
-            if (block == FacadeSetup.FACADE.get()) {
+            if (block == FacadeModule.FACADE.get()) {
                 String modid = "XNet";
 
                 ItemStack pickBlock = data.getPickBlock();
                 TileEntity te = world.getTileEntity(data.getPos());
                 if (te instanceof FacadeTileEntity) {
-                    pickBlock = new ItemStack(CableSetup.NETCABLE.get(), 1);
+                    pickBlock = new ItemStack(CableModule.NETCABLE.get(), 1);
                 }
 
                 if (!pickBlock.isEmpty()) {

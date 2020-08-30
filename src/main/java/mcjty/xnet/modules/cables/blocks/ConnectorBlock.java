@@ -10,10 +10,10 @@ import mcjty.rftoolsbase.api.xnet.channels.IConnectable;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableColor;
-import mcjty.xnet.modules.cables.CableSetup;
+import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.ConnectorType;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
-import mcjty.xnet.modules.facade.FacadeSetup;
+import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.facade.blocks.FacadeBlockItem;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.modules.various.blocks.RedstoneProxyBlock;
@@ -95,7 +95,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
                     @Nullable
                     @Override
                     public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
-                        return new GenericContainer(CableSetup.CONTAINER_CONNECTOR.get(), id, EmptyContainer.CONTAINER_FACTORY.get(), pos, genericTileEntity);
+                        return new GenericContainer(CableModule.CONTAINER_CONNECTOR.get(), id, EmptyContainer.CONTAINER_FACTORY.get(), pos, genericTileEntity);
                     }
                 }, pos);
             }
@@ -109,7 +109,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
             // If we are in mimic mode then the drop will be the facade as the connector will remain there
             ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
             if (connectorTileEntity.getMimicBlock() != null) {
-                ItemStack item = new ItemStack(FacadeSetup.FACADE.get());
+                ItemStack item = new ItemStack(FacadeModule.FACADE.get());
                 FacadeBlockItem.setMimicBlock(item, connectorTileEntity.getMimicBlock());
                 connectorTileEntity.setMimicBlock(null);
                 spawnAsEntity(worldIn, pos, item);

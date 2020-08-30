@@ -3,11 +3,11 @@ package mcjty.xnet.datagen;
 import mcjty.lib.datagen.BaseBlockStateProvider;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.XNet;
-import mcjty.xnet.modules.controller.ControllerSetup;
+import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
-import mcjty.xnet.modules.router.RouterSetup;
-import mcjty.xnet.modules.various.VariousSetup;
-import mcjty.xnet.modules.wireless.WirelessRouterSetup;
+import mcjty.xnet.modules.router.RouterModule;
+import mcjty.xnet.modules.various.VariousModule;
+import mcjty.xnet.modules.wireless.WirelessRouterModule;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
@@ -25,8 +25,8 @@ public class BlockStates extends BaseBlockStateProvider {
 
     @Override
     protected void registerStatesAndModels() {
-        singleTextureBlock(VariousSetup.REDSTONE_PROXY.get(), BLOCK_FOLDER + "/redstone_proxy", "block/machine_proxy");
-        singleTextureBlock(VariousSetup.REDSTONE_PROXY_UPD.get(), BLOCK_FOLDER + "/redstone_proxy_upd", "block/machine_proxy");
+        singleTextureBlock(VariousModule.REDSTONE_PROXY.get(), BLOCK_FOLDER + "/redstone_proxy", "block/machine_proxy");
+        singleTextureBlock(VariousModule.REDSTONE_PROXY_UPD.get(), BLOCK_FOLDER + "/redstone_proxy_upd", "block/machine_proxy");
         registerController();
         registerRouter();
         registerWirelessRouter();
@@ -35,7 +35,7 @@ public class BlockStates extends BaseBlockStateProvider {
     private void registerController() {
         ModelFile modelOk = frontBasedModel("controller", modLoc("block/machine_controller"));
         ModelFile modelError = frontBasedModel("controller_error", modLoc("block/machine_controller_error"));
-        VariantBlockStateBuilder builder = getVariantBuilder(ControllerSetup.CONTROLLER.get());
+        VariantBlockStateBuilder builder = getVariantBuilder(ControllerModule.CONTROLLER.get());
         for (Direction direction : OrientationTools.DIRECTION_VALUES) {
             applyRotation(builder.partialState().with(BlockStateProperties.FACING, direction).with(TileEntityController.ERROR, false)
                     .modelForState().modelFile(modelOk), direction);
@@ -47,7 +47,7 @@ public class BlockStates extends BaseBlockStateProvider {
     private void registerRouter() {
         ModelFile modelOk = frontBasedModel("router", modLoc("block/machine_router"));
         ModelFile modelError = frontBasedModel("router_error", modLoc("block/machine_router_error"));
-        VariantBlockStateBuilder builder = getVariantBuilder(RouterSetup.ROUTER.get());
+        VariantBlockStateBuilder builder = getVariantBuilder(RouterModule.ROUTER.get());
         for (Direction direction : OrientationTools.DIRECTION_VALUES) {
             applyRotation(builder.partialState().with(BlockStateProperties.FACING, direction).with(TileEntityController.ERROR, false)
                     .modelForState().modelFile(modelOk), direction);
@@ -59,7 +59,7 @@ public class BlockStates extends BaseBlockStateProvider {
     private void registerWirelessRouter() {
         ModelFile modelOk = frontBasedModel("wireless_router", modLoc("block/machine_wireless_router"));
         ModelFile modelError = frontBasedModel("wireless_router_error", modLoc("block/machine_wireless_router_error"));
-        VariantBlockStateBuilder builder = getVariantBuilder(WirelessRouterSetup.WIRELESS_ROUTER.get());
+        VariantBlockStateBuilder builder = getVariantBuilder(WirelessRouterModule.WIRELESS_ROUTER.get());
         for (Direction direction : OrientationTools.DIRECTION_VALUES) {
             applyRotation(builder.partialState().with(BlockStateProperties.FACING, direction).with(TileEntityController.ERROR, false)
                     .modelForState().modelFile(modelOk), direction);

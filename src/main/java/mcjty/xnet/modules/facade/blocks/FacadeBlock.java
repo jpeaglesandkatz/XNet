@@ -1,9 +1,9 @@
 package mcjty.xnet.modules.facade.blocks;
 
 import mcjty.xnet.modules.cables.CableColor;
-import mcjty.xnet.modules.cables.CableSetup;
+import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.NetCableBlock;
-import mcjty.xnet.modules.facade.FacadeSetup;
+import mcjty.xnet.modules.facade.FacadeModule;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
@@ -69,7 +69,7 @@ public class FacadeBlock extends NetCableBlock {
 
     @Override
     public void harvestBlock(World worldIn, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity te, ItemStack stack) {
-        ItemStack item = new ItemStack(FacadeSetup.FACADE.get());
+        ItemStack item = new ItemStack(FacadeModule.FACADE.get());
         BlockState mimicBlock;
         if (te instanceof FacadeTileEntity) {
             mimicBlock = ((FacadeTileEntity) te).getMimicBlock();
@@ -83,7 +83,7 @@ public class FacadeBlock extends NetCableBlock {
 
     private boolean replaceWithCable(IWorld world, BlockPos pos, BlockState state) {
         CableColor color = state.get(COLOR);
-        BlockState defaultState = CableSetup.NETCABLE.get().getDefaultState().with(COLOR, color);
+        BlockState defaultState = CableModule.NETCABLE.get().getDefaultState().with(COLOR, color);
         BlockState newState = this.calculateState(world, pos, defaultState);
         return world.setBlockState(pos, newState, world.isRemote()
                 ? BlockFlags.BLOCK_UPDATE + BlockFlags.NOTIFY_NEIGHBORS + BlockFlags.RERENDER_MAIN_THREAD

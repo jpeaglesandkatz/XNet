@@ -3,8 +3,11 @@ package mcjty.xnet.setup;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import com.google.common.collect.Lists;
+import mcjty.lib.modules.Modules;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -48,10 +51,10 @@ public class Config {
     };
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> unsidedBlocks;
 
-    private static final ForgeConfigSpec.Builder SERVER_BUILDER = new ForgeConfigSpec.Builder();
-    private static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
+    public static final ForgeConfigSpec.Builder SERVER_BUILDER = new ForgeConfigSpec.Builder();
+    public static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
 
-    static {
+    public static void register(Modules modules) {
         SERVER_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
         CLIENT_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
 
@@ -131,6 +134,9 @@ public class Config {
 
         SERVER_CONFIG = SERVER_BUILDER.build();
         CLIENT_CONFIG = CLIENT_BUILDER.build();
+
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, CLIENT_CONFIG);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SERVER_CONFIG);
     }
 
     public static ForgeConfigSpec SERVER_CONFIG;

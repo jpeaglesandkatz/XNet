@@ -4,10 +4,9 @@ import mcjty.lib.compat.theoneprobe.TOPDriver;
 import mcjty.lib.compat.theoneprobe.TOPInfoProvider;
 import mcjty.xnet.compat.XNetTOPDriver;
 import mcjty.xnet.modules.cables.CableColor;
-import mcjty.xnet.modules.cables.CableSetup;
+import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.ConnectorType;
 import mcjty.xnet.modules.facade.IFacadeSupport;
-import mcjty.xnet.modules.facade.blocks.FacadeBlock;
 import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
@@ -144,29 +143,29 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
         switch (type) {
             case CABLE:
                 switch (color) {
-                    case BLUE: return CableSetup.NETCABLE_BLUE.get();
-                    case RED: return CableSetup.NETCABLE_RED.get();
-                    case YELLOW: return CableSetup.NETCABLE_YELLOW.get();
-                    case GREEN: return CableSetup.NETCABLE_GREEN.get();
-                    case ROUTING: return CableSetup.NETCABLE_ROUTING.get();
+                    case BLUE: return CableModule.NETCABLE_BLUE.get();
+                    case RED: return CableModule.NETCABLE_RED.get();
+                    case YELLOW: return CableModule.NETCABLE_YELLOW.get();
+                    case GREEN: return CableModule.NETCABLE_GREEN.get();
+                    case ROUTING: return CableModule.NETCABLE_ROUTING.get();
                 }
                 break;
             case CONNECTOR:
                 switch (color) {
-                    case BLUE: return CableSetup.CONNECTOR_BLUE.get();
-                    case RED: return CableSetup.CONNECTOR_RED.get();
-                    case YELLOW: return CableSetup.CONNECTOR_YELLOW.get();
-                    case GREEN: return CableSetup.CONNECTOR_GREEN.get();
-                    case ROUTING: return CableSetup.CONNECTOR_ROUTING.get();
+                    case BLUE: return CableModule.CONNECTOR_BLUE.get();
+                    case RED: return CableModule.CONNECTOR_RED.get();
+                    case YELLOW: return CableModule.CONNECTOR_YELLOW.get();
+                    case GREEN: return CableModule.CONNECTOR_GREEN.get();
+                    case ROUTING: return CableModule.CONNECTOR_ROUTING.get();
                 }
                 break;
             case ADVANCED_CONNECTOR:
                 switch (color) {
-                    case BLUE: return CableSetup.ADVANCED_CONNECTOR_BLUE.get();
-                    case RED: return CableSetup.ADVANCED_CONNECTOR_RED.get();
-                    case YELLOW: return CableSetup.ADVANCED_CONNECTOR_YELLOW.get();
-                    case GREEN: return CableSetup.ADVANCED_CONNECTOR_GREEN.get();
-                    case ROUTING: return CableSetup.ADVANCED_CONNECTOR_ROUTING.get();
+                    case BLUE: return CableModule.ADVANCED_CONNECTOR_BLUE.get();
+                    case RED: return CableModule.ADVANCED_CONNECTOR_RED.get();
+                    case YELLOW: return CableModule.ADVANCED_CONNECTOR_YELLOW.get();
+                    case GREEN: return CableModule.ADVANCED_CONNECTOR_GREEN.get();
+                    case ROUTING: return CableModule.ADVANCED_CONNECTOR_ROUTING.get();
                 }
                 break;
         }

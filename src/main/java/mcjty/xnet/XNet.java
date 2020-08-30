@@ -1,16 +1,20 @@
 package mcjty.xnet;
 
 
+import mcjty.lib.modules.Modules;
 import mcjty.xnet.apiimpl.XNetApi;
-import mcjty.xnet.setup.ClientSetup;
+import mcjty.xnet.modules.cables.CableModule;
+import mcjty.xnet.modules.controller.ControllerModule;
+import mcjty.xnet.modules.facade.FacadeModule;
+import mcjty.xnet.modules.router.RouterModule;
+import mcjty.xnet.modules.various.VariousModule;
+import mcjty.xnet.modules.wireless.WirelessRouterModule;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.ModSetup;
 import mcjty.xnet.setup.Registration;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(XNet.MODID)
@@ -21,44 +25,32 @@ public class XNet {
     public static ModSetup setup = new ModSetup();
 
     public static XNet instance;
+    private Modules modules = new Modules();
 
     public static XNetApi xNetApi = new XNetApi();
 
     public XNet() {
         instance = this;
+        setupModules();
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_CONFIG);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.SERVER_CONFIG);
+        Config.register(modules);
 
         Registration.register();
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(setup::init);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(modules::init);
+
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::init);
-            FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::modelInit);
+            FMLJavaModLoadingContext.get().getModEventBus().addListener(modules::initClient);
         });
     }
 
-//    @Mod.EventHandler
-//    public void serverLoad(FMLServerStartingEvent event) {
-//        event.registerServerCommand(new CommandDump());
-////        event.registerServerCommand(new CommandGen());
-//        event.registerServerCommand(new CommandRebuild());
-//        event.registerServerCommand(new CommandCheck());
-//    }
-
-    // @todo 1.14
-//    @Mod.EventHandler
-//    public void imcCallback(FMLInterModComms.IMCEvent event) {
-//        for (FMLInterModComms.IMCMessage message : event.getMessages()) {
-//            if (message.key.equalsIgnoreCase("getXNet")) {
-//                Optional<Function<IXNet, Void>> value = message.getFunctionValue(IXNet.class, Void.class);
-//                if (value.isPresent()) {
-//                    value.get().apply(xNetApi);
-//                } else {
-//                    setup.getLogger().warn("Some mod didn't return a valid result with getXNet!");
-//                }
-//            }
-//        }
-//    }
+    private void setupModules() {
+        modules.register(new CableModule());
+        modules.register(new ControllerModule());
+        modules.register(new FacadeModule());
+        modules.register(new RouterModule());
+        modules.register(new WirelessRouterModule());
+        modules.register(new VariousModule());
+    }
 }

@@ -34,12 +34,12 @@ import mcjty.xnet.client.ConnectorClientInfo;
 import mcjty.xnet.client.ConnectorInfo;
 import mcjty.xnet.compat.XNetTOPDriver;
 import mcjty.xnet.logic.LogicTools;
-import mcjty.xnet.modules.cables.CableSetup;
+import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.modules.controller.ChannelInfo;
 import mcjty.xnet.modules.controller.ConnectedBlockInfo;
-import mcjty.xnet.modules.controller.ControllerSetup;
+import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.controller.KnownUnsidedBlocks;
 import mcjty.xnet.modules.controller.client.GuiController;
 import mcjty.xnet.modules.controller.network.PacketControllerError;
@@ -82,7 +82,7 @@ import java.util.stream.Stream;
 import static mcjty.lib.container.ContainerFactory.CONTAINER_CONTAINER;
 import static mcjty.lib.container.SlotDefinition.specific;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
-import static mcjty.xnet.modules.controller.ControllerSetup.TYPE_CONTROLLER;
+import static mcjty.xnet.modules.controller.ControllerModule.TYPE_CONTROLLER;
 
 public final class TileEntityController extends GenericTileEntity implements ITickableTileEntity, IControllerContext {
 
@@ -137,7 +137,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get()));
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
-            .containerSupplier((windowId,player) -> new GenericContainer(ControllerSetup.CONTAINER_CONTROLLER.get(), windowId, CONTAINER_FACTORY.get(), getPos(), TileEntityController.this))
+            .containerSupplier((windowId,player) -> new GenericContainer(ControllerModule.CONTAINER_CONTROLLER.get(), windowId, CONTAINER_FACTORY.get(), getPos(), TileEntityController.this))
             .itemHandler(itemHandler)
             .energyHandler(energyHandler));
 
@@ -525,7 +525,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
                         BlockPos consumerPos = findConsumerPosition(worldBlob, sidedConsumer.getConsumerId());
                         if (consumerPos != null) {
                             SidedPos pos = new SidedPos(consumerPos.offset(sidedConsumer.getSide()), sidedConsumer.getSide().getOpposite());
-                            boolean advanced = world.getBlockState(consumerPos).getBlock() == CableSetup.ADVANCED_CONNECTOR.get();
+                            boolean advanced = world.getBlockState(consumerPos).getBlock() == CableModule.ADVANCED_CONNECTOR.get();
                             ConnectorClientInfo ci = new ConnectorClientInfo(pos, sidedConsumer.getConsumerId(), channel.getType(), info.getConnectorSettings());
                             clientInfo.getConnectors().put(sidedConsumer, ci);
                         } else {
@@ -621,7 +621,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             throw new RuntimeException("What?");
         }
         SidedConsumer id = new SidedConsumer(consumerId, pos.getSide().getOpposite());
-        boolean advanced = world.getBlockState(consumerPos).getBlock() == CableSetup.ADVANCED_CONNECTOR.get();
+        boolean advanced = world.getBlockState(consumerPos).getBlock() == CableModule.ADVANCED_CONNECTOR.get();
         ConnectorInfo info = channels[channel].createConnector(id, advanced);
         markAsDirty();
         return info;

@@ -2,7 +2,7 @@ package mcjty.xnet.modules.cables.blocks;
 
 import mcjty.xnet.setup.Config;
 
-import static mcjty.xnet.modules.cables.CableSetup.TYPE_ADVANCED_CONNECTOR;
+import static mcjty.xnet.modules.cables.CableModule.TYPE_ADVANCED_CONNECTOR;
 
 public class AdvancedConnectorTileEntity extends ConnectorTileEntity {
 

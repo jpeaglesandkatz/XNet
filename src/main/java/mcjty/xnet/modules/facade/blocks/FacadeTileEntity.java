@@ -2,7 +2,7 @@ package mcjty.xnet.modules.facade.blocks;
 
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
-import mcjty.xnet.modules.facade.FacadeSetup;
+import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.modules.facade.MimicBlockSupport;
 import net.minecraft.block.BlockState;
@@ -21,7 +21,7 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
     private MimicBlockSupport mimicBlockSupport = new MimicBlockSupport();
 
     public FacadeTileEntity() {
-        super(FacadeSetup.TYPE_FACADE.get());
+        super(FacadeModule.TYPE_FACADE.get());
     }
 
     @Override

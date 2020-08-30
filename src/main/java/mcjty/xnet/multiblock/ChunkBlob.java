@@ -3,9 +3,9 @@ package mcjty.xnet.multiblock;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
-import mcjty.xnet.modules.cables.CableSetup;
-import mcjty.xnet.modules.controller.ControllerSetup;
-import mcjty.xnet.modules.facade.FacadeSetup;
+import mcjty.xnet.modules.cables.CableModule;
+import mcjty.xnet.modules.controller.ControllerModule;
+import mcjty.xnet.modules.facade.FacadeModule;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.IntArrayNBT;
@@ -169,7 +169,7 @@ public class ChunkBlob {
                     BlockPos pos = new BlockPos((chunkPos.x << 4) + cx, cy, (chunkPos.z << 4) + cz);
 //                    BlockPos pos = chunkPos.getBlock(cx, cy, cz);
                     Block block = world.getBlockState(pos).getBlock();
-                    boolean hasid = block == CableSetup.CONNECTOR.get() || block == CableSetup.ADVANCED_CONNECTOR.get() || block == CableSetup.NETCABLE.get() || block == ControllerSetup.CONTROLLER.get() || block == FacadeSetup.FACADE.get();
+                    boolean hasid = block == CableModule.CONNECTOR.get() || block == CableModule.ADVANCED_CONNECTOR.get() || block == CableModule.NETCABLE.get() || block == ControllerModule.CONTROLLER.get() || block == FacadeModule.FACADE.get();
                     if (hasid != blobAllocations.containsKey(new IntPos(pos))) {
                         if (hasid) {
                             System.out.println("Allocation at " + BlockPosTools.toString(pos) + " but no cable there!");

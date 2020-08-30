@@ -2,12 +2,6 @@ package mcjty.xnet.setup;
 
 
 import mcjty.xnet.XNet;
-import mcjty.xnet.modules.cables.CableSetup;
-import mcjty.xnet.modules.controller.ControllerSetup;
-import mcjty.xnet.modules.facade.FacadeSetup;
-import mcjty.xnet.modules.router.RouterSetup;
-import mcjty.xnet.modules.various.VariousSetup;
-import mcjty.xnet.modules.wireless.WirelessRouterSetup;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityType;
 import net.minecraft.inventory.container.ContainerType;
@@ -36,13 +30,6 @@ public class Registration {
         CONTAINERS.register(FMLJavaModLoadingContext.get().getModEventBus());
         SOUNDS.register(FMLJavaModLoadingContext.get().getModEventBus());
         ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
-
-        VariousSetup.register();
-        ControllerSetup.register();
-        RouterSetup.register();
-        WirelessRouterSetup.register();
-        FacadeSetup.register();
-        CableSetup.register();
     }
 
     public static Item.Properties createStandardProperties() {
