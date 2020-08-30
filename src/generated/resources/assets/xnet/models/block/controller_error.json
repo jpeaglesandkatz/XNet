@@ -6,6 +6,7 @@
     "north": "xnet:block/machine_controller_error",
     "south": "rftoolsbase:block/base/machineside",
     "east": "rftoolsbase:block/base/machineside",
-    "west": "rftoolsbase:block/base/machineside"
+    "west": "rftoolsbase:block/base/machineside",
+    "particle": "xnet:block/machine_controller_error"
   }
 }

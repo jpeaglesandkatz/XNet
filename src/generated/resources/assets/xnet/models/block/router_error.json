@@ -3,9 +3,10 @@
   "textures": {
     "down": "rftoolsbase:block/base/machinebottom",
     "up": "rftoolsbase:block/base/machinetop",
-    "north": "xnet:block/machine_wireless_router_error",
+    "north": "xnet:block/machine_router_error",
     "south": "rftoolsbase:block/base/machineside",
     "east": "rftoolsbase:block/base/machineside",
-    "west": "rftoolsbase:block/base/machineside"
+    "west": "rftoolsbase:block/base/machineside",
+    "particle": "xnet:block/machine_router_error"
   }
 }
