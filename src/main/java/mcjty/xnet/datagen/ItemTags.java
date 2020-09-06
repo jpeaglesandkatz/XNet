@@ -2,12 +2,13 @@ package mcjty.xnet.datagen;
 
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.ItemTagsProvider;
+import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.ForgeBlockTagsProvider;
 
 public class ItemTags extends ItemTagsProvider {
 
-    public ItemTags(DataGenerator generator) {
-        super(generator, new ForgeBlockTagsProvider(generator));
+    public ItemTags(DataGenerator generator, ExistingFileHelper helper) {
+        super(generator, new ForgeBlockTagsProvider(generator, helper));
     }
 
     @Override

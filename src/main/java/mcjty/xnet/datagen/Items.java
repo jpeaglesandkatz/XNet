@@ -7,7 +7,7 @@ import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.various.VariousModule;
 import mcjty.xnet.modules.wireless.WirelessRouterModule;
 import net.minecraft.data.DataGenerator;
-import net.minecraftforge.client.model.generators.ExistingFileHelper;
+import net.minecraftforge.common.data.ExistingFileHelper;
 
 public class Items extends BaseItemModelProvider {
 
