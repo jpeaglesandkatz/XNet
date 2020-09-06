@@ -1,3 +1,6 @@
+Upcoming:
+- Accidentally removed the required tags
+
 1.16-3.0.4-beta:
 - Update to latest McJtyLib
 
