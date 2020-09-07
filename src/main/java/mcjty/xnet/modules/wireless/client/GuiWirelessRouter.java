@@ -3,8 +3,8 @@ package mcjty.xnet.modules.wireless.client;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
-import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.xnet.XNet;
+import mcjty.xnet.modules.wireless.WirelessRouterModule;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.entity.player.PlayerInventory;
@@ -13,7 +13,7 @@ import net.minecraft.util.ResourceLocation;
 public class GuiWirelessRouter extends GenericGuiContainer<TileEntityWirelessRouter, GenericContainer> {
 
     public GuiWirelessRouter(TileEntityWirelessRouter router, GenericContainer container, PlayerInventory inventory) {
-        super(router, container, inventory, ManualHelper.create("xnet:simple/wireless/wireless_router"));
+        super(router, container, inventory, WirelessRouterModule.WIRELESS_ROUTER.get().getManualEntry());
     }
 
     @Override

@@ -3,11 +3,13 @@ package mcjty.xnet.modules.cables.blocks;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.EmptyContainer;
 import mcjty.lib.container.GenericContainer;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.EnergyTools;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectable;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.CableModule;
@@ -60,6 +62,7 @@ import static mcjty.lib.builder.TooltipBuilder.*;
 
 public class ConnectorBlock extends GenericCableBlock implements ITooltipSettings {
 
+    public static final ManualEntry MANUAL = ManualHelper.create("xnet:simple/connector");
     private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
             .info(key("message.xnet.shiftmessage"))
             .infoShift(header(), gold(stack -> isAdvancedConnector()),
@@ -67,6 +70,11 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
 
     public ConnectorBlock(CableBlockType type) {
         super(Material.IRON, type);
+    }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return MANUAL;
     }
 
     @Override

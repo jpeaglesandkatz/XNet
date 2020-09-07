@@ -19,6 +19,7 @@ import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.xnet.client.ControllerChannelClientInfo;
 import mcjty.xnet.compat.XNetTOPDriver;
 import mcjty.xnet.logic.LogicTools;
@@ -80,6 +81,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
         return new BaseBlock(new BlockBuilder()
                 .topDriver(XNetTOPDriver.DRIVER)
                 .tileEntitySupplier(TileEntityWirelessRouter::new)
+                .manualEntry(ManualHelper.create("xnet:simple/wireless/wireless_router"))
                 .info(TooltipBuilder.key("message.xnet.shiftmessage"))
                 .infoShift(TooltipBuilder.header(), TooltipBuilder.gold())
         ) {

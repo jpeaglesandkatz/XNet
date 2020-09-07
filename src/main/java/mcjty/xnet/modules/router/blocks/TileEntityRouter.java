@@ -16,6 +16,7 @@ import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.xnet.client.ControllerChannelClientInfo;
 import mcjty.xnet.compat.XNetTOPDriver;
 import mcjty.xnet.logic.LogicTools;
@@ -85,6 +86,7 @@ public final class TileEntityRouter extends GenericTileEntity {
         return new BaseBlock(new BlockBuilder()
                 .topDriver(XNetTOPDriver.DRIVER)
                 .tileEntitySupplier(TileEntityRouter::new)
+                .manualEntry(ManualHelper.create("xnet:network/router"))
                 .info(key("message.xnet.shiftmessage"))
                 .infoShift(header())
         ) {
