@@ -1,13 +1,11 @@
 package mcjty.xnet.modules.facade;
 
 import mcjty.lib.modules.IModule;
-import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.modules.facade.blocks.FacadeBlock;
 import mcjty.xnet.modules.facade.blocks.FacadeBlockItem;
 import mcjty.xnet.modules.facade.blocks.FacadeTileEntity;
 import mcjty.xnet.modules.facade.client.FacadeBlockColor;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
@@ -32,8 +30,7 @@ public class FacadeModule implements IModule {
     @Override
     public void initClient(FMLClientSetupEvent event) {
         DeferredWorkQueue.runLater(() -> {
-            Minecraft.getInstance().getBlockColors().register(new FacadeBlockColor(),
-                    FacadeModule.FACADE.get(), CableModule.CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR.get());
+            FacadeBlockColor.register();
         });
         RenderTypeLookup.setRenderLayer(FacadeModule.FACADE.get(), (RenderType) -> true);
     }
