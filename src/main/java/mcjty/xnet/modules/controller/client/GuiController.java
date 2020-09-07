@@ -25,11 +25,11 @@ import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
-import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.xnet.XNet;
 import mcjty.xnet.client.ChannelClientInfo;
 import mcjty.xnet.client.ConnectedBlockClientInfo;
 import mcjty.xnet.client.ConnectorClientInfo;
+import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.controller.network.PacketGetChannels;
 import mcjty.xnet.modules.controller.network.PacketGetConnectedBlocks;
@@ -93,7 +93,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     private boolean needsRefresh = true;
 
     public GuiController(TileEntityController controller, GenericContainer container, PlayerInventory inventory) {
-        super(controller, container, inventory, ManualHelper.create("xnet:simple/controller"));
+        super(controller, container, inventory, ControllerModule.CONTROLLER.get().getManualEntry());
         openController = this;
     }
 

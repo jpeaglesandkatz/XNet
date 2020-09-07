@@ -9,7 +9,7 @@ import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.gui.widgets.ToggleButton;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.OrientationTools;
-import mcjty.rftoolsbase.tools.ManualHelper;
+import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.entity.player.PlayerInventory;
@@ -30,7 +30,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
 //    }
 
     public GuiConnector(ConnectorTileEntity tileEntity, GenericContainer container, PlayerInventory inventory) {
-        super(tileEntity, container, inventory, ManualHelper.create("xnet:simple/connector"));
+        super(tileEntity, container, inventory, CableModule.CONNECTOR.get().getManualEntry());
 
         xSize = WIDTH;
         ySize = HEIGHT;

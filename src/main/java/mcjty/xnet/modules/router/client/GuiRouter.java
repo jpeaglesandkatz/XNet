@@ -4,13 +4,16 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
-import mcjty.lib.gui.widgets.*;
+import mcjty.lib.gui.widgets.ImageLabel;
+import mcjty.lib.gui.widgets.Panel;
+import mcjty.lib.gui.widgets.TextField;
+import mcjty.lib.gui.widgets.WidgetList;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
-import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.xnet.XNet;
 import mcjty.xnet.client.ControllerChannelClientInfo;
+import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.modules.router.network.PacketGetLocalChannelsRouter;
 import mcjty.xnet.modules.router.network.PacketGetRemoteChannelsRouter;
@@ -36,7 +39,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
     private static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
 
     public GuiRouter(TileEntityRouter router, GenericContainer container, PlayerInventory inventory) {
-        super(router, container, inventory, ManualHelper.create("xnet:network/router"));
+        super(router, container, inventory, RouterModule.ROUTER.get().getManualEntry());
     }
 
     @Override

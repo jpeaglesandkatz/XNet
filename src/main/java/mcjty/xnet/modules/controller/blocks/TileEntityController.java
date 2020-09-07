@@ -27,6 +27,7 @@ import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
 import mcjty.rftoolsbase.modules.filter.items.FilterModuleItem;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.xnet.XNet;
 import mcjty.xnet.client.ChannelClientInfo;
 import mcjty.xnet.client.ConnectedBlockClientInfo;
@@ -171,6 +172,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         return new BaseBlock(new BlockBuilder()
                 .topDriver(XNetTOPDriver.DRIVER)
                 .tileEntitySupplier(TileEntityController::new)
+                .manualEntry(ManualHelper.create("xnet:simple/controller"))
                 .info(TooltipBuilder.key("message.xnet.shiftmessage"))
                 .infoShift(TooltipBuilder.header())
         ) {
