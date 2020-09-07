@@ -1,5 +1,7 @@
 package mcjty.xnet.modules.facade.client;
 
+import mcjty.xnet.modules.cables.CableModule;
+import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.facade.IFacadeSupport;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
@@ -11,6 +13,11 @@ import net.minecraft.world.IBlockDisplayReader;
 import javax.annotation.Nullable;
 
 public class FacadeBlockColor implements IBlockColor {
+
+    public static void register() {
+        Minecraft.getInstance().getBlockColors().register(new FacadeBlockColor(),
+                FacadeModule.FACADE.get(), CableModule.CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR.get());
+    }
 
     @Override
     public int getColor(BlockState blockState, @Nullable IBlockDisplayReader world, @Nullable BlockPos pos, int tint) {
