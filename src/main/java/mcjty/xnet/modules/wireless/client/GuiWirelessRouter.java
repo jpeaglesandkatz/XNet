@@ -16,6 +16,10 @@ public class GuiWirelessRouter extends GenericGuiContainer<TileEntityWirelessRou
         super(router, container, inventory, WirelessRouterModule.WIRELESS_ROUTER.get().getManualEntry());
     }
 
+    public static void register() {
+        register(WirelessRouterModule.CONTAINER_WIRELESS_ROUTER.get(), GuiWirelessRouter::new);
+    }
+
     @Override
     public void init() {
         window = new Window(this, tileEntity, XNetMessages.INSTANCE, new ResourceLocation(XNet.MODID, "gui/wireless_router.gui"));

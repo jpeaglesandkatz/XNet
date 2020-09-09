@@ -1,16 +1,13 @@
 package mcjty.xnet.modules.cables;
 
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.modules.IModule;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.blocks.*;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
-import mcjty.xnet.modules.cables.client.CableModelLoader;
-import mcjty.xnet.modules.cables.client.CableWorldRenderer;
+import mcjty.xnet.modules.cables.client.ClientSetup;
 import mcjty.xnet.modules.cables.client.GuiConnector;
 import mcjty.xnet.setup.Registration;
-import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
 import net.minecraft.tags.ItemTags;
@@ -18,9 +15,6 @@ import net.minecraft.tags.Tag;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.RegistryObject;
@@ -64,7 +58,7 @@ public class CableModule implements IModule {
 
     public CableModule() {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            FMLJavaModLoadingContext.get().getModEventBus().addListener(CableModule::modelInit);
+            FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::modelInit);
         });
     }
 
@@ -76,20 +70,13 @@ public class CableModule implements IModule {
     @Override
     public void initClient(FMLClientSetupEvent event) {
         DeferredWorkQueue.runLater(() -> {
-            GenericGuiContainer.register(CONTAINER_CONNECTOR.get(), GuiConnector::new);
+            GuiConnector.register();
         });
-        RenderTypeLookup.setRenderLayer(CONNECTOR.get(), (RenderType) -> true);
-        RenderTypeLookup.setRenderLayer(ADVANCED_CONNECTOR.get(), (RenderType) -> true);
-        MinecraftForge.EVENT_BUS.addListener(CableWorldRenderer::tick);
+        ClientSetup.initClient();
     }
 
     @Override
     public void initConfig() {
 
     }
-
-    public static void modelInit(ModelRegistryEvent event) {
-        ModelLoaderRegistry.registerLoader(new ResourceLocation(XNet.MODID, "cableloader"), new CableModelLoader());
-    }
-
 }

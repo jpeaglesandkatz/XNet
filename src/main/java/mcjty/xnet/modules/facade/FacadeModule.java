@@ -5,8 +5,7 @@ import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.modules.facade.blocks.FacadeBlock;
 import mcjty.xnet.modules.facade.blocks.FacadeBlockItem;
 import mcjty.xnet.modules.facade.blocks.FacadeTileEntity;
-import mcjty.xnet.modules.facade.client.FacadeBlockColor;
-import net.minecraft.client.renderer.RenderTypeLookup;
+import mcjty.xnet.modules.facade.client.ClientSetup;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.fml.DeferredWorkQueue;
@@ -30,9 +29,9 @@ public class FacadeModule implements IModule {
     @Override
     public void initClient(FMLClientSetupEvent event) {
         DeferredWorkQueue.runLater(() -> {
-            FacadeBlockColor.register();
+            ClientSetup.registerBlockColor();
         });
-        RenderTypeLookup.setRenderLayer(FacadeModule.FACADE.get(), (RenderType) -> true);
+        ClientSetup.initClient();
     }
 
     @Override
