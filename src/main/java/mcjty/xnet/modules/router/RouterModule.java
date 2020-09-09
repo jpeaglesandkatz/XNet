@@ -2,7 +2,6 @@ package mcjty.xnet.modules.router;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.modules.IModule;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.modules.router.client.GuiRouter;
@@ -33,7 +32,7 @@ public class RouterModule implements IModule {
     @Override
     public void initClient(FMLClientSetupEvent event) {
         DeferredWorkQueue.runLater(() -> {
-            GenericGuiContainer.register(CONTAINER_ROUTER.get(), GuiRouter::new);
+            GuiRouter.register();
         });
     }
 

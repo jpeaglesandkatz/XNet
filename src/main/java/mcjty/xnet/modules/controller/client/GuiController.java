@@ -97,6 +97,10 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         openController = this;
     }
 
+    public static void register() {
+        register(ControllerModule.CONTAINER_CONTROLLER.get(), GuiController::new);
+    }
+
     @Override
     public void onClose() {
         super.onClose();

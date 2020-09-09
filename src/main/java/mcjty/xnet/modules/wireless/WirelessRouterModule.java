@@ -5,15 +5,13 @@ import mcjty.lib.blocks.RotationType;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.modules.IModule;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
+import mcjty.xnet.modules.wireless.client.ClientSetup;
 import mcjty.xnet.modules.wireless.client.GuiWirelessRouter;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.Registration;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -108,12 +106,10 @@ public class WirelessRouterModule implements IModule {
     @Override
     public void initClient(FMLClientSetupEvent event) {
         DeferredWorkQueue.runLater(() -> {
-            GenericGuiContainer.register(CONTAINER_WIRELESS_ROUTER.get(), GuiWirelessRouter::new);
+            GuiWirelessRouter.register();
         });
 
-        RenderTypeLookup.setRenderLayer(ANTENNA.get(), RenderType.getCutout());
-        RenderTypeLookup.setRenderLayer(ANTENNA_DISH.get(), RenderType.getCutout());
-        RenderTypeLookup.setRenderLayer(ANTENNA_BASE.get(), RenderType.getCutout());
+        ClientSetup.initClient();
     }
 
     @Override

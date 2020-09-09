@@ -36,6 +36,10 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
         ySize = HEIGHT;
     }
 
+    public static void register() {
+        register(CableModule.CONTAINER_CONNECTOR.get(), GuiConnector::new);
+    }
+
     @Override
     public void init() {
         super.init();

@@ -14,11 +14,6 @@ import javax.annotation.Nullable;
 
 public class FacadeBlockColor implements IBlockColor {
 
-    public static void register() {
-        Minecraft.getInstance().getBlockColors().register(new FacadeBlockColor(),
-                FacadeModule.FACADE.get(), CableModule.CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR.get());
-    }
-
     @Override
     public int getColor(BlockState blockState, @Nullable IBlockDisplayReader world, @Nullable BlockPos pos, int tint) {
         TileEntity te = world.getTileEntity(pos);

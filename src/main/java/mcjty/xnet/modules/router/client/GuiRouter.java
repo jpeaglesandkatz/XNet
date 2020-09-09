@@ -42,6 +42,10 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         super(router, container, inventory, RouterModule.ROUTER.get().getManualEntry());
     }
 
+    public static void register() {
+        register(RouterModule.CONTAINER_ROUTER.get(), GuiRouter::new);
+    }
+
     @Override
     public void init() {
         window = new Window(this, tileEntity, XNetMessages.INSTANCE, new ResourceLocation(XNet.MODID, "gui/router.gui"));

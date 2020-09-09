@@ -2,7 +2,6 @@ package mcjty.xnet.modules.controller;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.modules.IModule;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.controller.client.GuiController;
@@ -33,7 +32,7 @@ public class ControllerModule implements IModule {
     @Override
     public void initClient(FMLClientSetupEvent event) {
         DeferredWorkQueue.runLater(() -> {
-            GenericGuiContainer.register(CONTAINER_CONTROLLER.get(), GuiController::new);
+            GuiController.register();
         });
     }
 
