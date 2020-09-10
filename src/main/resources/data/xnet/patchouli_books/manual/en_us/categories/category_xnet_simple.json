@@ -1,6 +1,6 @@
 {
-  "name": "xnet.category.simple",
-  "description": "xnet.category.simple.description",
+  "name": "Simple Network",
+  "description": "A simple network",
   "parent": "xnet:category_xnet",
   "icon": "xnet:netcable_red",
   "sortnum": 10
