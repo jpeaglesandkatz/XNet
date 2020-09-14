@@ -1,7 +1,7 @@
 package mcjty.xnet.modules.cables.blocks;
 
 import mcjty.lib.builder.TooltipBuilder;
-import mcjty.lib.container.EmptyContainer;
+import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.tileentity.GenericTileEntity;
@@ -103,7 +103,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
                     @Nullable
                     @Override
                     public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
-                        return new GenericContainer(CableModule.CONTAINER_CONNECTOR.get(), id, EmptyContainer.CONTAINER_FACTORY.get(), pos, genericTileEntity);
+                        return new GenericContainer(CableModule.CONTAINER_CONNECTOR.get(), id, ContainerFactory.EMPTY.get(), pos, genericTileEntity);
                     }
                 }, pos);
             }
