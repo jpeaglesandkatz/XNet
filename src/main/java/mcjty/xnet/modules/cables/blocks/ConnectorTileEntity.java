@@ -4,7 +4,7 @@ import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.DefaultValue;
 import mcjty.lib.bindings.IValue;
-import mcjty.lib.container.EmptyContainer;
+import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
@@ -82,7 +82,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Connector")
-            .containerSupplier((windowId,player) -> new GenericContainer(CableModule.CONTAINER_CONNECTOR.get(), windowId, EmptyContainer.CONTAINER_FACTORY.get(), getPos(), ConnectorTileEntity.this)));
+            .containerSupplier((windowId,player) -> new GenericContainer(CableModule.CONTAINER_CONNECTOR.get(), windowId, ContainerFactory.EMPTY.get(), getPos(), ConnectorTileEntity.this)));
 
     public ConnectorTileEntity() {
         this(TYPE_CONNECTOR.get());
