@@ -4,7 +4,7 @@ import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
-import mcjty.lib.container.EmptyContainer;
+import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
@@ -76,7 +76,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     private int channelCount = 0;
 
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Router")
-            .containerSupplier((windowId,player) -> new GenericContainer(RouterModule.CONTAINER_ROUTER.get(), windowId, EmptyContainer.CONTAINER_FACTORY.get(), getPos(), TileEntityRouter.this)));
+            .containerSupplier((windowId,player) -> new GenericContainer(RouterModule.CONTAINER_ROUTER.get(), windowId, ContainerFactory.EMPTY.get(), getPos(), TileEntityRouter.this)));
 
     public TileEntityRouter() {
         super(TYPE_ROUTER.get());
