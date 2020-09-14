@@ -133,14 +133,14 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     private final Map<WirelessChannelKey, Integer> wirelessVersions = new HashMap<>();
 
     private final NoDirectionItemHander items = createItemHandler();
-    private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
-    private final LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
+    private final LazyOptional<AutomationFilterItemHander> itemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
-    private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get()));
+    private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get());
+    private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> energyStorage);
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
             .containerSupplier((windowId,player) -> new GenericContainer(ControllerModule.CONTAINER_CONTROLLER.get(), windowId, CONTAINER_FACTORY.get(), getPos(), TileEntityController.this))
-            .itemHandler(itemHandler)
-            .energyHandler(energyHandler));
+            .itemHandler(() -> items)
+            .energyHandler(() -> energyStorage));
 
     private final Cached<NetworkChecker> networkChecker = Cached.of(this::createNetworkChecker);
 
@@ -317,17 +317,15 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     @Override
     public boolean checkAndConsumeRF(int rft) {
-        return energyHandler.map(h -> {
-            if (rft > 0) {
-                if (h.getEnergy() < rft) {
-                    // Not enough energy
-                    return false;
-                }
-                h.consumeEnergy(rft);
-                markDirtyQuick();
+        if (rft > 0) {
+            if (energyStorage.getEnergy() < rft) {
+                // Not enough energy
+                return false;
             }
-            return true;
-        }).orElse(false);
+            energyStorage.consumeEnergy(rft);
+            markDirtyQuick();
+        }
+        return true;
     }
 
     private void networkDirty() {
@@ -1159,7 +1157,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
         if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            return automationItemHandler.cast();
+            return itemHandler.cast();
         }
         if (cap == CapabilityEnergy.ENERGY) {
             return energyHandler.cast();
