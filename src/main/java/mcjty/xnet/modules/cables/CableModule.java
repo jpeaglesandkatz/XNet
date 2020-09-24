@@ -13,9 +13,7 @@ import net.minecraft.item.Item;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -69,7 +67,7 @@ public class CableModule implements IModule {
 
     @Override
     public void initClient(FMLClientSetupEvent event) {
-        DeferredWorkQueue.runLater(() -> {
+        event.enqueueWork(() -> {
             GuiConnector.register();
         });
         ClientSetup.initClient();

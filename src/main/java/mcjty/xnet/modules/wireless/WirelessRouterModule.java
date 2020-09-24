@@ -20,7 +20,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
-import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -105,7 +104,7 @@ public class WirelessRouterModule implements IModule {
 
     @Override
     public void initClient(FMLClientSetupEvent event) {
-        DeferredWorkQueue.runLater(() -> {
+        event.enqueueWork(() -> {
             GuiWirelessRouter.register();
         });
 

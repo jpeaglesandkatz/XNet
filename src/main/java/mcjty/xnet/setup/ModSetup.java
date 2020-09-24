@@ -12,7 +12,6 @@ import mcjty.xnet.compat.TopExtras;
 import mcjty.xnet.modules.controller.ControllerModule;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
@@ -27,9 +26,6 @@ public class ModSetup extends DefaultModSetup {
     @Override
     public void init(FMLCommonSetupEvent e) {
         super.init(e);
-
-        DeferredWorkQueue.runLater(() -> {
-        });
 
         MinecraftForge.EVENT_BUS.register(new ForgeEventHandlers());
 //        CommandHandler.registerCommands();
