@@ -1,4 +1,4 @@
-Upcoming:
+1.16-3.0.8:
 - Clipboard support in the controller is working again
 
 1.16-3.0.7:
