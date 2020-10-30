@@ -13,9 +13,6 @@ import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.ButtonEvent;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
-import mcjty.lib.gui.widgets.Button;
-import mcjty.lib.gui.widgets.Panel;
-import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
@@ -45,11 +42,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.energy.CapabilityEnergy;
 import org.lwjgl.glfw.GLFW;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -417,9 +409,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     public static void toClipboard(String json) {
         try {
-            StringSelection selection = new StringSelection(json);
-            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            clipboard.setContents(selection, selection);
+            Minecraft.getInstance().keyboardListener.setClipboardString(json);
         } catch (Exception e) {
             showError("Error copying to clipboard!");
         }
@@ -427,8 +417,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private void pasteConnector() {
         try {
-            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            String json = (String) clipboard.getData(DataFlavor.stringFlavor);
+            String json = Minecraft.getInstance().keyboardListener.getClipboardString();
             if (json.length() > 26000) {
                 showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard too large!");
                 return;
@@ -454,8 +443,6 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 delayedSelectedConnector = connectorPositions.get(connectorList.getSelected());
             }
             refresh();
-        } catch (UnsupportedFlavorException e) {
-            showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard does not contain connector!");
         } catch (Exception e) {
             showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error reading from clipboard!");
         }
@@ -463,8 +450,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private void pasteChannel() {
         try {
-            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            String json = (String) clipboard.getData(DataFlavor.stringFlavor);
+            String json = Minecraft.getInstance().keyboardListener.getClipboardString();
             if (json.length() > 26000) {
                 showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard too large!");
                 return;
@@ -483,8 +469,6 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                             .put(PARAM_JSON, json)
                             .build());
             refresh();
-        } catch (UnsupportedFlavorException e) {
-            showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard does not contain channel!");
         } catch (Exception e) {
             showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error reading from clipboard!");
         }
