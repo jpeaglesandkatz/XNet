@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed a potential crash when placing a connector next to a hopper
+
 1.15-2.1.12:
 - Clipboard support in the controller is working again
 
