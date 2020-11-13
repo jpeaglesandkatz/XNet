@@ -244,10 +244,11 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
             return false;
         }
 
-        ConnectorTileEntity connectorTE = (ConnectorTileEntity) world.getTileEntity(connectorPos);
-        if (connectorTE == null) {
+        TileEntity tileEntity = world.getTileEntity(connectorPos);
+        if (!(tileEntity instanceof ConnectorTileEntity)) {
             return false;
         }
+        ConnectorTileEntity connectorTE = (ConnectorTileEntity) tileEntity;
 
         if (!connectorTE.isEnabled(facing)) {
             return false;
