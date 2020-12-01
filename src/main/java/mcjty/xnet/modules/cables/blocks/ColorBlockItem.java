@@ -2,7 +2,6 @@ package mcjty.xnet.modules.cables.blocks;
 
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableColor;
-import mcjty.xnet.modules.cables.CableModule;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItem;
@@ -43,21 +42,7 @@ public class ColorBlockItem extends BlockItem {
     @Override
     public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items) {
         if (XNet.setup.getTab().equals(group)) {
-            items.add(new ItemStack(CableModule.NETCABLE_BLUE.get()));
-            items.add(new ItemStack(CableModule.NETCABLE_RED.get()));
-            items.add(new ItemStack(CableModule.NETCABLE_YELLOW.get()));
-            items.add(new ItemStack(CableModule.NETCABLE_GREEN.get()));
-            items.add(new ItemStack(CableModule.NETCABLE_ROUTING.get()));
-            items.add(new ItemStack(CableModule.CONNECTOR_BLUE.get()));
-            items.add(new ItemStack(CableModule.CONNECTOR_RED.get()));
-            items.add(new ItemStack(CableModule.CONNECTOR_YELLOW.get()));
-            items.add(new ItemStack(CableModule.CONNECTOR_GREEN.get()));
-            items.add(new ItemStack(CableModule.CONNECTOR_ROUTING.get()));
-            items.add(new ItemStack(CableModule.ADVANCED_CONNECTOR_BLUE.get()));
-            items.add(new ItemStack(CableModule.ADVANCED_CONNECTOR_RED.get()));
-            items.add(new ItemStack(CableModule.ADVANCED_CONNECTOR_YELLOW.get()));
-            items.add(new ItemStack(CableModule.ADVANCED_CONNECTOR_GREEN.get()));
-            items.add(new ItemStack(CableModule.ADVANCED_CONNECTOR_ROUTING.get()));
+            items.add(new ItemStack(this));
         }
     }
 }

@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed cables in creative tab
+
 1.16-3.0.9:
 - Fixed a potential crash when placing a connector next to a hopper
 
