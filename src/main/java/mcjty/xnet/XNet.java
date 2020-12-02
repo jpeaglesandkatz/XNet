@@ -2,6 +2,7 @@ package mcjty.xnet;
 
 
 import mcjty.lib.modules.Modules;
+import mcjty.rftoolsbase.api.xnet.IXNet;
 import mcjty.xnet.apiimpl.XNetApi;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.controller.ControllerModule;
@@ -15,7 +16,11 @@ import mcjty.xnet.setup.Registration;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 @Mod(XNet.MODID)
 public class XNet {
@@ -39,6 +44,7 @@ public class XNet {
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(setup::init);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(modules::init);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             FMLJavaModLoadingContext.get().getModEventBus().addListener(modules::initClient);
@@ -53,4 +59,14 @@ public class XNet {
         modules.register(new WirelessRouterModule());
         modules.register(new VariousModule());
     }
+
+    private void processIMC(final InterModProcessEvent event) {
+        event.getIMCStream().forEach(message -> {
+            if ("getXNet".equalsIgnoreCase(message.getMethod())) {
+                Supplier<Function<IXNet, Void>> supplier = message.getMessageSupplier();
+                supplier.get().apply(xNetApi);
+            }
+        });
+    }
+
 }
