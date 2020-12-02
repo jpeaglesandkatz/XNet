@@ -8,7 +8,7 @@ import mcjty.lib.varia.JSonTools;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.xnet.XNet;
-import mcjty.xnet.api.helper.AbstractConnectorSettings;
+import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.setup.Config;
 import net.minecraft.item.ItemStack;

@@ -8,8 +8,9 @@ import com.google.gson.JsonPrimitive;
 import mcjty.lib.varia.JSonTools;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
+import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
+import mcjty.rftoolsbase.api.xnet.helper.BaseStringTranslators;
 import mcjty.xnet.XNet;
-import mcjty.xnet.api.helper.AbstractConnectorSettings;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -201,7 +202,7 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
             Sensor sensor = new Sensor(sensors.size());
             sensor.setAmount(getIntegerNotNull(o, "amount"));
             sensor.setOperator(getEnumSafe(o, "operator", EnumStringTranslators::getOperator));
-            sensor.setOutputColor(getEnumSafe(o, "outputcolor", EnumStringTranslators::getColor));
+            sensor.setOutputColor(getEnumSafe(o, "outputcolor", BaseStringTranslators::getColor));
             sensor.setSensorMode(getEnumSafe(o, "sensormode", EnumStringTranslators::getSensorMode));
             if (o.has("filter")) {
                 sensor.setFilter(JSonTools.jsonToItemStack(o.get("filter").getAsJsonObject()));

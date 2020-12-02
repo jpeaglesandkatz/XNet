@@ -9,7 +9,7 @@ import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.xnet.XNet;
-import mcjty.xnet.api.helper.AbstractConnectorSettings;
+import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;

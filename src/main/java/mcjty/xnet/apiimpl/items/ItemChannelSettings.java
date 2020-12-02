@@ -11,7 +11,7 @@ import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
-import mcjty.xnet.api.helper.DefaultChannelSettings;
+import mcjty.rftoolsbase.api.xnet.helper.DefaultChannelSettings;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.compat.RFToolsSupport;
 import mcjty.xnet.setup.Config;
