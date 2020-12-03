@@ -26,6 +26,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -75,20 +76,11 @@ public class ConnectorUpgradeItem extends Item {
                     BlockState blockState = world.getBlockState(pos);
                     ((ConnectorBlock)blockState.getBlock()).createCableSegment(world, pos, consumer);
 
-                    // @todo 1.16
-//                    te = TileEntity.create(tag);
-                    // @todo 1.14
-//                    if (te != null) {
-//                        world.getChunkFromBlockCoords(pos).addTileEntity(te);
-//                        te.markDirty();
-//                        world.notifyBlockUpdate(pos, blockState, blockState, 3);
-//                        player.inventory.decrStackSize(player.inventory.currentItem, 1);
-//                        player.openContainer.detectAndSendChanges();
-//                        player.sendStatusMessage(new StringTextComponent(TextFormatting.GREEN + "Connector was upgraded"), false);
-//                    } else {
-//                        player.sendStatusMessage(new StringTextComponent(TextFormatting.RED + "Something went wrong during upgrade!"), false);
-//                        return EnumActionResult.FAIL;
-//                    }
+                    blockState = ((ConnectorBlock) block).calculateState(world, pos, blockState);
+                    world.setBlockState(pos, blockState, Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+                    player.inventory.decrStackSize(player.inventory.currentItem, 1);
+                    player.openContainer.detectAndSendChanges();
+                    player.sendStatusMessage(new StringTextComponent(TextFormatting.GREEN + "Connector was upgraded"), false);
                 }
             }
             return ActionResultType.SUCCESS;
