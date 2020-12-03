@@ -2,6 +2,7 @@ Upcoming:
 - Fixed cables in creative tab
 - Added back support for the XNet api
 - Fixed a potential crash in facades
+- Wireless router works again
 
 1.15-2.1.13:
 - Fixed a potential crash when placing a connector next to a hopper
