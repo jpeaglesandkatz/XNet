@@ -4,6 +4,7 @@ Upcoming:
 - Fixed a potential crash in facades
 - Wireless router works again
 - Disabling a connector will now immediatelly cause a visual update
+- Fixed recipes and added recipe for connector upgrade kit
 
 1.16-3.0.9:
 - Fixed a potential crash when placing a connector next to a hopper
