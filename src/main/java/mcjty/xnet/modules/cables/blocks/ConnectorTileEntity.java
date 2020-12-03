@@ -129,7 +129,11 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         } else {
             enabled &= ~(1 << direction.ordinal());
         }
-        markDirtyClient();
+        markDirty();
+        Block block = getBlockState().getBlock();
+        if (block instanceof GenericCableBlock) {
+            world.setBlockState(pos, ((GenericCableBlock) block).calculateState(world, pos, getBlockState()), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+        }
     }
 
     public boolean isEnabled(Direction direction) {
