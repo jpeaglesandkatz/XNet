@@ -44,6 +44,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.CapabilityEnergy;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -395,6 +396,9 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
+        if (cap == CapabilityEnergy.ENERGY) {
+            return energyHandler.cast();
+        }
         if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
             return screenHandler.cast();
         }

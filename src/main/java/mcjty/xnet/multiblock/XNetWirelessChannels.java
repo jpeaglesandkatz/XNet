@@ -40,6 +40,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             channelInfo = channelToWireless.get(key);
         } else {
             channelInfo = new WirelessChannelInfo();
+            System.out.println("New channel: key = " + key);
             channelToWireless.put(key, channelInfo);
         }
 
@@ -104,6 +105,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
                 age += amount;
                 info.setAge(age);
                 if (age > 40) { // @todo configurable
+                    System.out.println("toDelete.add: infoEntry.getKey() = " + infoEntry.getKey());
                     toDelete.add(infoEntry.getKey());
                 }
             }
@@ -122,6 +124,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
         if (!toDeleteChannel.isEmpty()) {
             for (WirelessChannelKey key : toDeleteChannel) {
+                System.out.println("actual delete: key = " + key);
                 channelToWireless.remove(key);
             }
         }
