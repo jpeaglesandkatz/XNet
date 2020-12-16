@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed the recipe for the connector upgrade
+
 1.16-3.0.10:
 - Fixed cables in creative tab
 - Added back support for the XNet api

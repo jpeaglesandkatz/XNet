@@ -1,7 +1,10 @@
 package mcjty.xnet.datagen;
 
+import mcjty.xnet.XNet;
+import mcjty.xnet.modules.cables.CableModule;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.ItemTagsProvider;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.ForgeBlockTagsProvider;
 
@@ -13,19 +16,14 @@ public class ItemTags extends ItemTagsProvider {
 
     @Override
     protected void registerTags() {
-        // @todo 1.16
-//        getOrCreateBuilder(CableSetup.TAG_CABLES)
-//                .add(CableSetup.NETCABLE_BLUE.get(), CableSetup.NETCABLE_YELLOW.get(), CableSetup.NETCABLE_GREEN.get(), CableSetup.NETCABLE_RED.get(), CableSetup.NETCABLE_ROUTING.get())
-//                .build(new ResourceLocation(XNet.MODID, "cables"));
-//        getOrCreateBuilder(CableSetup.TAG_CABLES)
-//                .add(CableSetup.NETCABLE_BLUE.get(), CableSetup.NETCABLE_YELLOW.get(), CableSetup.NETCABLE_GREEN.get(), CableSetup.NETCABLE_RED.get(), CableSetup.NETCABLE_ROUTING.get())
-//                .build(new ResourceLocation(XNet.MODID, "cables"));
-//        getOrCreateBuilder(CableSetup.TAG_CONNECTORS)
-//                .add(CableSetup.CONNECTOR_BLUE.get(), CableSetup.CONNECTOR_YELLOW.get(), CableSetup.CONNECTOR_GREEN.get(), CableSetup.CONNECTOR_RED.get(), CableSetup.CONNECTOR_ROUTING.get())
-//                .build(new ResourceLocation(XNet.MODID, "connectors"));
-//        getOrCreateBuilder(CableSetup.TAG_ADVANCED_CONNECTORS)
-//                .add(CableSetup.ADVANCED_CONNECTOR_BLUE.get(), CableSetup.ADVANCED_CONNECTOR_YELLOW.get(), CableSetup.ADVANCED_CONNECTOR_GREEN.get(), CableSetup.ADVANCED_CONNECTOR_RED.get(), CableSetup.ADVANCED_CONNECTOR_ROUTING.get())
-//                .build(new ResourceLocation(XNet.MODID, "advanced_connectors"));
+        getOrCreateBuilder(CableModule.TAG_CABLES)
+                .add(CableModule.NETCABLE_BLUE.get(), CableModule.NETCABLE_YELLOW.get(), CableModule.NETCABLE_GREEN.get(), CableModule.NETCABLE_RED.get(), CableModule.NETCABLE_ROUTING.get());
+        getOrCreateBuilder(CableModule.TAG_CABLES)
+                .add(CableModule.NETCABLE_BLUE.get(), CableModule.NETCABLE_YELLOW.get(), CableModule.NETCABLE_GREEN.get(), CableModule.NETCABLE_RED.get(), CableModule.NETCABLE_ROUTING.get());
+        getOrCreateBuilder(CableModule.TAG_CONNECTORS)
+                .add(CableModule.CONNECTOR_BLUE.get(), CableModule.CONNECTOR_YELLOW.get(), CableModule.CONNECTOR_GREEN.get(), CableModule.CONNECTOR_RED.get(), CableModule.CONNECTOR_ROUTING.get());
+        getOrCreateBuilder(CableModule.TAG_ADVANCED_CONNECTORS)
+                .add(CableModule.ADVANCED_CONNECTOR_BLUE.get(), CableModule.ADVANCED_CONNECTOR_YELLOW.get(), CableModule.ADVANCED_CONNECTOR_GREEN.get(), CableModule.ADVANCED_CONNECTOR_RED.get(), CableModule.ADVANCED_CONNECTOR_ROUTING.get());
     }
 
     @Override
