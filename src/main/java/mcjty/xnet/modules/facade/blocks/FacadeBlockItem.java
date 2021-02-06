@@ -27,6 +27,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
@@ -38,7 +39,7 @@ import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.*;
 
 public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
-    private TooltipBuilder tooltipBuilder = new TooltipBuilder()
+    private Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
             .info(header(),
                     gold(stack -> !isMimicking(stack)),
                     parameter("info", FacadeBlockItem::isMimicking, FacadeBlockItem::getMimickingString));
@@ -170,6 +171,6 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flag) {
         super.addInformation(stack, worldIn, tooltip, flag);
-        tooltipBuilder.makeTooltip(getRegistryName(), stack, tooltip, flag);
+        tooltipBuilder.get().makeTooltip(getRegistryName(), stack, tooltip, flag);
     }
 }

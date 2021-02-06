@@ -50,6 +50,7 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -63,7 +64,7 @@ import static mcjty.lib.builder.TooltipBuilder.*;
 public class ConnectorBlock extends GenericCableBlock implements ITooltipSettings {
 
     public static final ManualEntry MANUAL = ManualHelper.create("xnet:simple/connector");
-    private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
+    private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
             .info(key("message.xnet.shiftmessage"))
             .infoShift(header(), gold(stack -> isAdvancedConnector()),
                     parameter("info", stack -> Integer.toString(isAdvancedConnector() ? Config.maxRfAdvancedConnector.get() : Config.maxRfConnector.get())));
@@ -340,7 +341,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     @Override
     public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         super.addInformation(stack, worldIn, tooltip, flagIn);
-        tooltipBuilder.makeTooltip(getRegistryName(), stack, tooltip, flagIn);
+        tooltipBuilder.get().makeTooltip(getRegistryName(), stack, tooltip, flagIn);
     }
 
     @Override
