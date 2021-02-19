@@ -27,9 +27,6 @@ public class FacadeModule implements IModule {
 
     @Override
     public void initClient(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> {
-            ClientSetup.registerBlockColor();
-        });
         ClientSetup.initClient();
     }
 

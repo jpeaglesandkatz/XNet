@@ -3,11 +3,11 @@ package mcjty.xnet;
 
 import mcjty.lib.modules.Modules;
 import mcjty.rftoolsbase.api.xnet.IXNet;
-import mcjty.theoneprobe.api.ITheOneProbe;
 import mcjty.xnet.apiimpl.XNetApi;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.facade.FacadeModule;
+import mcjty.xnet.modules.facade.client.ClientSetup;
 import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.various.VariousModule;
 import mcjty.xnet.modules.wireless.WirelessRouterModule;
@@ -49,6 +49,7 @@ public class XNet {
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             FMLJavaModLoadingContext.get().getModEventBus().addListener(modules::initClient);
+            FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::registerBlockColor);
         });
     }
 
