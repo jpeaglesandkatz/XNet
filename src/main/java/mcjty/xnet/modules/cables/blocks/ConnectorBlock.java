@@ -330,7 +330,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         ServerWorld world = builder.getWorld();
         for (ItemStack drop : drops) {
             WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
-            ConsumerId consumer = worldBlob.getConsumerAt(new BlockPos(builder.get(LootParameters.field_237457_g_ /* @todo 1.16 POSITION*/)));
+            ConsumerId consumer = worldBlob.getConsumerAt(new BlockPos(builder.get(LootParameters.ORIGIN)));
             if (consumer != null) {
                 drop.getOrCreateTag().putInt("consumerId", consumer.getId());
             }
