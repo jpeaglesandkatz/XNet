@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 public class NetCableBlock extends GenericCableBlock {
 
     public NetCableBlock(CableBlockType type) {
-        super(Material.CARPET, type);
+        super(Material.IRON, type);
     }
 
     public NetCableBlock(Material material, CableBlockType type) {
@@ -37,6 +37,7 @@ public class NetCableBlock extends GenericCableBlock {
 //        world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.NOTIFY_NEIGHBORS);
 //        return state;
 //    }
+
 
     @Override
     protected ConnectorType getConnectorType(@Nonnull CableColor color, IBlockReader world, BlockPos connectorPos, Direction facing) {

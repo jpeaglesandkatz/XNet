@@ -1,3 +1,6 @@
+Upcoming:
+- XNet cables and connectors can now be waterlogged and cables no longer break in water
+
 1.16-3.0.12:
 - Fix the item model for the yellow connector
 

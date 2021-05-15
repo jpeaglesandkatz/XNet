@@ -12,16 +12,21 @@ import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.IWaterLoggable;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.loot.LootContext;
+import net.minecraft.pathfinding.PathType;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -39,7 +44,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class GenericCableBlock extends Block implements TOPInfoProvider {
+import static net.minecraft.state.properties.BlockStateProperties.WATERLOGGED;
+
+public abstract class GenericCableBlock extends Block implements TOPInfoProvider, IWaterLoggable {
 
     // Properties that indicate if there is the same block in a certain direction.
     public static final EnumProperty<ConnectorType> NORTH = EnumProperty.<ConnectorType>create("north", ConnectorType.class);
@@ -88,6 +95,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
         );
         makeShapes();
         this.type = type;
+        setDefaultState(getDefaultState().with(WATERLOGGED, false));
     }
 
     private int calculateShapeIndex(ConnectorType north, ConnectorType south, ConnectorType west, ConnectorType east, ConnectorType up, ConnectorType down) {
@@ -267,7 +275,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     @Override
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
         super.fillStateContainer(builder);
-        builder.add(COLOR, NORTH, SOUTH, EAST, WEST, UP, DOWN);
+        builder.add(WATERLOGGED, COLOR, NORTH, SOUTH, EAST, WEST, UP, DOWN);
     }
 
 //    @Override
@@ -300,25 +308,24 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 
     @Override
     public BlockState updatePostPlacement(BlockState state, Direction direction, BlockState neighbourState, IWorld world, BlockPos current, BlockPos offset) {
+        if (state.get(WATERLOGGED)) {
+            world.getPendingFluidTicks().scheduleTick(current, Fluids.WATER, Fluids.WATER.getTickRate(world));
+        }
         return calculateState(world, current, state);
     }
 
-//    @Override
-//    public void onNeighborChange(BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbor) {
-//
-//    }
-//
-//    @Override
-//    public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
-//        super.neighborChanged(state, worldIn, pos, blockIn, fromPos, isMoving);
-//    }
+    @Override
+    public boolean allowsMovement(BlockState state, IBlockReader worldIn, BlockPos pos, PathType type) {
+        return super.allowsMovement(state, worldIn, pos, type);
+    }
 
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         World world = context.getWorld();
         BlockPos pos = context.getPos();
-        return calculateState(world, pos, getDefaultState());
+        return calculateState(world, pos, getDefaultState())
+                .with(WATERLOGGED, world.getFluidState(pos).getFluid() == Fluids.WATER);
     }
 
     @Nonnull
@@ -339,6 +346,13 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
                 .with(UP, up)
                 .with(DOWN, down);
     }
+
+    @Override
+    public FluidState getFluidState(BlockState state) {
+        return state.get(WATERLOGGED) ? Fluids.WATER.getStillFluidState(false) : super.getFluidState(state);
+    }
+
+
 
     protected abstract ConnectorType getConnectorType(@Nonnull CableColor thisColor, IBlockReader world, BlockPos pos, Direction facing);
 
