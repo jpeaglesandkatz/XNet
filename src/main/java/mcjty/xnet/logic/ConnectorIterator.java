@@ -38,14 +38,14 @@ public class ConnectorIterator implements Iterator<BlockPos> {
     private void findNext() {
         foundPos = null;
         while (facingIdx != -1) {
-            BlockPos connectorPos = pos.offset(OrientationTools.DIRECTION_VALUES[facingIdx]);
+            BlockPos connectorPos = pos.relative(OrientationTools.DIRECTION_VALUES[facingIdx]);
             facingIdx++;
             if (facingIdx >= OrientationTools.DIRECTION_VALUES.length) {
                 facingIdx = -1;
             }
             BlockState state = world.getBlockState(connectorPos);
             if (state.getBlock() instanceof ConnectorBlock) {
-                CableColor color = state.get(GenericCableBlock.COLOR);
+                CableColor color = state.getValue(GenericCableBlock.COLOR);
                 if ((color == CableColor.ROUTING) == routing) {
                     foundPos = connectorPos;
                     return;

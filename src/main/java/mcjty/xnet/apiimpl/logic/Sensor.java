@@ -192,7 +192,7 @@ public class Sensor {
                 break;
             }
             case RS: {
-                int cnt = world.getRedstonePower(pos, settings.getFacing());
+                int cnt = world.getSignal(pos, settings.getFacing());
                 return operator.match(cnt, amount);
             }
             case OFF:
@@ -244,7 +244,7 @@ public class Sensor {
         outputColor = Color.values()[tag.getByte("scolor" + index)];
         if (tag.contains("filter" + index)) {
             CompoundNBT itemTag = tag.getCompound("filter" + index);
-            filter = ItemStack.read(itemTag);
+            filter = ItemStack.of(itemTag);
         } else {
             filter = ItemStack.EMPTY;
         }
@@ -257,7 +257,7 @@ public class Sensor {
         tag.putByte("scolor" + index, (byte) outputColor.ordinal());
         if (!filter.isEmpty()) {
             CompoundNBT itemTag = new CompoundNBT();
-            filter.write(itemTag);
+            filter.save(itemTag);
             tag.put("filter" + index, itemTag);
         }
     }
@@ -270,7 +270,7 @@ public class Sensor {
             if (!stack.isEmpty()) {
                 if (!matcher.isEmpty()) {
                     // @todo 1.14 oredict?
-                    if (matcher.isItemEqual(stack)) {
+                    if (matcher.sameItem(stack)) {
                         cnt += stack.getCount();
                         if (cnt >= maxNeeded) {
                             return cnt;

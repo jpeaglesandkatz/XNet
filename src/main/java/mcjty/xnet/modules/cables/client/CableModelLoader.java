@@ -41,17 +41,17 @@ public class CableModelLoader implements IModelLoader<CableModelLoader.CableMode
         @Override
         public Collection<RenderMaterial> getTextures(IModelConfiguration owner, Function<ResourceLocation, IUnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors) {
             List<RenderMaterial> materials = new ArrayList<>();
-            materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, new ResourceLocation(XNet.MODID, "block/connector_side")));
+            materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/connector_side")));
 
             for (int i = 0 ; i <= 4 ; i++) {
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, new ResourceLocation(XNet.MODID, "block/cable"+i+"/advanced_connector")));
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, new ResourceLocation(XNet.MODID, "block/cable"+i+"/connector")));
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_corner_netcable")));
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_cross_netcable")));
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_end_netcable")));
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_netcable")));
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_none_netcable")));
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_three_netcable")));
+                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/advanced_connector")));
+                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/connector")));
+                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_corner_netcable")));
+                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_cross_netcable")));
+                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_end_netcable")));
+                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_netcable")));
+                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_none_netcable")));
+                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_three_netcable")));
             }
             return materials;
         }

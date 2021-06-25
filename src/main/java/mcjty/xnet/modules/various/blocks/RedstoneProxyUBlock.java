@@ -22,14 +22,14 @@ import java.util.Set;
 public class RedstoneProxyUBlock extends RedstoneProxyBlock implements ITooltipSettings {
 
     public RedstoneProxyUBlock() {
-        super(Material.IRON);
+        super(Material.METAL);
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         if (McJtyLib.proxy.isSneaking()) {
-            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy_upd.header").mergeStyle(TextFormatting.GREEN));
-            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy_upd.gold").mergeStyle(TextFormatting.GOLD));
+            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy_upd.header").withStyle(TextFormatting.GREEN));
+            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy_upd.gold").withStyle(TextFormatting.GOLD));
         } else {
             tooltip.add(new TranslationTextComponent("message.xnet.shiftmessage"));
         }
@@ -41,7 +41,7 @@ public class RedstoneProxyUBlock extends RedstoneProxyBlock implements ITooltipS
     public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
         if(loopDetector.add(pos)) {
             try {
-                worldIn.notifyNeighborsOfStateChange(pos, this);
+                worldIn.updateNeighborsAt(pos, this);
             } finally {
                 loopDetector.remove(pos);
             }

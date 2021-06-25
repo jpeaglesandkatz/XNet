@@ -154,7 +154,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     }
 
     @Override
-    public void read(CompoundNBT compound) {
+    public void load(CompoundNBT compound) {
         channelToWireless.clear();
         ListNBT tagList = compound.getList("channels", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < tagList.size() ; i++) {
@@ -162,8 +162,8 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             WirelessChannelInfo channelInfo = new WirelessChannelInfo();
             readRouters(tc.getList("routers", Constants.NBT.TAG_COMPOUND), channelInfo);
             UUID owner = null;
-            if (tc.hasUniqueId("owner")) {
-                owner = tc.getUniqueId("owner");
+            if (tc.hasUUID("owner")) {
+                owner = tc.getUUID("owner");
             }
             String name = tc.getString("name");
             IChannelType type = XNet.xNetApi.findType(tc.getString("type"));
@@ -184,7 +184,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound) {
+    public CompoundNBT save(CompoundNBT compound) {
         ListNBT channelTagList = new ListNBT();
 
         for (Map.Entry<WirelessChannelKey, WirelessChannelInfo> entry : channelToWireless.entrySet()) {
@@ -194,7 +194,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             channelTc.putString("name", key.getName());
             channelTc.putString("type", key.getChannelType().getID());
             if (key.getOwner() != null) {
-                channelTc.putUniqueId("owner", key.getOwner());
+                channelTc.putUUID("owner", key.getOwner());
             }
             channelTc.put("routers", writeRouters(channelInfo));
             channelTagList.add(channelTc);

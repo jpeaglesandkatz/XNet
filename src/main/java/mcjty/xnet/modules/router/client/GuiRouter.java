@@ -159,15 +159,15 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         }
         listDirty--;
         if (listDirty <= 0) {
-            XNetMessages.INSTANCE.sendToServer(new PacketGetLocalChannelsRouter(tileEntity.getPos()));
-            XNetMessages.INSTANCE.sendToServer(new PacketGetRemoteChannelsRouter(tileEntity.getPos()));
+            XNetMessages.INSTANCE.sendToServer(new PacketGetLocalChannelsRouter(tileEntity.getBlockPos()));
+            XNetMessages.INSTANCE.sendToServer(new PacketGetRemoteChannelsRouter(tileEntity.getBlockPos()));
             listDirty = 10;
         }
     }
 
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float v, int x1, int x2) {
+    protected void renderBg(MatrixStack matrixStack, float v, int x1, int x2) {
         requestListsIfNeeded();
         populateList();
         drawWindow(matrixStack);

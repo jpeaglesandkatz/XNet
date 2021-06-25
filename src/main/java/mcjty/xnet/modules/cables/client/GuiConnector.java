@@ -32,8 +32,8 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
     public GuiConnector(ConnectorTileEntity tileEntity, GenericContainer container, PlayerInventory inventory) {
         super(tileEntity, container, inventory, CableModule.CONNECTOR.get().getManualEntry());
 
-        xSize = WIDTH;
-        ySize = HEIGHT;
+        imageWidth = WIDTH;
+        imageHeight = HEIGHT;
     }
 
     public static void register() {
@@ -54,7 +54,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
         Panel togglePanel = horizontal().
                 children(label("Directions:"));
         for (Direction facing : OrientationTools.DIRECTION_VALUES) {
-            toggleButtons[facing.ordinal()] = new ToggleButton().text(facing.getString().substring(0, 1).toUpperCase())
+            toggleButtons[facing.ordinal()] = new ToggleButton().text(facing.getSerializedName().substring(0, 1).toUpperCase())
                 .event(() -> {
                     sendServerCommandTyped(XNetMessages.INSTANCE, ConnectorTileEntity.CMD_ENABLE,
                             TypedMap.builder()
@@ -67,14 +67,14 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
         }
         toplevel.children(togglePanel);
 
-        toplevel.bounds(guiLeft, guiTop, WIDTH, HEIGHT);
+        toplevel.bounds(leftPos, topPos, WIDTH, HEIGHT);
         window = new Window(this, toplevel);
 
         window.bind(XNetMessages.INSTANCE, "name", tileEntity, VALUE_NAME.getName());
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         drawWindow(matrixStack);
     }
 }

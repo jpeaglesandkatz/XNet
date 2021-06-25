@@ -6,8 +6,8 @@ import net.minecraft.client.renderer.RenderTypeLookup;
 
 public class ClientSetup {
     public static void initClient() {
-        RenderTypeLookup.setRenderLayer(WirelessRouterModule.ANTENNA.get(), RenderType.getCutout());
-        RenderTypeLookup.setRenderLayer(WirelessRouterModule.ANTENNA_DISH.get(), RenderType.getCutout());
-        RenderTypeLookup.setRenderLayer(WirelessRouterModule.ANTENNA_BASE.get(), RenderType.getCutout());
+        RenderTypeLookup.setRenderLayer(WirelessRouterModule.ANTENNA.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(WirelessRouterModule.ANTENNA_DISH.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(WirelessRouterModule.ANTENNA_BASE.get(), RenderType.cutout());
     }
 }

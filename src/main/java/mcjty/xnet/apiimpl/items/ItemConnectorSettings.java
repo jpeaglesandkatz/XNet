@@ -379,7 +379,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             if (tag.contains("filter" + i)) {
                 CompoundNBT itemTag = tag.getCompound("filter" + i);
-                filters.set(i, ItemStack.read(itemTag));
+                filters.set(i, ItemStack.of(itemTag));
             } else {
                 filters.set(i, ItemStack.EMPTY);
             }
@@ -411,7 +411,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             if (!filters.get(i).isEmpty()) {
                 CompoundNBT itemTag = new CompoundNBT();
-                filters.get(i).write(itemTag);
+                filters.get(i).save(itemTag);
                 tag.put("filter" + i, itemTag);
             }
         }

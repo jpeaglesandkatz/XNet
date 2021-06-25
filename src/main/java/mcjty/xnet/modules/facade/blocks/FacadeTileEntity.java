@@ -30,8 +30,8 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
 
         super.onDataPacket(net, packet);
 
-        if (world.isRemote) {
-            world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+        if (level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
             ModelDataManager.requestModelDataRefresh(this);
         }
     }
@@ -63,8 +63,8 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT tagCompound) {
-        super.write(tagCompound);
+    public CompoundNBT save(CompoundNBT tagCompound) {
+        super.save(tagCompound);
         mimicBlockSupport.writeToNBT(tagCompound);
         return tagCompound;
     }

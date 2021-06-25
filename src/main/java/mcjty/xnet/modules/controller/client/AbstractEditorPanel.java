@@ -103,7 +103,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
 
     @Override
     public IEditorGui label(String txt) {
-        int w = mc.fontRenderer.getStringWidth(txt)+5;
+        int w = mc.font.width(txt)+5;
         fitWidth(w);
         Label label = Widgets.label(x, y, w, 14, txt);
         panel.children(label);
@@ -201,7 +201,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
 
     @Override
     public IEditorGui toggleText(String tag, String tooltip, String text, boolean value) {
-        int w = mc.fontRenderer.getStringWidth(text) + 10;
+        int w = mc.font.width(text) + 10;
         fitWidth(w);
         ToggleButton toggle = new ToggleButton().checkMarker(false).pressed(value)
                 .text(text)
@@ -234,7 +234,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
     public IEditorGui choices(String tag, String tooltip, String current, String... values) {
         int w = 10;
         for (String s : values) {
-            w = Math.max(w, mc.fontRenderer.getStringWidth(s) + 14);
+            w = Math.max(w, mc.font.width(s) + 14);
         }
 
         fitWidth(w);
@@ -302,7 +302,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
         blockRender.event(new BlockRenderEvent() {
             @Override
             public void select() {
-                ItemStack holding = Minecraft.getInstance().player.inventory.getItemStack();
+                ItemStack holding = Minecraft.getInstance().player.inventory.getCarried();
                 if (holding.isEmpty()) {
                     update(tag, holding);
                     blockRender.renderItem(null);

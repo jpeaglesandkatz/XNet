@@ -12,6 +12,8 @@ import net.minecraft.util.NonNullList;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.item.Item.Properties;
+
 public class ColorBlockItem extends BlockItem {
 
     private final CableColor color;
@@ -23,9 +25,9 @@ public class ColorBlockItem extends BlockItem {
 
     @Nullable
     @Override
-    protected BlockState getStateForPlacement(BlockItemUseContext context) {
-        BlockState blockstate = ((GenericCableBlock)this.getBlock()).calculateState(context.getWorld(),
-                context.getPos(), this.getBlock().getDefaultState().with(GenericCableBlock.COLOR, color));
+    protected BlockState getPlacementState(BlockItemUseContext context) {
+        BlockState blockstate = ((GenericCableBlock)this.getBlock()).calculateState(context.getLevel(),
+                context.getClickedPos(), this.getBlock().defaultBlockState().setValue(GenericCableBlock.COLOR, color));
         if (canPlace(context, blockstate)) {
             return blockstate;
         } else {
@@ -34,13 +36,13 @@ public class ColorBlockItem extends BlockItem {
     }
 
     @Override
-    public String getTranslationKey() {
+    public String getDescriptionId() {
         // We don't want the translation key of the block
-        return super.getDefaultTranslationKey();
+        return super.getOrCreateDescriptionId();
     }
 
     @Override
-    public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items) {
+    public void fillItemCategory(ItemGroup group, NonNullList<ItemStack> items) {
         if (XNet.setup.getTab().equals(group)) {
             items.add(new ItemStack(this));
         }

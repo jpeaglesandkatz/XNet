@@ -36,14 +36,14 @@ public class ChannelClientInfo {
     public ChannelClientInfo(@Nonnull PacketBuffer buf) {
         channelName = NetworkTools.readStringUTF8(buf);
         enabled = buf.readBoolean();
-        String id = buf.readString(32767);
+        String id = buf.readUtf(32767);
         IChannelType t = XNet.xNetApi.findType(id);
         if (t == null) {
             throw new RuntimeException("Bad type: " + id);
         }
         type = t;
         channelSettings = type.createChannel();
-        CompoundNBT tag = buf.readCompoundTag();
+        CompoundNBT tag = buf.readNbt();
         channelSettings.readFromNBT(tag);
 
         int size = buf.readInt();
@@ -57,10 +57,10 @@ public class ChannelClientInfo {
     public void writeToNBT(@Nonnull PacketBuffer buf) {
         NetworkTools.writeStringUTF8(buf, channelName);
         buf.writeBoolean(enabled);
-        buf.writeString(type.getID());
+        buf.writeUtf(type.getID());
         CompoundNBT tag = new CompoundNBT();
         channelSettings.writeToNBT(tag);
-        buf.writeCompoundTag(tag);
+        buf.writeNbt(tag);
         buf.writeInt(connectors.size());
         for (Map.Entry<SidedConsumer, ConnectorClientInfo> entry : connectors.entrySet()) {
             SidedConsumer key = entry.getKey();

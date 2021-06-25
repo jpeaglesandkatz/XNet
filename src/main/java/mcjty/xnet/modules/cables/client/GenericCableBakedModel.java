@@ -133,16 +133,16 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         List<BakedQuad> quads = new ArrayList<>();
         RenderType layer = MinecraftForgeClient.getRenderLayer();
 
-        if (side == null && (layer == null || layer.equals(RenderType.getSolid()))) {
+        if (side == null && (layer == null || layer.equals(RenderType.solid()))) {
             // Called with the blockstate from our block. Here we get the values of the six properties and pass that to
             // our baked model implementation.
-            ConnectorType north = state.get(GenericCableBlock.NORTH);
-            ConnectorType south = state.get(GenericCableBlock.SOUTH);
-            ConnectorType west = state.get(GenericCableBlock.WEST);
-            ConnectorType east = state.get(GenericCableBlock.EAST);
-            ConnectorType up = state.get(GenericCableBlock.UP);
-            ConnectorType down = state.get(GenericCableBlock.DOWN);
-            CableColor cableColor = state.get(GenericCableBlock.COLOR);
+            ConnectorType north = state.getValue(GenericCableBlock.NORTH);
+            ConnectorType south = state.getValue(GenericCableBlock.SOUTH);
+            ConnectorType west = state.getValue(GenericCableBlock.WEST);
+            ConnectorType east = state.getValue(GenericCableBlock.EAST);
+            ConnectorType up = state.getValue(GenericCableBlock.UP);
+            ConnectorType down = state.getValue(GenericCableBlock.DOWN);
+            CableColor cableColor = state.getValue(GenericCableBlock.COLOR);
             int index = cableColor.ordinal();
 
             initTextures();
@@ -313,7 +313,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         if (facadeId != null) {
             BlockState facadeState = facadeId.getBlockState();
             if (layer == null || RenderTypeLookup.canRenderInLayer(facadeState, layer)) { // always render in the null layer or the block-breaking textures don't show up
-                IBakedModel model = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getModel(facadeState);
+                IBakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(facadeState);
                 try {
                     quads.addAll(model.getQuads(state, side, rand, EmptyModelData.INSTANCE));
                 } catch (Exception e) {
@@ -326,7 +326,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
 
 
     @Override
-    public boolean isAmbientOcclusion() {
+    public boolean useAmbientOcclusion() {
         return true;
     }
 
@@ -336,18 +336,18 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
     }
 
     @Override
-    public boolean isBuiltInRenderer() {
+    public boolean isCustomRenderer() {
         return false;
     }
 
     @Override
-    public TextureAtlasSprite getParticleTexture() {
+    public TextureAtlasSprite getParticleIcon() {
         return spriteCable == null ? getTexture(new ResourceLocation("minecraft", "missingno")) : spriteCable;
     }
 
     @Override
-    public ItemCameraTransforms getItemCameraTransforms() {
-        return ItemCameraTransforms.DEFAULT;
+    public ItemCameraTransforms getTransforms() {
+        return ItemCameraTransforms.NO_TRANSFORMS;
     }
 
     @Override

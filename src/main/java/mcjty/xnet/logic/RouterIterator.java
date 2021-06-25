@@ -36,12 +36,12 @@ public class RouterIterator<T extends GenericTileEntity> implements Iterator<T> 
     private void findNext() {
         foundRouter = null;
         while (facingIdx != -1) {
-            BlockPos routerPos = pos.offset(OrientationTools.DIRECTION_VALUES[facingIdx]);
+            BlockPos routerPos = pos.relative(OrientationTools.DIRECTION_VALUES[facingIdx]);
             facingIdx++;
             if (facingIdx >= OrientationTools.DIRECTION_VALUES.length) {
                 facingIdx = -1;
             }
-            TileEntity te = world.getTileEntity(routerPos);
+            TileEntity te = world.getBlockEntity(routerPos);
             if (clazz.isInstance(te)) {
                 foundRouter = (T) te;
                 return;

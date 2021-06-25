@@ -94,8 +94,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     @Override
-    public void onClose() {
-        super.onClose();
+    public void removed() {
+        super.removed();
         openController = null;
     }
 
@@ -153,7 +153,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         if (c != null) {
             RFToolsBase.instance.clientInfo.hilightBlock(c.getPos().getPos(), System.currentTimeMillis() + 1000 * 5);
             Logging.message(minecraft.player, "The block is now highlighted");
-            minecraft.player.closeScreen();
+            minecraft.player.closeContainer();
         }
     }
 
@@ -409,7 +409,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     public static void toClipboard(String json) {
         try {
-            Minecraft.getInstance().keyboardListener.setClipboardString(json);
+            Minecraft.getInstance().keyboardHandler.setClipboard(json);
         } catch (Exception e) {
             showError("Error copying to clipboard!");
         }
@@ -417,7 +417,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private void pasteConnector() {
         try {
-            String json = Minecraft.getInstance().keyboardListener.getClipboardString();
+            String json = Minecraft.getInstance().keyboardHandler.getClipboard();
             if (json.length() > 26000) {
                 showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard too large!");
                 return;
@@ -450,7 +450,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private void pasteChannel() {
         try {
-            String json = Minecraft.getInstance().keyboardListener.getClipboardString();
+            String json = Minecraft.getInstance().keyboardHandler.getClipboard();
             if (json.length() > 26000) {
                 showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard too large!");
                 return;
@@ -533,8 +533,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         }
         listDirty--;
         if (listDirty <= 0) {
-            XNetMessages.INSTANCE.sendToServer(new PacketGetChannels(tileEntity.getPos()));
-            XNetMessages.INSTANCE.sendToServer(new PacketGetConnectedBlocks(tileEntity.getPos()));
+            XNetMessages.INSTANCE.sendToServer(new PacketGetChannels(tileEntity.getBlockPos()));
+            XNetMessages.INSTANCE.sendToServer(new PacketGetConnectedBlocks(tileEntity.getBlockPos()));
             listDirty = 10;
             showingChannel = -1;
             showingConnector = null;
@@ -572,7 +572,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             BlockPos coordinate = sidedPos.getPos();
             String name = connectedBlock.getName();
             String blockUnlocName = connectedBlock.getBlockUnlocName();
-            String blockName = I18n.format(blockUnlocName).trim();
+            String blockName = I18n.get(blockUnlocName).trim();
 
             int color = StyleConfig.colorTextInListNormal;
 
@@ -602,7 +602,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                         TextFormatting.WHITE + "(doubleclick to highlight)");
             }
 
-            panel.children(label(sidedPos.getSide().getString().substring(0, 1).toUpperCase()).color(color).desiredWidth(18));
+            panel.children(label(sidedPos.getSide().getSerializedName().substring(0, 1).toUpperCase()).color(color).desiredWidth(18));
             for (int i = 0 ; i < MAX_CHANNELS ; i++) {
                 Button but = new Button().desiredWidth(14);
                 ChannelClientInfo info = fromServer_channels.get(i);
@@ -640,7 +640,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float v, int x1, int x2) {
+    protected void renderBg(MatrixStack matrixStack, float v, int x1, int x2) {
         requestListsIfNeeded();
         populateList();
         refreshChannelEditor();

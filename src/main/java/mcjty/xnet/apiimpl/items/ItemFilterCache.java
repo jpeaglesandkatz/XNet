@@ -59,17 +59,17 @@ public class ItemFilterCache {
                 cleanedStack = ForestrySupport.sanitize(stack, forestryFlags);
             }
             for (ItemStack itemStack : stacks) {
-                if (matchDamage && itemStack.getDamage() != stack.getDamage()) {
+                if (matchDamage && itemStack.getDamageValue() != stack.getDamageValue()) {
                     continue;
                 }
                 if (nbtMode) {
                     if((cleanedStack != null) && ForestrySupport.isBreedable(itemStack)) {
                         ItemStack cleanedItemStack = ForestrySupport.sanitize(itemStack, forestryFlags);
-                        if(!ItemStack.areItemStackTagsEqual(cleanedItemStack, cleanedStack)) {
+                        if(!ItemStack.tagMatches(cleanedItemStack, cleanedStack)) {
                     		continue;
                     	}
                     }
-                    else if(!ItemStack.areItemStackTagsEqual(itemStack, stack)) {
+                    else if(!ItemStack.tagMatches(itemStack, stack)) {
                         continue;
                     }
                 }

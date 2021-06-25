@@ -42,7 +42,7 @@ public class TopExtras {
                 String modid = "XNet";
 
                 ItemStack pickBlock = data.getPickBlock();
-                TileEntity te = world.getTileEntity(data.getPos());
+                TileEntity te = world.getBlockEntity(data.getPos());
                 if (te instanceof FacadeTileEntity) {
                     pickBlock = new ItemStack(CableModule.NETCABLE.get(), 1);
                 }
@@ -55,7 +55,7 @@ public class TopExtras {
                             .text(CompoundText.create().style(MODNAME).text(modid));
                 } else {
                     probeInfo.vertical()
-                            .text(CompoundText.create().name(block.getTranslationKey()))
+                            .text(CompoundText.create().name(block.getDescriptionId()))
                             .text(CompoundText.create().style(MODNAME).text(modid));
                 }
 

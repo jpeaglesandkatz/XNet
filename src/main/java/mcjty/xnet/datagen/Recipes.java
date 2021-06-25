@@ -28,177 +28,177 @@ public class Recipes extends BaseRecipeProvider {
     }
 
     @Override
-    protected void registerRecipes(Consumer<IFinishedRecipe> consumer) {
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(WirelessRouterModule.ANTENNA.get())
-                        .key('I', Items.IRON_BARS)
-                        .addCriterion("bars", hasItem(Items.IRON_BARS)),
+    protected void buildShapelessRecipes(Consumer<IFinishedRecipe> consumer) {
+        build(consumer, ShapedRecipeBuilder.shaped(WirelessRouterModule.ANTENNA.get())
+                        .define('I', Items.IRON_BARS)
+                        .unlockedBy("bars", has(Items.IRON_BARS)),
                 "IiI", "IiI", " i ");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(WirelessRouterModule.ANTENNA_BASE.get())
-                        .key('I', Items.IRON_BLOCK)
-                        .addCriterion("block", hasItem(Items.IRON_BLOCK)),
+        build(consumer, ShapedRecipeBuilder.shaped(WirelessRouterModule.ANTENNA_BASE.get())
+                        .define('I', Items.IRON_BLOCK)
+                        .unlockedBy("block", has(Items.IRON_BLOCK)),
                 " i ", " i ", "iIi");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(WirelessRouterModule.ANTENNA_DISH.get())
-                        .key('I', Items.IRON_TRAPDOOR)
-                        .addCriterion("trapdoor", hasItem(Items.IRON_TRAPDOOR)),
+        build(consumer, ShapedRecipeBuilder.shaped(WirelessRouterModule.ANTENNA_DISH.get())
+                        .define('I', Items.IRON_TRAPDOOR)
+                        .unlockedBy("trapdoor", has(Items.IRON_TRAPDOOR)),
                 "III", "IoI", " i ");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(VariousModule.REDSTONE_PROXY.get())
-                        .addCriterion("frame", hasItem(mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())),
+        build(consumer, ShapedRecipeBuilder.shaped(VariousModule.REDSTONE_PROXY.get())
+                        .unlockedBy("frame", has(mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())),
                 "rrr", "rFr", "rrr");
 
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(ControllerModule.CONTROLLER.get())
-                        .key('I', Items.REPEATER)
-                        .key('C', Items.COMPARATOR)
-                        .key('g', Tags.Items.INGOTS_GOLD)
-                        .addCriterion("frame", hasItem(mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())),
+        build(consumer, ShapedRecipeBuilder.shaped(ControllerModule.CONTROLLER.get())
+                        .define('I', Items.REPEATER)
+                        .define('C', Items.COMPARATOR)
+                        .define('g', Tags.Items.INGOTS_GOLD)
+                        .unlockedBy("frame", has(mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())),
                 "ICI", "rFr", "igi");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(RouterModule.ROUTER.get())
-                        .key('I', Items.POWERED_RAIL)
-                        .key('C', Items.COMPARATOR)
-                        .addCriterion("frame", hasItem(mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())),
+        build(consumer, ShapedRecipeBuilder.shaped(RouterModule.ROUTER.get())
+                        .define('I', Items.POWERED_RAIL)
+                        .define('C', Items.COMPARATOR)
+                        .unlockedBy("frame", has(mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())),
                 "ICI", "rFr", "ioi");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(WirelessRouterModule.WIRELESS_ROUTER.get())
-                        .key('C', Items.COMPARATOR)
-                        .addCriterion("frame", hasItem(mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())),
+        build(consumer, ShapedRecipeBuilder.shaped(WirelessRouterModule.WIRELESS_ROUTER.get())
+                        .define('C', Items.COMPARATOR)
+                        .unlockedBy("frame", has(mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())),
                 "oCo", "rFr", "oro");
 
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(FacadeModule.FACADE.get(), 16)
-                        .key('w', ItemTags.WOOL)
-                        .addCriterion("glass", hasItem(Items.GLASS)),
+        build(consumer, ShapedRecipeBuilder.shaped(FacadeModule.FACADE.get(), 16)
+                        .define('w', ItemTags.WOOL)
+                        .unlockedBy("glass", has(Items.GLASS)),
                 "pwp", "wGw", "pwp");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(CableModule.NETCABLE_BLUE.get(), 16)
-                        .key('g', Tags.Items.NUGGETS_GOLD)
-                        .key('s', Items.STRING)
-                        .key('1', Tags.Items.DYES_BLUE)
-                        .addCriterion("nugget", hasItem(Items.GOLD_NUGGET)),
+        build(consumer, ShapedRecipeBuilder.shaped(CableModule.NETCABLE_BLUE.get(), 16)
+                        .define('g', Tags.Items.NUGGETS_GOLD)
+                        .define('s', Items.STRING)
+                        .define('1', Tags.Items.DYES_BLUE)
+                        .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
                 "s1s", "rgr", "srs");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(CableModule.NETCABLE_YELLOW.get(), 16)
-                        .key('g', Tags.Items.NUGGETS_GOLD)
-                        .key('s', Items.STRING)
-                        .key('1', Tags.Items.DYES_YELLOW)
-                        .addCriterion("nugget", hasItem(Items.GOLD_NUGGET)),
+        build(consumer, ShapedRecipeBuilder.shaped(CableModule.NETCABLE_YELLOW.get(), 16)
+                        .define('g', Tags.Items.NUGGETS_GOLD)
+                        .define('s', Items.STRING)
+                        .define('1', Tags.Items.DYES_YELLOW)
+                        .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
                 "s1s", "rgr", "srs");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(CableModule.NETCABLE_RED.get(), 16)
-                        .key('g', Tags.Items.NUGGETS_GOLD)
-                        .key('s', Items.STRING)
-                        .key('1', Tags.Items.DYES_RED)
-                        .addCriterion("nugget", hasItem(Items.GOLD_NUGGET)),
+        build(consumer, ShapedRecipeBuilder.shaped(CableModule.NETCABLE_RED.get(), 16)
+                        .define('g', Tags.Items.NUGGETS_GOLD)
+                        .define('s', Items.STRING)
+                        .define('1', Tags.Items.DYES_RED)
+                        .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
                 "s1s", "rgr", "srs");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(CableModule.NETCABLE_GREEN.get(), 16)
-                        .key('g', Tags.Items.NUGGETS_GOLD)
-                        .key('s', Items.STRING)
-                        .key('1', Tags.Items.DYES_GREEN)
-                        .addCriterion("nugget", hasItem(Items.GOLD_NUGGET)),
+        build(consumer, ShapedRecipeBuilder.shaped(CableModule.NETCABLE_GREEN.get(), 16)
+                        .define('g', Tags.Items.NUGGETS_GOLD)
+                        .define('s', Items.STRING)
+                        .define('1', Tags.Items.DYES_GREEN)
+                        .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
                 "s1s", "rgr", "srs");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(CableModule.NETCABLE_ROUTING.get(), 32)
-                        .key('g', Tags.Items.NUGGETS_GOLD)
-                        .key('s', Items.STRING)
-                        .key('1', Tags.Items.DYES_BLACK)
-                        .addCriterion("nugget", hasItem(Items.GOLD_NUGGET)),
+        build(consumer, ShapedRecipeBuilder.shaped(CableModule.NETCABLE_ROUTING.get(), 32)
+                        .define('g', Tags.Items.NUGGETS_GOLD)
+                        .define('s', Items.STRING)
+                        .define('1', Tags.Items.DYES_BLACK)
+                        .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
                 "s1s", "rgr", "srs");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(VariousModule.UPGRADE.get())
-                        .addCriterion("pearl", hasItem(Items.ENDER_PEARL)),
+        build(consumer, ShapedRecipeBuilder.shaped(VariousModule.UPGRADE.get())
+                        .unlockedBy("pearl", has(Items.ENDER_PEARL)),
                 "po", "dr");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(CableModule.CONNECTOR_BLUE.get())
-                        .key('g', Tags.Items.INGOTS_GOLD)
-                        .key('1', Tags.Items.DYES_BLUE)
-                        .key('C', Tags.Items.CHESTS)
-                        .addCriterion("chest", hasItem(Items.CHEST)),
+        build(consumer, ShapedRecipeBuilder.shaped(CableModule.CONNECTOR_BLUE.get())
+                        .define('g', Tags.Items.INGOTS_GOLD)
+                        .define('1', Tags.Items.DYES_BLUE)
+                        .define('C', Tags.Items.CHESTS)
+                        .unlockedBy("chest", has(Items.CHEST)),
                 "1C1", "rgr", "1r1");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(CableModule.CONNECTOR_RED.get())
-                        .key('g', Tags.Items.INGOTS_GOLD)
-                        .key('1', Tags.Items.DYES_RED)
-                        .key('C', Tags.Items.CHESTS)
-                        .addCriterion("chest", hasItem(Items.CHEST)),
+        build(consumer, ShapedRecipeBuilder.shaped(CableModule.CONNECTOR_RED.get())
+                        .define('g', Tags.Items.INGOTS_GOLD)
+                        .define('1', Tags.Items.DYES_RED)
+                        .define('C', Tags.Items.CHESTS)
+                        .unlockedBy("chest", has(Items.CHEST)),
                 "1C1", "rgr", "1r1");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(CableModule.CONNECTOR_GREEN.get())
-                        .key('g', Tags.Items.INGOTS_GOLD)
-                        .key('1', Tags.Items.DYES_GREEN)
-                        .key('C', Tags.Items.CHESTS)
-                        .addCriterion("chest", hasItem(Items.CHEST)),
+        build(consumer, ShapedRecipeBuilder.shaped(CableModule.CONNECTOR_GREEN.get())
+                        .define('g', Tags.Items.INGOTS_GOLD)
+                        .define('1', Tags.Items.DYES_GREEN)
+                        .define('C', Tags.Items.CHESTS)
+                        .unlockedBy("chest", has(Items.CHEST)),
                 "1C1", "rgr", "1r1");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(CableModule.CONNECTOR_YELLOW.get())
-                        .key('g', Tags.Items.INGOTS_GOLD)
-                        .key('1', Tags.Items.DYES_YELLOW)
-                        .key('C', Tags.Items.CHESTS)
-                        .addCriterion("chest", hasItem(Items.CHEST)),
+        build(consumer, ShapedRecipeBuilder.shaped(CableModule.CONNECTOR_YELLOW.get())
+                        .define('g', Tags.Items.INGOTS_GOLD)
+                        .define('1', Tags.Items.DYES_YELLOW)
+                        .define('C', Tags.Items.CHESTS)
+                        .unlockedBy("chest", has(Items.CHEST)),
                 "1C1", "rgr", "1r1");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(CableModule.CONNECTOR_ROUTING.get())
-                        .key('g', Tags.Items.NUGGETS_GOLD)
-                        .key('C', CableModule.TAG_CONNECTORS)
-                        .addCriterion("chest", hasItem(Items.CHEST)),
+        build(consumer, ShapedRecipeBuilder.shaped(CableModule.CONNECTOR_ROUTING.get())
+                        .define('g', Tags.Items.NUGGETS_GOLD)
+                        .define('C', CableModule.TAG_CONNECTORS)
+                        .unlockedBy("chest", has(Items.CHEST)),
                 "rrr", "gCg", "rrr");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(CableModule.ADVANCED_CONNECTOR_BLUE.get())
-                        .key('C', CableModule.CONNECTOR_BLUE.get())
-                        .addCriterion("chest", hasItem(Items.CHEST)),
+        build(consumer, ShapedRecipeBuilder.shaped(CableModule.ADVANCED_CONNECTOR_BLUE.get())
+                        .define('C', CableModule.CONNECTOR_BLUE.get())
+                        .unlockedBy("chest", has(Items.CHEST)),
                 "Co", "dr");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(CableModule.ADVANCED_CONNECTOR_YELLOW.get())
-                        .key('C', CableModule.CONNECTOR_YELLOW.get())
-                        .addCriterion("chest", hasItem(Items.CHEST)),
+        build(consumer, ShapedRecipeBuilder.shaped(CableModule.ADVANCED_CONNECTOR_YELLOW.get())
+                        .define('C', CableModule.CONNECTOR_YELLOW.get())
+                        .unlockedBy("chest", has(Items.CHEST)),
                 "Co", "dr");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(CableModule.ADVANCED_CONNECTOR_RED.get())
-                        .key('C', CableModule.CONNECTOR_RED.get())
-                        .addCriterion("chest", hasItem(Items.CHEST)),
+        build(consumer, ShapedRecipeBuilder.shaped(CableModule.ADVANCED_CONNECTOR_RED.get())
+                        .define('C', CableModule.CONNECTOR_RED.get())
+                        .unlockedBy("chest", has(Items.CHEST)),
                 "Co", "dr");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(CableModule.ADVANCED_CONNECTOR_GREEN.get())
-                        .key('C', CableModule.CONNECTOR_GREEN.get())
-                        .addCriterion("chest", hasItem(Items.CHEST)),
+        build(consumer, ShapedRecipeBuilder.shaped(CableModule.ADVANCED_CONNECTOR_GREEN.get())
+                        .define('C', CableModule.CONNECTOR_GREEN.get())
+                        .unlockedBy("chest", has(Items.CHEST)),
                 "Co", "dr");
-        build(consumer, ShapedRecipeBuilder.shapedRecipe(CableModule.ADVANCED_CONNECTOR_ROUTING.get())
-                        .key('C', CableModule.CONNECTOR_ROUTING.get())
-                        .addCriterion("chest", hasItem(Items.CHEST)),
+        build(consumer, ShapedRecipeBuilder.shaped(CableModule.ADVANCED_CONNECTOR_ROUTING.get())
+                        .define('C', CableModule.CONNECTOR_ROUTING.get())
+                        .unlockedBy("chest", has(Items.CHEST)),
                 "Co", "dr");
-        build(consumer, new ResourceLocation(XNet.MODID, "netcable_blue_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableModule.NETCABLE_BLUE.get())
-                .addIngredient(Tags.Items.DYES_BLUE)
-                .addIngredient(CableModule.TAG_CABLES)
-                .addCriterion("chest", hasItem(Items.CHEST)));
-        build(consumer, new ResourceLocation(XNet.MODID, "netcable_red_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableModule.NETCABLE_RED.get())
-                .addIngredient(Tags.Items.DYES_RED)
-                .addIngredient(CableModule.TAG_CABLES)
-                .addCriterion("chest", hasItem(Items.CHEST)));
-        build(consumer, new ResourceLocation(XNet.MODID, "netcable_green_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableModule.NETCABLE_GREEN.get())
-                .addIngredient(Tags.Items.DYES_GREEN)
-                .addIngredient(CableModule.TAG_CABLES)
-                .addCriterion("chest", hasItem(Items.CHEST)));
-        build(consumer, new ResourceLocation(XNet.MODID, "netcable_yellow_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableModule.NETCABLE_YELLOW.get())
-                .addIngredient(Tags.Items.DYES_YELLOW)
-                .addIngredient(CableModule.TAG_CABLES)
-                .addCriterion("chest", hasItem(Items.CHEST)));
-        build(consumer, new ResourceLocation(XNet.MODID, "connector_blue_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableModule.CONNECTOR_BLUE.get())
-                .addIngredient(Tags.Items.DYES_BLUE)
-                .addIngredient(CableModule.TAG_CONNECTORS)
-                .addCriterion("chest", hasItem(Items.CHEST)));
-        build(consumer, new ResourceLocation(XNet.MODID, "connector_red_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableModule.CONNECTOR_RED.get())
-                .addIngredient(Tags.Items.DYES_RED)
-                .addIngredient(CableModule.TAG_CONNECTORS)
-                .addCriterion("chest", hasItem(Items.CHEST)));
-        build(consumer, new ResourceLocation(XNet.MODID, "connector_green_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableModule.CONNECTOR_GREEN.get())
-                .addIngredient(Tags.Items.DYES_GREEN)
-                .addIngredient(CableModule.TAG_CONNECTORS)
-                .addCriterion("chest", hasItem(Items.CHEST)));
-        build(consumer, new ResourceLocation(XNet.MODID, "connector_yellow_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableModule.CONNECTOR_YELLOW.get())
-                .addIngredient(Tags.Items.DYES_YELLOW)
-                .addIngredient(CableModule.TAG_CONNECTORS)
-                .addCriterion("chest", hasItem(Items.CHEST)));
-        build(consumer, new ResourceLocation(XNet.MODID, "advanced_connector_blue_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableModule.ADVANCED_CONNECTOR_BLUE.get())
-                .addIngredient(Tags.Items.DYES_BLUE)
-                .addIngredient(CableModule.TAG_ADVANCED_CONNECTORS)
-                .addCriterion("chest", hasItem(Items.CHEST)));
-        build(consumer, new ResourceLocation(XNet.MODID, "advanced_connector_red_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableModule.ADVANCED_CONNECTOR_RED.get())
-                .addIngredient(Tags.Items.DYES_RED)
-                .addIngredient(CableModule.TAG_ADVANCED_CONNECTORS)
-                .addCriterion("chest", hasItem(Items.CHEST)));
-        build(consumer, new ResourceLocation(XNet.MODID, "advanced_connector_green_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableModule.ADVANCED_CONNECTOR_GREEN.get())
-                .addIngredient(Tags.Items.DYES_GREEN)
-                .addIngredient(CableModule.TAG_ADVANCED_CONNECTORS)
-                .addCriterion("chest", hasItem(Items.CHEST)));
-        build(consumer, new ResourceLocation(XNet.MODID, "advanced_connector_yellow_dye"), ShapelessRecipeBuilder.shapelessRecipe(CableModule.ADVANCED_CONNECTOR_YELLOW.get())
-                .addIngredient(Tags.Items.DYES_YELLOW)
-                .addIngredient(CableModule.TAG_ADVANCED_CONNECTORS)
-                .addCriterion("chest", hasItem(Items.CHEST)));
-        build(consumer, new ResourceLocation(XNet.MODID, "redstoneproxy_update"), ShapelessRecipeBuilder.shapelessRecipe(VariousModule.REDSTONE_PROXY_UPD.get())
-                .addIngredient(VariousModule.REDSTONE_PROXY.get())
-                .addIngredient(Items.REDSTONE_TORCH)
-                .addCriterion("torch", hasItem(Items.REDSTONE_TORCH)));
+        build(consumer, new ResourceLocation(XNet.MODID, "netcable_blue_dye"), ShapelessRecipeBuilder.shapeless(CableModule.NETCABLE_BLUE.get())
+                .requires(Tags.Items.DYES_BLUE)
+                .requires(CableModule.TAG_CABLES)
+                .unlockedBy("chest", has(Items.CHEST)));
+        build(consumer, new ResourceLocation(XNet.MODID, "netcable_red_dye"), ShapelessRecipeBuilder.shapeless(CableModule.NETCABLE_RED.get())
+                .requires(Tags.Items.DYES_RED)
+                .requires(CableModule.TAG_CABLES)
+                .unlockedBy("chest", has(Items.CHEST)));
+        build(consumer, new ResourceLocation(XNet.MODID, "netcable_green_dye"), ShapelessRecipeBuilder.shapeless(CableModule.NETCABLE_GREEN.get())
+                .requires(Tags.Items.DYES_GREEN)
+                .requires(CableModule.TAG_CABLES)
+                .unlockedBy("chest", has(Items.CHEST)));
+        build(consumer, new ResourceLocation(XNet.MODID, "netcable_yellow_dye"), ShapelessRecipeBuilder.shapeless(CableModule.NETCABLE_YELLOW.get())
+                .requires(Tags.Items.DYES_YELLOW)
+                .requires(CableModule.TAG_CABLES)
+                .unlockedBy("chest", has(Items.CHEST)));
+        build(consumer, new ResourceLocation(XNet.MODID, "connector_blue_dye"), ShapelessRecipeBuilder.shapeless(CableModule.CONNECTOR_BLUE.get())
+                .requires(Tags.Items.DYES_BLUE)
+                .requires(CableModule.TAG_CONNECTORS)
+                .unlockedBy("chest", has(Items.CHEST)));
+        build(consumer, new ResourceLocation(XNet.MODID, "connector_red_dye"), ShapelessRecipeBuilder.shapeless(CableModule.CONNECTOR_RED.get())
+                .requires(Tags.Items.DYES_RED)
+                .requires(CableModule.TAG_CONNECTORS)
+                .unlockedBy("chest", has(Items.CHEST)));
+        build(consumer, new ResourceLocation(XNet.MODID, "connector_green_dye"), ShapelessRecipeBuilder.shapeless(CableModule.CONNECTOR_GREEN.get())
+                .requires(Tags.Items.DYES_GREEN)
+                .requires(CableModule.TAG_CONNECTORS)
+                .unlockedBy("chest", has(Items.CHEST)));
+        build(consumer, new ResourceLocation(XNet.MODID, "connector_yellow_dye"), ShapelessRecipeBuilder.shapeless(CableModule.CONNECTOR_YELLOW.get())
+                .requires(Tags.Items.DYES_YELLOW)
+                .requires(CableModule.TAG_CONNECTORS)
+                .unlockedBy("chest", has(Items.CHEST)));
+        build(consumer, new ResourceLocation(XNet.MODID, "advanced_connector_blue_dye"), ShapelessRecipeBuilder.shapeless(CableModule.ADVANCED_CONNECTOR_BLUE.get())
+                .requires(Tags.Items.DYES_BLUE)
+                .requires(CableModule.TAG_ADVANCED_CONNECTORS)
+                .unlockedBy("chest", has(Items.CHEST)));
+        build(consumer, new ResourceLocation(XNet.MODID, "advanced_connector_red_dye"), ShapelessRecipeBuilder.shapeless(CableModule.ADVANCED_CONNECTOR_RED.get())
+                .requires(Tags.Items.DYES_RED)
+                .requires(CableModule.TAG_ADVANCED_CONNECTORS)
+                .unlockedBy("chest", has(Items.CHEST)));
+        build(consumer, new ResourceLocation(XNet.MODID, "advanced_connector_green_dye"), ShapelessRecipeBuilder.shapeless(CableModule.ADVANCED_CONNECTOR_GREEN.get())
+                .requires(Tags.Items.DYES_GREEN)
+                .requires(CableModule.TAG_ADVANCED_CONNECTORS)
+                .unlockedBy("chest", has(Items.CHEST)));
+        build(consumer, new ResourceLocation(XNet.MODID, "advanced_connector_yellow_dye"), ShapelessRecipeBuilder.shapeless(CableModule.ADVANCED_CONNECTOR_YELLOW.get())
+                .requires(Tags.Items.DYES_YELLOW)
+                .requires(CableModule.TAG_ADVANCED_CONNECTORS)
+                .unlockedBy("chest", has(Items.CHEST)));
+        build(consumer, new ResourceLocation(XNet.MODID, "redstoneproxy_update"), ShapelessRecipeBuilder.shapeless(VariousModule.REDSTONE_PROXY_UPD.get())
+                .requires(VariousModule.REDSTONE_PROXY.get())
+                .requires(Items.REDSTONE_TORCH)
+                .unlockedBy("torch", has(Items.REDSTONE_TORCH)));
 //        build(consumer, CopyNBTRecipeBuilder.shapedRecipe(PowerCellSetup.CELL3)
 //                        .key('K', mcjty.rftoolspower.items.ModItems.POWER_CORE3)
 //                        .key('P', PowerCellSetup.CELL2)

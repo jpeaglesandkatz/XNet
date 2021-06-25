@@ -43,12 +43,12 @@ public class PacketGetRemoteChannelsRouter {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            World world = ctx.getSender().getEntityWorld();
-            if (world.isBlockLoaded(pos)) {
-                TileEntity te = world.getTileEntity(pos);
+            World world = ctx.getSender().getCommandSenderWorld();
+            if (world.hasChunkAt(pos)) {
+                TileEntity te = world.getBlockEntity(pos);
                 ICommandHandler commandHandler = (ICommandHandler) te;
                 List<ControllerChannelClientInfo> list = commandHandler.executeWithResultList(TileEntityRouter.CMD_GETREMOTECHANNELS, params, Type.create(ControllerChannelClientInfo.class));
-                XNetMessages.INSTANCE.sendTo(new PacketRemoteChannelsRouterReady(pos, TileEntityRouter.CLIENTCMD_CHANNELSREMOTEREADY, list), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketRemoteChannelsRouterReady(pos, TileEntityRouter.CLIENTCMD_CHANNELSREMOTEREADY, list), ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
         });
         ctx.setPacketHandled(true);

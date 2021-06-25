@@ -39,7 +39,7 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
 
 
     @Override
-    public void read(CompoundNBT compound) {
+    public void load(CompoundNBT compound) {
         worldBlobMap.clear();
         if (compound.contains("worlds")) {
             ListNBT worlds = (ListNBT) compound.get("worlds");
@@ -55,7 +55,7 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound) {
+    public CompoundNBT save(CompoundNBT compound) {
         ListNBT list = new ListNBT();
         for (Map.Entry<DimensionId, WorldBlob> entry : worldBlobMap.entrySet()) {
             WorldBlob blob = entry.getValue();

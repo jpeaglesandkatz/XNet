@@ -81,16 +81,16 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             if (connectorPos != null) {
 
                 Direction side = entry.getKey().getSide();
-                BlockPos energyPos = connectorPos.offset(side);
+                BlockPos energyPos = connectorPos.relative(side);
                 if (!WorldTools.isLoaded(world, energyPos)) {
                     continue;
                 }
 
-                TileEntity te = world.getTileEntity(energyPos);
+                TileEntity te = world.getBlockEntity(energyPos);
                 // @todo report error somewhere?
                 if (isEnergyTE(te, side.getOpposite())) {
                     EnergyConnectorSettings settings = entry.getValue();
-                    ConnectorTileEntity connectorTE = (ConnectorTileEntity) world.getTileEntity(connectorPos);
+                    ConnectorTileEntity connectorTE = (ConnectorTileEntity) world.getBlockEntity(connectorPos);
 
                     if (checkRedstone(world, settings, connectorPos)) {
                         continue;
@@ -170,11 +170,11 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             BlockPos extractorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
             if (extractorPos != null) {
                 Direction side = entry.getKey().getSide();
-                BlockPos pos = extractorPos.offset(side);
+                BlockPos pos = extractorPos.relative(side);
                 if (!WorldTools.isLoaded(world, pos)) {
                     continue;
                 }
-                TileEntity te = world.getTileEntity(pos);
+                TileEntity te = world.getBlockEntity(pos);
                 // @todo report error somewhere?
                 if (isEnergyTE(te, settings.getFacing())) {
 

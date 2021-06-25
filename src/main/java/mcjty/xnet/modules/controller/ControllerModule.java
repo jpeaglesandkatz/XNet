@@ -20,7 +20,7 @@ public class ControllerModule implements IModule {
 
     public static final RegistryObject<BaseBlock> CONTROLLER = BLOCKS.register("controller", TileEntityController::createBlock);
     public static final RegistryObject<Item> CONTROLLER_ITEM = ITEMS.register("controller", () -> new BlockItem(CONTROLLER.get(), Registration.createStandardProperties()));
-    public static final RegistryObject<TileEntityType<?>> TYPE_CONTROLLER = TILES.register("controller", () -> TileEntityType.Builder.create(TileEntityController::new, CONTROLLER.get()).build(null));
+    public static final RegistryObject<TileEntityType<?>> TYPE_CONTROLLER = TILES.register("controller", () -> TileEntityType.Builder.of(TileEntityController::new, CONTROLLER.get()).build(null));
     public static final RegistryObject<ContainerType<GenericContainer>> CONTAINER_CONTROLLER = CONTAINERS.register("controller", GenericContainer::createContainerType);
 
     @Override

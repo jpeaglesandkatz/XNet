@@ -30,7 +30,7 @@ public class WirelessRouterModule implements IModule {
 
     public static final RegistryObject<BaseBlock> WIRELESS_ROUTER = BLOCKS.register("wireless_router", TileEntityWirelessRouter::createBlock);
     public static final RegistryObject<Item> WIRELESS_ROUTER_ITEM = ITEMS.register("wireless_router", () -> new BlockItem(WIRELESS_ROUTER.get(), Registration.createStandardProperties()));
-    public static final RegistryObject<TileEntityType<?>> TYPE_WIRELESS_ROUTER = TILES.register("wireless_router", () -> TileEntityType.Builder.create(TileEntityWirelessRouter::new, WIRELESS_ROUTER.get()).build(null));
+    public static final RegistryObject<TileEntityType<?>> TYPE_WIRELESS_ROUTER = TILES.register("wireless_router", () -> TileEntityType.Builder.of(TileEntityWirelessRouter::new, WIRELESS_ROUTER.get()).build(null));
     public static final RegistryObject<ContainerType<GenericContainer>> CONTAINER_WIRELESS_ROUTER = CONTAINERS.register("wireless_router", GenericContainer::createContainerType);
 
     public static final RegistryObject<BaseBlock> ANTENNA = BLOCKS.register("antenna", WirelessRouterModule::createAntennaBlock);
@@ -40,7 +40,7 @@ public class WirelessRouterModule implements IModule {
     public static final RegistryObject<BaseBlock> ANTENNA_DISH = BLOCKS.register("antenna_dish", WirelessRouterModule::createAntennaDishBlock);
     public static final RegistryObject<Item> ANTENNA_DISH_ITEM = ITEMS.register("antenna_dish", () -> new BlockItem(ANTENNA_DISH.get(), Registration.createStandardProperties()));
 
-    public static VoxelShape SMALLER_CUBE = VoxelShapes.create(0.01f, 0.01f, 0.01f, 0.99f, 0.99f, 0.99f);
+    public static VoxelShape SMALLER_CUBE = VoxelShapes.box(0.01f, 0.01f, 0.01f, 0.99f, 0.99f, 0.99f);
 
     private static BaseBlock createAntennaDishBlock() {
         return new BaseBlock(new BlockBuilder()
@@ -54,7 +54,7 @@ public class WirelessRouterModule implements IModule {
             }
 
             @Override
-            public VoxelShape getRenderShape(BlockState state, IBlockReader world, BlockPos pos) {
+            public VoxelShape getOcclusionShape(BlockState state, IBlockReader world, BlockPos pos) {
                 return SMALLER_CUBE;
             }
         };
@@ -71,7 +71,7 @@ public class WirelessRouterModule implements IModule {
             }
 
             @Override
-            public VoxelShape getRenderShape(BlockState state, IBlockReader world, BlockPos pos) {
+            public VoxelShape getOcclusionShape(BlockState state, IBlockReader world, BlockPos pos) {
                 return SMALLER_CUBE;
             }
         };
@@ -91,7 +91,7 @@ public class WirelessRouterModule implements IModule {
             }
 
             @Override
-            public VoxelShape getRenderShape(BlockState state, IBlockReader world, BlockPos pos) {
+            public VoxelShape getOcclusionShape(BlockState state, IBlockReader world, BlockPos pos) {
                 return SMALLER_CUBE;
             }
         };

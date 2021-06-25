@@ -15,7 +15,7 @@ public class FacadeBlockColor implements IBlockColor {
     @Override
     public int getColor(BlockState blockState, @Nullable IBlockDisplayReader world, @Nullable BlockPos pos, int tint) {
         if (world != null) {
-            TileEntity te = world.getTileEntity(pos);
+            TileEntity te = world.getBlockEntity(pos);
             if (te instanceof IFacadeSupport) {
                 IFacadeSupport facade = (IFacadeSupport) te;
                 BlockState mimic = facade.getMimicBlock();

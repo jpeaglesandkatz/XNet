@@ -19,10 +19,12 @@ import net.minecraftforge.common.util.Constants.BlockFlags;
 
 import javax.annotation.Nullable;
 
+import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
+
 public class FacadeBlock extends NetCableBlock {
 
     public FacadeBlock(CableBlockType type) {
-        super(Material.IRON, type);
+        super(Material.METAL, type);
         // @todo 1.14
 //        setHardness(0.8f);
     }
@@ -68,31 +70,31 @@ public class FacadeBlock extends NetCableBlock {
     }
 
     @Override
-    public void harvestBlock(World worldIn, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity te, ItemStack stack) {
+    public void playerDestroy(World worldIn, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity te, ItemStack stack) {
         ItemStack item = new ItemStack(FacadeModule.FACADE.get());
         BlockState mimicBlock;
         if (te instanceof FacadeTileEntity) {
             mimicBlock = ((FacadeTileEntity) te).getMimicBlock();
         } else {
-            mimicBlock = Blocks.COBBLESTONE.getDefaultState();
+            mimicBlock = Blocks.COBBLESTONE.defaultBlockState();
         }
         FacadeBlockItem.setMimicBlock(item, mimicBlock);
 
-        spawnAsEntity(worldIn, pos, item);
+        popResource(worldIn, pos, item);
     }
 
     private boolean replaceWithCable(IWorld world, BlockPos pos, BlockState state) {
-        CableColor color = state.get(COLOR);
-        BlockState defaultState = CableModule.NETCABLE.get().getDefaultState().with(COLOR, color);
+        CableColor color = state.getValue(COLOR);
+        BlockState defaultState = CableModule.NETCABLE.get().defaultBlockState().setValue(COLOR, color);
         BlockState newState = this.calculateState(world, pos, defaultState);
-        return world.setBlockState(pos, newState, world.isRemote()
+        return world.setBlock(pos, newState, world.isClientSide()
                 ? BlockFlags.BLOCK_UPDATE + BlockFlags.NOTIFY_NEIGHBORS + BlockFlags.RERENDER_MAIN_THREAD
                 : BlockFlags.BLOCK_UPDATE + BlockFlags.NOTIFY_NEIGHBORS);
     }
 
     @Override
-    public void onPlayerDestroy(IWorld world, BlockPos pos, BlockState state) {
-        if (world.isRemote()) {
+    public void destroy(IWorld world, BlockPos pos, BlockState state) {
+        if (world.isClientSide()) {
             replaceWithCable(world, pos, state);
         }
     }
@@ -116,9 +118,9 @@ public class FacadeBlock extends NetCableBlock {
 
 
     @Override
-    public void onReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
+    public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
         // Breaking a facade has no effect on blob network
-        super.onReplaced(state, world, pos, newState, isMoving);
+        super.onRemove(state, world, pos, newState, isMoving);
     }
 
 

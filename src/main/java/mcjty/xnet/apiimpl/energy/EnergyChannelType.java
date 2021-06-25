@@ -26,7 +26,7 @@ public class EnergyChannelType implements IChannelType {
 
     @Override
     public boolean supportsBlock(@Nonnull World world, @Nonnull BlockPos pos, @Nullable Direction side) {
-        TileEntity te = world.getTileEntity(pos);
+        TileEntity te = world.getBlockEntity(pos);
         if (te == null) {
             return false;
         }

@@ -6,6 +6,8 @@ import net.minecraft.world.IBlockReader;
 
 import javax.annotation.Nullable;
 
+import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
+
 public class AdvancedConnectorBlock extends ConnectorBlock {
 
     public AdvancedConnectorBlock(CableBlockType type) {

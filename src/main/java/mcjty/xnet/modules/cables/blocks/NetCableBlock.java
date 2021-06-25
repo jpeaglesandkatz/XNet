@@ -11,10 +11,12 @@ import net.minecraft.world.IBlockReader;
 
 import javax.annotation.Nonnull;
 
+import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
+
 public class NetCableBlock extends GenericCableBlock {
 
     public NetCableBlock(CableBlockType type) {
-        super(Material.IRON, type);
+        super(Material.METAL, type);
     }
 
     public NetCableBlock(Material material, CableBlockType type) {
@@ -41,10 +43,10 @@ public class NetCableBlock extends GenericCableBlock {
 
     @Override
     protected ConnectorType getConnectorType(@Nonnull CableColor color, IBlockReader world, BlockPos connectorPos, Direction facing) {
-        BlockPos pos = connectorPos.offset(facing);
+        BlockPos pos = connectorPos.relative(facing);
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
-        if ((block instanceof NetCableBlock || block instanceof ConnectorBlock) && state.get(COLOR) == color) {
+        if ((block instanceof NetCableBlock || block instanceof ConnectorBlock) && state.getValue(COLOR) == color) {
             return ConnectorType.CABLE;
         } else {
             return ConnectorType.NONE;

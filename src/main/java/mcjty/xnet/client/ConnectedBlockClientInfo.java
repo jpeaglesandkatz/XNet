@@ -32,7 +32,7 @@ public class ConnectedBlockClientInfo {
 
     public ConnectedBlockClientInfo(@Nonnull PacketBuffer buf) {
         pos = new SidedPos(buf.readBlockPos(), OrientationTools.DIRECTION_VALUES[buf.readByte()]);
-        connectedBlock = buf.readItemStack();
+        connectedBlock = buf.readItem();
         name = NetworkTools.readStringUTF8(buf);
         blockName = NetworkTools.readStringUTF8(buf);
     }
@@ -40,7 +40,7 @@ public class ConnectedBlockClientInfo {
     public void writeToBuf(@Nonnull PacketBuffer buf) {
         buf.writeBlockPos(pos.getPos());
         buf.writeByte(pos.getSide().ordinal());
-        buf.writeItemStack(connectedBlock);
+        buf.writeItem(connectedBlock);
         NetworkTools.writeStringUTF8(buf, name);
         NetworkTools.writeStringUTF8(buf, blockName);
     }
@@ -95,7 +95,7 @@ public class ConnectedBlockClientInfo {
             }
         }
 
-        return stack.getItem().getTranslationKey(stack);
+        return stack.getItem().getDescriptionId(stack);
     }
 
     private static CompoundNBT getSubCompound(ItemStack stack, String key) {

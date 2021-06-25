@@ -28,7 +28,7 @@ public class ControllerChannelClientInfo {
     public ControllerChannelClientInfo(@Nonnull PacketBuffer buf) {
         channelName = NetworkTools.readStringUTF8(buf);
         publishedName = NetworkTools.readStringUTF8(buf);
-        String id = buf.readString(32767);
+        String id = buf.readUtf(32767);
         IChannelType t = XNet.xNetApi.findType(id);
         if (t == null) {
             throw new RuntimeException("Bad type: " + id);
@@ -42,7 +42,7 @@ public class ControllerChannelClientInfo {
     public void writeToNBT(@Nonnull PacketBuffer buf) {
         NetworkTools.writeStringUTF8(buf, channelName);
         NetworkTools.writeStringUTF8(buf, publishedName);
-        buf.writeString(channelType.getID());
+        buf.writeUtf(channelType.getID());
         buf.writeBlockPos(pos);
         buf.writeBoolean(remote);
         buf.writeInt(index);

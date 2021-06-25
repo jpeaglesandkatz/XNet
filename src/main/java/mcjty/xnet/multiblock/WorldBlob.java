@@ -302,7 +302,7 @@ public class WorldBlob implements IWorldBlob {
 
                 for (Direction facing : OrientationTools.HORIZONTAL_DIRECTION_VALUES) {
                     if (pos.isBorder(facing)) {
-                        Vector3i vec = facing.getDirectionVec();
+                        Vector3i vec = facing.getNormal();
                         ChunkBlob adjacent = chunkBlobMap.get(
                                 ChunkPos.asLong(chunkPos.x+vec.getX(), chunkPos.z+vec.getZ()));
                         if (adjacent != null) {

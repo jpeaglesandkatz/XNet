@@ -34,7 +34,7 @@ public class ConnectorEditorPanel extends AbstractEditorPanel {
         super(panel, mc, gui);
         this.channel = channel;
         this.sidedPos = sidedPos;
-        advanced = ConnectorBlock.isAdvancedConnector(mc.world, sidedPos.getPos().offset(sidedPos.getSide()));
+        advanced = ConnectorBlock.isAdvancedConnector(mc.level, sidedPos.getPos().relative(sidedPos.getSide()));
     }
 
     @Override

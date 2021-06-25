@@ -11,7 +11,7 @@ public class WorldBlobTest {
     private static void createCableLine(WorldBlob world, BlockPos p1, Direction direction, int count, ColorId color) {
         for (int i = 0 ; i < count ; i++) {
             world.createCableSegment(p1, color);
-            p1 = p1.offset(direction);
+            p1 = p1.relative(direction);
         }
     }
 

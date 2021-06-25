@@ -138,7 +138,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get());
     private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> energyStorage);
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
-            .containerSupplier((windowId,player) -> new GenericContainer(ControllerModule.CONTAINER_CONTROLLER.get(), windowId, CONTAINER_FACTORY.get(), getPos(), TileEntityController.this))
+            .containerSupplier((windowId,player) -> new GenericContainer(ControllerModule.CONTAINER_CONTROLLER.get(), windowId, CONTAINER_FACTORY.get(), getBlockPos(), TileEntityController.this))
             .itemHandler(() -> items)
             .energyHandler(() -> energyStorage));
 
@@ -177,8 +177,8 @@ public final class TileEntityController extends GenericTileEntity implements ITi
                 .infoShift(TooltipBuilder.header())
         ) {
             @Override
-            protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-                super.fillStateContainer(builder);
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+                super.createBlockStateDefinition(builder);
                 builder.add(ERROR);
             }
         };
@@ -187,16 +187,16 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     private NetworkChecker createNetworkChecker() {
         NetworkChecker checker = new NetworkChecker();
         checker.add(networkId);
-        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
-        LogicTools.routers(world, networkId)
+        WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
+        LogicTools.routers(level, networkId)
                 .forEach(router -> {
-                    checker.add(worldBlob.getNetworksAt(router.getPos()));
+                    checker.add(worldBlob.getNetworksAt(router.getBlockPos()));
                     // We're only interested in one network. The other router networks are all same topology
-                    NetworkId routerNetwork = worldBlob.getNetworkAt(router.getPos());
+                    NetworkId routerNetwork = worldBlob.getNetworkAt(router.getBlockPos());
                     if (routerNetwork != null) {
-                        LogicTools.routers(world, routerNetwork)
+                        LogicTools.routers(level, routerNetwork)
                                 .filter(r -> router != r)
-                                .forEach(r -> LogicTools.connectors(world, r.getPos())
+                                .forEach(r -> LogicTools.connectors(level, r.getBlockPos())
                                         .forEach(connectorPos -> checker.add(worldBlob.getNetworkAt(connectorPos))));
                     }
                 });
@@ -205,7 +205,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     @Override
     public World getControllerWorld() {
-        return world;
+        return level;
     }
 
     @Override
@@ -241,7 +241,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
         // Check wireless
         for (Map.Entry<WirelessChannelKey, Integer> entry : wirelessVersions.entrySet()) {
-            XNetWirelessChannels channels = XNetWirelessChannels.get(world);
+            XNetWirelessChannels channels = XNetWirelessChannels.get(level);
             XNetWirelessChannels.WirelessChannelInfo channel = channels.findChannel(entry.getKey());
             if (channel == null) {
                 cleanCaches();
@@ -273,18 +273,18 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     @Override
     public void tick() {
-        if (!world.isRemote) {
-            WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
+        if (!level.isClientSide) {
+            WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
 
-            BlockState state = world.getBlockState(pos);
-            if (worldBlob.getNetworksAt(getPos()).size() > 1) {
-                if (!state.get(ERROR)) {
-                    world.setBlockState(pos, state.with(ERROR, true), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+            BlockState state = level.getBlockState(worldPosition);
+            if (worldBlob.getNetworksAt(getBlockPos()).size() > 1) {
+                if (!state.getValue(ERROR)) {
+                    level.setBlock(worldPosition, state.setValue(ERROR, true), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
                 }
                 return;
             } else {
-                if (state.get(ERROR)) {
-                    world.setBlockState(pos, state.with(ERROR, false), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+                if (state.getValue(ERROR)) {
+                    level.setBlock(worldPosition, state.setValue(ERROR, false), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
                 }
             }
 
@@ -330,7 +330,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     private void networkDirty() {
         if (networkId != null) {
-            XNetBlobData.get(world).getWorldBlob(world).markNetworkDirty(networkId);
+            XNetBlobData.get(level).getWorldBlob(level).markNetworkDirty(networkId);
         }
     }
 
@@ -344,7 +344,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     @Nonnull
     public Map<SidedConsumer, IConnectorSettings> getConnectors(int channel) {
         if (cachedConnectors[channel] == null) {
-            WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
+            WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
             cachedConnectors[channel] = new HashMap<>();
             for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channels[channel].getConnectors().entrySet()) {
                 SidedConsumer sidedConsumer = entry.getKey();
@@ -365,8 +365,8 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
             wirelessVersions.clear();
             if (!channels[channel].getChannelName().isEmpty()) {
-                LogicTools.routers(world, networkId)
-                        .forEach(router -> router.addRoutedConnectors(cachedRoutedConnectors[channel], getPos(),
+                LogicTools.routers(level, networkId)
+                        .forEach(router -> router.addRoutedConnectors(cachedRoutedConnectors[channel], getBlockPos(),
                                 channel, channels[channel].getType(),
                                 wirelessVersions));
             }
@@ -375,11 +375,11 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT tagCompound) {
+    public CompoundNBT save(CompoundNBT tagCompound) {
         if (networkId != null) {
             tagCompound.putInt("networkId", networkId.getId());
         }
-        return super.write(tagCompound);
+        return super.save(tagCompound);
     }
 
     @Override
@@ -433,7 +433,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     @Nullable
     @Override
     public BlockPos findConsumerPosition(@Nonnull ConsumerId consumerId) {
-        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
         return findConsumerPosition(worldBlob, consumerId);
     }
 
@@ -444,14 +444,14 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     @Override
     public List<SidedPos> getConnectedBlockPositions() {
-        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
 
         List<SidedPos> result = new ArrayList<>();
         Set<ConnectedBlockClientInfo> set = new HashSet<>();
         Stream<BlockPos> consumers = getConsumerStream(worldBlob);
         consumers.forEach(consumerPos -> {
             String name = "";
-            TileEntity te = world.getTileEntity(consumerPos);
+            TileEntity te = level.getBlockEntity(consumerPos);
             if (te instanceof ConnectorTileEntity) {
                 // Should always be the case. @todo error?
                 name = ((ConnectorTileEntity) te).getConnectorName();
@@ -459,8 +459,8 @@ public final class TileEntityController extends GenericTileEntity implements ITi
                 XNet.setup.getLogger().warn("What? The connector at " + BlockPosTools.toString(consumerPos) + " is not a connector?");
             }
             for (Direction facing : OrientationTools.DIRECTION_VALUES) {
-                if (ConnectorBlock.isConnectable(world, consumerPos, facing)) {
-                    BlockPos pos = consumerPos.offset(facing);
+                if (ConnectorBlock.isConnectable(level, consumerPos, facing)) {
+                    BlockPos pos = consumerPos.relative(facing);
                     SidedPos sidedPos = new SidedPos(pos, facing.getOpposite());
                     result.add(sidedPos);
                 }
@@ -472,13 +472,13 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     @Nonnull
     private List<ConnectedBlockClientInfo> findConnectedBlocksForClient() {
-        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
 
         Set<ConnectedBlockClientInfo> set = new HashSet<>();
         Stream<BlockPos> consumers = getConsumerStream(worldBlob);
         consumers.forEach(consumerPos -> {
             String name = "";
-            TileEntity te = world.getTileEntity(consumerPos);
+            TileEntity te = level.getBlockEntity(consumerPos);
             if (te instanceof ConnectorTileEntity) {
                 // Should always be the case. @todo error?
                 name = ((ConnectorTileEntity) te).getConnectorName();
@@ -486,11 +486,11 @@ public final class TileEntityController extends GenericTileEntity implements ITi
                 XNet.setup.getLogger().warn("What? The connector at " + BlockPosTools.toString(consumerPos) + " is not a connector?");
             }
             for (Direction facing : OrientationTools.DIRECTION_VALUES) {
-                if (ConnectorBlock.isConnectable(world, consumerPos, facing)) {
-                    BlockPos pos = consumerPos.offset(facing);
+                if (ConnectorBlock.isConnectable(level, consumerPos, facing)) {
+                    BlockPos pos = consumerPos.relative(facing);
                     SidedPos sidedPos = new SidedPos(pos, facing.getOpposite());
-                    BlockState state = world.getBlockState(pos);
-                    ItemStack item = state.getBlock().getItem(world, pos, state);
+                    BlockState state = level.getBlockState(pos);
+                    ItemStack item = state.getBlock().getCloneItemStack(level, pos, state);
                     ConnectedBlockClientInfo info = new ConnectedBlockClientInfo(sidedPos, item, name);
                     set.add(info);
                 }
@@ -504,13 +504,13 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     private Stream<BlockPos> getConsumerStream(WorldBlob worldBlob) {
         return XNet.xNetApi.getConsumerProviders().stream()
-                .map(provider -> provider.getConsumers(world, worldBlob, getNetworkId()).stream())
+                .map(provider -> provider.getConsumers(level, worldBlob, getNetworkId()).stream())
                 .flatMap(s -> s);
     }
 
     @Nonnull
     private List<ChannelClientInfo> findChannelInfo() {
-        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
 
         List<ChannelClientInfo> chanList = new ArrayList<>();
         for (ChannelInfo channel : channels) {
@@ -524,8 +524,8 @@ public final class TileEntityController extends GenericTileEntity implements ITi
                     if (info.getConnectorSettings() != null) {
                         BlockPos consumerPos = findConsumerPosition(worldBlob, sidedConsumer.getConsumerId());
                         if (consumerPos != null) {
-                            SidedPos pos = new SidedPos(consumerPos.offset(sidedConsumer.getSide()), sidedConsumer.getSide().getOpposite());
-                            boolean advanced = world.getBlockState(consumerPos).getBlock() == CableModule.ADVANCED_CONNECTOR.get();
+                            SidedPos pos = new SidedPos(consumerPos.relative(sidedConsumer.getSide()), sidedConsumer.getSide().getOpposite());
+                            boolean advanced = level.getBlockState(consumerPos).getBlock() == CableModule.ADVANCED_CONNECTOR.get();
                             ConnectorClientInfo ci = new ConnectorClientInfo(pos, sidedConsumer.getConsumerId(), channel.getType(), info.getConnectorSettings());
                             clientInfo.getConnectors().put(sidedConsumer, ci);
                         } else {
@@ -578,8 +578,8 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     }
 
     private void updateConnector(int channel, SidedPos pos, TypedMap params) {
-        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
-        ConsumerId consumerId = worldBlob.getConsumerAt(pos.getPos().offset(pos.getSide()));
+        WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
+        ConsumerId consumerId = worldBlob.getConsumerAt(pos.getPos().relative(pos.getSide()));
         for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channels[channel].getConnectors().entrySet()) {
             SidedConsumer key = entry.getKey();
             if (key.getConsumerId().equals(consumerId) && key.getSide().getOpposite().equals(pos.getSide())) {
@@ -595,8 +595,8 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     }
 
     private void removeConnector(int channel, SidedPos pos) {
-        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
-        ConsumerId consumerId = worldBlob.getConsumerAt(pos.getPos().offset(pos.getSide()));
+        WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
+        ConsumerId consumerId = worldBlob.getConsumerAt(pos.getPos().relative(pos.getSide()));
         SidedConsumer toremove = null;
         for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channels[channel].getConnectors().entrySet()) {
             SidedConsumer key = entry.getKey();
@@ -614,21 +614,21 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     }
 
     private ConnectorInfo createConnector(int channel, SidedPos pos) {
-        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
-        BlockPos consumerPos = pos.getPos().offset(pos.getSide());
+        WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
+        BlockPos consumerPos = pos.getPos().relative(pos.getSide());
         ConsumerId consumerId = worldBlob.getConsumerAt(consumerPos);
         if (consumerId == null) {
             throw new RuntimeException("What?");
         }
         SidedConsumer id = new SidedConsumer(consumerId, pos.getSide().getOpposite());
-        boolean advanced = world.getBlockState(consumerPos).getBlock() == CableModule.ADVANCED_CONNECTOR.get();
+        boolean advanced = level.getBlockState(consumerPos).getBlock() == CableModule.ADVANCED_CONNECTOR.get();
         ConnectorInfo info = channels[channel].createConnector(id, advanced);
         markAsDirty();
         return info;
     }
 
     private IConnectorSettings findConnectorSettings(ChannelInfo channel, SidedPos p) {
-        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
 
         for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channel.getConnectors().entrySet()) {
             SidedConsumer sidedConsumer = entry.getKey();
@@ -636,7 +636,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             if (info.getConnectorSettings() != null) {
                 BlockPos consumerPos = findConsumerPosition(worldBlob, sidedConsumer.getConsumerId());
                 if (consumerPos != null) {
-                    SidedPos pos = new SidedPos(consumerPos.offset(sidedConsumer.getSide()), sidedConsumer.getSide().getOpposite());
+                    SidedPos pos = new SidedPos(consumerPos.relative(sidedConsumer.getSide()), sidedConsumer.getSide().getOpposite());
                     if (pos.equals(p)) {
                         return info.getConnectorSettings();
                     }
@@ -648,13 +648,13 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     @Nonnull
     private Set<ConnectedBlockInfo> findConnectedBlocks() {
-        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
+        WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
 
         Set<ConnectedBlockInfo> set = new HashSet<>();
         Stream<BlockPos> consumers = getConsumerStream(worldBlob);
         consumers.forEach(consumerPos -> {
             String name = "";
-            TileEntity te = world.getTileEntity(consumerPos);
+            TileEntity te = level.getBlockEntity(consumerPos);
             if (te instanceof ConnectorTileEntity) {
                 // Should always be the case. @todo error?
                 name = ((ConnectorTileEntity) te).getConnectorName();
@@ -662,11 +662,11 @@ public final class TileEntityController extends GenericTileEntity implements ITi
                 XNet.setup.getLogger().warn("What? The connector at " + BlockPosTools.toString(consumerPos) + " is not a connector?");
             }
             for (Direction facing : OrientationTools.DIRECTION_VALUES) {
-                if (ConnectorBlock.isConnectable(world, consumerPos, facing)) {
-                    BlockPos pos = consumerPos.offset(facing);
+                if (ConnectorBlock.isConnectable(level, consumerPos, facing)) {
+                    BlockPos pos = consumerPos.relative(facing);
                     SidedPos sidedPos = new SidedPos(pos, facing.getOpposite());
-                    BlockState state = world.getBlockState(pos);
-                    state = state.getBlock().isAir(state, world, pos) ? null : state;
+                    BlockState state = level.getBlockState(pos);
+                    state = state.getBlock().isAir(state, level, pos) ? null : state;
                     ConnectedBlockInfo info = new ConnectedBlockInfo(sidedPos, state, name);
                     set.add(info);
                 }
@@ -685,17 +685,17 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             if (object != null) {
                 parent.add("type", new JsonPrimitive(channel.getType().getID()));
                 parent.add("connector", object);
-                boolean advanced = ConnectorBlock.isAdvancedConnector(world, sidedPos.getPos().offset(sidedPos.getSide()));
+                boolean advanced = ConnectorBlock.isAdvancedConnector(level, sidedPos.getPos().relative(sidedPos.getSide()));
                 parent.add("advanced", new JsonPrimitive(advanced));
 
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 String json = gson.toJson(parent);
 
-                XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
         }
-        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error copying connector!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error copying connector!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
     private void copyChannel(ServerPlayerEntity player, int index) {
@@ -721,7 +721,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
                         JsonObject connectorObject = new JsonObject();
                         connectorObject.add("connector", object);
                         connectorObject.add("name", new JsonPrimitive(connectedBlock.getName()));
-                        boolean advanced = ConnectorBlock.isAdvancedConnector(world, sidedPos.getPos().offset(sidedPos.getSide()));
+                        boolean advanced = ConnectorBlock.isAdvancedConnector(level, sidedPos.getPos().relative(sidedPos.getSide()));
                         connectorObject.add("advanced", new JsonPrimitive(advanced));
                         if (!connectedBlock.isAir()) {
                             BlockState state = connectedBlock.getConnectedState();
@@ -738,9 +738,9 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String json = gson.toJson(parent);
 
-            XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         } else {
-            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Channel does not support this!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Channel does not support this!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 
@@ -758,7 +758,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         Direction facing = info.getPos().getSide();
 
         // This block doesn't support this type. So bad score
-        if (!type.supportsBlock(world, blockPos, facing)) {
+        if (!type.supportsBlock(level, blockPos, facing)) {
             score -= 1000;
         }
 
@@ -769,7 +769,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             score -= 1000;
         }
 
-        boolean infoAdvanced = ConnectorBlock.isAdvancedConnector(world, blockPos.offset(facing));
+        boolean infoAdvanced = ConnectorBlock.isAdvancedConnector(level, blockPos.relative(facing));
         if (advanced) {
             if (infoAdvanced) {
                 score += 50;
@@ -808,14 +808,14 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             JsonObject root = parser.parse(json).getAsJsonObject();
 
             if (!root.has("connector") || !root.has("type")) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid connector json!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid connector json!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
 
             String typeId = root.get("type").getAsString();
             IChannelType type = XNet.xNetApi.findType(typeId);
             if (type != channels[channel].getType()) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Wrong channel type!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Wrong channel type!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
             boolean advanced = root.get("advanced").getAsBoolean();
@@ -827,13 +827,13 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
             Direction side = Direction.byName(connectorObject.get("side").getAsString());
             Direction facingOverride = connectorObject.has("facingoverride") ? Direction.byName(connectorObject.get("facingoverride").getAsString()) : side;
-            boolean infoAdvanced = ConnectorBlock.isAdvancedConnector(world, blockPos.offset(facing));
+            boolean infoAdvanced = ConnectorBlock.isAdvancedConnector(level, blockPos.relative(facing));
             if (advanced) {
                 if (!infoAdvanced) {
                     // If advanced is desired but our actual connector is not advanced then we give a penalty. The penalty is big
                     // if we can't match with the actual side or if we actually need advanced
                     if (advancedNeeded || !facingOverride.equals(facing)) {
-                        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Advanced connector is needed!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Advanced connector is needed!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                         return;
                     }
                 }
@@ -846,7 +846,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             ConnectorInfo info = createConnector(channel, sidedPos);
             info.getConnectorSettings().readFromJson(connectorObject);
         } catch (JsonSyntaxException e) {
-            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
 
         markAsDirty();
@@ -868,7 +868,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             JsonParser parser = new JsonParser();
             JsonObject root = parser.parse(json).getAsJsonObject();
             if (!root.has("channel") || !root.has("type") || !root.has("name")) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid channel json!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid channel json!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
             String typeId = root.get("type").getAsString();
@@ -946,7 +946,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
                 // 'info' refers to the real block on this local network
                 ConnectedBlockInfo info = pair.sortedMatches.get(0).getKey();
-                boolean infoAdvanced = ConnectorBlock.isAdvancedConnector(world, info.getPos().getPos());
+                boolean infoAdvanced = ConnectorBlock.isAdvancedConnector(level, info.getPos().getPos());
 
                 JsonObject connectorSettings = connector.get("connector").getAsJsonObject();
                 if (!infoAdvanced) {
@@ -974,10 +974,10 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             }
 
             if (notEnoughConnectors) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Not everything could be pasted!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Not everything could be pasted!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
         } catch (JsonSyntaxException e) {
-            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
 
         markAsDirty();
@@ -1085,8 +1085,8 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         if (state.getBlock() == newstate.getBlock()) {
             return;
         }
-        XNetBlobData blobData = XNetBlobData.get(this.world);
-        WorldBlob worldBlob = blobData.getWorldBlob(this.world);
+        XNetBlobData blobData = XNetBlobData.get(this.level);
+        WorldBlob worldBlob = blobData.getWorldBlob(this.level);
         worldBlob.removeCableSegment(pos);
         blobData.save();
     }
@@ -1094,14 +1094,14 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     @Override
     public void checkRedstone(World world, BlockPos pos) {
         // We abuse the redstone check for something else
-        if (!world.isRemote) {
+        if (!world.isClientSide) {
             findNeighbourConnector(world, pos);
         }
     }
 
     // Check neighbour blocks for a connector and inherit the color from that
     private void findNeighbourConnector(World world, BlockPos pos) {
-        if (world.isRemote) {
+        if (world.isClientSide) {
             return;
         }
         XNetBlobData blobData = XNetBlobData.get(world);
@@ -1109,8 +1109,8 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         ColorId oldColor = worldBlob.getColorAt(pos);
         ColorId newColor = null;
         for (Direction facing : OrientationTools.DIRECTION_VALUES) {
-            if (world.getBlockState(pos.offset(facing)).getBlock() instanceof ConnectorBlock) {
-                ColorId color = worldBlob.getColorAt(pos.offset(facing));
+            if (world.getBlockState(pos.relative(facing)).getBlock() instanceof ConnectorBlock) {
+                ColorId color = worldBlob.getColorAt(pos.relative(facing));
                 if (color != null) {
                     if (color == oldColor) {
                         return; // Nothing to do
@@ -1127,7 +1127,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             worldBlob.createNetworkProvider(pos, newColor, networkId);
             blobData.save();
 
-            TileEntity te = world.getTileEntity(pos);
+            TileEntity te = world.getBlockEntity(pos);
             if (te instanceof TileEntityController) {
                 ((TileEntityController) te).setNetworkId(networkId);
             }

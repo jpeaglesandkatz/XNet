@@ -234,7 +234,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         }
         if (tag.contains("filter")) {
             CompoundNBT itemTag = tag.getCompound("filter");
-            filter = ItemStack.read(itemTag);
+            filter = ItemStack.of(itemTag);
         } else {
             filter = ItemStack.EMPTY;
         }
@@ -256,7 +256,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         tag.putInt("speed", speed);
         if (!filter.isEmpty()) {
             CompoundNBT itemTag = new CompoundNBT();
-            filter.write(itemTag);
+            filter.save(itemTag);
             tag.put("filter", itemTag);
         }
     }

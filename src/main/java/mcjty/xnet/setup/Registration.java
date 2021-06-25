@@ -33,6 +33,6 @@ public class Registration {
     }
 
     public static Item.Properties createStandardProperties() {
-        return new Item.Properties().group(XNet.setup.getTab());
+        return new Item.Properties().tab(XNet.setup.getTab());
     }
 }

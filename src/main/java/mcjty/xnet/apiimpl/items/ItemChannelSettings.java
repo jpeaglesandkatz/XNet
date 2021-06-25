@@ -163,7 +163,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             BlockPos extractorPos = context.findConsumerPosition(consumerId);
             if (extractorPos != null) {
                 Direction side = entry.getKey().getSide();
-                BlockPos pos = extractorPos.offset(side);
+                BlockPos pos = extractorPos.relative(side);
                 if (!WorldTools.isLoaded(world, pos)) {
                     continue;
                 }
@@ -175,7 +175,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                     continue;
                 }
 
-                TileEntity te = world.getTileEntity(pos);
+                TileEntity te = world.getBlockEntity(pos);
 
                 if (RFToolsSupport.isStorageScanner(te)) {
                     RFToolsSupport.tickStorageScanner(context, settings, te, this);
@@ -302,8 +302,8 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                     }
 
                     Direction side = entry.getKey().getSide();
-                    BlockPos pos = consumerPos.offset(side);
-                    TileEntity te = world.getTileEntity(pos);
+                    BlockPos pos = consumerPos.relative(side);
+                    TileEntity te = world.getBlockEntity(pos);
                     int actuallyinserted;
                     int toinsert = total;
                     ItemStack remaining;
@@ -377,8 +377,8 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             BlockPos consumerPosition = context.findConsumerPosition(entry.getKey().getConsumerId());
             Direction side = entry.getKey().getSide();
             ItemConnectorSettings settings = entry.getValue();
-            BlockPos pos = consumerPosition.offset(side);
-            TileEntity te = context.getControllerWorld().getTileEntity(pos);
+            BlockPos pos = consumerPosition.relative(side);
+            TileEntity te = context.getControllerWorld().getBlockEntity(pos);
             if (RFToolsSupport.isStorageScanner(te)) {
                 int toinsert = total;
                 Integer count = settings.getCount();

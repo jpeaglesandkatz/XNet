@@ -37,6 +37,8 @@ import java.util.List;
 import static mcjty.lib.builder.TooltipBuilder.*;
 import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.*;
 
+import net.minecraft.item.Item.Properties;
+
 public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
     private Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
@@ -57,7 +59,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
             if (value != null) {
                 ItemStack s = new ItemStack(value, 1);
                 if (s.getItem() != null) {
-                    return s.getDisplayName().getString() /* was getFormattedText() */;
+                    return s.getHoverName().getString() /* was getFormattedText() */;
                 }
             }
         }
@@ -67,15 +69,15 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
     public FacadeBlockItem(FacadeBlock block) {
         super(block, new Properties()
-            .group(XNet.setup.getTab()));
+            .tab(XNet.setup.getTab()));
     }
 
     private static void userSetMimicBlock(@Nonnull ItemStack item, BlockState mimicBlock, ItemUseContext context) {
-        World world = context.getWorld();
+        World world = context.getLevel();
         PlayerEntity player = context.getPlayer();
         setMimicBlock(item, mimicBlock);
-        if (world.isRemote) {
-            player.sendStatusMessage(new StringTextComponent("Facade is now mimicking " + mimicBlock.getBlock().getTranslationKey()), false);
+        if (world.isClientSide) {
+            player.displayClientMessage(new StringTextComponent("Facade is now mimicking " + mimicBlock.getBlock().getDescriptionId()), false);
         }
     }
 
@@ -89,7 +91,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
     public static BlockState getMimicBlock(@Nonnull ItemStack stack) {
         CompoundNBT tagCompound = stack.getTag();
         if (tagCompound == null || !tagCompound.contains("mimic")) {
-            return Blocks.COBBLESTONE.getDefaultState();
+            return Blocks.COBBLESTONE.defaultBlockState();
         } else {
             return NBTUtil.readBlockState(tagCompound.getCompound("mimic"));
         }
@@ -101,14 +103,14 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext context) {
-        World world = context.getWorld();
-        BlockPos pos = context.getPos();
+    public ActionResultType useOn(ItemUseContext context) {
+        World world = context.getLevel();
+        BlockPos pos = context.getClickedPos();
         PlayerEntity player = context.getPlayer();
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
 
-        ItemStack itemstack = context.getItem();
+        ItemStack itemstack = context.getItemInHand();
 
         if (!itemstack.isEmpty()) {
 
@@ -116,19 +118,19 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
                 FacadeBlock facadeBlock = (FacadeBlock) this.getBlock();
                 BlockItemUseContext blockContext = new ReplaceBlockItemUseContext(context);
                 BlockState placementState = facadeBlock.getStateForPlacement(blockContext)
-                        .with(COLOR, state.get(COLOR))
-                        .with(NORTH, state.get(NORTH))
-                        .with(SOUTH, state.get(SOUTH))
-                        .with(WEST, state.get(WEST))
-                        .with(EAST, state.get(EAST))
-                        .with(UP, state.get(UP))
-                        .with(DOWN, state.get(DOWN))
+                        .setValue(COLOR, state.getValue(COLOR))
+                        .setValue(NORTH, state.getValue(NORTH))
+                        .setValue(SOUTH, state.getValue(SOUTH))
+                        .setValue(WEST, state.getValue(WEST))
+                        .setValue(EAST, state.getValue(EAST))
+                        .setValue(UP, state.getValue(UP))
+                        .setValue(DOWN, state.getValue(DOWN))
                         ;
 
                 if (placeBlock(blockContext, placementState)) {
                     SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos), world, pos, player);
                     world.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
-                    TileEntity te = world.getTileEntity(pos);
+                    TileEntity te = world.getBlockEntity(pos);
                     if (te instanceof FacadeTileEntity) {
                         ((FacadeTileEntity) te).setMimicBlock(getMimicBlock(itemstack));
                     }
@@ -136,7 +138,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
                     itemstack.grow(amount);
                 }
             } else if (block == CableModule.CONNECTOR.get() || block == CableModule.ADVANCED_CONNECTOR.get()) {
-                TileEntity te = world.getTileEntity(pos);
+                TileEntity te = world.getBlockEntity(pos);
                 if (te instanceof ConnectorTileEntity) {
                     ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
                     if (connectorTileEntity.getMimicBlock() == null) {
@@ -150,7 +152,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
                     }
                 }
             } else if (block == FacadeModule.FACADE.get()) {
-                TileEntity te = world.getTileEntity(pos);
+                TileEntity te = world.getBlockEntity(pos);
                 if (!(te instanceof IFacadeSupport)) {
                     return ActionResultType.FAIL;
                 }
@@ -169,8 +171,8 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flag) {
-        super.addInformation(stack, worldIn, tooltip, flag);
+    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flag) {
+        super.appendHoverText(stack, worldIn, tooltip, flag);
         tooltipBuilder.get().makeTooltip(getRegistryName(), stack, tooltip, flag);
     }
 }

@@ -18,7 +18,7 @@ public class FacadeModule implements IModule {
 
     public static final RegistryObject<FacadeBlock> FACADE = BLOCKS.register("facade", () -> new FacadeBlock(GenericCableBlock.CableBlockType.FACADE)); // @todo 1.14
     public static final RegistryObject<Item> FACADE_ITEM = ITEMS.register("facade", () -> new FacadeBlockItem(FACADE.get()));
-    public static final RegistryObject<TileEntityType<?>> TYPE_FACADE = TILES.register("facade", () -> TileEntityType.Builder.create(FacadeTileEntity::new, FACADE.get()).build(null));
+    public static final RegistryObject<TileEntityType<?>> TYPE_FACADE = TILES.register("facade", () -> TileEntityType.Builder.of(FacadeTileEntity::new, FACADE.get()).build(null));
 
     @Override
     public void init(FMLCommonSetupEvent event) {

@@ -45,14 +45,14 @@ public class CableModule implements IModule {
     public static final RegistryObject<Item> ADVANCED_CONNECTOR_YELLOW = ITEMS.register("advanced_connector_yellow", () -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), Registration.createStandardProperties(), CableColor.YELLOW));
     public static final RegistryObject<Item> ADVANCED_CONNECTOR_ROUTING = ITEMS.register("advanced_connector_routing", () -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), Registration.createStandardProperties(), CableColor.ROUTING));
 
-    public static final RegistryObject<TileEntityType<?>> TYPE_CONNECTOR = TILES.register("connector", () -> TileEntityType.Builder.create(ConnectorTileEntity::new, CONNECTOR.get()).build(null));
-    public static final RegistryObject<TileEntityType<?>> TYPE_ADVANCED_CONNECTOR = TILES.register("advanced_connector", () -> TileEntityType.Builder.create(AdvancedConnectorTileEntity::new, ADVANCED_CONNECTOR.get()).build(null));
+    public static final RegistryObject<TileEntityType<?>> TYPE_CONNECTOR = TILES.register("connector", () -> TileEntityType.Builder.of(ConnectorTileEntity::new, CONNECTOR.get()).build(null));
+    public static final RegistryObject<TileEntityType<?>> TYPE_ADVANCED_CONNECTOR = TILES.register("advanced_connector", () -> TileEntityType.Builder.of(AdvancedConnectorTileEntity::new, ADVANCED_CONNECTOR.get()).build(null));
 
     public static final RegistryObject<ContainerType<GenericContainer>> CONTAINER_CONNECTOR = CONTAINERS.register("connector", GenericContainer::createContainerType);
 
-    public static final ITag.INamedTag<Item> TAG_CABLES = ItemTags.makeWrapperTag(XNet.MODID+":cables");
-    public static final ITag.INamedTag<Item> TAG_CONNECTORS = ItemTags.makeWrapperTag(XNet.MODID+":connectors");
-    public static final ITag.INamedTag<Item> TAG_ADVANCED_CONNECTORS = ItemTags.makeWrapperTag(XNet.MODID+":advanced_connectors");
+    public static final ITag.INamedTag<Item> TAG_CABLES = ItemTags.bind(XNet.MODID+":cables");
+    public static final ITag.INamedTag<Item> TAG_CONNECTORS = ItemTags.bind(XNet.MODID+":connectors");
+    public static final ITag.INamedTag<Item> TAG_ADVANCED_CONNECTORS = ItemTags.bind(XNet.MODID+":advanced_connectors");
 
     public CableModule() {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {

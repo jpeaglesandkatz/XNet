@@ -33,12 +33,12 @@ public class ConnectorClientInfo {
     public ConnectorClientInfo(@Nonnull PacketBuffer buf) {
         pos = new SidedPos(buf.readBlockPos(), OrientationTools.DIRECTION_VALUES[buf.readByte()]);
         consumerId = new ConsumerId(buf.readInt());
-        IChannelType t = XNet.xNetApi.findType(buf.readString(32767));
+        IChannelType t = XNet.xNetApi.findType(buf.readUtf(32767));
         if (t == null) {
             throw new RuntimeException("Cannot happen!");
         }
         channelType = t;
-        CompoundNBT tag = buf.readCompoundTag();
+        CompoundNBT tag = buf.readNbt();
         connectorSettings = channelType.createConnector(pos.getSide());
         connectorSettings.readFromNBT(tag);
     }
@@ -47,10 +47,10 @@ public class ConnectorClientInfo {
         buf.writeBlockPos(pos.getPos());
         buf.writeByte(pos.getSide().ordinal());
         buf.writeInt(consumerId.getId());
-        buf.writeString(channelType.getID());
+        buf.writeUtf(channelType.getID());
         CompoundNBT tag = new CompoundNBT();
         connectorSettings.writeToNBT(tag);
-        buf.writeCompoundTag(tag);
+        buf.writeNbt(tag);
     }
 
     @Nonnull

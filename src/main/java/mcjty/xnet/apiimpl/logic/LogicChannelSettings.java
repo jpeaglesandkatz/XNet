@@ -86,7 +86,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
             BlockPos connectorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
             if (connectorPos != null) {
                 Direction side = entry.getKey().getSide();
-                BlockPos pos = connectorPos.offset(side);
+                BlockPos pos = connectorPos.relative(side);
                 if (!WorldTools.isLoaded(world, pos)) {
                     // If it is not chunkloaded we just use the color settings as we last remembered it
                     colors |= settings.getColorMask();
@@ -102,7 +102,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
 
                 // If sense is false the sensor is disabled which means the colors from it will also be disabled
                 if (sense) {
-                    TileEntity te = world.getTileEntity(pos);
+                    TileEntity te = world.getBlockEntity(pos);
 
                     for (Sensor sensor : settings.getSensors()) {
                         if (sensor.test(te, world, pos, settings)) {
@@ -128,7 +128,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
                     continue;
                 }
 
-                TileEntity te = world.getTileEntity(connectorPos);
+                TileEntity te = world.getBlockEntity(connectorPos);
                 if (te instanceof ConnectorTileEntity) {
                     ConnectorTileEntity connectorTE = (ConnectorTileEntity) te;
                     int powerOut;

@@ -16,15 +16,17 @@ import net.minecraftforge.common.ToolType;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 public class RedstoneProxyBlock extends Block implements ITooltipSettings {
 
     public RedstoneProxyBlock() {
-        this(Material.IRON);
+        this(Material.METAL);
     }
 
     public RedstoneProxyBlock(Material materialIn) {
-        super(Properties.create(materialIn)
-                .hardnessAndResistance(2.0f)
+        super(Properties.of(materialIn)
+                .strength(2.0f)
                 .harvestLevel(0)
                 .harvestTool(ToolType.PICKAXE)
                 .sound(SoundType.METAL)
@@ -32,10 +34,10 @@ public class RedstoneProxyBlock extends Block implements ITooltipSettings {
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         if (McJtyLib.proxy.isSneaking()) {
-            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy.header").mergeStyle(TextFormatting.GREEN));
-            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy.gold").mergeStyle(TextFormatting.GOLD));
+            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy.header").withStyle(TextFormatting.GREEN));
+            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy.gold").withStyle(TextFormatting.GOLD));
         } else {
             tooltip.add(new TranslationTextComponent("message.xnet.shiftmessage"));
         }

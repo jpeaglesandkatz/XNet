@@ -116,7 +116,7 @@ public class XNetTOPDriver implements TOPDriver {
         @Override
         public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
             super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-            Tools.safeConsume(world.getTileEntity(data.getPos()), (ConnectorTileEntity te) -> {
+            Tools.safeConsume(world.getBlockEntity(data.getPos()), (ConnectorTileEntity te) -> {
                 String name = te.getConnectorName();
                 if (!name.isEmpty()) {
                     probeInfo.text(CompoundText.createLabelInfo("Name: ", name));
@@ -129,7 +129,7 @@ public class XNetTOPDriver implements TOPDriver {
         @Override
         public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
             super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-            Tools.safeConsume(world.getTileEntity(data.getPos()), (TileEntityController te) -> {
+            Tools.safeConsume(world.getBlockEntity(data.getPos()), (TileEntityController te) -> {
                 WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
 
                 NetworkId networkId = te.getNetworkId();
@@ -155,7 +155,7 @@ public class XNetTOPDriver implements TOPDriver {
                         probeInfo.text(CompoundText.createLabelInfo("InfNet: ", s));
                     }
                 }
-                if (blockState.get(TileEntityController.ERROR)) {
+                if (blockState.getValue(TileEntityController.ERROR)) {
                     probeInfo.text(CompoundText.create().style(ERROR).text("Too many controllers on network!"));
                 }
 
@@ -179,7 +179,7 @@ public class XNetTOPDriver implements TOPDriver {
         @Override
         public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
             super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-            Tools.safeConsume(world.getTileEntity(data.getPos()), (TileEntityRouter te) -> {
+            Tools.safeConsume(world.getBlockEntity(data.getPos()), (TileEntityRouter te) -> {
                 XNetBlobData blobData = XNetBlobData.get(world);
                 WorldBlob worldBlob = blobData.getWorldBlob(world);
                 Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
@@ -189,7 +189,7 @@ public class XNetTOPDriver implements TOPDriver {
                         break;
                     }
                 }
-                if (blockState.get(TileEntityController.ERROR)) {
+                if (blockState.getValue(TileEntityController.ERROR)) {
                     probeInfo.text(CompoundText.create().style(ERROR).text("Too many channels on router!"));
                 } else {
                     probeInfo.text(CompoundText.createLabelInfo("Channels: ", te.getChannelCount()));
@@ -213,7 +213,7 @@ public class XNetTOPDriver implements TOPDriver {
         @Override
         public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
             super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-            Tools.safeConsume(world.getTileEntity(data.getPos()), (TileEntityWirelessRouter te) -> {
+            Tools.safeConsume(world.getBlockEntity(data.getPos()), (TileEntityWirelessRouter te) -> {
                 XNetBlobData blobData = XNetBlobData.get(world);
                 WorldBlob worldBlob = blobData.getWorldBlob(world);
                 Set<NetworkId> networks = worldBlob.getNetworksAt(data.getPos());
@@ -223,7 +223,7 @@ public class XNetTOPDriver implements TOPDriver {
                         break;
                     }
                 }
-                if (blockState.get(TileEntityController.ERROR)) {
+                if (blockState.getValue(TileEntityController.ERROR)) {
                     probeInfo.text(CompoundText.create().style(ERROR).text("Missing antenna!"));
                 } else {
 //            probeInfo.text(new StringTextComponent(TextStyleClass.LABEL + "Channels: " + TextStyleClass.INFO + getChannelCount()));

@@ -37,7 +37,7 @@ public class CableWorldRenderer {
     public static void tick(RenderWorldLastEvent evt) {
         Minecraft mc = Minecraft.getInstance();
 
-        ItemStack heldItem = mc.player.getHeldItem(Hand.MAIN_HAND);
+        ItemStack heldItem = mc.player.getItemInHand(Hand.MAIN_HAND);
         if (!heldItem.isEmpty()) {
             if (heldItem.getItem() instanceof BlockItem) {
                 if (((BlockItem) heldItem.getItem()).getBlock() instanceof GenericCableBlock) {
@@ -51,35 +51,35 @@ public class CableWorldRenderer {
         PlayerEntity p = mc.player;
 
         MatrixStack matrixStack = evt.getMatrixStack();
-        IRenderTypeBuffer.Impl buffer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        IRenderTypeBuffer.Impl buffer = Minecraft.getInstance().renderBuffers().bufferSource();
         IVertexBuilder builder = buffer.getBuffer(CustomRenderTypes.OVERLAY_LINES);
 
-        World world = mc.world;
+        World world = mc.level;
 
-        matrixStack.push();
+        matrixStack.pushPose();
 
-        Vector3d projectedView = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
+        Vector3d projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         matrixStack.translate(-projectedView.x, -projectedView.y, -projectedView.z);
 
-        Matrix4f positionMatrix = matrixStack.getLast().getMatrix();
+        Matrix4f positionMatrix = matrixStack.last().pose();
 
         for (int dx = -20 ; dx <= 20 ; dx++) {
             for (int dy = -20 ; dy <= 20 ; dy++) {
                 for (int dz = -20 ; dz <= 20 ; dz++) {
-                    BlockPos c = p.getPosition().add(dx, dy, dz);
+                    BlockPos c = p.blockPosition().offset(dx, dy, dz);
                     BlockState state = world.getBlockState(c);
                     Block block = state.getBlock();
                     if (block instanceof FacadeBlock || block instanceof ConnectorBlock || block instanceof GenericCableBlock) {
-                        TileEntity te = world.getTileEntity(c);
+                        TileEntity te = world.getBlockEntity(c);
                         if (te instanceof IFacadeSupport) {
                             BlockState facadeId = ((IFacadeSupport) te).getMimicBlock();
-                            if (((!Config.showNonFacadedCablesWhileSneaking.get()) || (!p.isSneaking())) && facadeId == null && !(block instanceof FacadeBlock)) {
+                            if (((!Config.showNonFacadedCablesWhileSneaking.get()) || (!p.isShiftKeyDown())) && facadeId == null && !(block instanceof FacadeBlock)) {
                                 continue;
                             }
-                        } else if (!Config.showNonFacadedCablesWhileSneaking.get() || !p.isSneaking()) {
+                        } else if (!Config.showNonFacadedCablesWhileSneaking.get() || !p.isShiftKeyDown()) {
                             continue;
                         }
-                        CableColor color = state.get(GenericCableBlock.COLOR);
+                        CableColor color = state.getValue(GenericCableBlock.COLOR);
                         float r = 0;
                         float g = 0;
                         float b = 0;
@@ -119,10 +119,10 @@ public class CableWorldRenderer {
             }
         }
 
-        matrixStack.pop();
+        matrixStack.popPose();
 
         RenderSystem.disableDepthTest();
-        buffer.finish(CustomRenderTypes.OVERLAY_LINES);
+        buffer.endBatch(CustomRenderTypes.OVERLAY_LINES);
     }
 
 
@@ -145,12 +145,12 @@ public class CableWorldRenderer {
     }
 
     private static List<Rect> getQuads(BlockState state) {
-        ConnectorType north = state.get(GenericCableBlock.NORTH);
-        ConnectorType south = state.get(GenericCableBlock.SOUTH);
-        ConnectorType west = state.get(GenericCableBlock.WEST);
-        ConnectorType east = state.get(GenericCableBlock.EAST);
-        ConnectorType up = state.get(GenericCableBlock.UP);
-        ConnectorType down = state.get(GenericCableBlock.DOWN);
+        ConnectorType north = state.getValue(GenericCableBlock.NORTH);
+        ConnectorType south = state.getValue(GenericCableBlock.SOUTH);
+        ConnectorType west = state.getValue(GenericCableBlock.WEST);
+        ConnectorType east = state.getValue(GenericCableBlock.EAST);
+        ConnectorType up = state.getValue(GenericCableBlock.UP);
+        ConnectorType down = state.getValue(GenericCableBlock.DOWN);
         List<Rect> quads = new ArrayList<>();
 
         double o = .4;      // Thickness of the cable. .0 would be full block, .5 is infinitely thin.
@@ -296,13 +296,13 @@ public class CableWorldRenderer {
     }
 
     public static void renderRect(IVertexBuilder buffer, Matrix4f positionMatrix, Rect rect, BlockPos p, float r, float g, float b, float a) {
-        buffer.pos(positionMatrix, (float)(p.getX() + rect.v1.x), (float)(p.getY() + rect.v1.y), (float)(p.getZ() + rect.v1.z)).color(r, g, b, a).endVertex();
-        buffer.pos(positionMatrix, (float)(p.getX() + rect.v2.x), (float)(p.getY() + rect.v2.y), (float)(p.getZ() + rect.v2.z)).color(r, g, b, a).endVertex();
-        buffer.pos(positionMatrix, (float)(p.getX() + rect.v2.x), (float)(p.getY() + rect.v2.y), (float)(p.getZ() + rect.v2.z)).color(r, g, b, a).endVertex();
-        buffer.pos(positionMatrix, (float)(p.getX() + rect.v3.x), (float)(p.getY() + rect.v3.y), (float)(p.getZ() + rect.v3.z)).color(r, g, b, a).endVertex();
-        buffer.pos(positionMatrix, (float)(p.getX() + rect.v3.x), (float)(p.getY() + rect.v3.y), (float)(p.getZ() + rect.v3.z)).color(r, g, b, a).endVertex();
-        buffer.pos(positionMatrix, (float)(p.getX() + rect.v4.x), (float)(p.getY() + rect.v4.y), (float)(p.getZ() + rect.v4.z)).color(r, g, b, a).endVertex();
-        buffer.pos(positionMatrix, (float)(p.getX() + rect.v4.x), (float)(p.getY() + rect.v4.y), (float)(p.getZ() + rect.v4.z)).color(r, g, b, a).endVertex();
-        buffer.pos(positionMatrix, (float)(p.getX() + rect.v1.x), (float)(p.getY() + rect.v1.y), (float)(p.getZ() + rect.v1.z)).color(r, g, b, a).endVertex();
+        buffer.vertex(positionMatrix, (float)(p.getX() + rect.v1.x), (float)(p.getY() + rect.v1.y), (float)(p.getZ() + rect.v1.z)).color(r, g, b, a).endVertex();
+        buffer.vertex(positionMatrix, (float)(p.getX() + rect.v2.x), (float)(p.getY() + rect.v2.y), (float)(p.getZ() + rect.v2.z)).color(r, g, b, a).endVertex();
+        buffer.vertex(positionMatrix, (float)(p.getX() + rect.v2.x), (float)(p.getY() + rect.v2.y), (float)(p.getZ() + rect.v2.z)).color(r, g, b, a).endVertex();
+        buffer.vertex(positionMatrix, (float)(p.getX() + rect.v3.x), (float)(p.getY() + rect.v3.y), (float)(p.getZ() + rect.v3.z)).color(r, g, b, a).endVertex();
+        buffer.vertex(positionMatrix, (float)(p.getX() + rect.v3.x), (float)(p.getY() + rect.v3.y), (float)(p.getZ() + rect.v3.z)).color(r, g, b, a).endVertex();
+        buffer.vertex(positionMatrix, (float)(p.getX() + rect.v4.x), (float)(p.getY() + rect.v4.y), (float)(p.getZ() + rect.v4.z)).color(r, g, b, a).endVertex();
+        buffer.vertex(positionMatrix, (float)(p.getX() + rect.v4.x), (float)(p.getY() + rect.v4.y), (float)(p.getZ() + rect.v4.z)).color(r, g, b, a).endVertex();
+        buffer.vertex(positionMatrix, (float)(p.getX() + rect.v1.x), (float)(p.getY() + rect.v1.y), (float)(p.getZ() + rect.v1.z)).color(r, g, b, a).endVertex();
     }
 }

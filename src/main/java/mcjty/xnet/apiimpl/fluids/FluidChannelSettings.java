@@ -106,12 +106,12 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             BlockPos extractorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
             if (extractorPos != null) {
                 Direction side = entry.getKey().getSide();
-                BlockPos pos = extractorPos.offset(side);
+                BlockPos pos = extractorPos.relative(side);
                 if (!WorldTools.isLoaded(world, pos)) {
                     continue;
                 }
 
-                TileEntity te = world.getTileEntity(pos);
+                TileEntity te = world.getBlockEntity(pos);
                 // @todo ugly code!
                 IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing()).map(h -> h).orElse(null);
                 // @todo report error somewhere?
@@ -202,8 +202,8 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                     }
 
                     Direction side = entry.getKey().getSide();
-                    BlockPos pos = consumerPos.offset(side);
-                    TileEntity te = world.getTileEntity(pos);
+                    BlockPos pos = consumerPos.relative(side);
+                    TileEntity te = world.getBlockEntity(pos);
                     // @todo ugly code!
                     IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing()).map(h -> h).orElse(null);
                     // @todo report error somewhere?
@@ -255,8 +255,8 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             BlockPos consumerPosition = context.findConsumerPosition(pair.getKey().getConsumerId());
             Direction side = pair.getKey().getSide();
             FluidConnectorSettings settings = pair.getValue();
-            BlockPos pos = consumerPosition.offset(side);
-            TileEntity te = context.getControllerWorld().getTileEntity(pos);
+            BlockPos pos = consumerPosition.relative(side);
+            TileEntity te = context.getControllerWorld().getBlockEntity(pos);
             // @todo ugly code!
             IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing()).map(h -> h).orElse(null);
 

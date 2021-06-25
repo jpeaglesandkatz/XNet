@@ -67,10 +67,10 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     public static final Key<String> VALUE_NAME = new Key<>("name", Type.STRING);
 
     @Override
-    public void remove() {
-        super.remove();
-        if (world.isRemote && getMimicBlock() != null) {
-            world.setBlockState(pos, getBlockState());
+    public void setRemoved() {
+        super.setRemoved();
+        if (level.isClientSide && getMimicBlock() != null) {
+            level.setBlockAndUpdate(worldPosition, getBlockState());
         }
     }
 
@@ -82,7 +82,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Connector")
-            .containerSupplier((windowId,player) -> new GenericContainer(CableModule.CONTAINER_CONNECTOR.get(), windowId, ContainerFactory.EMPTY.get(), getPos(), ConnectorTileEntity.this)));
+            .containerSupplier((windowId,player) -> new GenericContainer(CableModule.CONTAINER_CONNECTOR.get(), windowId, ContainerFactory.EMPTY.get(), getBlockPos(), ConnectorTileEntity.this)));
 
     public ConnectorTileEntity() {
         this(TYPE_CONNECTOR.get());
@@ -101,9 +101,9 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
         super.onDataPacket(net, packet);
 
-        if (world.isRemote) {
+        if (level.isClientSide) {
             ModelDataManager.requestModelDataRefresh(this);
-            world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
         }
     }
 
@@ -119,8 +119,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
             return;
         }
         this.powerOut[side.ordinal()] = powerOut;
-        markDirty();
-        world.neighborChanged(pos.offset(side), this.getBlockState().getBlock(), this.pos);
+        setChanged();
+        level.neighborChanged(worldPosition.relative(side), this.getBlockState().getBlock(), this.worldPosition);
     }
 
     public void setEnabled(Direction direction, boolean e) {
@@ -129,10 +129,10 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         } else {
             enabled &= ~(1 << direction.ordinal());
         }
-        markDirty();
+        setChanged();
         Block block = getBlockState().getBlock();
         if (block instanceof GenericCableBlock) {
-            world.setBlockState(pos, ((GenericCableBlock) block).calculateState(world, pos, getBlockState()), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+            level.setBlock(worldPosition, ((GenericCableBlock) block).calculateState(level, worldPosition, getBlockState()), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
         }
     }
 
@@ -166,12 +166,12 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     // Optimization to only increase the network if there is an actual block change
     public void possiblyMarkNetworkDirty(@Nonnull BlockPos neighbor) {
         for (Direction facing : OrientationTools.DIRECTION_VALUES) {
-            if (getPos().offset(facing).equals(neighbor)) {
-                Block newblock = world.getBlockState(neighbor).getBlock();
+            if (getBlockPos().relative(facing).equals(neighbor)) {
+                Block newblock = level.getBlockState(neighbor).getBlock();
                 if (newblock != cachedNeighbours[facing.ordinal()]) {
                     cachedNeighbours[facing.ordinal()] = newblock;
-                    WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
-                    worldBlob.markNetworkDirty(worldBlob.getNetworkAt(getPos()));
+                    WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
+                    worldBlob.markNetworkDirty(worldBlob.getNetworkAt(getBlockPos()));
                 }
                 return;
             }
@@ -206,8 +206,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT tagCompound) {
-        super.write(tagCompound);
+    public CompoundNBT save(CompoundNBT tagCompound) {
+        super.save(tagCompound);
         tagCompound.putInt("energy", energy);
         tagCompound.putIntArray("inputs", inputFromSide);
         mimicBlockSupport.writeToNBT(tagCompound);

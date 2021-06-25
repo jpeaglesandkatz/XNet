@@ -43,12 +43,12 @@ public class PacketGetChannels {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            World world = ctx.getSender().getEntityWorld();
-            if (world.isBlockLoaded(pos)) {
-                TileEntity te = world.getTileEntity(pos);
+            World world = ctx.getSender().getCommandSenderWorld();
+            if (world.hasChunkAt(pos)) {
+                TileEntity te = world.getBlockEntity(pos);
                 ICommandHandler commandHandler = (ICommandHandler) te;
                 List<ChannelClientInfo> list = commandHandler.executeWithResultList(TileEntityController.CMD_GETCHANNELS, params, Type.create(ChannelClientInfo.class));
-                XNetMessages.INSTANCE.sendTo(new PacketChannelsReady(pos, TileEntityController.CLIENTCMD_CHANNELSREADY, list), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketChannelsReady(pos, TileEntityController.CLIENTCMD_CHANNELSREADY, list), ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
         });
         ctx.setPacketHandled(true);

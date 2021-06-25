@@ -35,33 +35,33 @@ public class LootTables extends BaseLootTableProvider {
         lootTables.put(RouterModule.ROUTER.get(), createStandardTable("router", RouterModule.ROUTER.get()));
         lootTables.put(WirelessRouterModule.WIRELESS_ROUTER.get(), createStandardTable("wireless_router", WirelessRouterModule.WIRELESS_ROUTER.get()));
 
-        lootTables.put(CableModule.NETCABLE.get(), LootTable.builder()
-                .addLootPool(getLootTableEntry("cable_blue", CableModule.NETCABLE.get(), CableModule.NETCABLE_BLUE.get(), CableColor.BLUE))
-                .addLootPool(getLootTableEntry("cable_red", CableModule.NETCABLE.get(), CableModule.NETCABLE_RED.get(), CableColor.RED))
-                .addLootPool(getLootTableEntry("cable_green", CableModule.NETCABLE.get(), CableModule.NETCABLE_GREEN.get(), CableColor.GREEN))
-                .addLootPool(getLootTableEntry("cable_yellow", CableModule.NETCABLE.get(), CableModule.NETCABLE_YELLOW.get(), CableColor.YELLOW))
-                .addLootPool(getLootTableEntry("cable_routing", CableModule.NETCABLE.get(), CableModule.NETCABLE_ROUTING.get(), CableColor.ROUTING)));
-        lootTables.put(CableModule.CONNECTOR.get(), LootTable.builder()
-                .addLootPool(getLootTableEntry("connector_blue", CableModule.CONNECTOR.get(), CableModule.CONNECTOR_BLUE.get(), CableColor.BLUE))
-                .addLootPool(getLootTableEntry("connector_red", CableModule.CONNECTOR.get(), CableModule.CONNECTOR_RED.get(), CableColor.RED))
-                .addLootPool(getLootTableEntry("connector_green", CableModule.CONNECTOR.get(), CableModule.CONNECTOR_GREEN.get(), CableColor.GREEN))
-                .addLootPool(getLootTableEntry("connector_yellow", CableModule.CONNECTOR.get(), CableModule.CONNECTOR_YELLOW.get(), CableColor.YELLOW))
-                .addLootPool(getLootTableEntry("connector_routing", CableModule.CONNECTOR.get(), CableModule.CONNECTOR_ROUTING.get(), CableColor.ROUTING)));
-        lootTables.put(CableModule.ADVANCED_CONNECTOR.get(), LootTable.builder()
-                .addLootPool(getLootTableEntry("advanced_connector_blue", CableModule.ADVANCED_CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR_BLUE.get(), CableColor.BLUE))
-                .addLootPool(getLootTableEntry("advanced_connector_red", CableModule.ADVANCED_CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR_RED.get(), CableColor.RED))
-                .addLootPool(getLootTableEntry("advanced_connector_green", CableModule.ADVANCED_CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR_GREEN.get(), CableColor.GREEN))
-                .addLootPool(getLootTableEntry("advanced_connector_yellow", CableModule.ADVANCED_CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR_YELLOW.get(), CableColor.YELLOW))
-                .addLootPool(getLootTableEntry("advanced_connector_routing", CableModule.ADVANCED_CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR_ROUTING.get(), CableColor.ROUTING)));
+        lootTables.put(CableModule.NETCABLE.get(), LootTable.lootTable()
+                .withPool(getLootTableEntry("cable_blue", CableModule.NETCABLE.get(), CableModule.NETCABLE_BLUE.get(), CableColor.BLUE))
+                .withPool(getLootTableEntry("cable_red", CableModule.NETCABLE.get(), CableModule.NETCABLE_RED.get(), CableColor.RED))
+                .withPool(getLootTableEntry("cable_green", CableModule.NETCABLE.get(), CableModule.NETCABLE_GREEN.get(), CableColor.GREEN))
+                .withPool(getLootTableEntry("cable_yellow", CableModule.NETCABLE.get(), CableModule.NETCABLE_YELLOW.get(), CableColor.YELLOW))
+                .withPool(getLootTableEntry("cable_routing", CableModule.NETCABLE.get(), CableModule.NETCABLE_ROUTING.get(), CableColor.ROUTING)));
+        lootTables.put(CableModule.CONNECTOR.get(), LootTable.lootTable()
+                .withPool(getLootTableEntry("connector_blue", CableModule.CONNECTOR.get(), CableModule.CONNECTOR_BLUE.get(), CableColor.BLUE))
+                .withPool(getLootTableEntry("connector_red", CableModule.CONNECTOR.get(), CableModule.CONNECTOR_RED.get(), CableColor.RED))
+                .withPool(getLootTableEntry("connector_green", CableModule.CONNECTOR.get(), CableModule.CONNECTOR_GREEN.get(), CableColor.GREEN))
+                .withPool(getLootTableEntry("connector_yellow", CableModule.CONNECTOR.get(), CableModule.CONNECTOR_YELLOW.get(), CableColor.YELLOW))
+                .withPool(getLootTableEntry("connector_routing", CableModule.CONNECTOR.get(), CableModule.CONNECTOR_ROUTING.get(), CableColor.ROUTING)));
+        lootTables.put(CableModule.ADVANCED_CONNECTOR.get(), LootTable.lootTable()
+                .withPool(getLootTableEntry("advanced_connector_blue", CableModule.ADVANCED_CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR_BLUE.get(), CableColor.BLUE))
+                .withPool(getLootTableEntry("advanced_connector_red", CableModule.ADVANCED_CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR_RED.get(), CableColor.RED))
+                .withPool(getLootTableEntry("advanced_connector_green", CableModule.ADVANCED_CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR_GREEN.get(), CableColor.GREEN))
+                .withPool(getLootTableEntry("advanced_connector_yellow", CableModule.ADVANCED_CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR_YELLOW.get(), CableColor.YELLOW))
+                .withPool(getLootTableEntry("advanced_connector_routing", CableModule.ADVANCED_CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR_ROUTING.get(), CableColor.ROUTING)));
     }
 
     private LootPool.Builder getLootTableEntry(String cableName, Block cableBlock, Item cable, CableColor color) {
-        return LootPool.builder()
+        return LootPool.lootPool()
                 .name(cableName)
-                .rolls(ConstantRange.of(1))
-                .addEntry(ItemLootEntry.builder(cable))
-                .acceptCondition(BlockStateProperty.builder(cableBlock)
-                        .fromProperties(StatePropertiesPredicate.Builder.newBuilder().withProp(GenericCableBlock.COLOR, color)));
+                .setRolls(ConstantRange.exactly(1))
+                .add(ItemLootEntry.lootTableItem(cable))
+                .when(BlockStateProperty.hasBlockStateProperties(cableBlock)
+                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(GenericCableBlock.COLOR, color)));
     }
 
     @Override

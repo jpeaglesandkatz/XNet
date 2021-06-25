@@ -34,7 +34,7 @@ public class LogicTools {
         if (!WorldTools.isLoaded(world, controllerPos)) {
             return null;
         }
-        TileEntity te = world.getTileEntity(controllerPos);
+        TileEntity te = world.getBlockEntity(controllerPos);
         if (te instanceof TileEntityController) {
             return (TileEntityController) te;
         } else {
@@ -85,7 +85,7 @@ public class LogicTools {
                 .map(sidedConsumer -> {
                     BlockPos consumerPos = findConsumerPosition(networkId, worldBlob, sidedConsumer.getConsumerId());
                     if (consumerPos != null) {
-                        return consumerPos.offset(sidedConsumer.getSide());
+                        return consumerPos.relative(sidedConsumer.getSide());
                     } else {
                         return null;
                     }
@@ -96,15 +96,15 @@ public class LogicTools {
     // Return all controllers connected to a network
     public static Stream<TileEntityController> controllers(@Nonnull World world, @Nonnull NetworkId networkId) {
         return connectedBlocks(world, networkId)
-                .filter(pos -> world.getTileEntity(pos) instanceof TileEntityController)
-                .map(pos -> (TileEntityController) world.getTileEntity(pos));
+                .filter(pos -> world.getBlockEntity(pos) instanceof TileEntityController)
+                .map(pos -> (TileEntityController) world.getBlockEntity(pos));
     }
 
     // Return all routers connected to a network
     public static Stream<TileEntityRouter> routers(@Nonnull World world, @Nonnull NetworkId networkId) {
         return connectedBlocks(world, networkId)
-                .filter(pos -> world.getTileEntity(pos) instanceof TileEntityRouter)
-                .map(pos -> (TileEntityRouter) world.getTileEntity(pos));
+                .filter(pos -> world.getBlockEntity(pos) instanceof TileEntityRouter)
+                .map(pos -> (TileEntityRouter) world.getBlockEntity(pos));
     }
 
     // Return all potential connected blocks (with or an actual connector defined in the channel)
@@ -112,7 +112,7 @@ public class LogicTools {
         return consumers(world, networkId)
                 .flatMap(blockPos -> Arrays.stream(OrientationTools.DIRECTION_VALUES)
                         .filter(facing -> ConnectorBlock.isConnectable(world, blockPos, facing))
-                        .map(blockPos::offset));
+                        .map(blockPos::relative));
     }
 
     @Nullable
