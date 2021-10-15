@@ -26,7 +26,6 @@ import net.minecraft.loot.LootContext;
 import net.minecraft.pathfinding.PathType;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -45,8 +44,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 import static net.minecraft.state.properties.BlockStateProperties.WATERLOGGED;
-
-import net.minecraft.block.AbstractBlock.Properties;
 
 public abstract class GenericCableBlock extends Block implements TOPInfoProvider, IWaterLoggable {
 

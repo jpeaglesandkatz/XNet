@@ -204,7 +204,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     }
 
     private boolean inRange(XNetWirelessChannels.WirelessRouterInfo wirelessRouter) {
-        World otherWorld = WorldTools.getWorld(level, wirelessRouter.getCoordinate().getDimension());
+        World otherWorld = WorldTools.getWorld(level, wirelessRouter.getCoordinate().dimension());
         if (otherWorld == null) {
             return false;
         }
@@ -230,7 +230,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
                             .filter(this::inRange)
                             .forEach(routerInfo -> {
                                 // Find all routers on this network
-                                World otherWorld = WorldTools.getWorld(level, routerInfo.getCoordinate().getDimension());
+                                World otherWorld = WorldTools.getWorld(level, routerInfo.getCoordinate().dimension());
                                 LogicTools.consumers(otherWorld, routerInfo.getNetworkId())
                                         .filter(otherWorld::hasChunkAt)
                                         // Range check not needed here since the check is already done on the wireless router
@@ -245,7 +245,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
 
     // Test if the given router is not a router on this network
     private boolean isDifferentRouter(NetworkId thisNetwork, XNetWirelessChannels.WirelessRouterInfo routerInfo) {
-        return !routerInfo.getCoordinate().getDimension().equals(DimensionId.fromWorld(level)) || !thisNetwork.equals(routerInfo.getNetworkId());
+        return !routerInfo.getCoordinate().dimension().equals(level.dimension()) || !thisNetwork.equals(routerInfo.getNetworkId());
     }
 
 //    private long getStoredPower() {
@@ -265,7 +265,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
                         long energyStored = h.getEnergy();
                         if (Config.wirelessRouterRfPerChannel[tier].get() <= energyStored) {
                             h.consumeEnergy(Config.wirelessRouterRfPerChannel[tier].get());
-                            wirelessData.transmitChannel(name, channelType, ownerUUID, DimensionId.fromWorld(level),
+                            wirelessData.transmitChannel(name, channelType, ownerUUID, level.dimension(),
                                     worldPosition, networkId);
                         }
                     });
@@ -279,11 +279,11 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
         if (info != null) {
             info.getRouters().keySet().stream()
                     // Don't do this for ourselves
-                    .filter(routerPos -> !routerPos.getDimension().sameDimension(level) || !routerPos.getCoordinate().equals(worldPosition))
-                    .filter(routerPos -> WorldTools.isLoaded(WorldTools.getWorld(level, routerPos.getDimension()), routerPos.getCoordinate()))
+                    .filter(routerPos -> !routerPos.dimension().equals(level.dimension()) || !routerPos.pos().equals(worldPosition))
+                    .filter(routerPos -> WorldTools.isLoaded(WorldTools.getWorld(level, routerPos.dimension()), routerPos.pos()))
                     .forEach(routerPos -> {
-                        ServerWorld otherWorld = WorldTools.getWorld(level, routerPos.getDimension());
-                        TileEntity otherTE = otherWorld.getBlockEntity(routerPos.getCoordinate());
+                        ServerWorld otherWorld = WorldTools.getWorld(level, routerPos.dimension());
+                        TileEntity otherTE = otherWorld.getBlockEntity(routerPos.pos());
                         if (otherTE instanceof TileEntityWirelessRouter) {
                             TileEntityWirelessRouter otherRouter = (TileEntityWirelessRouter) otherTE;
                             if (inRange(otherRouter) && !otherRouter.inError()) {

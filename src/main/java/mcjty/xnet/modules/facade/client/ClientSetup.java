@@ -2,7 +2,6 @@ package mcjty.xnet.modules.facade.client;
 
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.facade.FacadeModule;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 

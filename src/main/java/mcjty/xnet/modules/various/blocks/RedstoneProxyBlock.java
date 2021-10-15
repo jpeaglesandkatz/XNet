@@ -16,8 +16,6 @@ import net.minecraftforge.common.ToolType;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import net.minecraft.block.AbstractBlock.Properties;
-
 public class RedstoneProxyBlock extends Block implements ITooltipSettings {
 
     public RedstoneProxyBlock() {

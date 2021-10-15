@@ -26,7 +26,6 @@ import net.minecraftforge.client.model.data.IModelData;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 

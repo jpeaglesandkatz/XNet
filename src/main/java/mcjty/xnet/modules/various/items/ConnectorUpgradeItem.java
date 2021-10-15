@@ -31,8 +31,6 @@ import net.minecraftforge.common.util.Constants;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import net.minecraft.item.Item.Properties;
-
 public class ConnectorUpgradeItem extends Item {
 
     public ConnectorUpgradeItem() {

@@ -37,8 +37,6 @@ import java.util.List;
 import static mcjty.lib.builder.TooltipBuilder.*;
 import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.*;
 
-import net.minecraft.item.Item.Properties;
-
 public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
     private Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()

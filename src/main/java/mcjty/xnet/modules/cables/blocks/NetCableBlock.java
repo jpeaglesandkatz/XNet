@@ -11,8 +11,6 @@ import net.minecraft.world.IBlockReader;
 
 import javax.annotation.Nonnull;
 
-import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
-
 public class NetCableBlock extends GenericCableBlock {
 
     public NetCableBlock(CableBlockType type) {

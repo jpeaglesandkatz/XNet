@@ -1,16 +1,17 @@
 package mcjty.xnet.multiblock;
 
 import mcjty.lib.varia.BlockPosTools;
-import mcjty.lib.varia.DimensionId;
-import mcjty.lib.varia.GlobalCoordinate;
 import mcjty.lib.worlddata.AbstractWorldData;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.xnet.XNet;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.GlobalPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 
@@ -33,7 +34,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
     private int globalChannelVersion = 0;
 
-    public void transmitChannel(String channel, @Nonnull IChannelType channelType, @Nullable UUID ownerUUID, DimensionId dimension, BlockPos wirelessRouterPos, NetworkId network) {
+    public void transmitChannel(String channel, @Nonnull IChannelType channelType, @Nullable UUID ownerUUID, RegistryKey<World> dimension, BlockPos wirelessRouterPos, NetworkId network) {
         WirelessChannelInfo channelInfo;
         WirelessChannelKey key = new WirelessChannelKey(channel, channelType, ownerUUID);
         if (channelToWireless.containsKey(key)) {
@@ -44,7 +45,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             channelToWireless.put(key, channelInfo);
         }
 
-        GlobalCoordinate pos = new GlobalCoordinate(wirelessRouterPos, dimension);
+        GlobalPos pos = GlobalPos.of(dimension, wirelessRouterPos);
         WirelessRouterInfo info = channelInfo.getRouter(pos);
         if (info == null) {
             info = new WirelessRouterInfo(pos);
@@ -80,10 +81,10 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         for (Map.Entry<WirelessChannelKey, WirelessChannelInfo> entry : channelToWireless.entrySet()) {
             System.out.println("Channel = " + entry.getKey());
             WirelessChannelInfo channelInfo = entry.getValue();
-            for (Map.Entry<GlobalCoordinate, WirelessRouterInfo> infoEntry : channelInfo.getRouters().entrySet()) {
-                GlobalCoordinate pos = infoEntry.getKey();
+            for (Map.Entry<GlobalPos, WirelessRouterInfo> infoEntry : channelInfo.getRouters().entrySet()) {
+                GlobalPos pos = infoEntry.getKey();
                 WirelessRouterInfo info = infoEntry.getValue();
-                System.out.println("    Pos = " + BlockPosTools.toString(pos.getCoordinate()) + " (age " + info.age + ", net " + info.networkId.getId() + ")");
+                System.out.println("    Pos = " + BlockPosTools.toString(pos.pos()) + " (age " + info.age + ", net " + info.networkId.getId() + ")");
             }
         }
     }
@@ -98,8 +99,8 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         Set<WirelessChannelKey> toDeleteChannel = new HashSet<>();
         for (Map.Entry<WirelessChannelKey, WirelessChannelInfo> entry : channelToWireless.entrySet()) {
             WirelessChannelInfo channelInfo = entry.getValue();
-            Set<GlobalCoordinate> toDelete = new HashSet<>();
-            for (Map.Entry<GlobalCoordinate, WirelessRouterInfo> infoEntry : channelInfo.getRouters().entrySet()) {
+            Set<GlobalPos> toDelete = new HashSet<>();
+            for (Map.Entry<GlobalPos, WirelessRouterInfo> infoEntry : channelInfo.getRouters().entrySet()) {
                 WirelessRouterInfo info = infoEntry.getValue();
                 int age = info.getAge();
                 age += amount;
@@ -109,8 +110,8 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
                     toDelete.add(infoEntry.getKey());
                 }
             }
-            for (GlobalCoordinate pos : toDelete) {
-                WorldBlob worldBlob = blobData.getWorldBlob(pos.getDimension());
+            for (GlobalPos pos : toDelete) {
+                WorldBlob worldBlob = blobData.getWorldBlob(pos.dimension());
                 NetworkId networkId = channelInfo.getRouter(pos).getNetworkId();
 //                System.out.println("Clean up wireless network = " + networkId + " (" + entry.getKey() + ")");
                 worldBlob.markNetworkDirty(networkId);
@@ -174,8 +175,8 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     private void readRouters(ListNBT tagList, WirelessChannelInfo channelInfo) {
         for (int i = 0 ; i < tagList.size() ; i++) {
             CompoundNBT tc = tagList.getCompound(i);
-            DimensionId dim = DimensionId.fromResourceLocation(new ResourceLocation(tc.getString("dim")));
-            GlobalCoordinate pos = new GlobalCoordinate(new BlockPos(tc.getInt("x"), tc.getInt("y"), tc.getInt("z")), dim);
+            RegistryKey<World> dim = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tc.getString("dim")));
+            GlobalPos pos = GlobalPos.of(dim, new BlockPos(tc.getInt("x"), tc.getInt("y"), tc.getInt("z")));
             WirelessRouterInfo info = new WirelessRouterInfo(pos);
             info.setAge(tc.getInt("age"));
             info.setNetworkId(new NetworkId(tc.getInt("network")));
@@ -208,13 +209,13 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     private ListNBT writeRouters(WirelessChannelInfo channelInfo) {
         ListNBT tagList = new ListNBT();
 
-        for (Map.Entry<GlobalCoordinate, WirelessRouterInfo> infoEntry : channelInfo.getRouters().entrySet()) {
+        for (Map.Entry<GlobalPos, WirelessRouterInfo> infoEntry : channelInfo.getRouters().entrySet()) {
             CompoundNBT tc = new CompoundNBT();
-            GlobalCoordinate pos = infoEntry.getKey();
-            tc.putString("dim", pos.getDimension().getRegistryName().toString());
-            tc.putInt("x", pos.getCoordinate().getX());
-            tc.putInt("y", pos.getCoordinate().getY());
-            tc.putInt("z", pos.getCoordinate().getZ());
+            GlobalPos pos = infoEntry.getKey();
+            tc.putString("dim", pos.dimension().location().toString());
+            tc.putInt("x", pos.pos().getX());
+            tc.putInt("y", pos.pos().getY());
+            tc.putInt("z", pos.pos().getZ());
             WirelessRouterInfo info = infoEntry.getValue();
             tc.putInt("age", info.getAge());
             tc.putInt("network", info.getNetworkId().getId());
@@ -224,22 +225,22 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     }
 
     public static class WirelessChannelInfo {
-        private final Map<GlobalCoordinate, WirelessRouterInfo> routers = new HashMap<>();
+        private final Map<GlobalPos, WirelessRouterInfo> routers = new HashMap<>();
         private int version = 0;
 
-        public void updateRouterInfo(GlobalCoordinate pos, WirelessRouterInfo info) {
+        public void updateRouterInfo(GlobalPos pos, WirelessRouterInfo info) {
             routers.put(pos, info);
         }
 
-        public void removeRouterInfo(GlobalCoordinate pos) {
+        public void removeRouterInfo(GlobalPos pos) {
             routers.remove(pos);
         }
 
-        public WirelessRouterInfo getRouter(GlobalCoordinate pos) {
+        public WirelessRouterInfo getRouter(GlobalPos pos) {
             return routers.get(pos);
         }
 
-        public Map<GlobalCoordinate, WirelessRouterInfo> getRouters() {
+        public Map<GlobalPos, WirelessRouterInfo> getRouters() {
             return routers;
         }
 
@@ -259,9 +260,9 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     public static class WirelessRouterInfo {
         private int age;
         private NetworkId networkId;
-        private final GlobalCoordinate coordinate;
+        private final GlobalPos coordinate;
 
-        public WirelessRouterInfo(GlobalCoordinate coordinate) {
+        public WirelessRouterInfo(GlobalPos coordinate) {
             age = 0;
             this.coordinate = coordinate;
         }
@@ -282,7 +283,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             this.age = age;
         }
 
-        public GlobalCoordinate getCoordinate() {
+        public GlobalPos getCoordinate() {
             return coordinate;
         }
     }

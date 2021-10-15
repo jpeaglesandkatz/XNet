@@ -12,8 +12,6 @@ import net.minecraft.util.NonNullList;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.item.Item.Properties;
-
 public class ColorBlockItem extends BlockItem {
 
     private final CableColor color;

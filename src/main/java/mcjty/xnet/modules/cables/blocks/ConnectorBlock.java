@@ -61,8 +61,6 @@ import java.util.List;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
 
-import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
-
 public class ConnectorBlock extends GenericCableBlock implements ITooltipSettings {
 
     public static final ManualEntry MANUAL = ManualHelper.create("xnet:simple/connector");

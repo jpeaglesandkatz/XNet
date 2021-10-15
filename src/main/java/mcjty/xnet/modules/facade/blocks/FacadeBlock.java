@@ -19,8 +19,6 @@ import net.minecraftforge.common.util.Constants.BlockFlags;
 
 import javax.annotation.Nullable;
 
-import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
-
 public class FacadeBlock extends NetCableBlock {
 
     public FacadeBlock(CableBlockType type) {

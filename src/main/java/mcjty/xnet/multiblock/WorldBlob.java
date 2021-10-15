@@ -1,6 +1,5 @@
 package mcjty.xnet.multiblock;
 
-import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
@@ -8,6 +7,7 @@ import mcjty.rftoolsbase.api.xnet.net.IWorldBlob;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.Direction;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.vector.Vector3i;
@@ -19,7 +19,7 @@ import java.util.*;
 
 public class WorldBlob implements IWorldBlob {
 
-    private final DimensionId dimensionType;
+    private final RegistryKey<World> dimensionType;
     private final Map<Long, ChunkBlob> chunkBlobMap = new HashMap<>();
     private int lastNetworkId = 0;              // Network ID
     private int lastConsumerId = 0;             // Network consumer ID
@@ -39,11 +39,11 @@ public class WorldBlob implements IWorldBlob {
     // Transient map containing all providers and their position
     private final Map<NetworkId, BlockPos> providerPositions = new HashMap<>();
 
-    public WorldBlob(DimensionId dimensionType) {
+    public WorldBlob(RegistryKey<World> dimensionType) {
         this.dimensionType = dimensionType;
     }
 
-    public DimensionId getDimensionType() {
+    public RegistryKey<World> getDimensionType() {
         return dimensionType;
     }
 
