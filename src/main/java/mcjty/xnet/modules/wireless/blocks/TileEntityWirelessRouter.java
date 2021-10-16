@@ -13,7 +13,6 @@ import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
-import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
@@ -193,7 +192,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
         }
 
         // If the dimension is different at this point there is no connection
-        if (!DimensionId.sameDimension(level, otherRouter.level)) {
+        if (!level.dimension().equals(otherRouter.level.dimension())) {
             return false;
         }
 

@@ -61,7 +61,7 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
         for (Map.Entry<RegistryKey<World>, WorldBlob> entry : worldBlobMap.entrySet()) {
             WorldBlob blob = entry.getValue();
             CompoundNBT tc = new CompoundNBT();
-            tc.putString("dimtype", blob.getDimensionType().getRegistryName().toString());
+            tc.putString("dimtype", blob.getDimensionType().location().toString());
             blob.writeToNBT(tc);
             list.add(tc);
         }
