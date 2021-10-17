@@ -203,7 +203,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     }
 
     private boolean inRange(XNetWirelessChannels.WirelessRouterInfo wirelessRouter) {
-        World otherWorld = WorldTools.getWorld(level, wirelessRouter.getCoordinate().dimension());
+        World otherWorld = WorldTools.getLevel(level, wirelessRouter.getCoordinate().dimension());
         if (otherWorld == null) {
             return false;
         }
@@ -229,7 +229,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
                             .filter(this::inRange)
                             .forEach(routerInfo -> {
                                 // Find all routers on this network
-                                World otherWorld = WorldTools.getWorld(level, routerInfo.getCoordinate().dimension());
+                                World otherWorld = WorldTools.getLevel(level, routerInfo.getCoordinate().dimension());
                                 LogicTools.consumers(otherWorld, routerInfo.getNetworkId())
                                         .filter(otherWorld::hasChunkAt)
                                         // Range check not needed here since the check is already done on the wireless router
@@ -279,9 +279,9 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
             info.getRouters().keySet().stream()
                     // Don't do this for ourselves
                     .filter(routerPos -> !routerPos.dimension().equals(level.dimension()) || !routerPos.pos().equals(worldPosition))
-                    .filter(routerPos -> WorldTools.isLoaded(WorldTools.getWorld(level, routerPos.dimension()), routerPos.pos()))
+                    .filter(routerPos -> WorldTools.isLoaded(WorldTools.getLevel(level, routerPos.dimension()), routerPos.pos()))
                     .forEach(routerPos -> {
-                        ServerWorld otherWorld = WorldTools.getWorld(level, routerPos.dimension());
+                        ServerWorld otherWorld = WorldTools.getLevel(level, routerPos.dimension());
                         TileEntity otherTE = otherWorld.getBlockEntity(routerPos.pos());
                         if (otherTE instanceof TileEntityWirelessRouter) {
                             TileEntityWirelessRouter otherRouter = (TileEntityWirelessRouter) otherTE;

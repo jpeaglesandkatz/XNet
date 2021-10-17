@@ -1,6 +1,7 @@
 package mcjty.xnet.multiblock;
 
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.WorldTools;
 import mcjty.lib.worlddata.AbstractWorldData;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
@@ -8,10 +9,8 @@ import mcjty.xnet.XNet;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.GlobalPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 
@@ -175,7 +174,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     private void readRouters(ListNBT tagList, WirelessChannelInfo channelInfo) {
         for (int i = 0 ; i < tagList.size() ; i++) {
             CompoundNBT tc = tagList.getCompound(i);
-            RegistryKey<World> dim = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tc.getString("dim")));
+            RegistryKey<World> dim = WorldTools.getId(tc.getString("dim"));
             GlobalPos pos = GlobalPos.of(dim, new BlockPos(tc.getInt("x"), tc.getInt("y"), tc.getInt("z")));
             WirelessRouterInfo info = new WirelessRouterInfo(pos);
             info.setAge(tc.getInt("age"));
