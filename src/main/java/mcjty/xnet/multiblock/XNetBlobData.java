@@ -1,6 +1,6 @@
 package mcjty.xnet.multiblock;
 
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.lib.worlddata.AbstractWorldData;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -45,7 +45,7 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
             ListNBT worlds = (ListNBT) compound.get("worlds");
             for (net.minecraft.nbt.INBT world : worlds) {
                 CompoundNBT tc = (CompoundNBT) world;
-                RegistryKey<World> dim = WorldTools.getId(tc.getString("dimtype"));
+                RegistryKey<World> dim = LevelTools.getId(tc.getString("dimtype"));
                 WorldBlob blob = new WorldBlob(dim);
                 blob.readFromNBT(tc);
                 worldBlobMap.put(dim, blob);

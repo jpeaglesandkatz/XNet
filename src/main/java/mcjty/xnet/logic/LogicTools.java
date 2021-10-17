@@ -1,7 +1,7 @@
 package mcjty.xnet.logic;
 
 import mcjty.lib.varia.OrientationTools;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
@@ -31,7 +31,7 @@ public class LogicTools {
         if (controllerPos == null) {
             return null;
         }
-        if (!WorldTools.isLoaded(world, controllerPos)) {
+        if (!LevelTools.isLoaded(world, controllerPos)) {
             return null;
         }
         TileEntity te = world.getBlockEntity(controllerPos);

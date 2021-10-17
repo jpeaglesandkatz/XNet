@@ -2,7 +2,7 @@ package mcjty.xnet.apiimpl.energy;
 
 import com.google.gson.JsonObject;
 import mcjty.lib.varia.EnergyTools;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
@@ -82,7 +82,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
 
                 Direction side = entry.getKey().getSide();
                 BlockPos energyPos = connectorPos.relative(side);
-                if (!WorldTools.isLoaded(world, energyPos)) {
+                if (!LevelTools.isLoaded(world, energyPos)) {
                     continue;
                 }
 
@@ -171,7 +171,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             if (extractorPos != null) {
                 Direction side = entry.getKey().getSide();
                 BlockPos pos = extractorPos.relative(side);
-                if (!WorldTools.isLoaded(world, pos)) {
+                if (!LevelTools.isLoaded(world, pos)) {
                     continue;
                 }
                 TileEntity te = world.getBlockEntity(pos);

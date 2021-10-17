@@ -2,7 +2,7 @@ package mcjty.xnet.apiimpl.items;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
@@ -164,7 +164,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             if (extractorPos != null) {
                 Direction side = entry.getKey().getSide();
                 BlockPos pos = extractorPos.relative(side);
-                if (!WorldTools.isLoaded(world, pos)) {
+                if (!LevelTools.isLoaded(world, pos)) {
                     continue;
                 }
 
@@ -290,7 +290,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             if (settings.getMatcher(context).test(stack)) {
                 BlockPos consumerPos = context.findConsumerPosition(entry.getKey().getConsumerId());
                 if (consumerPos != null) {
-                    if (!WorldTools.isLoaded(world, consumerPos)) {
+                    if (!LevelTools.isLoaded(world, consumerPos)) {
                         continue;
                     }
 

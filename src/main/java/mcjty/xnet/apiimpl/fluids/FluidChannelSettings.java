@@ -2,7 +2,7 @@ package mcjty.xnet.apiimpl.fluids;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
@@ -107,7 +107,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             if (extractorPos != null) {
                 Direction side = entry.getKey().getSide();
                 BlockPos pos = extractorPos.relative(side);
-                if (!WorldTools.isLoaded(world, pos)) {
+                if (!LevelTools.isLoaded(world, pos)) {
                     continue;
                 }
 
@@ -191,7 +191,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             if (settings.getMatcher() == null || settings.getMatcher().equals(stack)) {
                 BlockPos consumerPos = context.findConsumerPosition(entry.getKey().getConsumerId());
                 if (consumerPos != null) {
-                    if (!WorldTools.isLoaded(world, consumerPos)) {
+                    if (!LevelTools.isLoaded(world, consumerPos)) {
                         continue;
                     }
                     if (checkRedstone(world, settings, consumerPos)) {

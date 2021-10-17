@@ -1,7 +1,7 @@
 package mcjty.xnet.apiimpl.logic;
 
 import com.google.gson.JsonObject;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
@@ -87,7 +87,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
             if (connectorPos != null) {
                 Direction side = entry.getKey().getSide();
                 BlockPos pos = connectorPos.relative(side);
-                if (!WorldTools.isLoaded(world, pos)) {
+                if (!LevelTools.isLoaded(world, pos)) {
                     // If it is not chunkloaded we just use the color settings as we last remembered it
                     colors |= settings.getColorMask();
                     continue;
@@ -124,7 +124,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
             BlockPos connectorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
             if (connectorPos != null) {
                 Direction side = entry.getKey().getSide();
-                if (!WorldTools.isLoaded(world, connectorPos)) {
+                if (!LevelTools.isLoaded(world, connectorPos)) {
                     continue;
                 }
 
