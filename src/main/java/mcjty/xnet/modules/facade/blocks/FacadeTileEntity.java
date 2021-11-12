@@ -26,8 +26,6 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
 
     @Override
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
-        BlockState oldMimicBlock = mimicBlockSupport.getMimicBlock();
-
         super.onDataPacket(net, packet);
 
         if (level.isClientSide) {
@@ -67,5 +65,10 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
         super.save(tagCompound);
         mimicBlockSupport.writeToNBT(tagCompound);
         return tagCompound;
+    }
+
+    @Override
+    public void writeClientDataToNBT(CompoundNBT tagCompound) {
+        mimicBlockSupport.writeToNBT(tagCompound);
     }
 }

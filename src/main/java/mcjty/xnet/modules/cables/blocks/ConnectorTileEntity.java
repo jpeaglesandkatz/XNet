@@ -219,6 +219,11 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
+    public void writeClientDataToNBT(CompoundNBT tagCompound) {
+        mimicBlockSupport.writeToNBT(tagCompound);
+    }
+
+    @Override
     public void writeInfo(CompoundNBT tagCompound) {
         super.writeInfo(tagCompound);
         CompoundNBT info = getOrCreateInfo(tagCompound);
@@ -228,7 +233,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     public void setConnectorName(String n) {
         this.name = n;
-        markDirtyClient();
+        setChanged();
     }
 
 
