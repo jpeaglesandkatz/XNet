@@ -1,11 +1,12 @@
 package mcjty.xnet.modules.cables.blocks;
 
-import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.DefaultValue;
 import mcjty.lib.bindings.IValue;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
+import mcjty.lib.tileentity.Cap;
+import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
@@ -81,6 +82,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         };
     }
 
+    @Cap(type = CapType.CONTAINER)
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Connector")
             .containerSupplier((windowId,player) -> new GenericContainer(CableModule.CONTAINER_CONNECTOR.get(), windowId, ContainerFactory.EMPTY.get(), getBlockPos(), ConnectorTileEntity.this)));
 
@@ -328,9 +330,6 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
             } else {
                 return sidedStorages[side.ordinal()].cast();
             }
-        }
-        if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
-            return screenHandler.cast();
         }
         return super.getCapability(cap, side);
     }
