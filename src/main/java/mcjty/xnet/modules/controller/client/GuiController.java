@@ -145,6 +145,10 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         energyBar = window.findChild("energybar");
     }
 
+    private void updateFields() {
+
+    }
+
     private void hilightSelectedContainer(int index) {
         if (index < 0) {
             return;
@@ -641,6 +645,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     @Override
     protected void renderBg(MatrixStack matrixStack, float v, int x1, int x2) {
+        updateFields();
         requestListsIfNeeded();
         populateList();
         refreshChannelEditor();
