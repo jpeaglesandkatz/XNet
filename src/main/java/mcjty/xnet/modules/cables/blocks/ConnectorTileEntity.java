@@ -306,8 +306,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     public static final Key<Integer> PARAM_FACING = new Key<>("facing", Type.INTEGER);
     public static final Key<Boolean> PARAM_ENABLED = new Key<>("enabled", Type.BOOLEAN);
     @ServerCommand
-    public static final Command<?> CMD_ENABLE = Command.<ConnectorTileEntity>create("connector.enable")
-            .buildCommand((te, playerEntity, params) -> {
+    public static final Command<?> CMD_ENABLE = Command.<ConnectorTileEntity>create("connector.enable",
+            (te, playerEntity, params) -> {
                 int f = params.get(PARAM_FACING);
                 boolean e = params.get(PARAM_ENABLED);
                 te.setEnabled(OrientationTools.DIRECTION_VALUES[f], e);

@@ -1,6 +1,8 @@
 package mcjty.xnet.modules.router.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.container.ContainerFactory;
@@ -34,7 +36,6 @@ import mcjty.xnet.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -61,11 +62,6 @@ import static mcjty.xnet.modules.controller.blocks.TileEntityController.ERROR;
 import static mcjty.xnet.modules.router.RouterModule.TYPE_ROUTER;
 
 public final class TileEntityRouter extends GenericTileEntity {
-
-    public static final String CMD_UPDATENAME = "router.updateName";
-    public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
-    public static final Key<Integer> PARAM_CHANNEL = new Key<>("channel", Type.INTEGER);
-    public static final Key<String> PARAM_NAME = new Key<>("name", Type.STRING);
 
     public static final String CMD_GETCHANNELS = "getChannelInfo";
     public static final String CLIENTCMD_CHANNELSREADY = "channelsReady";
@@ -327,22 +323,12 @@ public final class TileEntityRouter extends GenericTileEntity {
         markDirtyQuick();
     }
 
-    @Override
-    public boolean execute(PlayerEntity playerMP, String command, TypedMap params) {
-        boolean rc = super.execute(playerMP, command, params);
-        if (rc) {
-            return true;
-        }
-        if (CMD_UPDATENAME.equals(command)) {
-            BlockPos controllerPos = params.get(PARAM_POS);
-            int channel = params.get(PARAM_CHANNEL);
-            String name = params.get(PARAM_NAME);
-            updatePublishName(controllerPos, channel, name);
-            return true;
-        }
-
-        return false;
-    }
+    public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
+    public static final Key<Integer> PARAM_CHANNEL = new Key<>("channel", Type.INTEGER);
+    public static final Key<String> PARAM_NAME = new Key<>("name", Type.STRING);
+    @ServerCommand
+    public static final Command<?> CMD_UPDATENAME = Command.<TileEntityRouter>create("router.updateName",
+        (te, player, params) -> te.updatePublishName(params.get(PARAM_POS), params.get(PARAM_CHANNEL), params.get(PARAM_NAME)));
 
     @Nonnull
     @Override

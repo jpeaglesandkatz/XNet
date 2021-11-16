@@ -2,6 +2,8 @@ package mcjty.xnet.modules.controller.blocks;
 
 import com.google.gson.*;
 import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.builder.TooltipBuilder;
@@ -88,17 +90,6 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     public static final String CLIENTCMD_CHANNELSREADY = "channelsReady";
     public static final String CMD_GETCONNECTEDBLOCKS = "getConnectedBlocks";
     public static final String CLIENTCMD_CONNECTEDBLOCKSREADY = "connectedBlocksReady";
-
-    public static final String CMD_CREATECONNECTOR = "controller.createConnector";
-    public static final String CMD_REMOVECONNECTOR = "controller.removeConnector";
-    public static final String CMD_UPDATECONNECTOR = "controller.updateConnector";
-    public static final String CMD_CREATECHANNEL = "controller.createChannel";
-    public static final String CMD_PASTECHANNEL = "controller.pasteChannel";
-    public static final String CMD_COPYCHANNEL = "controller.copyChannel";
-    public static final String CMD_PASTECONNECTOR = "controller.pasteConnector";
-    public static final String CMD_COPYCONNECTOR = "controller.copyConnector";
-    public static final String CMD_REMOVECHANNEL = "controller.removeChannel";
-    public static final String CMD_UPDATECHANNEL = "controller.updateChannel";
 
     public static final Key<Integer> PARAM_INDEX = new Key<>("index", Type.INTEGER);
     public static final Key<String> PARAM_TYPE = new Key<>("type", Type.STRING);
@@ -674,7 +665,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         return set;
     }
 
-    private void copyConnector(ServerPlayerEntity player, int index, SidedPos sidedPos) {
+    private void copyConnector(PlayerEntity player, int index, SidedPos sidedPos) {
         ChannelInfo channel = channels[index];
         IChannelSettings settings = channel.getChannelSettings();
         JsonObject parent = new JsonObject();
@@ -690,14 +681,14 @@ public final class TileEntityController extends GenericTileEntity implements ITi
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 String json = gson.toJson(parent);
 
-                XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
         }
-        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error copying connector!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error copying connector!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
-    private void copyChannel(ServerPlayerEntity player, int index) {
+    private void copyChannel(PlayerEntity player, int index) {
         ChannelInfo channel = channels[index];
         IChannelSettings settings = channel.getChannelSettings();
         JsonObject parent = new JsonObject();
@@ -737,9 +728,9 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String json = gson.toJson(parent);
 
-            XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         } else {
-            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Channel does not support this!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Channel does not support this!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 
@@ -801,20 +792,20 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         return score;
     }
 
-    private void pasteConnector(ServerPlayerEntity player, int channel, SidedPos sidedPos, String json) {
+    private void pasteConnector(PlayerEntity player, int channel, SidedPos sidedPos, String json) {
         try {
             JsonParser parser = new JsonParser();
             JsonObject root = parser.parse(json).getAsJsonObject();
 
             if (!root.has("connector") || !root.has("type")) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid connector json!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid connector json!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
 
             String typeId = root.get("type").getAsString();
             IChannelType type = XNet.xNetApi.findType(typeId);
             if (type != channels[channel].getType()) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Wrong channel type!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Wrong channel type!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
             boolean advanced = root.get("advanced").getAsBoolean();
@@ -832,7 +823,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
                     // If advanced is desired but our actual connector is not advanced then we give a penalty. The penalty is big
                     // if we can't match with the actual side or if we actually need advanced
                     if (advancedNeeded || !facingOverride.equals(facing)) {
-                        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Advanced connector is needed!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Advanced connector is needed!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                         return;
                     }
                 }
@@ -845,7 +836,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             ConnectorInfo info = createConnector(channel, sidedPos);
             info.getConnectorSettings().readFromJson(connectorObject);
         } catch (JsonSyntaxException e) {
-            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
 
         markAsDirty();
@@ -862,12 +853,12 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         }
     }
 
-    private void pasteChannel(ServerPlayerEntity player, int channel, String json) {
+    private void pasteChannel(PlayerEntity player, int channel, String json) {
         try {
             JsonParser parser = new JsonParser();
             JsonObject root = parser.parse(json).getAsJsonObject();
             if (!root.has("channel") || !root.has("type") || !root.has("name")) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid channel json!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid channel json!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
             String typeId = root.get("type").getAsString();
@@ -973,74 +964,45 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             }
 
             if (notEnoughConnectors) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Not everything could be pasted!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Not everything could be pasted!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
         } catch (JsonSyntaxException e) {
-            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
 
         markAsDirty();
     }
 
-
-    @Override
-    public boolean execute(PlayerEntity player, String command, TypedMap params) {
-        boolean rc = super.execute(player, command, params);
-        if (rc) {
-            return true;
-        }
-        ServerPlayerEntity playerMP = (ServerPlayerEntity) player;
-        if (CMD_CREATECHANNEL.equals(command)) {
-            int index = params.get(PARAM_INDEX);
-            String typeId = params.get(PARAM_TYPE);
-            createChannel(index, typeId);
-            return true;
-        } else if (CMD_PASTECHANNEL.equals(command)) {
-            int index = params.get(PARAM_INDEX);
-            String json = params.get(PARAM_JSON);
-            pasteChannel(playerMP, index, json);
-            return true;
-        } else if (CMD_PASTECONNECTOR.equals(command)) {
-            int index = params.get(PARAM_INDEX);
-            SidedPos pos = new SidedPos(params.get(PARAM_POS), OrientationTools.DIRECTION_VALUES[params.get(PARAM_SIDE)]);
-            String json = params.get(PARAM_JSON);
-            pasteConnector(playerMP, index, pos, json);
-            return true;
-        } else if (CMD_COPYCHANNEL.equals(command)) {
-            int index = params.get(PARAM_INDEX);
-            copyChannel(playerMP, index);
-            return true;
-        } else if (CMD_COPYCONNECTOR.equals(command)) {
-            int index = params.get(PARAM_INDEX);
-            SidedPos pos = new SidedPos(params.get(PARAM_POS), OrientationTools.DIRECTION_VALUES[params.get(PARAM_SIDE)]);
-            copyConnector(playerMP, index, pos);
-            return true;
-        } else if (CMD_CREATECONNECTOR.equals(command)) {
-            int channel = params.get(PARAM_CHANNEL);
-            SidedPos pos = new SidedPos(params.get(PARAM_POS), OrientationTools.DIRECTION_VALUES[params.get(PARAM_SIDE)]);
-            createConnector(channel, pos);
-            return true;
-        } else if (CMD_REMOVECHANNEL.equals(command)) {
-            int index = params.get(PARAM_INDEX);
-            removeChannel(index);
-            return true;
-        } else if (CMD_REMOVECONNECTOR.equals(command)) {
-            SidedPos pos = new SidedPos(params.get(PARAM_POS), OrientationTools.DIRECTION_VALUES[params.get(PARAM_SIDE)]);
-            int channel = params.get(PARAM_CHANNEL);
-            removeConnector(channel, pos);
-            return true;
-        } else if (CMD_UPDATECONNECTOR.equals(command)) {
-            SidedPos pos = new SidedPos(params.get(PARAM_POS), OrientationTools.DIRECTION_VALUES[params.get(PARAM_SIDE)]);
-            int channel = params.get(PARAM_CHANNEL);
-            updateConnector(channel, pos, params);
-            return true;
-        } else if (CMD_UPDATECHANNEL.equals(command)) {
-            int channel = params.get(PARAM_CHANNEL);
-            updateChannel(channel, params);
-            return true;
-        }
-        return false;
-    }
+    @ServerCommand
+    public static final Command<?> CMD_CREATECONNECTOR = Command.<TileEntityController>create("controller.createConnector",
+        (te, player, params) -> te.createConnector(params.get(PARAM_CHANNEL), new SidedPos(params.get(PARAM_POS), OrientationTools.DIRECTION_VALUES[params.get(PARAM_SIDE)])));
+    @ServerCommand
+    public static final Command<?> CMD_REMOVECONNECTOR = Command.<TileEntityController>create("controller.removeConnector",
+        (te, player, params) -> te.removeConnector(params.get(PARAM_CHANNEL), new SidedPos(params.get(PARAM_POS), OrientationTools.DIRECTION_VALUES[params.get(PARAM_SIDE)])));
+    @ServerCommand
+    public static final Command<?> CMD_UPDATECONNECTOR = Command.<TileEntityController>create("controller.updateConnector",
+        (te, player, params) -> te.updateConnector(params.get(PARAM_CHANNEL), new SidedPos(params.get(PARAM_POS), OrientationTools.DIRECTION_VALUES[params.get(PARAM_SIDE)]), params));
+    @ServerCommand
+    public static final Command<?> CMD_CREATECHANNEL = Command.<TileEntityController>create("controller.createChannel",
+        (te, player, params) -> te.createChannel(params.get(PARAM_INDEX), params.get(PARAM_TYPE)));
+    @ServerCommand
+    public static final Command<?> CMD_PASTECHANNEL = Command.<TileEntityController>create("controller.pasteChannel",
+        (te, player, params) -> te.pasteChannel(player, params.get(PARAM_INDEX), params.get(PARAM_JSON)));
+    @ServerCommand
+    public static final Command<?> CMD_COPYCHANNEL = Command.<TileEntityController>create("controller.copyChannel",
+        (te, player, params) -> te.copyChannel(player, params.get(PARAM_INDEX)));
+    @ServerCommand
+    public static final Command<?> CMD_PASTECONNECTOR = Command.<TileEntityController>create("controller.pasteConnector",
+        (te, player, params) -> te.pasteConnector(player, params.get(PARAM_INDEX), new SidedPos(params.get(PARAM_POS), OrientationTools.DIRECTION_VALUES[params.get(PARAM_SIDE)]), params.get(PARAM_JSON)));
+    @ServerCommand
+    public static final Command<?> CMD_COPYCONNECTOR = Command.<TileEntityController>create("controller.copyConnector",
+        (te, player, params) -> te.copyConnector(player, params.get(PARAM_INDEX), new SidedPos(params.get(PARAM_POS), OrientationTools.DIRECTION_VALUES[params.get(PARAM_SIDE)])));
+    @ServerCommand
+    public static final Command<?> CMD_REMOVECHANNEL = Command.<TileEntityController>create("controller.removeChannel",
+        (te, player, params) -> te.removeChannel(params.get(PARAM_INDEX)));
+    @ServerCommand
+    public static final Command<?> CMD_UPDATECHANNEL = Command.<TileEntityController>create("controller.updateChannel",
+        (te, player, params) -> te.updateChannel(params.get(PARAM_CHANNEL), params));
 
     @Nonnull
     @Override

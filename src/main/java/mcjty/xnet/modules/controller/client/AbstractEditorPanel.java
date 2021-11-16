@@ -1,5 +1,6 @@
 package mcjty.xnet.modules.controller.client;
 
+import mcjty.lib.blockcommands.Command;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.Key;
@@ -41,7 +42,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
         return components.get(tag);
     }
 
-    protected void performUpdate(TypedMap.Builder builder, int i, String cmd) {
+    protected void performUpdate(TypedMap.Builder builder, int i, Command cmd) {
         for (Map.Entry<String, Object> entry : data.entrySet()) {
             Object o = entry.getValue();
             if (o instanceof String) {
