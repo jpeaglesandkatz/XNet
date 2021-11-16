@@ -3,6 +3,8 @@ package mcjty.xnet.modules.cables.blocks;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.DefaultValue;
 import mcjty.lib.bindings.IValue;
+import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.Cap;
@@ -10,7 +12,6 @@ import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
-import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.tiles.IConnectorTile;
 import mcjty.xnet.modules.cables.CableModule;
@@ -21,7 +22,6 @@ import mcjty.xnet.multiblock.XNetBlobData;
 import mcjty.xnet.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
@@ -44,10 +44,6 @@ import javax.annotation.Nullable;
 import static mcjty.xnet.modules.cables.CableModule.TYPE_CONNECTOR;
 
 public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSupport, IConnectorTile {
-
-    public static final String CMD_ENABLE = "connector.enable";
-    public static final Key<Integer> PARAM_FACING = new Key<>("facing", Type.INTEGER);
-    public static final Key<Boolean> PARAM_ENABLED = new Key<>("enabled", Type.BOOLEAN);
 
     private final MimicBlockSupport mimicBlockSupport = new MimicBlockSupport();
 
@@ -306,20 +302,16 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
                 .build();
     }
 
-    @Override
-    public boolean execute(PlayerEntity playerMP, String command, TypedMap params) {
-        boolean rc = super.execute(playerMP, command, params);
-        if (rc) {
-            return true;
-        }
-        if (CMD_ENABLE.equals(command)) {
-            int f = params.get(PARAM_FACING);
-            boolean e = params.get(PARAM_ENABLED);
-            setEnabled(OrientationTools.DIRECTION_VALUES[f], e);
-            return true;
-        }
-        return false;
-    }
+
+    public static final Key<Integer> PARAM_FACING = new Key<>("facing", Type.INTEGER);
+    public static final Key<Boolean> PARAM_ENABLED = new Key<>("enabled", Type.BOOLEAN);
+    @ServerCommand
+    public static final Command<?> CMD_ENABLE = Command.<ConnectorTileEntity>create("connector.enable")
+            .buildCommand((te, playerEntity, params) -> {
+                int f = params.get(PARAM_FACING);
+                boolean e = params.get(PARAM_ENABLED);
+                te.setEnabled(OrientationTools.DIRECTION_VALUES[f], e);
+            });
 
     @Nonnull
     @Override
