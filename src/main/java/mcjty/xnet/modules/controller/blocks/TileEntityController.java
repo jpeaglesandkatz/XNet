@@ -3,6 +3,7 @@ package mcjty.xnet.modules.controller.blocks;
 import com.google.gson.*;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ListCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
@@ -85,11 +86,6 @@ import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.modules.controller.ControllerModule.TYPE_CONTROLLER;
 
 public final class TileEntityController extends GenericTileEntity implements ITickableTileEntity, IControllerContext {
-
-    public static final String CMD_GETCHANNELS = "getChannelInfo";
-    public static final String CLIENTCMD_CHANNELSREADY = "channelsReady";
-    public static final String CMD_GETCONNECTEDBLOCKS = "getConnectedBlocks";
-    public static final String CLIENTCMD_CONNECTEDBLOCKSREADY = "connectedBlocksReady";
 
     public static final Key<Integer> PARAM_INDEX = new Key<>("index", Type.INTEGER);
     public static final Key<String> PARAM_TYPE = new Key<>("type", Type.STRING);
@@ -1005,36 +1001,15 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     public static final Command<?> CMD_UPDATECHANNEL = Command.<TileEntityController>create("controller.updateChannel",
         (te, player, params) -> te.updateChannel(params.get(PARAM_CHANNEL), params));
 
-    @Nonnull
-    @Override
-    public <T> List<T> executeWithResultList(String command, TypedMap args, Type<T> type) {
-        List<T> rc = super.executeWithResultList(command, args, type);
-        if (!rc.isEmpty()) {
-            return rc;
-        }
-        if (CMD_GETCHANNELS.equals(command)) {
-            return type.convert(findChannelInfo());
-        } else if (CMD_GETCONNECTEDBLOCKS.equals(command)) {
-            return type.convert(findConnectedBlocksForClient());
-        }
-        return Collections.emptyList();
-    }
+    @ServerCommand
+    public static final ListCommand<?, ?> CMD_GETCHANNELS = ListCommand.<TileEntityController, ChannelClientInfo>create("getChannelInfo",
+            (te, player, params) -> te.findChannelInfo(),
+            (te, player, params, list) -> GuiController.fromServer_channels = list);
 
-    @Override
-    public <T> boolean receiveListFromServer(String command, List<T> list, Type<T> type) {
-        boolean rc = super.receiveListFromServer(command, list, type);
-        if (rc) {
-            return true;
-        }
-        if (CLIENTCMD_CHANNELSREADY.equals(command)) {
-            GuiController.fromServer_channels = new ArrayList<>(Type.create(ChannelClientInfo.class).convert(list));
-            return true;
-        } else if (CLIENTCMD_CONNECTEDBLOCKSREADY.equals(command)) {
-            GuiController.fromServer_connectedBlocks = new ArrayList<>(Type.create(ConnectedBlockClientInfo.class).convert(list));
-            return true;
-        }
-        return false;
-    }
+    @ServerCommand
+    public static final ListCommand<?, ?> CMD_GETCONNECTEDBLOCKS = ListCommand.<TileEntityController, ConnectedBlockClientInfo>create("getConnectedBlocks",
+            (te, player, params) -> te.findConnectedBlocksForClient(),
+            (te, player, params, list) -> GuiController.fromServer_connectedBlocks = list);
 
     @Override
     public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {

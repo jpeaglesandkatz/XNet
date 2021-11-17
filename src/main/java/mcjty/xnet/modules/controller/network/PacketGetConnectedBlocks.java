@@ -1,8 +1,7 @@
 package mcjty.xnet.modules.controller.network;
 
-import mcjty.lib.network.ICommandHandler;
 import mcjty.lib.network.TypedMapTools;
-import mcjty.lib.typed.Type;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.xnet.client.ConnectedBlockClientInfo;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
@@ -46,9 +45,10 @@ public class PacketGetConnectedBlocks {
             World world = ctx.getSender().getCommandSenderWorld();
             if (world.hasChunkAt(pos)) {
                 TileEntity te = world.getBlockEntity(pos);
-                ICommandHandler commandHandler = (ICommandHandler) te;
-                List<ConnectedBlockClientInfo> list = commandHandler.executeWithResultList(TileEntityController.CMD_GETCONNECTEDBLOCKS, params, Type.create(ConnectedBlockClientInfo.class));
-                XNetMessages.INSTANCE.sendTo(new PacketConnectedBlocksReady(pos, TileEntityController.CLIENTCMD_CONNECTEDBLOCKSREADY, list), ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                if (te instanceof GenericTileEntity) {
+                    List<ConnectedBlockClientInfo> list = ((GenericTileEntity) te).executeServerCommandList(TileEntityController.CMD_GETCONNECTEDBLOCKS.getName(), ctx.getSender(), params, ConnectedBlockClientInfo.class);
+                    XNetMessages.INSTANCE.sendTo(new PacketConnectedBlocksReady(pos, TileEntityController.CMD_GETCONNECTEDBLOCKS.getName(), list), ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                }
             }
         });
         ctx.setPacketHandled(true);

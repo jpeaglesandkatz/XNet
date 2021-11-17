@@ -1,8 +1,7 @@
 package mcjty.xnet.modules.controller.network;
 
-import mcjty.lib.network.ICommandHandler;
 import mcjty.lib.network.TypedMapTools;
-import mcjty.lib.typed.Type;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.xnet.client.ChannelClientInfo;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
@@ -46,9 +45,10 @@ public class PacketGetChannels {
             World world = ctx.getSender().getCommandSenderWorld();
             if (world.hasChunkAt(pos)) {
                 TileEntity te = world.getBlockEntity(pos);
-                ICommandHandler commandHandler = (ICommandHandler) te;
-                List<ChannelClientInfo> list = commandHandler.executeWithResultList(TileEntityController.CMD_GETCHANNELS, params, Type.create(ChannelClientInfo.class));
-                XNetMessages.INSTANCE.sendTo(new PacketChannelsReady(pos, TileEntityController.CLIENTCMD_CHANNELSREADY, list), ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                if (te instanceof GenericTileEntity) {
+                    List<ChannelClientInfo> list = ((GenericTileEntity) te).executeServerCommandList(TileEntityController.CMD_GETCHANNELS.getName(), ctx.getSender(), params, ChannelClientInfo.class);
+                    XNetMessages.INSTANCE.sendTo(new PacketChannelsReady(pos, TileEntityController.CMD_GETCHANNELS.getName(), list), ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                }
             }
         });
         ctx.setPacketHandled(true);

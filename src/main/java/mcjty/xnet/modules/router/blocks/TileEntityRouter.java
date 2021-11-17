@@ -2,6 +2,7 @@ package mcjty.xnet.modules.router.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ListCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
@@ -12,7 +13,6 @@ import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
-import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
@@ -62,11 +62,6 @@ import static mcjty.xnet.modules.controller.blocks.TileEntityController.ERROR;
 import static mcjty.xnet.modules.router.RouterModule.TYPE_ROUTER;
 
 public final class TileEntityRouter extends GenericTileEntity {
-
-    public static final String CMD_GETCHANNELS = "getChannelInfo";
-    public static final String CLIENTCMD_CHANNELSREADY = "channelsReady";
-    public static final String CMD_GETREMOTECHANNELS = "getRemoteChannelInfo";
-    public static final String CLIENTCMD_CHANNELSREMOTEREADY = "channelsRemoteReady";
 
     private final Map<LocalChannelId, String> publishedChannels = new HashMap<>();
     private int channelCount = 0;
@@ -330,41 +325,22 @@ public final class TileEntityRouter extends GenericTileEntity {
     public static final Command<?> CMD_UPDATENAME = Command.<TileEntityRouter>create("router.updateName",
         (te, player, params) -> te.updatePublishName(params.get(PARAM_POS), params.get(PARAM_CHANNEL), params.get(PARAM_NAME)));
 
-    @Nonnull
-    @Override
-    public <T> List<T> executeWithResultList(String command, TypedMap args, Type<T> type) {
-        List<T> rc = super.executeWithResultList(command, args, type);
-        if (!rc.isEmpty()) {
-            return rc;
-        }
-        if (CMD_GETCHANNELS.equals(command)) {
-            List<ControllerChannelClientInfo> list = new ArrayList<>();
-            findLocalChannelInfo(list, false, false);
-            return type.convert(list);
-        } else if (CMD_GETREMOTECHANNELS.equals(command)) {
-            List<ControllerChannelClientInfo> list = new ArrayList<>();
-            findRemoteChannelInfo(list);
-            return type.convert(list);
-        }
-        return Collections.emptyList();
-    }
+    @ServerCommand
+    public static final ListCommand<?, ?> CMD_GETCHANNELS = ListCommand.<TileEntityRouter, ControllerChannelClientInfo>create("getChannelInfo",
+            (te, player, params) -> {
+                List<ControllerChannelClientInfo> list = new ArrayList<>();
+                te.findLocalChannelInfo(list, false, false);
+                return list;
+            },
+            (te, player, params, list) -> GuiRouter.fromServer_localChannels = list);
 
-
-    @Override
-    public <T> boolean receiveListFromServer(String command, List<T> list, Type<T> type) {
-        boolean rc = super.receiveListFromServer(command, list, type);
-        if (rc) {
-            return true;
-        }
-        if (CLIENTCMD_CHANNELSREADY.equals(command)) {
-            GuiRouter.fromServer_localChannels = new ArrayList<>(Type.create(ControllerChannelClientInfo.class).convert(list));
-            return true;
-        } else if (CLIENTCMD_CHANNELSREMOTEREADY.equals(command)) {
-            GuiRouter.fromServer_remoteChannels = new ArrayList<>(Type.create(ControllerChannelClientInfo.class).convert(list));
-            return true;
-        }
-        return false;
-    }
+    public static final ListCommand<?, ?> CMD_GETREMOTECHANNELS = ListCommand.<TileEntityRouter, ControllerChannelClientInfo>create("getRemoteChannelInfo",
+            (te, player, params) -> {
+                List<ControllerChannelClientInfo> list = new ArrayList<>();
+                te.findRemoteChannelInfo(list);
+                return list;
+            },
+            (te, player, params, list) -> GuiRouter.fromServer_remoteChannels = list);
 
     @Override
     public void onReplaced(World world, BlockPos pos, BlockState state, BlockState newstate) {
