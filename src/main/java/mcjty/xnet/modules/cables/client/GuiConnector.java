@@ -70,7 +70,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
         toplevel.bounds(leftPos, topPos, WIDTH, HEIGHT);
         window = new Window(this, toplevel);
 
-        window.bind(XNetMessages.INSTANCE, "name", tileEntity, VALUE_NAME.getName());
+        window.bind(XNetMessages.INSTANCE, "name", tileEntity, VALUE_NAME.getKey().getName());
     }
 
     @Override

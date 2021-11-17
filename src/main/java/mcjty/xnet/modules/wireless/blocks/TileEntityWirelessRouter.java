@@ -1,8 +1,8 @@
 package mcjty.xnet.modules.wireless.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
-import mcjty.lib.bindings.DefaultValue;
-import mcjty.lib.bindings.IValue;
+import mcjty.lib.bindings.Val;
+import mcjty.lib.bindings.Value;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.builder.TooltipBuilder;
@@ -12,7 +12,6 @@ import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.LevelTools;
 import mcjty.lib.varia.Sync;
@@ -62,7 +61,9 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     public static final int TIER_2 = 1;
     public static final int TIER_INF = 2;
 
-    public static final Key<Boolean> VALUE_PUBLIC = new Key<>("public", Type.BOOLEAN);
+    @Val
+    public static final Value<?, Boolean> VALUE_PUBLIC = Value.<TileEntityWirelessRouter, Boolean>create("public", Type.BOOLEAN, TileEntityWirelessRouter::isPublicAccess, TileEntityWirelessRouter::setPublicAccess);
+
 
     private boolean error = false;
     private int counter = 10;
@@ -94,13 +95,6 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
                 super.createBlockStateDefinition(builder);
                 builder.add(ERROR);
             }
-        };
-    }
-
-    @Override
-    public IValue<?>[] getValues() {
-        return new IValue[]{
-                new DefaultValue<>(VALUE_PUBLIC, this::isPublicAccess, this::setPublicAccess)
         };
     }
 

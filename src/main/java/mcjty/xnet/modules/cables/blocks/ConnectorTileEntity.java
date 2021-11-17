@@ -1,8 +1,8 @@
 package mcjty.xnet.modules.cables.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
-import mcjty.lib.bindings.DefaultValue;
-import mcjty.lib.bindings.IValue;
+import mcjty.lib.bindings.Val;
+import mcjty.lib.bindings.Value;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.ContainerFactory;
@@ -61,7 +61,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     private final Block[] cachedNeighbours = new Block[OrientationTools.DIRECTION_VALUES.length];
 
-    public static final Key<String> VALUE_NAME = new Key<>("name", Type.STRING);
+    @Val
+    public static final Value<?, String> VALUE_NAME = Value.create("name", Type.STRING, ConnectorTileEntity::getConnectorName, ConnectorTileEntity::setConnectorName);
 
     @Override
     public void setRemoved() {
@@ -69,13 +70,6 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         if (level.isClientSide && getMimicBlock() != null) {
             level.setBlockAndUpdate(worldPosition, getBlockState());
         }
-    }
-
-    @Override
-    public IValue<?>[] getValues() {
-        return new IValue[] {
-                new DefaultValue<>(VALUE_NAME, this::getConnectorName, this::setConnectorName),
-        };
     }
 
     @Cap(type = CapType.CONTAINER)
