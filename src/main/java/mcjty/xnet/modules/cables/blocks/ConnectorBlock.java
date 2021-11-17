@@ -90,20 +90,22 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     }
 
     @Override
-    public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
+    @Nonnull
+    public ActionResultType use(@Nonnull BlockState state, World world, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand handIn, @Nonnull BlockRayTraceResult hit) {
         if (!world.isClientSide) {
             TileEntity te = world.getBlockEntity(pos);
             if (te instanceof GenericTileEntity) {
                 GenericTileEntity genericTileEntity = (GenericTileEntity) te;
                 NetworkHooks.openGui((ServerPlayerEntity) player, new INamedContainerProvider() {
                     @Override
+                    @Nonnull
                     public ITextComponent getDisplayName() {
                         return new StringTextComponent("Connector");
                     }
 
-                    @Nullable
+                    @Nonnull
                     @Override
-                    public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
+                    public Container createMenu(int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player) {
                         return new GenericContainer(CableModule.CONTAINER_CONNECTOR.get(), id, ContainerFactory.EMPTY.get(), pos, genericTileEntity);
                     }
                 }, pos);
@@ -113,7 +115,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     }
 
     @Override
-    public void playerDestroy(World worldIn, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity te, ItemStack stack) {
+    public void playerDestroy(@Nonnull World worldIn, @Nonnull PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable TileEntity te, @Nonnull ItemStack stack) {
         if (te instanceof ConnectorTileEntity) {
             // If we are in mimic mode then the drop will be the facade as the connector will remain there
             ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
@@ -149,8 +151,9 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public void neighborChanged(BlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
+    public void neighborChanged(@Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Block blockIn, @Nonnull BlockPos fromPos, boolean isMoving) {
         checkRedstone(world, pos);
         super.neighborChanged(state, world, pos, blockIn, fromPos, isMoving);
     }
@@ -185,18 +188,21 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public boolean isSignalSource(BlockState state) {
+    public boolean isSignalSource(@Nonnull BlockState state) {
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public int getSignal(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
+    public int getSignal(@Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side) {
         return getRedstoneOutput(state, world, pos, side);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public int getDirectSignal(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
+    public int getDirectSignal(@Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side) {
         return getRedstoneOutput(state, world, pos, side);
     }
 
@@ -324,8 +330,9 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
 //        return true;    // delegated to GenericCableBakedModel#getQuads
 //    }
 //
+    @Nonnull
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(@Nonnull BlockState state, @Nonnull LootContext.Builder builder) {
         List<ItemStack> drops = super.getDrops(state, builder);
         ServerWorld world = builder.getLevel();
         for (ItemStack drop : drops) {
@@ -339,7 +346,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    public void appendHoverText(@Nonnull ItemStack stack, @Nullable IBlockReader worldIn, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
         tooltipBuilder.get().makeTooltip(getRegistryName(), stack, tooltip, flagIn);
     }

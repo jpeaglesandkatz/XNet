@@ -91,7 +91,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
                 .infoShift(TooltipBuilder.header(), TooltipBuilder.gold())
         ) {
             @Override
-            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+            protected void createBlockStateDefinition(@Nonnull StateContainer.Builder<Block, BlockState> builder) {
                 super.createBlockStateDefinition(builder);
                 builder.add(ERROR);
             }
@@ -333,8 +333,9 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     }
 
 
+    @Nonnull
     @Override
-    public CompoundNBT save(CompoundNBT tagCompound) {
+    public CompoundNBT save(@Nonnull CompoundNBT tagCompound) {
         tagCompound.putBoolean("error", error);
         return super.save(tagCompound);
     }

@@ -56,9 +56,8 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
             Block value = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(mimic.getString("Name")));
             if (value != null) {
                 ItemStack s = new ItemStack(value, 1);
-                if (s.getItem() != null) {
-                    return s.getHoverName().getString() /* was getFormattedText() */;
-                }
+                s.getItem();
+                return s.getHoverName().getString() /* was getFormattedText() */;
             }
         }
         return "<unset>";
@@ -96,10 +95,11 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
     }
 
     @Override
-    protected boolean canPlace(BlockItemUseContext context, BlockState state) {
+    protected boolean canPlace(@Nonnull BlockItemUseContext context, @Nonnull BlockState state) {
         return true;
     }
 
+    @Nonnull
     @Override
     public ActionResultType useOn(ItemUseContext context) {
         World world = context.getLevel();
@@ -169,7 +169,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flag) {
+    public void appendHoverText(@Nonnull ItemStack stack, @Nullable World worldIn, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flag) {
         super.appendHoverText(stack, worldIn, tooltip, flag);
         tooltipBuilder.get().makeTooltip(getRegistryName(), stack, tooltip, flag);
     }

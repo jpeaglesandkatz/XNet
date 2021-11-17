@@ -8,12 +8,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockDisplayReader;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class FacadeBlockColor implements IBlockColor {
 
     @Override
-    public int getColor(BlockState blockState, @Nullable IBlockDisplayReader world, @Nullable BlockPos pos, int tint) {
+    public int getColor(@Nonnull BlockState blockState, @Nullable IBlockDisplayReader world, @Nullable BlockPos pos, int tint) {
         if (world != null) {
             TileEntity te = world.getBlockEntity(pos);
             if (te instanceof IFacadeSupport) {

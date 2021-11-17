@@ -35,8 +35,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
 
     @Override
     public JsonObject writeToJson() {
-        JsonObject object = new JsonObject();
-        return object;
+        return new JsonObject();
     }
 
     @Override

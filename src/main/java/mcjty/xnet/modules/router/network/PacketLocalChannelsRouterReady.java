@@ -16,9 +16,9 @@ import java.util.function.Supplier;
 
 public class PacketLocalChannelsRouterReady {
 
-    public BlockPos pos;
-    public List<ControllerChannelClientInfo> list;
-    public String command;
+    private BlockPos pos;
+    private List<ControllerChannelClientInfo> list;
+    private String command;
 
     public PacketLocalChannelsRouterReady() {
     }

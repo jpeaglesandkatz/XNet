@@ -43,8 +43,8 @@ public class Sensor {
     }
 
     public enum Operator {
-        EQUAL("=", (i1, i2) -> i1 == i2),
-        NOTEQUAL("!=", (i1, i2) -> i1 != i2),
+        EQUAL("=", Integer::equals),
+        NOTEQUAL("!=", (i1, i2) -> !i1.equals(i2)),
         LESS("<", (i1, i2) -> i1 < i2),
         GREATER(">", (i1, i2) -> i1 > i2),
         LESSOREQUAL("<=", (i1, i2) -> i1 <= i2),

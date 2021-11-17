@@ -53,8 +53,9 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
         }
     }
 
+    @Nonnull
     @Override
-    public CompoundNBT save(CompoundNBT compound) {
+    public CompoundNBT save(@Nonnull CompoundNBT compound) {
         ListNBT list = new ListNBT();
         for (Map.Entry<RegistryKey<World>, WorldBlob> entry : worldBlobMap.entrySet()) {
             WorldBlob blob = entry.getValue();

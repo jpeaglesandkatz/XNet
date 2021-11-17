@@ -18,6 +18,8 @@ import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTable;
 import net.minecraft.loot.conditions.BlockStateProperty;
 
+import javax.annotation.Nonnull;
+
 public class LootTables extends BaseLootTableProvider {
 
     public LootTables(DataGenerator dataGeneratorIn) {
@@ -64,6 +66,7 @@ public class LootTables extends BaseLootTableProvider {
                         .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(GenericCableBlock.COLOR, color)));
     }
 
+    @Nonnull
     @Override
     public String getName() {
         return "XNet LootTables";

@@ -25,9 +25,6 @@ public class MimicBlockSupport {
     public void readFromNBT(CompoundNBT tagCompound) {
         if (tagCompound.contains("mimic")) {
             mimicBlock = NBTUtil.readBlockState(tagCompound.getCompound("mimic"));
-            if (mimicBlock == null) {
-                mimicBlock = Blocks.COBBLESTONE.defaultBlockState();
-            }
         } else {
             mimicBlock = null;
         }

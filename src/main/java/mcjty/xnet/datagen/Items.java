@@ -9,6 +9,8 @@ import mcjty.xnet.modules.wireless.WirelessRouterModule;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
+import javax.annotation.Nonnull;
+
 public class Items extends BaseItemModelProvider {
 
     public Items(DataGenerator generator, ExistingFileHelper existingFileHelper) {
@@ -24,6 +26,7 @@ public class Items extends BaseItemModelProvider {
         parentedItem(WirelessRouterModule.WIRELESS_ROUTER_ITEM.get(), "block/wireless_router");
     }
 
+    @Nonnull
     @Override
     public String getName() {
         return "XNet Item Models";

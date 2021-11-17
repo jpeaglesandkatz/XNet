@@ -28,12 +28,12 @@ public class XNet {
 
     public static final String MODID = "xnet";
 
-    public static ModSetup setup = new ModSetup();
+    public static final ModSetup setup = new ModSetup();
 
     public static XNet instance;
-    private Modules modules = new Modules();
+    private final Modules modules = new Modules();
 
-    public static XNetApi xNetApi = new XNetApi();
+    public static final XNetApi xNetApi = new XNetApi();
 
     public XNet() {
         instance = this;

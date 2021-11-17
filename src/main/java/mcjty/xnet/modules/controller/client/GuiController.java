@@ -42,6 +42,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.energy.CapabilityEnergy;
 import org.lwjgl.glfw.GLFW;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -115,7 +116,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private void setupEvents() {
-        window.event("searchbar", (source, params) -> { needsRefresh = true; });
+        window.event("searchbar", (source, params) -> needsRefresh = true);
         for (int i = 0 ; i < MAX_CHANNELS ; i++) {
             String channel = "channel" + (i+1);
             int finalI = i;
@@ -644,7 +645,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float v, int x1, int x2) {
+    protected void renderBg(@Nonnull MatrixStack matrixStack, float v, int x1, int x2) {
         updateFields();
         requestListsIfNeeded();
         populateList();

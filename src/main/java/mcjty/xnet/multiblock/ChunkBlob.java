@@ -86,11 +86,7 @@ public class ChunkBlob {
     @Nonnull
     public Set<NetworkId> getNetworksForPosition(IntPos pos) {
         BlobId blobId = blobAllocations.get(pos);
-        if (networkMappings.containsKey(blobId)) {
-            return networkMappings.get(blobId);
-        } else {
-            return Collections.emptySet();
-        }
+        return networkMappings.getOrDefault(blobId, Collections.emptySet());
     }
 
     @Nonnull
@@ -154,11 +150,7 @@ public class ChunkBlob {
                 }
             }
         }
-        if (cachedConsumers.containsKey(network)) {
-            return cachedConsumers.get(network);
-        } else {
-            return Collections.emptySet();
-        }
+        return cachedConsumers.getOrDefault(network, Collections.emptySet());
     }
 
     public void check(World world) {

@@ -15,6 +15,8 @@ import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.Direction;
 
+import javax.annotation.Nonnull;
+
 import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.xnet.modules.cables.blocks.ConnectorTileEntity.*;
 
@@ -74,7 +76,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         drawWindow(matrixStack);
     }
 }

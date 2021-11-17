@@ -2,6 +2,8 @@ package mcjty.xnet.modules.cables;
 
 import net.minecraft.util.IStringSerializable;
 
+import javax.annotation.Nonnull;
+
 public enum CableColor implements IStringSerializable {
     BLUE("blue", "dyeBlue"),
     RED("red", "dyeRed"),
@@ -20,6 +22,7 @@ public enum CableColor implements IStringSerializable {
     }
 
     @Override
+    @Nonnull
     public String getSerializedName() {
         return name;
     }

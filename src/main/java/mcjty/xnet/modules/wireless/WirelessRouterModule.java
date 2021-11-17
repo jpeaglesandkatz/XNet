@@ -24,6 +24,8 @@ import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
+import javax.annotation.Nonnull;
+
 import static mcjty.xnet.setup.Registration.*;
 
 public class WirelessRouterModule implements IModule {
@@ -40,7 +42,7 @@ public class WirelessRouterModule implements IModule {
     public static final RegistryObject<BaseBlock> ANTENNA_DISH = BLOCKS.register("antenna_dish", WirelessRouterModule::createAntennaDishBlock);
     public static final RegistryObject<Item> ANTENNA_DISH_ITEM = ITEMS.register("antenna_dish", () -> new BlockItem(ANTENNA_DISH.get(), Registration.createStandardProperties()));
 
-    public static VoxelShape SMALLER_CUBE = VoxelShapes.box(0.01f, 0.01f, 0.01f, 0.99f, 0.99f, 0.99f);
+    public static final VoxelShape SMALLER_CUBE = VoxelShapes.box(0.01f, 0.01f, 0.01f, 0.99f, 0.99f, 0.99f);
 
     private static BaseBlock createAntennaDishBlock() {
         return new BaseBlock(new BlockBuilder()
@@ -53,8 +55,9 @@ public class WirelessRouterModule implements IModule {
                 return RotationType.HORIZROTATION;
             }
 
+            @Nonnull
             @Override
-            public VoxelShape getOcclusionShape(BlockState state, IBlockReader world, BlockPos pos) {
+            public VoxelShape getOcclusionShape(@Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos) {
                 return SMALLER_CUBE;
             }
         };
@@ -70,8 +73,9 @@ public class WirelessRouterModule implements IModule {
                 return RotationType.NONE;
             }
 
+            @Nonnull
             @Override
-            public VoxelShape getOcclusionShape(BlockState state, IBlockReader world, BlockPos pos) {
+            public VoxelShape getOcclusionShape(@Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos) {
                 return SMALLER_CUBE;
             }
         };
@@ -90,8 +94,9 @@ public class WirelessRouterModule implements IModule {
                 return RotationType.HORIZROTATION;
             }
 
+            @Nonnull
             @Override
-            public VoxelShape getOcclusionShape(BlockState state, IBlockReader world, BlockPos pos) {
+            public VoxelShape getOcclusionShape(@Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos) {
                 return SMALLER_CUBE;
             }
         };

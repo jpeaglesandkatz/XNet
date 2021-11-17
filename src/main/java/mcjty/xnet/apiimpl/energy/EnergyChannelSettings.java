@@ -41,8 +41,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
 
     @Override
     public JsonObject writeToJson() {
-        JsonObject object = new JsonObject();
-        return object;
+        return new JsonObject();
     }
 
     @Override

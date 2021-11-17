@@ -167,7 +167,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
                 .infoShift(TooltipBuilder.header())
         ) {
             @Override
-            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+            protected void createBlockStateDefinition(@Nonnull StateContainer.Builder<Block, BlockState> builder) {
                 super.createBlockStateDefinition(builder);
                 builder.add(ERROR);
             }
@@ -364,8 +364,9 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         return cachedRoutedConnectors[channel];
     }
 
+    @Nonnull
     @Override
-    public CompoundNBT save(CompoundNBT tagCompound) {
+    public CompoundNBT save(@Nonnull CompoundNBT tagCompound) {
         if (networkId != null) {
             tagCompound.putInt("networkId", networkId.getId());
         }

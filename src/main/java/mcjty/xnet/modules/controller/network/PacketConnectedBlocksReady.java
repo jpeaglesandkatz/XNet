@@ -16,9 +16,9 @@ import java.util.function.Supplier;
 
 public class PacketConnectedBlocksReady {
 
-    public BlockPos pos;
-    public List<ConnectedBlockClientInfo> list;
-    public String command;
+    private BlockPos pos;
+    private List<ConnectedBlockClientInfo> list;
+    private String command;
 
     public PacketConnectedBlocksReady() {
     }

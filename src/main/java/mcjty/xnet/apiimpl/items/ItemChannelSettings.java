@@ -458,9 +458,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     }
 
     private int countItems(LazyOptional<IItemHandler> handler, Predicate<ItemStack> matcher) {
-        return handler.map(h -> {
-            return countItems(h, matcher);
-        }).orElse(0);
+        return handler.map(h -> countItems(h, matcher)).orElse(0);
     }
 
     private Integer countItems(IItemHandler h, Predicate<ItemStack> matcher) {

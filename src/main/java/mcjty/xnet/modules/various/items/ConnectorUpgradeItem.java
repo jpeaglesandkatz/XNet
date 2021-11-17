@@ -28,6 +28,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class ConnectorUpgradeItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    public void appendHoverText(@Nonnull ItemStack stack, @Nullable World worldIn, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
         tooltip.add(new StringTextComponent(TextFormatting.BLUE + "Sneak right click this on a"));
         tooltip.add(new StringTextComponent(TextFormatting.BLUE + "normal connector to upgrade it"));
@@ -48,12 +49,14 @@ public class ConnectorUpgradeItem extends Item {
     }
 
     @Override
-    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand hand) {
+    @Nonnull
+    public ActionResult<ItemStack> use(@Nonnull World worldIn, @Nonnull PlayerEntity playerIn, @Nonnull Hand hand) {
         return super.use(worldIn, playerIn, hand);
     }
 
     @Override
-    public ActionResultType useOn(ItemUseContext context) {
+    @Nonnull
+    public ActionResultType useOn(@Nonnull ItemUseContext context) {
         World world = context.getLevel();
         BlockPos pos = context.getClickedPos();
         BlockState state = world.getBlockState(pos);

@@ -13,6 +13,7 @@ import net.minecraftforge.client.model.IModelConfiguration;
 import net.minecraftforge.client.model.IModelLoader;
 import net.minecraftforge.client.model.geometry.IModelGeometry;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -22,12 +23,13 @@ import java.util.function.Function;
 public class CableModelLoader implements IModelLoader<CableModelLoader.CableModelGeometry> {
 
     @Override
-    public void onResourceManagerReload(IResourceManager resourceManager) {
+    public void onResourceManagerReload(@Nonnull IResourceManager resourceManager) {
 
     }
 
     @Override
-    public CableModelGeometry read(JsonDeserializationContext deserializationContext, JsonObject modelContents) {
+    @Nonnull
+    public CableModelGeometry read(@Nonnull JsonDeserializationContext deserializationContext, @Nonnull JsonObject modelContents) {
         return new CableModelGeometry();
     }
 

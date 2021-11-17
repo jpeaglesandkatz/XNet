@@ -10,6 +10,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ColorBlockItem extends BlockItem {
@@ -34,13 +35,14 @@ public class ColorBlockItem extends BlockItem {
     }
 
     @Override
+    @Nonnull
     public String getDescriptionId() {
         // We don't want the translation key of the block
         return super.getOrCreateDescriptionId();
     }
 
     @Override
-    public void fillItemCategory(ItemGroup group, NonNullList<ItemStack> items) {
+    public void fillItemCategory(@Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> items) {
         if (XNet.setup.getTab().equals(group)) {
             items.add(new ItemStack(this));
         }

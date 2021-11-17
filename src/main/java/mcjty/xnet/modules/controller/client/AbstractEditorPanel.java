@@ -42,7 +42,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
         return components.get(tag);
     }
 
-    protected void performUpdate(TypedMap.Builder builder, int i, Command cmd) {
+    protected void performUpdate(TypedMap.Builder builder, int i, Command<?> cmd) {
         for (Map.Entry<String, Object> entry : data.entrySet()) {
             Object o = entry.getValue();
             if (o instanceof String) {
@@ -303,6 +303,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
         blockRender.event(new BlockRenderEvent() {
             @Override
             public void select() {
+                //noinspection ConstantConditions
                 ItemStack holding = Minecraft.getInstance().player.inventory.getCarried();
                 if (holding.isEmpty()) {
                     update(tag, holding);

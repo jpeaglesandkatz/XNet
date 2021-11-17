@@ -22,6 +22,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
@@ -167,7 +168,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
 
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float v, int x1, int x2) {
+    protected void renderBg(@Nonnull MatrixStack matrixStack, float v, int x1, int x2) {
         requestListsIfNeeded();
         populateList();
         drawWindow(matrixStack);

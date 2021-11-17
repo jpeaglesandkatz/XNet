@@ -16,9 +16,9 @@ import java.util.function.Supplier;
 
 public class PacketChannelsReady {
 
-    public BlockPos pos;
-    public List<ChannelClientInfo> list;
-    public String command;
+    private BlockPos pos;
+    private List<ChannelClientInfo> list;
+    private String command;
 
     public PacketChannelsReady() {
     }

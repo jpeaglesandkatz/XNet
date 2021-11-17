@@ -339,16 +339,19 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         return false;
     }
 
+    @Nonnull
     @Override
     public TextureAtlasSprite getParticleIcon() {
         return spriteCable == null ? getTexture(new ResourceLocation("minecraft", "missingno")) : spriteCable;
     }
 
+    @Nonnull
     @Override
     public ItemCameraTransforms getTransforms() {
         return ItemCameraTransforms.NO_TRANSFORMS;
     }
 
+    @Nonnull
     @Override
     public ItemOverrideList getOverrides() {
         return ItemOverrideList.EMPTY;

@@ -144,12 +144,16 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                         // increments and inserting into a container that works in 17mB increments. We should end up
                         // with toextract = 884 at the end of this loop, given that it started at 1000.
                         FluidStack stack = fetchFluid(handler, true, extractMatcher, toextract);
-                        if (stack.isEmpty()) continue extractorsLoop;
+                        if (stack.isEmpty()) {
+                            continue extractorsLoop;
+                        }
                         toextract = stack.getAmount();
                         inserted.clear();
                         remaining = insertFluidSimulate(inserted, context, stack);
                         toextract -= remaining;
-                        if (inserted.isEmpty() || toextract <= 0) continue extractorsLoop;
+                        if (inserted.isEmpty() || toextract <= 0) {
+                            continue extractorsLoop;
+                        }
                     } while(remaining > 0);
                     if (context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
                         FluidStack stack = fetchFluid(handler, false, extractMatcher, toextract);

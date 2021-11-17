@@ -179,8 +179,9 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
         return Items.AIR;
     }
 
+    @Nonnull
     @Override
-    public ItemStack getCloneItemStack(IBlockReader worldIn, BlockPos pos, BlockState state) {
+    public ItemStack getCloneItemStack(@Nonnull IBlockReader worldIn, @Nonnull BlockPos pos, BlockState state) {
         return new ItemStack(getItem(state.getValue(COLOR)));
     }
 
@@ -209,8 +210,9 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 //        return AABB_EMPTY;
 //    }
 
+    @Nonnull
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getShape(@Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull ISelectionContext context) {
         if (getMimicBlock(world, pos) != null) {
             // In mimic mode we use original block
             return getMimicBlock(world, pos).getShape(world, pos, context);
@@ -231,7 +233,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     }
 
     @Override
-    public void setPlacedBy(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+    public void setPlacedBy(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
         originalOnBlockPlacedBy(world, pos, state, placer, stack);
         if (!world.isClientSide) {
             createCableSegment(world, pos, stack);
@@ -255,7 +257,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     }
 
     @Override
-    public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
+    public void onRemove(BlockState state, @Nonnull World world, @Nonnull BlockPos pos, BlockState newState, boolean isMoving) {
         if (newState.getBlock() != state.getBlock() && !(newState.getBlock() instanceof GenericCableBlock)) {
             unlinkBlock(world, pos);
         }
@@ -272,7 +274,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@Nonnull StateContainer.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(WATERLOGGED, COLOR, NORTH, SOUTH, EAST, WEST, UP, DOWN);
     }
@@ -300,13 +302,15 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 //    }
 
 
+    @Nonnull
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(@Nonnull BlockState state, @Nonnull LootContext.Builder builder) {
         return super.getDrops(state, builder);
     }
 
+    @Nonnull
     @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighbourState, IWorld world, BlockPos current, BlockPos offset) {
+    public BlockState updateShape(BlockState state, @Nonnull Direction direction, @Nonnull BlockState neighbourState, @Nonnull IWorld world, @Nonnull BlockPos current, @Nonnull BlockPos offset) {
         if (state.getValue(WATERLOGGED)) {
             world.getLiquidTicks().scheduleTick(current, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
@@ -314,7 +318,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     }
 
     @Override
-    public boolean isPathfindable(BlockState state, IBlockReader worldIn, BlockPos pos, PathType type) {
+    public boolean isPathfindable(@Nonnull BlockState state, @Nonnull IBlockReader worldIn, @Nonnull BlockPos pos, @Nonnull PathType type) {
         return super.isPathfindable(state, worldIn, pos, type);
     }
 
@@ -346,6 +350,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
                 .setValue(DOWN, down);
     }
 
+    @Nonnull
     @Override
     public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);

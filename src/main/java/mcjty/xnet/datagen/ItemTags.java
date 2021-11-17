@@ -6,6 +6,8 @@ import net.minecraft.data.ItemTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.ForgeBlockTagsProvider;
 
+import javax.annotation.Nonnull;
+
 public class ItemTags extends ItemTagsProvider {
 
     public ItemTags(DataGenerator generator, ExistingFileHelper helper) {
@@ -24,6 +26,7 @@ public class ItemTags extends ItemTagsProvider {
                 .add(CableModule.ADVANCED_CONNECTOR_BLUE.get(), CableModule.ADVANCED_CONNECTOR_YELLOW.get(), CableModule.ADVANCED_CONNECTOR_GREEN.get(), CableModule.ADVANCED_CONNECTOR_RED.get(), CableModule.ADVANCED_CONNECTOR_ROUTING.get());
     }
 
+    @Nonnull
     @Override
     public String getName() {
         return "XNet Tags";

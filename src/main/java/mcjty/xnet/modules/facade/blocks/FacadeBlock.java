@@ -17,6 +17,7 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.BlockFlags;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class FacadeBlock extends NetCableBlock {
@@ -68,7 +69,7 @@ public class FacadeBlock extends NetCableBlock {
     }
 
     @Override
-    public void playerDestroy(World worldIn, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity te, ItemStack stack) {
+    public void playerDestroy(@Nonnull World worldIn, @Nonnull PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable TileEntity te, @Nonnull ItemStack stack) {
         ItemStack item = new ItemStack(FacadeModule.FACADE.get());
         BlockState mimicBlock;
         if (te instanceof FacadeTileEntity) {
@@ -91,7 +92,7 @@ public class FacadeBlock extends NetCableBlock {
     }
 
     @Override
-    public void destroy(IWorld world, BlockPos pos, BlockState state) {
+    public void destroy(IWorld world, @Nonnull BlockPos pos, @Nonnull BlockState state) {
         if (world.isClientSide()) {
             replaceWithCable(world, pos, state);
         }
@@ -116,7 +117,7 @@ public class FacadeBlock extends NetCableBlock {
 
 
     @Override
-    public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
+    public void onRemove(BlockState state, @Nonnull World world, @Nonnull BlockPos pos, BlockState newState, boolean isMoving) {
         // Breaking a facade has no effect on blob network
         super.onRemove(state, world, pos, newState, isMoving);
     }
