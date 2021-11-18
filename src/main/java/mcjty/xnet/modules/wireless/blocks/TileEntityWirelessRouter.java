@@ -1,7 +1,7 @@
 package mcjty.xnet.modules.wireless.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
-import mcjty.lib.bindings.Val;
+import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.bindings.Value;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
@@ -61,7 +61,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     public static final int TIER_2 = 1;
     public static final int TIER_INF = 2;
 
-    @Val
+    @GuiValue
     public static final Value<?, Boolean> VALUE_PUBLIC = Value.<TileEntityWirelessRouter, Boolean>create("public", Type.BOOLEAN, TileEntityWirelessRouter::isPublicAccess, TileEntityWirelessRouter::setPublicAccess);
 
 
