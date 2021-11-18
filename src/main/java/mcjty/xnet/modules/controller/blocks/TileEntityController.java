@@ -106,8 +106,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     private final Predicate<ItemStack> filterCaches[] = new Predicate[FILTER_SLOTS];
 
     public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(FILTER_SLOTS)
-            .box(specific(s -> s.getItem() instanceof FilterModuleItem),
-                    CONTAINER_CONTAINER, SLOT_FILTER, 17, 5, FILTER_SLOTS, 1)
+            .box(specific(s -> s.getItem() instanceof FilterModuleItem), SLOT_FILTER, 17, 5, FILTER_SLOTS, 1)
             .playerSlots(91, 157));
 
     private NetworkId networkId;
