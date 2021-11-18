@@ -1,5 +1,6 @@
 package mcjty.xnet.client;
 
+import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.network.NetworkTools;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
@@ -13,6 +14,8 @@ import net.minecraft.network.PacketBuffer;
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * This class is used to communicate channels/connectors to the client (GUI)
@@ -26,20 +29,28 @@ public class ChannelClientInfo {
 
     private final Map<SidedConsumer, ConnectorClientInfo> connectors = new HashMap<>();
 
-    public static ChannelClientInfo readFromBuf(PacketBuffer buf) {
-        if (buf.readBoolean()) {
-            return new ChannelClientInfo(buf);
-        } else {
-            return null;
+    public static class Serializer implements ISerializer<ChannelClientInfo> {
+        @Override
+        public Function<PacketBuffer, ChannelClientInfo> getDeserializer() {
+            return buf -> {
+                if (buf.readBoolean()) {
+                    return new ChannelClientInfo(buf);
+                } else {
+                    return null;
+                }
+            };
         }
-    }
 
-    public static void writeToBuf(PacketBuffer buf, ChannelClientInfo info) {
-        if (info == null) {
-            buf.writeBoolean(false);
-        } else {
-            buf.writeBoolean(true);
-            info.writeToNBT(buf);
+        @Override
+        public BiConsumer<PacketBuffer, ChannelClientInfo> getSerializer() {
+            return (buf, info) -> {
+                if (info == null) {
+                    buf.writeBoolean(false);
+                } else {
+                    buf.writeBoolean(true);
+                    info.writeToNBT(buf);
+                }
+            };
         }
     }
 

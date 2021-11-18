@@ -1,5 +1,6 @@
 package mcjty.xnet.client;
 
+import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.xnet.XNet;
@@ -7,6 +8,8 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class ControllerChannelClientInfo {
     @Nonnull private final String channelName;
@@ -16,23 +19,30 @@ public class ControllerChannelClientInfo {
     private final boolean remote;      // If this channel was made available through a wireless router
     private final int index;        // Index of the channel within that controller (0 through 7)
 
-    public static ControllerChannelClientInfo readFromBuf(PacketBuffer buf) {
-        if (buf.readBoolean()) {
-            return new ControllerChannelClientInfo(buf);
-        } else {
-            return null;
+    public static class Serializer implements ISerializer<ControllerChannelClientInfo> {
+        @Override
+        public Function<PacketBuffer, ControllerChannelClientInfo> getDeserializer() {
+            return buf -> {
+                if (buf.readBoolean()) {
+                    return new ControllerChannelClientInfo(buf);
+                } else {
+                    return null;
+                }
+            };
+        }
+
+        @Override
+        public BiConsumer<PacketBuffer, ControllerChannelClientInfo> getSerializer() {
+            return (buf, info) -> {
+                if (info == null) {
+                    buf.writeBoolean(false);
+                } else {
+                    buf.writeBoolean(true);
+                    info.writeToBuf(buf);
+                }
+            };
         }
     }
-
-    public static void writeToBuf(PacketBuffer buf, ControllerChannelClientInfo info) {
-        if (info == null) {
-            buf.writeBoolean(false);
-        } else {
-            buf.writeBoolean(true);
-            info.writeToBuf(buf);
-        }
-    }
-
 
     public ControllerChannelClientInfo(@Nonnull String channelName, @Nonnull String publishedName, @Nonnull BlockPos pos, @Nonnull IChannelType channelType, boolean remote, int index) {
         this.channelName = channelName;

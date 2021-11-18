@@ -22,7 +22,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.xnet.modules.router.blocks.TileEntityRouter.*;
@@ -31,8 +30,6 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
 
     private WidgetList localChannelList;
     private WidgetList remoteChannelList;
-    public static List<ControllerChannelClientInfo> fromServer_localChannels = null;
-    public static List<ControllerChannelClientInfo> fromServer_remoteChannels = null;
     private boolean needsRefresh = true;
     private int listDirty;
 
@@ -68,8 +65,8 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
     }
 
     private void refresh() {
-        fromServer_localChannels = null;
-        fromServer_remoteChannels = null;
+        tileEntity.clientLocalChannels = null;
+        tileEntity.clientRemoteChannels = null;
         needsRefresh = true;
         listDirty = 3;
         requestListsIfNeeded();
@@ -77,7 +74,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
 
 
     private boolean listsReady() {
-        return fromServer_localChannels != null && fromServer_remoteChannels != null;
+        return tileEntity.clientLocalChannels != null && tileEntity.clientRemoteChannels != null;
     }
 
     private void populateList() {
@@ -93,7 +90,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         localChannelList.rowheight(40);
         int sel = localChannelList.getSelected();
 
-        for (ControllerChannelClientInfo channel : fromServer_localChannels) {
+        for (ControllerChannelClientInfo channel : tileEntity.clientLocalChannels) {
             localChannelList.children(makeChannelLine(channel, true));
         }
 
@@ -103,7 +100,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         remoteChannelList.rowheight(40);
         sel = remoteChannelList.getSelected();
 
-        for (ControllerChannelClientInfo channel : fromServer_remoteChannels) {
+        for (ControllerChannelClientInfo channel : tileEntity.clientRemoteChannels) {
             remoteChannelList.children(makeChannelLine(channel, false));
         }
 
@@ -154,7 +151,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
     }
 
     private void requestListsIfNeeded() {
-        if (fromServer_localChannels != null && fromServer_remoteChannels != null) {
+        if (tileEntity.clientLocalChannels != null && tileEntity.clientRemoteChannels != null) {
             return;
         }
         listDirty--;

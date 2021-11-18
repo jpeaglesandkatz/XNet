@@ -1,5 +1,6 @@
 package mcjty.xnet.client;
 
+import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.network.NetworkTools;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
@@ -8,6 +9,8 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 
 import javax.annotation.Nonnull;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class ConnectedBlockClientInfo {
 
@@ -23,23 +26,30 @@ public class ConnectedBlockClientInfo {
     /// The name of the block
     @Nonnull private final String blockName;
 
-    public static ConnectedBlockClientInfo readFromBuf(PacketBuffer buf) {
-        if (buf.readBoolean()) {
-            return new ConnectedBlockClientInfo(buf);
-        } else {
-            return null;
+    public static class Serializer implements ISerializer<ConnectedBlockClientInfo> {
+        @Override
+        public Function<PacketBuffer, ConnectedBlockClientInfo> getDeserializer() {
+            return buf -> {
+                if (buf.readBoolean()) {
+                    return new ConnectedBlockClientInfo(buf);
+                } else {
+                    return null;
+                }
+            };
+        }
+
+        @Override
+        public BiConsumer<PacketBuffer, ConnectedBlockClientInfo> getSerializer() {
+            return (buf, info) -> {
+                if (info == null) {
+                    buf.writeBoolean(false);
+                } else {
+                    buf.writeBoolean(true);
+                    info.writeToBuf(buf);
+                }
+            };
         }
     }
-
-    public static void writeToBuf(PacketBuffer buf, ConnectedBlockClientInfo info) {
-        if (info == null) {
-            buf.writeBoolean(false);
-        } else {
-            buf.writeBoolean(true);
-            info.writeToBuf(buf);
-        }
-    }
-
 
     public ConnectedBlockClientInfo(@Nonnull SidedPos pos, @Nonnull ItemStack connectedBlock, @Nonnull String name) {
         this.pos = pos;

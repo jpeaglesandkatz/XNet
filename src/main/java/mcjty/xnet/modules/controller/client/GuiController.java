@@ -79,9 +79,6 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     private EnergyBar energyBar;
     private Button copyConnector = null;
 
-    // From server.
-    public static List<ChannelClientInfo> fromServer_channels = null;
-    public static List<ConnectedBlockClientInfo> fromServer_connectedBlocks = null;
     private boolean needsRefresh = true;
 
     public GuiController(TileEntityController controller, GenericContainer container, PlayerInventory inventory) {
@@ -153,7 +150,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         if (index < 0) {
             return;
         }
-        ConnectedBlockClientInfo c = fromServer_connectedBlocks.get(index);
+        ConnectedBlockClientInfo c = tileEntity.clientConnectedBlocks.get(index);
         if (c != null) {
             RFToolsBase.instance.clientInfo.hilightBlock(c.getPos().getPos(), System.currentTimeMillis() + 1000 * 5);
             Logging.message(minecraft.player, "The block is now highlighted");
@@ -282,8 +279,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     public void refresh() {
-        fromServer_channels = null;
-        fromServer_connectedBlocks = null;
+        tileEntity.clientChannels = null;
+        tileEntity.clientConnectedBlocks = null;
         showingChannel = -1;
         showingConnector = null;
         needsRefresh = true;
@@ -307,7 +304,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             copyConnector = null;
             channelEditPanel.removeChildren();
             if (channelButtons[editingChannel].isPressed()) {
-                ChannelClientInfo info = fromServer_channels.get(editingChannel);
+                ChannelClientInfo info = tileEntity.clientChannels.get(editingChannel);
                 if (info != null) {
                     ChannelEditorPanel editor = new ChannelEditorPanel(channelEditPanel, minecraft, this, editingChannel);
                     editor.label("Channel " + (editingChannel + 1))
@@ -494,7 +491,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         if (editingConnector != null && !editingConnector.equals(showingConnector)) {
             showingConnector = editingConnector;
             connectorEditPanel.removeChildren();
-            ChannelClientInfo info = fromServer_channels.get(editingChannel);
+            ChannelClientInfo info = tileEntity.clientChannels.get(editingChannel);
             if (info != null) {
                 ConnectorClientInfo clientInfo = findClientInfo(info, editingConnector);
                 if (clientInfo != null) {
@@ -532,7 +529,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
 
     private void requestListsIfNeeded() {
-        if (fromServer_channels != null && fromServer_connectedBlocks != null) {
+        if (tileEntity.clientChannels != null && tileEntity.clientConnectedBlocks != null) {
             return;
         }
         listDirty--;
@@ -571,7 +568,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
         String selectedText = searchBar.getText().trim().toLowerCase();
 
-        for (ConnectedBlockClientInfo connectedBlock : fromServer_connectedBlocks) {
+        for (ConnectedBlockClientInfo connectedBlock : tileEntity.clientConnectedBlocks) {
             SidedPos sidedPos = connectedBlock.getPos();
             BlockPos coordinate = sidedPos.getPos();
             String name = connectedBlock.getName();
@@ -609,7 +606,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             panel.children(label(sidedPos.getSide().getSerializedName().substring(0, 1).toUpperCase()).color(color).desiredWidth(18));
             for (int i = 0 ; i < MAX_CHANNELS ; i++) {
                 Button but = new Button().desiredWidth(14);
-                ChannelClientInfo info = fromServer_channels.get(i);
+                ChannelClientInfo info = tileEntity.clientChannels.get(i);
                 if (info != null) {
                     ConnectorClientInfo clientInfo = findClientInfo(info, sidedPos);
                     if (clientInfo != null) {
@@ -640,7 +637,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private boolean listsReady() {
-        return fromServer_channels != null && fromServer_connectedBlocks != null;
+        return tileEntity.clientChannels != null && tileEntity.clientConnectedBlocks != null;
     }
 
     @Override
@@ -651,14 +648,14 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         refreshChannelEditor();
         refreshConnectorEditor();
         if (listsReady() && copyConnector != null && editingChannel != -1) {
-            ChannelClientInfo info = fromServer_channels.get(editingChannel);
+            ChannelClientInfo info = tileEntity.clientChannels.get(editingChannel);
             ConnectorClientInfo clientInfo = findClientInfo(info, editingConnector);
             copyConnector.enabled(clientInfo != null);
         }
-        if (fromServer_channels != null) {
+        if (tileEntity.clientChannels != null) {
             for (int i = 0; i < MAX_CHANNELS; i++) {
                 String channel = String.valueOf(i + 1);
-                ChannelClientInfo info = fromServer_channels.get(i);
+                ChannelClientInfo info = tileEntity.clientChannels.get(i);
                 if (info != null) {
                     IndicatorIcon icon = info.getChannelSettings().getIndicatorIcon();
                     if (icon != null) {

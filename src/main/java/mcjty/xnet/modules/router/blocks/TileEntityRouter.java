@@ -27,7 +27,6 @@ import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.controller.ChannelInfo;
 import mcjty.xnet.modules.router.LocalChannelId;
 import mcjty.xnet.modules.router.RouterModule;
-import mcjty.xnet.modules.router.client.GuiRouter;
 import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WirelessChannelKey;
 import mcjty.xnet.multiblock.WorldBlob;
@@ -65,6 +64,9 @@ public final class TileEntityRouter extends GenericTileEntity {
 
     private final Map<LocalChannelId, String> publishedChannels = new HashMap<>();
     private int channelCount = 0;
+
+    public List<ControllerChannelClientInfo> clientLocalChannels = null;
+    public List<ControllerChannelClientInfo> clientRemoteChannels = null;
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Router")
@@ -325,22 +327,23 @@ public final class TileEntityRouter extends GenericTileEntity {
     public static final Command<?> CMD_UPDATENAME = Command.<TileEntityRouter>create("router.updateName",
         (te, player, params) -> te.updatePublishName(params.get(PARAM_POS), params.get(PARAM_CHANNEL), params.get(PARAM_NAME)));
 
-    @ServerCommand
+    @ServerCommand(type = ControllerChannelClientInfo.class, serializer = ControllerChannelClientInfo.Serializer.class)
     public static final ListCommand<?, ?> CMD_GETCHANNELS = ListCommand.<TileEntityRouter, ControllerChannelClientInfo>create("xnet.router.getChannelInfo",
             (te, player, params) -> {
                 List<ControllerChannelClientInfo> list = new ArrayList<>();
                 te.findLocalChannelInfo(list, false, false);
                 return list;
             },
-            (te, player, params, list) -> GuiRouter.fromServer_localChannels = list);
+            (te, player, params, list) -> te.clientLocalChannels = list);
 
+    @ServerCommand(type = ControllerChannelClientInfo.class, serializer = ControllerChannelClientInfo.Serializer.class)
     public static final ListCommand<?, ?> CMD_GETREMOTECHANNELS = ListCommand.<TileEntityRouter, ControllerChannelClientInfo>create("xnet.router.getRemoteChannelInfo",
             (te, player, params) -> {
                 List<ControllerChannelClientInfo> list = new ArrayList<>();
                 te.findRemoteChannelInfo(list);
                 return list;
             },
-            (te, player, params, list) -> GuiRouter.fromServer_remoteChannels = list);
+            (te, player, params, list) -> te.clientRemoteChannels = list);
 
     @Override
     public void onReplaced(World world, BlockPos pos, BlockState state, BlockState newstate) {

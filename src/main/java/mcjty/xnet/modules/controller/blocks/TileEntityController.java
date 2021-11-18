@@ -99,6 +99,10 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     public static final int SLOT_FILTER = 0;
     public static final int FILTER_SLOTS = 4;
 
+    // For client
+    public List<ChannelClientInfo> clientChannels = null;
+    public List<ConnectedBlockClientInfo> clientConnectedBlocks = null;
+
     private final Predicate<ItemStack> filterCaches[] = new Predicate[FILTER_SLOTS];
 
     public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(FILTER_SLOTS)
@@ -1001,15 +1005,15 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     public static final Command<?> CMD_UPDATECHANNEL = Command.<TileEntityController>create("controller.updateChannel",
         (te, player, params) -> te.updateChannel(params.get(PARAM_CHANNEL), params));
 
-    @ServerCommand
+    @ServerCommand(type = ChannelClientInfo.class, serializer = ChannelClientInfo.Serializer.class)
     public static final ListCommand<?, ?> CMD_GETCHANNELS = ListCommand.<TileEntityController, ChannelClientInfo>create("xnet.controller.getChannelInfo",
             (te, player, params) -> te.findChannelInfo(),
-            (te, player, params, list) -> GuiController.fromServer_channels = list);
+            (te, player, params, list) -> te.clientChannels = list);
 
-    @ServerCommand
+    @ServerCommand(type = ConnectedBlockClientInfo.class, serializer = ConnectedBlockClientInfo.Serializer.class)
     public static final ListCommand<?, ?> CMD_GETCONNECTEDBLOCKS = ListCommand.<TileEntityController, ConnectedBlockClientInfo>create("getConnectedBlocks",
             (te, player, params) -> te.findConnectedBlocksForClient(),
-            (te, player, params, list) -> GuiController.fromServer_connectedBlocks = list);
+            (te, player, params, list) -> te.clientConnectedBlocks = list);
 
     @Override
     public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
