@@ -1002,7 +1002,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         (te, player, params) -> te.updateChannel(params.get(PARAM_CHANNEL), params));
 
     @ServerCommand
-    public static final ListCommand<?, ?> CMD_GETCHANNELS = ListCommand.<TileEntityController, ChannelClientInfo>create("getChannelInfo",
+    public static final ListCommand<?, ?> CMD_GETCHANNELS = ListCommand.<TileEntityController, ChannelClientInfo>create("xnet.controller.getChannelInfo",
             (te, player, params) -> te.findChannelInfo(),
             (te, player, params, list) -> GuiController.fromServer_channels = list);
 

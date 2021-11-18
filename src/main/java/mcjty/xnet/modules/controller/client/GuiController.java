@@ -538,8 +538,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         }
         listDirty--;
         if (listDirty <= 0) {
-            XNetMessages.INSTANCE.sendToServer(new PacketGetChannels(tileEntity.getBlockPos()));
-            XNetMessages.INSTANCE.sendToServer(new PacketGetConnectedBlocks(tileEntity.getBlockPos()));
+            XNetMessages.INSTANCE.sendToServer(new PacketGetChannels(tileEntity.getBlockPos(), CMD_GETCHANNELS.getName()));
+            XNetMessages.INSTANCE.sendToServer(new PacketGetConnectedBlocks(tileEntity.getBlockPos(), CMD_GETCONNECTEDBLOCKS.getName()));
             listDirty = 10;
             showingChannel = -1;
             showingConnector = null;

@@ -1,56 +1,38 @@
 package mcjty.xnet.modules.controller.network;
 
-import mcjty.lib.network.TypedMapTools;
-import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.lib.network.AbstractPacketGetListFromServer;
+import mcjty.lib.network.PacketSendResultToClient;
 import mcjty.lib.typed.TypedMap;
 import mcjty.xnet.client.ChannelClientInfo;
-import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import java.util.List;
-import java.util.function.Supplier;
 
-public class PacketGetChannels {
-
-    protected BlockPos pos;
-    protected TypedMap params;
-
-    public PacketGetChannels() {
-    }
+public class PacketGetChannels extends AbstractPacketGetListFromServer<ChannelClientInfo> {
 
     public PacketGetChannels(PacketBuffer buf) {
-        pos = buf.readBlockPos();
-        params = TypedMapTools.readArguments(buf);
+        super(buf);
     }
 
-    public PacketGetChannels(BlockPos pos) {
-        this.pos = pos;
-        this.params = TypedMap.EMPTY;
+    public PacketGetChannels(BlockPos pos, String cmd) {
+        super(pos, cmd, TypedMap.EMPTY);
     }
 
-    public void toBytes(PacketBuffer buf) {
-        buf.writeBlockPos(pos);
-        TypedMapTools.writeArguments(buf, params);
+    @Override
+    protected SimpleChannel getChannel() {
+        return XNetMessages.INSTANCE;
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(() -> {
-            World world = ctx.getSender().getCommandSenderWorld();
-            if (world.hasChunkAt(pos)) {
-                TileEntity te = world.getBlockEntity(pos);
-                if (te instanceof GenericTileEntity) {
-                    List<ChannelClientInfo> list = ((GenericTileEntity) te).executeServerCommandList(TileEntityController.CMD_GETCHANNELS.getName(), ctx.getSender(), params, ChannelClientInfo.class);
-                    XNetMessages.INSTANCE.sendTo(new PacketChannelsReady(pos, TileEntityController.CMD_GETCHANNELS.getName(), list), ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-                }
-            }
-        });
-        ctx.setPacketHandled(true);
+    @Override
+    protected Class<ChannelClientInfo> getType() {
+        return ChannelClientInfo.class;
+    }
+
+    @Override
+    protected Object createReturnPacket(List<ChannelClientInfo> list) {
+        return new PacketSendResultToClient(pos, command, list);
     }
 }
