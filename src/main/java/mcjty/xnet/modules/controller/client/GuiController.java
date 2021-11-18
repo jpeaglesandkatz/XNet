@@ -14,6 +14,7 @@ import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.ButtonEvent;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
 import mcjty.lib.gui.widgets.*;
+import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Logging;
@@ -28,8 +29,6 @@ import mcjty.xnet.client.ConnectedBlockClientInfo;
 import mcjty.xnet.client.ConnectorClientInfo;
 import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
-import mcjty.xnet.modules.controller.network.PacketGetChannels;
-import mcjty.xnet.modules.controller.network.PacketGetConnectedBlocks;
 import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
@@ -538,8 +537,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         }
         listDirty--;
         if (listDirty <= 0) {
-            XNetMessages.INSTANCE.sendToServer(new PacketGetChannels(tileEntity.getBlockPos(), CMD_GETCHANNELS.getName()));
-            XNetMessages.INSTANCE.sendToServer(new PacketGetConnectedBlocks(tileEntity.getBlockPos(), CMD_GETCONNECTEDBLOCKS.getName()));
+            XNetMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETCHANNELS.getName()));
+            XNetMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETCONNECTEDBLOCKS.getName()));
             listDirty = 10;
             showingChannel = -1;
             showingConnector = null;

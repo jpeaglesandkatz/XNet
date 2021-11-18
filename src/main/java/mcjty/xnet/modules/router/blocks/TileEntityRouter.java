@@ -326,7 +326,7 @@ public final class TileEntityRouter extends GenericTileEntity {
         (te, player, params) -> te.updatePublishName(params.get(PARAM_POS), params.get(PARAM_CHANNEL), params.get(PARAM_NAME)));
 
     @ServerCommand
-    public static final ListCommand<?, ?> CMD_GETCHANNELS = ListCommand.<TileEntityRouter, ControllerChannelClientInfo>create("getChannelInfo",
+    public static final ListCommand<?, ?> CMD_GETCHANNELS = ListCommand.<TileEntityRouter, ControllerChannelClientInfo>create("xnet.router.getChannelInfo",
             (te, player, params) -> {
                 List<ControllerChannelClientInfo> list = new ArrayList<>();
                 te.findLocalChannelInfo(list, false, false);
@@ -334,7 +334,7 @@ public final class TileEntityRouter extends GenericTileEntity {
             },
             (te, player, params, list) -> GuiRouter.fromServer_localChannels = list);
 
-    public static final ListCommand<?, ?> CMD_GETREMOTECHANNELS = ListCommand.<TileEntityRouter, ControllerChannelClientInfo>create("getRemoteChannelInfo",
+    public static final ListCommand<?, ?> CMD_GETREMOTECHANNELS = ListCommand.<TileEntityRouter, ControllerChannelClientInfo>create("xnet.router.getRemoteChannelInfo",
             (te, player, params) -> {
                 List<ControllerChannelClientInfo> list = new ArrayList<>();
                 te.findRemoteChannelInfo(list);

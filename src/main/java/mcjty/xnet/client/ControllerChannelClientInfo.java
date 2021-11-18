@@ -16,6 +16,24 @@ public class ControllerChannelClientInfo {
     private final boolean remote;      // If this channel was made available through a wireless router
     private final int index;        // Index of the channel within that controller (0 through 7)
 
+    public static ControllerChannelClientInfo readFromBuf(PacketBuffer buf) {
+        if (buf.readBoolean()) {
+            return new ControllerChannelClientInfo(buf);
+        } else {
+            return null;
+        }
+    }
+
+    public static void writeToBuf(PacketBuffer buf, ControllerChannelClientInfo info) {
+        if (info == null) {
+            buf.writeBoolean(false);
+        } else {
+            buf.writeBoolean(true);
+            info.writeToBuf(buf);
+        }
+    }
+
+
     public ControllerChannelClientInfo(@Nonnull String channelName, @Nonnull String publishedName, @Nonnull BlockPos pos, @Nonnull IChannelType channelType, boolean remote, int index) {
         this.channelName = channelName;
         this.publishedName = publishedName;
@@ -39,7 +57,7 @@ public class ControllerChannelClientInfo {
         index = buf.readInt();
     }
 
-    public void writeToNBT(@Nonnull PacketBuffer buf) {
+    public void writeToBuf(@Nonnull PacketBuffer buf) {
         NetworkTools.writeStringUTF8(buf, channelName);
         NetworkTools.writeStringUTF8(buf, publishedName);
         buf.writeUtf(channelType.getID());

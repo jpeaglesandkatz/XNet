@@ -23,6 +23,24 @@ public class ConnectedBlockClientInfo {
     /// The name of the block
     @Nonnull private final String blockName;
 
+    public static ConnectedBlockClientInfo readFromBuf(PacketBuffer buf) {
+        if (buf.readBoolean()) {
+            return new ConnectedBlockClientInfo(buf);
+        } else {
+            return null;
+        }
+    }
+
+    public static void writeToBuf(PacketBuffer buf, ConnectedBlockClientInfo info) {
+        if (info == null) {
+            buf.writeBoolean(false);
+        } else {
+            buf.writeBoolean(true);
+            info.writeToBuf(buf);
+        }
+    }
+
+
     public ConnectedBlockClientInfo(@Nonnull SidedPos pos, @Nonnull ItemStack connectedBlock, @Nonnull String name) {
         this.pos = pos;
         this.connectedBlock = connectedBlock;
