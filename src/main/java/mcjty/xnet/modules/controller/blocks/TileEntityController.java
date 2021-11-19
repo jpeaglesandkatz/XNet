@@ -80,7 +80,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static mcjty.lib.container.ContainerFactory.CONTAINER_CONTAINER;
 import static mcjty.lib.container.SlotDefinition.specific;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.modules.controller.ControllerModule.TYPE_CONTROLLER;
@@ -122,9 +121,9 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     @Cap(type = CapType.ITEMS_AUTOMATION)
     private final NoDirectionItemHander items = createItemHandler();
 
+    @Cap(type = CapType.ENERGY)
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get());
-    @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> energyStorage);
+
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
             .containerSupplier((windowId,player) -> new GenericContainer(ControllerModule.CONTAINER_CONTROLLER.get(), windowId, CONTAINER_FACTORY.get(), getBlockPos(), TileEntityController.this))
@@ -1010,7 +1009,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
             (te, player, params, list) -> te.clientChannels = list);
 
     @ServerCommand(type = ConnectedBlockClientInfo.class, serializer = ConnectedBlockClientInfo.Serializer.class)
-    public static final ListCommand<?, ?> CMD_GETCONNECTEDBLOCKS = ListCommand.<TileEntityController, ConnectedBlockClientInfo>create("getConnectedBlocks",
+    public static final ListCommand<?, ?> CMD_GETCONNECTEDBLOCKS = ListCommand.<TileEntityController, ConnectedBlockClientInfo>create("xnet.controller.getConnectedBlocks",
             (te, player, params) -> te.findConnectedBlocksForClient(),
             (te, player, params, list) -> te.clientConnectedBlocks = list);
 
