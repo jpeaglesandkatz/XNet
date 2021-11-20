@@ -217,6 +217,11 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
+    public void readClientDataFromNBT(CompoundNBT tagCompound) {
+        mimicBlockSupport.readFromNBT(tagCompound);
+    }
+
+    @Override
     public void writeInfo(CompoundNBT tagCompound) {
         super.writeInfo(tagCompound);
         CompoundNBT info = getOrCreateInfo(tagCompound);
