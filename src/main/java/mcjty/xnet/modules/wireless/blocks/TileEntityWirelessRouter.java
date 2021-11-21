@@ -62,7 +62,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     public static final int TIER_INF = 2;
 
     @GuiValue
-    public static final Value<?, Boolean> VALUE_PUBLIC = Value.<TileEntityWirelessRouter, Boolean>create("public", Type.BOOLEAN, TileEntityWirelessRouter::isPublicAccess, TileEntityWirelessRouter::setPublicAccess);
+    public static final Value<?, Boolean> VALUE_PUBLIC = Value.create("public", Type.BOOLEAN, TileEntityWirelessRouter::isPublicAccess, TileEntityWirelessRouter::setPublicAccess);
 
 
     private boolean error = false;
