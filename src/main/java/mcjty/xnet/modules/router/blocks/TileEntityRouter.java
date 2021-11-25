@@ -6,7 +6,6 @@ import mcjty.lib.blockcommands.ListCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
-import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
@@ -54,6 +53,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static mcjty.lib.api.container.DefaultContainerProvider.empty;
 import static mcjty.lib.builder.TooltipBuilder.header;
 import static mcjty.lib.builder.TooltipBuilder.key;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
@@ -70,7 +70,7 @@ public final class TileEntityRouter extends GenericTileEntity {
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Router")
-            .containerSupplier(windowId -> new GenericContainer(RouterModule.CONTAINER_ROUTER, windowId, ContainerFactory.EMPTY, this)));
+            .containerSupplier(empty(RouterModule.CONTAINER_ROUTER, this)));
 
     public TileEntityRouter() {
         super(TYPE_ROUTER.get());

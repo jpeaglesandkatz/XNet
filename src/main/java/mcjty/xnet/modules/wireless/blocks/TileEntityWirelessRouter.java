@@ -5,7 +5,6 @@ import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.builder.TooltipBuilder;
-import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
@@ -46,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static mcjty.lib.api.container.DefaultContainerProvider.empty;
 import static mcjty.xnet.modules.controller.blocks.TileEntityController.ERROR;
 import static mcjty.xnet.modules.wireless.WirelessRouterModule.TYPE_WIRELESS_ROUTER;
 
@@ -68,7 +68,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.wirelessRouterMaxRF.get(), Config.wirelessRouterRfPerTick.get()));
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Wireless Router")
-            .containerSupplier(windowId -> new GenericContainer(WirelessRouterModule.CONTAINER_WIRELESS_ROUTER, windowId, ContainerFactory.EMPTY, this))
+            .containerSupplier(empty(WirelessRouterModule.CONTAINER_WIRELESS_ROUTER, this))
             .setupSync(this));
 
     public TileEntityWirelessRouter() {

@@ -4,7 +4,6 @@ import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ServerCommand;
-import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
@@ -40,6 +39,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import static mcjty.lib.api.container.DefaultContainerProvider.empty;
 import static mcjty.xnet.modules.cables.CableModule.TYPE_CONNECTOR;
 
 public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSupport, IConnectorTile {
@@ -72,7 +72,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     @Cap(type = CapType.CONTAINER)
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Connector")
-            .containerSupplier(windowId -> new GenericContainer(CableModule.CONTAINER_CONNECTOR, windowId, ContainerFactory.EMPTY, this)));
+            .containerSupplier(empty(CableModule.CONTAINER_CONNECTOR, this)));
 
     public ConnectorTileEntity() {
         this(TYPE_CONNECTOR.get());
