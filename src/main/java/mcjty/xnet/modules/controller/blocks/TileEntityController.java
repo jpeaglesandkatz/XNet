@@ -80,6 +80,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static mcjty.lib.api.container.DefaultContainerProvider.container;
 import static mcjty.lib.container.SlotDefinition.specific;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.modules.controller.ControllerModule.TYPE_CONTROLLER;
@@ -126,9 +127,10 @@ public final class TileEntityController extends GenericTileEntity implements ITi
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
-            .containerSupplier(windowId -> new GenericContainer(ControllerModule.CONTAINER_CONTROLLER, windowId, CONTAINER_FACTORY, this))
+            .containerSupplier(container(ControllerModule.CONTAINER_CONTROLLER, CONTAINER_FACTORY,this))
             .itemHandler(() -> items)
-            .energyHandler(() -> energyStorage));
+            .energyHandler(() -> energyStorage)
+            .setupSync(this));
 
     private final Cached<NetworkChecker> networkChecker = Cached.of(this::createNetworkChecker);
 
