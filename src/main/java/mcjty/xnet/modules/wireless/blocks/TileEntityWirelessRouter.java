@@ -66,6 +66,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
 
     @Cap(type = CapType.ENERGY)
     private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.wirelessRouterMaxRF.get(), Config.wirelessRouterRfPerTick.get()));
+
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Wireless Router")
             .containerSupplier(empty(WirelessRouterModule.CONTAINER_WIRELESS_ROUTER, this))
