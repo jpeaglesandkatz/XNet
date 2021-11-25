@@ -2,7 +2,6 @@ package mcjty.xnet.modules.wireless.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.GuiValue;
-import mcjty.lib.bindings.Value;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.builder.TooltipBuilder;
@@ -12,15 +11,12 @@ import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.lib.typed.Type;
 import mcjty.lib.varia.LevelTools;
-import mcjty.lib.varia.Sync;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.rftoolsbase.tools.ManualHelper;
-import mcjty.xnet.XNet;
 import mcjty.xnet.client.ControllerChannelClientInfo;
 import mcjty.xnet.compat.XNetTOPDriver;
 import mcjty.xnet.logic.LogicTools;
@@ -38,7 +34,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -61,12 +56,10 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     public static final int TIER_2 = 1;
     public static final int TIER_INF = 2;
 
-    @GuiValue
-    public static final Value<?, Boolean> VALUE_PUBLIC = Value.create("public", Type.BOOLEAN, TileEntityWirelessRouter::isPublicAccess, TileEntityWirelessRouter::setPublicAccess);
-
-
     private boolean error = false;
     private int counter = 10;
+
+    @GuiValue(name = "public")
     private boolean publicAccess = false;
 
     private int globalChannelVersion = -1;      // Used to detect if a wireless channel has been published and we might need to recheck
@@ -76,7 +69,7 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Wireless Router")
             .containerSupplier((windowId,player) -> new GenericContainer(WirelessRouterModule.CONTAINER_WIRELESS_ROUTER.get(), windowId, ContainerFactory.EMPTY.get(), getBlockPos(), TileEntityWirelessRouter.this))
-            .dataListener(Sync.values(new ResourceLocation(XNet.MODID, "data"), this)));
+            .setupSync(this));
 
     public TileEntityWirelessRouter() {
         super(TYPE_WIRELESS_ROUTER.get());

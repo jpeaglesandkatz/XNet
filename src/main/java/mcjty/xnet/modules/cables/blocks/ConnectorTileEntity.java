@@ -2,7 +2,6 @@ package mcjty.xnet.modules.cables.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.GuiValue;
-import mcjty.lib.bindings.Value;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.ContainerFactory;
@@ -49,7 +48,6 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     private int energy = 0;
     private int inputFromSide[] = new int[] { 0, 0, 0, 0, 0, 0 };
-    private String name = "";
 
     // Count the number of redstone pulses we got
     private int pulseCounter;
@@ -62,7 +60,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     private final Block[] cachedNeighbours = new Block[OrientationTools.DIRECTION_VALUES.length];
 
     @GuiValue
-    public static final Value<?, String> VALUE_NAME = Value.create("name", Type.STRING, ConnectorTileEntity::getConnectorName, ConnectorTileEntity::setConnectorName);
+    private String name = "";
 
     @Override
     public void setRemoved() {
