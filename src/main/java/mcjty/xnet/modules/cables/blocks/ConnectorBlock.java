@@ -106,7 +106,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
                     @Nonnull
                     @Override
                     public Container createMenu(int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player) {
-                        return new GenericContainer(CableModule.CONTAINER_CONNECTOR.get(), id, ContainerFactory.EMPTY.get(), pos, genericTileEntity);
+                        return new GenericContainer(CableModule.CONTAINER_CONNECTOR, id, ContainerFactory.EMPTY, genericTileEntity);
                     }
                 }, pos);
             }
