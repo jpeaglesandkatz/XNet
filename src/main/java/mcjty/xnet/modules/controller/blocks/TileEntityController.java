@@ -120,7 +120,8 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     private final Map<WirelessChannelKey, Integer> wirelessVersions = new HashMap<>();
 
     @Cap(type = CapType.ITEMS_AUTOMATION)
-    private final GenericItemHandler items = createItemHandler();
+    private final GenericItemHandler items = GenericItemHandler.create(this, CONTAINER_FACTORY, (slot, stack) -> stack.getItem() instanceof FilterModuleItem,
+            (slot, stack) -> clearFilterCache());
 
     @Cap(type = CapType.ENERGY)
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get());
@@ -138,6 +139,12 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         super(TYPE_CONTROLLER.get());
         for (int i = 0; i < MAX_CHANNELS; i++) {
             channels[i] = null;
+        }
+    }
+
+    private void clearFilterCache() {
+        for (int i = 0; i < FILTER_SLOTS; i++) {
+            filterCaches[i] = null;
         }
     }
 
@@ -1075,21 +1082,4 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         }
     }
 
-    private GenericItemHandler createItemHandler() {
-        return new GenericItemHandler(TileEntityController.this, CONTAINER_FACTORY.get()) {
-
-            @Override
-            protected void onUpdate(int index) {
-                super.onUpdate(index);
-                for (int i = 0 ; i < FILTER_SLOTS ; i++) {
-                    filterCaches[i] = null;
-                }
-            }
-
-            @Override
-            public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-                return stack.getItem() instanceof FilterModuleItem;
-            }
-        };
-    }
 }
