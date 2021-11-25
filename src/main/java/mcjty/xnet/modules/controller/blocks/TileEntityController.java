@@ -10,7 +10,7 @@ import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.container.NoDirectionItemHander;
+import mcjty.lib.container.GenericItemHandler;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -120,7 +120,7 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     private final Map<WirelessChannelKey, Integer> wirelessVersions = new HashMap<>();
 
     @Cap(type = CapType.ITEMS_AUTOMATION)
-    private final NoDirectionItemHander items = createItemHandler();
+    private final GenericItemHandler items = createItemHandler();
 
     @Cap(type = CapType.ENERGY)
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get());
@@ -1075,8 +1075,8 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         }
     }
 
-    private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(TileEntityController.this, CONTAINER_FACTORY.get()) {
+    private GenericItemHandler createItemHandler() {
+        return new GenericItemHandler(TileEntityController.this, CONTAINER_FACTORY.get()) {
 
             @Override
             protected void onUpdate(int index) {
