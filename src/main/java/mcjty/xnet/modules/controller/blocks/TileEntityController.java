@@ -120,8 +120,10 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     private final Map<WirelessChannelKey, Integer> wirelessVersions = new HashMap<>();
 
     @Cap(type = CapType.ITEMS_AUTOMATION)
-    private final GenericItemHandler items = GenericItemHandler.create(this, CONTAINER_FACTORY, (slot, stack) -> stack.getItem() instanceof FilterModuleItem,
-            (slot, stack) -> clearFilterCache());
+    private final GenericItemHandler items = GenericItemHandler.create(this, CONTAINER_FACTORY)
+            .itemValid((slot, stack) -> stack.getItem() instanceof FilterModuleItem)
+            .onUpdate((slot, stack) -> clearFilterCache())
+            .build();
 
     @Cap(type = CapType.ENERGY)
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get());
