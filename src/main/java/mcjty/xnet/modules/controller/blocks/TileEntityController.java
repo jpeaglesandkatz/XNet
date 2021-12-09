@@ -11,10 +11,7 @@ import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.GenericItemHandler;
-import mcjty.lib.tileentity.Cap;
-import mcjty.lib.tileentity.CapType;
-import mcjty.lib.tileentity.GenericEnergyStorage;
-import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.lib.tileentity.*;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
@@ -85,7 +82,7 @@ import static mcjty.lib.container.SlotDefinition.specific;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.modules.controller.ControllerModule.TYPE_CONTROLLER;
 
-public final class TileEntityController extends GenericTileEntity implements ITickableTileEntity, IControllerContext {
+public final class TileEntityController extends TickingTileEntity implements IControllerContext {
 
     public static final Key<Integer> PARAM_INDEX = new Key<>("index", Type.INTEGER);
     public static final Key<String> PARAM_TYPE = new Key<>("type", Type.STRING);
@@ -271,46 +268,44 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     }
 
     @Override
-    public void tick() {
-        if (!level.isClientSide) {
-            WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
+    public void tickServer() {
+        WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
 
-            BlockState state = level.getBlockState(worldPosition);
-            if (worldBlob.getNetworksAt(getBlockPos()).size() > 1) {
-                if (!state.getValue(ERROR)) {
-                    level.setBlock(worldPosition, state.setValue(ERROR, true), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
-                }
-                return;
-            } else {
-                if (state.getValue(ERROR)) {
-                    level.setBlock(worldPosition, state.setValue(ERROR, false), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
-                }
+        BlockState state = level.getBlockState(worldPosition);
+        if (worldBlob.getNetworksAt(getBlockPos()).size() > 1) {
+            if (!state.getValue(ERROR)) {
+                level.setBlock(worldPosition, state.setValue(ERROR, true), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
             }
-
-            checkNetwork(worldBlob);
-
-            if (!checkAndConsumeRF(Config.controllerRFT.get())) {
-                return;
+            return;
+        } else {
+            if (state.getValue(ERROR)) {
+                level.setBlock(worldPosition, state.setValue(ERROR, false), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
             }
+        }
 
-            boolean dirty = false;
-            int newcolors = 0;
-            for (int i = 0; i < MAX_CHANNELS; i++) {
-                if (channels[i] != null && channels[i].isEnabled()) {
-                    if (checkAndConsumeRF(Config.controllerChannelRFT.get())) {
-                        channels[i].getChannelSettings().tick(i, this);
-                    }
-                    newcolors |= channels[i].getChannelSettings().getColors();
-                    dirty = true;
+        checkNetwork(worldBlob);
+
+        if (!checkAndConsumeRF(Config.controllerRFT.get())) {
+            return;
+        }
+
+        boolean dirty = false;
+        int newcolors = 0;
+        for (int i = 0; i < MAX_CHANNELS; i++) {
+            if (channels[i] != null && channels[i].isEnabled()) {
+                if (checkAndConsumeRF(Config.controllerChannelRFT.get())) {
+                    channels[i].getChannelSettings().tick(i, this);
                 }
-            }
-            if (newcolors != colors) {
+                newcolors |= channels[i].getChannelSettings().getColors();
                 dirty = true;
-                colors = newcolors;
             }
-            if (dirty) {
-                markDirtyQuick();
-            }
+        }
+        if (newcolors != colors) {
+            dirty = true;
+            colors = newcolors;
+        }
+        if (dirty) {
+            markDirtyQuick();
         }
     }
 

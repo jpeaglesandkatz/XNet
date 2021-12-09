@@ -6,10 +6,7 @@ import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.tileentity.Cap;
-import mcjty.lib.tileentity.CapType;
-import mcjty.lib.tileentity.GenericEnergyStorage;
-import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.lib.tileentity.*;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
@@ -49,7 +46,7 @@ import static mcjty.lib.api.container.DefaultContainerProvider.empty;
 import static mcjty.xnet.modules.controller.blocks.TileEntityController.ERROR;
 import static mcjty.xnet.modules.wireless.WirelessRouterModule.TYPE_WIRELESS_ROUTER;
 
-public final class TileEntityWirelessRouter extends GenericTileEntity implements ITickableTileEntity {
+public final class TileEntityWirelessRouter extends TickingTileEntity {
 
     public static final int TIER_INVALID = -1;
     public static final int TIER_1 = 0;
@@ -102,41 +99,39 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     }
 
     @Override
-    public void tick() {
-        if (!level.isClientSide) {
-            counter--;
-            if (counter > 0) {
-                return;
-            }
-            counter = 10;
-
-            int version = XNetWirelessChannels.get(level).getGlobalChannelVersion();
-            if (globalChannelVersion != version) {
-                globalChannelVersion = version;
-                NetworkId networkId = findRoutingNetwork();
-                if (networkId != null) {
-                    WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
-                    worldBlob.markNetworkDirty(networkId);
-                }
-            }
-
-            boolean err = false;
-            int range = getAntennaRange();
-            if (range < 0) {
-                err = true;
-            }
-
-            if (!err) {
-                NetworkId networkId = findRoutingNetwork();
-                if (networkId != null) {
-                    LogicTools.consumers(level, networkId)
-                            .forEach(consumerPos -> LogicTools.routers(level, consumerPos)
-                                    .forEach(r -> publishChannels(r, networkId)));
-                }
-            }
-
-            setError(err);
+    public void tickServer() {
+        counter--;
+        if (counter > 0) {
+            return;
         }
+        counter = 10;
+
+        int version = XNetWirelessChannels.get(level).getGlobalChannelVersion();
+        if (globalChannelVersion != version) {
+            globalChannelVersion = version;
+            NetworkId networkId = findRoutingNetwork();
+            if (networkId != null) {
+                WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
+                worldBlob.markNetworkDirty(networkId);
+            }
+        }
+
+        boolean err = false;
+        int range = getAntennaRange();
+        if (range < 0) {
+            err = true;
+        }
+
+        if (!err) {
+            NetworkId networkId = findRoutingNetwork();
+            if (networkId != null) {
+                LogicTools.consumers(level, networkId)
+                        .forEach(consumerPos -> LogicTools.routers(level, consumerPos)
+                                .forEach(r -> publishChannels(r, networkId)));
+            }
+        }
+
+        setError(err);
     }
 
     private int getAntennaTier() {
