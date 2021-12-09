@@ -55,17 +55,15 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
     }
 
     @Override
-    public void read(CompoundNBT tagCompound) {
-        super.read(tagCompound);
+    public void load(CompoundNBT tagCompound) {
+        super.load(tagCompound);
         mimicBlockSupport.readFromNBT(tagCompound);
     }
 
-    @Nonnull
     @Override
-    public CompoundNBT save(@Nonnull CompoundNBT tagCompound) {
-        super.save(tagCompound);
+    public void saveAdditional(@Nonnull CompoundNBT tagCompound) {
+        super.saveAdditional(tagCompound);
         mimicBlockSupport.writeToNBT(tagCompound);
-        return tagCompound;
     }
 
     @Override

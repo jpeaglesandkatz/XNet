@@ -133,8 +133,8 @@ public final class TileEntityRouter extends GenericTileEntity {
     }
 
     @Override
-    public void writeInfo(CompoundNBT tagCompound) {
-        super.writeInfo(tagCompound);
+    public void saveInfo(CompoundNBT tagCompound) {
+        super.saveInfo(tagCompound);
         CompoundNBT info = getOrCreateInfo(tagCompound);
         info.putInt("chancnt", channelCount);
         ListNBT published = new ListNBT();
@@ -149,8 +149,8 @@ public final class TileEntityRouter extends GenericTileEntity {
     }
 
     @Override
-    public void readInfo(CompoundNBT tagCompound) {
-        super.readInfo(tagCompound);
+    public void loadInfo(CompoundNBT tagCompound) {
+        super.loadInfo(tagCompound);
         CompoundNBT info = tagCompound.getCompound("Info");
         channelCount = info.getInt("chancnt");
         ListNBT published = info.getList("published", Constants.NBT.TAG_COMPOUND);

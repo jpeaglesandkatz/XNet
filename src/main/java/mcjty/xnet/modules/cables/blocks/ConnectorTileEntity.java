@@ -169,8 +169,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
-    public void read(CompoundNBT tagCompound) {
-        super.read(tagCompound);
+    public void load(CompoundNBT tagCompound) {
+        super.load(tagCompound);
         energy = tagCompound.getInt("energy");
         inputFromSide = tagCompound.getIntArray("inputs");
         if (inputFromSide.length != 6) {
@@ -184,8 +184,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
-    public void readInfo(CompoundNBT tagCompound) {
-        super.readInfo(tagCompound);
+    public void loadInfo(CompoundNBT tagCompound) {
+        super.loadInfo(tagCompound);
         CompoundNBT info = tagCompound.getCompound("Info");
         name = info.getString("name");
         if (info.contains("enabled")) {
@@ -195,10 +195,9 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         }
     }
 
-    @Nonnull
     @Override
-    public CompoundNBT save(@Nonnull CompoundNBT tagCompound) {
-        super.save(tagCompound);
+    public void saveAdditional(@Nonnull CompoundNBT tagCompound) {
+        super.saveAdditional(tagCompound);
         tagCompound.putInt("energy", energy);
         tagCompound.putIntArray("inputs", inputFromSide);
         mimicBlockSupport.writeToNBT(tagCompound);
@@ -206,7 +205,6 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         for (int i = 0 ; i < 6 ; i++) {
             tagCompound.putByte("p" + i, (byte) powerOut[i]);
         }
-        return tagCompound;
     }
 
     @Override
@@ -220,8 +218,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
-    public void writeInfo(CompoundNBT tagCompound) {
-        super.writeInfo(tagCompound);
+    public void saveInfo(CompoundNBT tagCompound) {
+        super.saveInfo(tagCompound);
         CompoundNBT info = getOrCreateInfo(tagCompound);
         info.putString("name", name);
         info.putByte("enabled", enabled);

@@ -327,29 +327,28 @@ public final class TileEntityWirelessRouter extends GenericTileEntity implements
     }
 
 
-    @Nonnull
     @Override
-    public CompoundNBT save(@Nonnull CompoundNBT tagCompound) {
+    public void saveAdditional(@Nonnull CompoundNBT tagCompound) {
         tagCompound.putBoolean("error", error);
-        return super.save(tagCompound);
+        super.saveAdditional(tagCompound);
     }
 
     @Override
-    public void read(CompoundNBT tagCompound) {
-        super.read(tagCompound);
+    public void load(CompoundNBT tagCompound) {
+        super.load(tagCompound);
         error = tagCompound.getBoolean("error");
     }
 
     @Override
-    public void writeInfo(CompoundNBT tagCompound) {
-        super.writeInfo(tagCompound);
+    public void saveInfo(CompoundNBT tagCompound) {
+        super.saveInfo(tagCompound);
         CompoundNBT info = getOrCreateInfo(tagCompound);
         info.putBoolean("publicAcc", publicAccess);
     }
 
     @Override
-    public void readInfo(CompoundNBT tagCompound) {
-        super.readInfo(tagCompound);
+    public void loadInfo(CompoundNBT tagCompound) {
+        super.loadInfo(tagCompound);
         CompoundNBT info = tagCompound.getCompound("Info");
         publicAccess = info.getBoolean("publicAcc");
     }

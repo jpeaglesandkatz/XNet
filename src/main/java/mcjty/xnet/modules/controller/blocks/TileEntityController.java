@@ -373,18 +373,17 @@ public final class TileEntityController extends GenericTileEntity implements ITi
         return cachedRoutedConnectors[channel];
     }
 
-    @Nonnull
     @Override
-    public CompoundNBT save(@Nonnull CompoundNBT tagCompound) {
+    public void saveAdditional(@Nonnull CompoundNBT tagCompound) {
         if (networkId != null) {
             tagCompound.putInt("networkId", networkId.getId());
         }
-        return super.save(tagCompound);
+        super.saveAdditional(tagCompound);
     }
 
     @Override
-    public void read(CompoundNBT tagCompound) {
-        super.read(tagCompound);
+    public void load(CompoundNBT tagCompound) {
+        super.load(tagCompound);
         if (tagCompound.contains("networkId")) {
             networkId = new NetworkId(tagCompound.getInt("networkId"));
         } else {
@@ -393,8 +392,8 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     }
 
     @Override
-    protected void writeInfo(CompoundNBT tagCompound) {
-        super.writeInfo(tagCompound);
+    protected void saveInfo(CompoundNBT tagCompound) {
+        super.saveInfo(tagCompound);
         CompoundNBT info = getOrCreateInfo(tagCompound);
         info.putInt("colors", colors);
 
@@ -409,8 +408,8 @@ public final class TileEntityController extends GenericTileEntity implements ITi
     }
 
     @Override
-    public void readInfo(CompoundNBT tagCompound) {
-        super.readInfo(tagCompound);
+    public void loadInfo(CompoundNBT tagCompound) {
+        super.loadInfo(tagCompound);
         CompoundNBT info = tagCompound.getCompound("Info");
         colors = info.getInt("colors");
         for (int i = 0; i < MAX_CHANNELS; i++) {
