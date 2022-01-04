@@ -3,7 +3,6 @@ package mcjty.xnet.modules.controller.client;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.client.RenderHelper;
@@ -18,6 +17,7 @@ import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Logging;
+import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
@@ -208,7 +208,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
 
     private boolean handleClipboard(int keyCode) {
-        if (McJtyLib.proxy.isCtrlKeyDown()) {
+        if (SafeClientTools.isCtrlKeyDown()) {
             if (keyCode == GLFW.GLFW_KEY_C) {
                 if (getSelectedChannel() != -1) {
                     copyConnector();

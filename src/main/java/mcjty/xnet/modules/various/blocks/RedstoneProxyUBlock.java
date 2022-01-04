@@ -1,7 +1,7 @@
 package mcjty.xnet.modules.various.blocks;
 
-import mcjty.lib.McJtyLib;
 import mcjty.lib.tooltips.ITooltipSettings;
+import mcjty.lib.varia.SafeClientTools;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
@@ -28,7 +28,7 @@ public class RedstoneProxyUBlock extends RedstoneProxyBlock implements ITooltipS
 
     @Override
     public void appendHoverText(@Nonnull ItemStack stack, @Nullable IBlockReader worldIn, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn) {
-        if (McJtyLib.proxy.isSneaking()) {
+        if (SafeClientTools.isSneaking()) {
             tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy_upd.header").withStyle(TextFormatting.GREEN));
             tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy_upd.gold").withStyle(TextFormatting.GOLD));
         } else {
