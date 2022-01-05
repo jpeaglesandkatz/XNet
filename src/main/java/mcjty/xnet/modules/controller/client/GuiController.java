@@ -2,7 +2,7 @@ package mcjty.xnet.modules.controller.client;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.client.RenderHelper;
@@ -30,14 +30,14 @@ import mcjty.xnet.client.ConnectorClientInfo;
 import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.setup.XNetMessages;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.energy.CapabilityEnergy;
 import org.lwjgl.glfw.GLFW;
 
@@ -81,7 +81,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private boolean needsRefresh = true;
 
-    public GuiController(TileEntityController controller, GenericContainer container, PlayerInventory inventory) {
+    public GuiController(TileEntityController controller, GenericContainer container, Inventory inventory) {
         super(controller, container, inventory, ControllerModule.CONTROLLER.get().getManualEntry());
         openController = this;
     }
@@ -213,14 +213,14 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 if (getSelectedChannel() != -1) {
                     copyConnector();
                 } else {
-                    showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Nothing selected!");
+                    showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Nothing selected!");
                 }
                 return true;
             } else if (keyCode == GLFW.GLFW_KEY_V) {
                 if (getSelectedChannel() != -1) {
                     pasteConnector();
                 } else {
-                    showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Nothing selected!");
+                    showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Nothing selected!");
                 }
                 return true;
             }
@@ -260,7 +260,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private void removeChannel() {
-        showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Really remove channel " + (getSelectedChannel() + 1) + "?", () -> {
+        showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Really remove channel " + (getSelectedChannel() + 1) + "?", () -> {
             sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_REMOVECHANNEL,
                     TypedMap.builder()
                             .put(PARAM_INDEX, getSelectedChannel())
@@ -394,7 +394,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
 
     private void copyChannel() {
-        showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.GREEN + "Copied channel");
+        showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.GREEN + "Copied channel");
         sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_COPYCHANNEL,
                 TypedMap.builder()
                         .put(PARAM_INDEX, getSelectedChannel())
@@ -404,7 +404,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     public static void showError(String error) {
         if (openController != null) {
             Minecraft mc = Minecraft.getInstance();
-            showMessage(mc, openController, openController.getWindowManager(), 50, 50, TextFormatting.RED + error);
+            showMessage(mc, openController, openController.getWindowManager(), 50, 50, ChatFormatting.RED + error);
         }
     }
 
@@ -420,7 +420,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         try {
             String json = Minecraft.getInstance().keyboardHandler.getClipboard();
             if (json.length() > 26000) {
-                showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard too large!");
+                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Clipboard too large!");
                 return;
             }
             JsonParser parser = new JsonParser();
@@ -428,7 +428,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             String type = root.get("type").getAsString();
             IChannelType channelType = XNet.xNetApi.findType(type);
             if (channelType == null) {
-                showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Unsupported channel type: " + type + "!");
+                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Unsupported channel type: " + type + "!");
                 return;
             }
             sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_PASTECONNECTOR,
@@ -445,7 +445,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             }
             refresh();
         } catch (Exception e) {
-            showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error reading from clipboard!");
+            showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Error reading from clipboard!");
         }
     }
 
@@ -453,7 +453,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         try {
             String json = Minecraft.getInstance().keyboardHandler.getClipboard();
             if (json.length() > 26000) {
-                showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard too large!");
+                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Clipboard too large!");
                 return;
             }
             JsonParser parser = new JsonParser();
@@ -461,7 +461,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             String type = root.get("type").getAsString();
             IChannelType channelType = XNet.xNetApi.findType(type);
             if (channelType == null) {
-                showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Unsupported channel type: " + type + "!");
+                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Unsupported channel type: " + type + "!");
                 return;
             }
             sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_PASTECHANNEL,
@@ -471,7 +471,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                             .build());
             refresh();
         } catch (Exception e) {
-            showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error reading from clipboard!");
+            showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Error reading from clipboard!");
         }
     }
 
@@ -593,14 +593,14 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             br.userObject("block");
             panel.children(br);
             if (!name.isEmpty()) {
-                br.tooltips(TextFormatting.GREEN + "Connector: " + TextFormatting.WHITE + name,
-                        TextFormatting.GREEN + "Block: " + TextFormatting.WHITE + blockName,
-                        TextFormatting.GREEN + "Position: " + TextFormatting.WHITE + BlockPosTools.toString(coordinate),
-                        TextFormatting.WHITE + "(doubleclick to highlight)");
+                br.tooltips(ChatFormatting.GREEN + "Connector: " + ChatFormatting.WHITE + name,
+                        ChatFormatting.GREEN + "Block: " + ChatFormatting.WHITE + blockName,
+                        ChatFormatting.GREEN + "Position: " + ChatFormatting.WHITE + BlockPosTools.toString(coordinate),
+                        ChatFormatting.WHITE + "(doubleclick to highlight)");
             } else {
-                br.tooltips(TextFormatting.GREEN + "Block: " + TextFormatting.WHITE + blockName,
-                        TextFormatting.GREEN + "Position: " + TextFormatting.WHITE + BlockPosTools.toString(coordinate),
-                        TextFormatting.WHITE + "(doubleclick to highlight)");
+                br.tooltips(ChatFormatting.GREEN + "Block: " + ChatFormatting.WHITE + blockName,
+                        ChatFormatting.GREEN + "Position: " + ChatFormatting.WHITE + BlockPosTools.toString(coordinate),
+                        ChatFormatting.WHITE + "(doubleclick to highlight)");
             }
 
             panel.children(label(sidedPos.getSide().getSerializedName().substring(0, 1).toUpperCase()).color(color).desiredWidth(18));
@@ -641,7 +641,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     @Override
-    protected void renderBg(@Nonnull MatrixStack matrixStack, float v, int x1, int x2) {
+    protected void renderBg(@Nonnull PoseStack matrixStack, float v, int x1, int x2) {
         updateFields();
         requestListsIfNeeded();
         populateList();
@@ -688,7 +688,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     @Override
-    protected void drawStackTooltips(MatrixStack matrixStack, int mouseX, int mouseY) {
+    protected void drawStackTooltips(PoseStack matrixStack, int mouseX, int mouseY) {
         int x = GuiTools.getRelativeX(this);
         int y = GuiTools.getRelativeY(this);
         Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);

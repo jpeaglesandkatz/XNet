@@ -4,8 +4,8 @@ import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.xnet.XNet;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.BlockPos;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
@@ -21,7 +21,7 @@ public class ControllerChannelClientInfo {
 
     public static class Serializer implements ISerializer<ControllerChannelClientInfo> {
         @Override
-        public Function<PacketBuffer, ControllerChannelClientInfo> getDeserializer() {
+        public Function<FriendlyByteBuf, ControllerChannelClientInfo> getDeserializer() {
             return buf -> {
                 if (buf.readBoolean()) {
                     return new ControllerChannelClientInfo(buf);
@@ -32,7 +32,7 @@ public class ControllerChannelClientInfo {
         }
 
         @Override
-        public BiConsumer<PacketBuffer, ControllerChannelClientInfo> getSerializer() {
+        public BiConsumer<FriendlyByteBuf, ControllerChannelClientInfo> getSerializer() {
             return (buf, info) -> {
                 if (info == null) {
                     buf.writeBoolean(false);
@@ -53,7 +53,7 @@ public class ControllerChannelClientInfo {
         this.index = index;
     }
 
-    public ControllerChannelClientInfo(@Nonnull PacketBuffer buf) {
+    public ControllerChannelClientInfo(@Nonnull FriendlyByteBuf buf) {
         channelName = NetworkTools.readStringUTF8(buf);
         publishedName = NetworkTools.readStringUTF8(buf);
         String id = buf.readUtf(32767);
@@ -67,7 +67,7 @@ public class ControllerChannelClientInfo {
         index = buf.readInt();
     }
 
-    public void writeToBuf(@Nonnull PacketBuffer buf) {
+    public void writeToBuf(@Nonnull FriendlyByteBuf buf) {
         NetworkTools.writeStringUTF8(buf, channelName);
         NetworkTools.writeStringUTF8(buf, publishedName);
         buf.writeUtf(channelType.getID());

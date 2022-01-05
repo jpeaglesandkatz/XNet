@@ -2,17 +2,17 @@ package mcjty.xnet.modules.various.blocks;
 
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.SafeClientTools;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.world.level.BlockGetter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,10 +27,10 @@ public class RedstoneProxyUBlock extends RedstoneProxyBlock implements ITooltipS
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable IBlockReader worldIn, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn) {
+    public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter worldIn, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
         if (SafeClientTools.isSneaking()) {
-            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy_upd.header").withStyle(TextFormatting.GREEN));
-            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy_upd.gold").withStyle(TextFormatting.GOLD));
+            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy_upd.header").withStyle(ChatFormatting.GREEN));
+            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy_upd.gold").withStyle(ChatFormatting.GOLD));
         } else {
             tooltip.add(new TranslationTextComponent("message.xnet.shiftmessage"));
         }
@@ -40,7 +40,7 @@ public class RedstoneProxyUBlock extends RedstoneProxyBlock implements ITooltipS
 
     @SuppressWarnings("deprecation")
     @Override
-    public void neighborChanged(@Nonnull BlockState state, @Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull Block blockIn, @Nonnull BlockPos fromPos, boolean isMoving) {
+    public void neighborChanged(@Nonnull BlockState state, @Nonnull Level worldIn, @Nonnull BlockPos pos, @Nonnull Block blockIn, @Nonnull BlockPos fromPos, boolean isMoving) {
         if(loopDetector.add(pos)) {
             try {
                 worldIn.updateNeighborsAt(pos, this);

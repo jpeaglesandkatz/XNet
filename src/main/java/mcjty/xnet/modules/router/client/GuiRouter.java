@@ -1,6 +1,6 @@
 package mcjty.xnet.modules.router.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
@@ -17,9 +17,9 @@ import mcjty.xnet.client.ControllerChannelClientInfo;
 import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.setup.XNetMessages;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
 
 import javax.annotation.Nonnull;
 
@@ -35,7 +35,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
 
     private static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
 
-    public GuiRouter(TileEntityRouter router, GenericContainer container, PlayerInventory inventory) {
+    public GuiRouter(TileEntityRouter router, GenericContainer container, Inventory inventory) {
         super(router, container, inventory, RouterModule.ROUTER.get().getManualEntry());
     }
 
@@ -164,7 +164,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
 
 
     @Override
-    protected void renderBg(@Nonnull MatrixStack matrixStack, float v, int x1, int x2) {
+    protected void renderBg(@Nonnull PoseStack matrixStack, float v, int x1, int x2) {
         requestListsIfNeeded();
         populateList();
         drawWindow(matrixStack);

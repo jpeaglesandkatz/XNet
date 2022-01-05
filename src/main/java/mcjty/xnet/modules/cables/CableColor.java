@@ -1,10 +1,10 @@
 package mcjty.xnet.modules.cables;
 
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
 
 import javax.annotation.Nonnull;
 
-public enum CableColor implements IStringSerializable {
+public enum CableColor implements StringRepresentable {
     BLUE("blue", "dyeBlue"),
     RED("red", "dyeRed"),
     YELLOW("yellow", "dyeYellow"),

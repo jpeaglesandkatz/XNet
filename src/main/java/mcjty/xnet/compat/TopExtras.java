@@ -5,9 +5,9 @@ import mcjty.theoneprobe.api.ITheOneProbe;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.facade.blocks.FacadeTileEntity;
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fml.InterModComms;
 
 import java.util.function.Function;
@@ -42,7 +42,7 @@ public class TopExtras {
                 String modid = "XNet";
 
                 ItemStack pickBlock = data.getPickBlock();
-                TileEntity te = world.getBlockEntity(data.getPos());
+                BlockEntity te = world.getBlockEntity(data.getPos());
                 if (te instanceof FacadeTileEntity) {
                     pickBlock = new ItemStack(CableModule.NETCABLE.get(), 1);
                 }

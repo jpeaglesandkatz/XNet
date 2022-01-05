@@ -7,18 +7,18 @@ import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.ConnectorType;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
@@ -112,7 +112,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         return cableTexture.spriteNoneCable;
     }
 
-    private BakedQuad createQuad(Vector3d v1, Vector3d v2, Vector3d v3, Vector3d v4, TextureAtlasSprite sprite, int rotation, float hilight) {
+    private BakedQuad createQuad(Vec3 v1, Vec3 v2, Vec3 v3, Vec3 v4, TextureAtlasSprite sprite, int rotation, float hilight) {
         switch (rotation) {
             case 0:
                 return createQuad(v1, v2, v3, v4, sprite, hilight);
@@ -311,8 +311,8 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         BlockState facadeId = extraData.getData(GenericCableBlock.FACADEID);
         if (facadeId != null) {
             BlockState facadeState = facadeId.getBlockState();
-            if (layer == null || RenderTypeLookup.canRenderInLayer(facadeState, layer)) { // always render in the null layer or the block-breaking textures don't show up
-                IBakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(facadeState);
+            if (layer == null || ItemBlockRenderTypes.canRenderInLayer(facadeState, layer)) { // always render in the null layer or the block-breaking textures don't show up
+                BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(facadeState);
                 try {
                     quads.addAll(model.getQuads(state, side, rand, EmptyModelData.INSTANCE));
                 } catch (Exception e) {
@@ -347,14 +347,14 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
 
     @Nonnull
     @Override
-    public ItemCameraTransforms getTransforms() {
-        return ItemCameraTransforms.NO_TRANSFORMS;
+    public ItemTransforms getTransforms() {
+        return ItemTransforms.NO_TRANSFORMS;
     }
 
     @Nonnull
     @Override
-    public ItemOverrideList getOverrides() {
-        return ItemOverrideList.EMPTY;
+    public ItemOverrides getOverrides() {
+        return ItemOverrides.EMPTY;
     }
 
 }

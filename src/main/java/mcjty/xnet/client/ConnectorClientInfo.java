@@ -6,8 +6,8 @@ import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
 import mcjty.xnet.XNet;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nonnull;
 
@@ -30,7 +30,7 @@ public class ConnectorClientInfo {
         this.connectorSettings = connectorSettings;
     }
 
-    public ConnectorClientInfo(@Nonnull PacketBuffer buf) {
+    public ConnectorClientInfo(@Nonnull FriendlyByteBuf buf) {
         pos = new SidedPos(buf.readBlockPos(), OrientationTools.DIRECTION_VALUES[buf.readByte()]);
         consumerId = new ConsumerId(buf.readInt());
         IChannelType t = XNet.xNetApi.findType(buf.readUtf(32767));
@@ -38,17 +38,17 @@ public class ConnectorClientInfo {
             throw new RuntimeException("Cannot happen!");
         }
         channelType = t;
-        CompoundNBT tag = buf.readNbt();
+        CompoundTag tag = buf.readNbt();
         connectorSettings = channelType.createConnector(pos.getSide());
         connectorSettings.readFromNBT(tag);
     }
 
-    public void writeToBuf(@Nonnull PacketBuffer buf) {
+    public void writeToBuf(@Nonnull FriendlyByteBuf buf) {
         buf.writeBlockPos(pos.getPos());
         buf.writeByte(pos.getSide().ordinal());
         buf.writeInt(consumerId.getId());
         buf.writeUtf(channelType.getID());
-        CompoundNBT tag = new CompoundNBT();
+        CompoundTag tag = new CompoundTag();
         connectorSettings.writeToNBT(tag);
         buf.writeNbt(tag);
     }

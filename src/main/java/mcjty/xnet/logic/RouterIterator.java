@@ -2,9 +2,9 @@ package mcjty.xnet.logic;
 
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.OrientationTools;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import java.util.Iterator;
@@ -15,7 +15,7 @@ import java.util.stream.StreamSupport;
 
 public class RouterIterator<T extends GenericTileEntity> implements Iterator<T> {
 
-    @Nonnull private final World world;
+    @Nonnull private final Level world;
     @Nonnull private final BlockPos pos;
     @Nonnull private final Class<T> clazz;
 
@@ -26,7 +26,7 @@ public class RouterIterator<T extends GenericTileEntity> implements Iterator<T> 
         return StreamSupport.stream(Spliterators.spliterator(this, OrientationTools.DIRECTION_VALUES.length, Spliterator.ORDERED), false);
     }
 
-    RouterIterator(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull Class<T> clazz) {
+    RouterIterator(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Class<T> clazz) {
         this.world = world;
         this.pos = pos;
         this.clazz = clazz;
@@ -41,7 +41,7 @@ public class RouterIterator<T extends GenericTileEntity> implements Iterator<T> 
             if (facingIdx >= OrientationTools.DIRECTION_VALUES.length) {
                 facingIdx = -1;
             }
-            TileEntity te = world.getBlockEntity(routerPos);
+            BlockEntity te = world.getBlockEntity(routerPos);
             if (clazz.isInstance(te)) {
                 foundRouter = (T) te;
                 return;

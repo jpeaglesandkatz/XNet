@@ -2,16 +2,18 @@ package mcjty.xnet.modules.cables.blocks;
 
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableColor;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.NonNullList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import net.minecraft.world.item.Item.Properties;
 
 public class ColorBlockItem extends BlockItem {
 
@@ -24,7 +26,7 @@ public class ColorBlockItem extends BlockItem {
 
     @Nullable
     @Override
-    protected BlockState getPlacementState(BlockItemUseContext context) {
+    protected BlockState getPlacementState(BlockPlaceContext context) {
         BlockState blockstate = ((GenericCableBlock)this.getBlock()).calculateState(context.getLevel(),
                 context.getClickedPos(), this.getBlock().defaultBlockState().setValue(GenericCableBlock.COLOR, color));
         if (canPlace(context, blockstate)) {
@@ -42,7 +44,7 @@ public class ColorBlockItem extends BlockItem {
     }
 
     @Override
-    public void fillItemCategory(@Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> items) {
+    public void fillItemCategory(@Nonnull CreativeModeTab group, @Nonnull NonNullList<ItemStack> items) {
         if (XNet.setup.getTab().equals(group)) {
             items.add(new ItemStack(this));
         }

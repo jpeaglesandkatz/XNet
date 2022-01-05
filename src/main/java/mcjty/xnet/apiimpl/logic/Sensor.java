@@ -7,11 +7,11 @@ import mcjty.xnet.apiimpl.energy.EnergyChannelSettings;
 import mcjty.xnet.apiimpl.fluids.FluidChannelSettings;
 import mcjty.xnet.apiimpl.items.ItemChannelSettings;
 import mcjty.xnet.compat.RFToolsSupport;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -165,7 +165,7 @@ public class Sensor {
                 .nl();
     }
 
-    public boolean test(@Nullable TileEntity te, @Nonnull World world, @Nonnull BlockPos pos, LogicConnectorSettings settings) {
+    public boolean test(@Nullable BlockEntity te, @Nonnull Level world, @Nonnull BlockPos pos, LogicConnectorSettings settings) {
         switch (sensorMode) {
             case ITEM: {
                 if (RFToolsSupport.isStorageScanner(te)) {
@@ -237,26 +237,26 @@ public class Sensor {
         }
     }
 
-    public void readFromNBT(CompoundNBT tag) {
+    public void readFromNBT(CompoundTag tag) {
         sensorMode = SensorMode.values()[tag.getByte("sensorMode" + index)];
         operator = Operator.values()[tag.getByte("operator" + index)];
         amount = tag.getInt("amount" + index);
         outputColor = Color.values()[tag.getByte("scolor" + index)];
         if (tag.contains("filter" + index)) {
-            CompoundNBT itemTag = tag.getCompound("filter" + index);
+            CompoundTag itemTag = tag.getCompound("filter" + index);
             filter = ItemStack.of(itemTag);
         } else {
             filter = ItemStack.EMPTY;
         }
     }
 
-    public void writeToNBT(CompoundNBT tag) {
+    public void writeToNBT(CompoundTag tag) {
         tag.putByte("sensorMode" + index, (byte) sensorMode.ordinal());
         tag.putByte("operator" + index, (byte) operator.ordinal());
         tag.putInt("amount" + index, amount);
         tag.putByte("scolor" + index, (byte) outputColor.ordinal());
         if (!filter.isEmpty()) {
-            CompoundNBT itemTag = new CompoundNBT();
+            CompoundTag itemTag = new CompoundTag();
             filter.save(itemTag);
             tag.put("filter" + index, itemTag);
         }

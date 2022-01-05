@@ -2,10 +2,10 @@ package mcjty.xnet.multiblock;
 
 import mcjty.lib.varia.LevelTools;
 import mcjty.lib.worlddata.AbstractWorldData;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -15,22 +15,22 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
 
     private static final String NAME = "XNetBlobData";
 
-    private final Map<RegistryKey<World>, WorldBlob> worldBlobMap = new HashMap<>();
+    private final Map<ResourceKey<Level>, WorldBlob> worldBlobMap = new HashMap<>();
 
     public XNetBlobData(String name) {
         super(name);
     }
 
     @Nonnull
-    public static XNetBlobData get(World world) {
+    public static XNetBlobData get(Level world) {
         return getData(world, () -> new XNetBlobData(NAME), NAME);
     }
 
-    public WorldBlob getWorldBlob(World world) {
+    public WorldBlob getWorldBlob(Level world) {
         return getWorldBlob(world.dimension());
     }
 
-    public WorldBlob getWorldBlob(RegistryKey<World> type) {
+    public WorldBlob getWorldBlob(ResourceKey<Level> type) {
         if (!worldBlobMap.containsKey(type)) {
             worldBlobMap.put(type, new WorldBlob(type));
         }
@@ -39,13 +39,13 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
 
 
     @Override
-    public void load(CompoundNBT compound) {
+    public void load(CompoundTag compound) {
         worldBlobMap.clear();
         if (compound.contains("worlds")) {
-            ListNBT worlds = (ListNBT) compound.get("worlds");
-            for (net.minecraft.nbt.INBT world : worlds) {
-                CompoundNBT tc = (CompoundNBT) world;
-                RegistryKey<World> dim = LevelTools.getId(tc.getString("dimtype"));
+            ListTag worlds = (ListTag) compound.get("worlds");
+            for (net.minecraft.nbt.Tag world : worlds) {
+                CompoundTag tc = (CompoundTag) world;
+                ResourceKey<Level> dim = LevelTools.getId(tc.getString("dimtype"));
                 WorldBlob blob = new WorldBlob(dim);
                 blob.readFromNBT(tc);
                 worldBlobMap.put(dim, blob);
@@ -55,11 +55,11 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
 
     @Nonnull
     @Override
-    public CompoundNBT save(@Nonnull CompoundNBT compound) {
-        ListNBT list = new ListNBT();
-        for (Map.Entry<RegistryKey<World>, WorldBlob> entry : worldBlobMap.entrySet()) {
+    public CompoundTag save(@Nonnull CompoundTag compound) {
+        ListTag list = new ListTag();
+        for (Map.Entry<ResourceKey<Level>, WorldBlob> entry : worldBlobMap.entrySet()) {
             WorldBlob blob = entry.getValue();
-            CompoundNBT tc = new CompoundNBT();
+            CompoundTag tc = new CompoundTag();
             tc.putString("dimtype", blob.getDimensionType().location().toString());
             blob.writeToNBT(tc);
             list.add(tc);

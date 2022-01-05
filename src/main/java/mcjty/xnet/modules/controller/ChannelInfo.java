@@ -7,9 +7,9 @@ import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.client.ConnectorInfo;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.core.Direction;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
@@ -67,15 +67,15 @@ public class ChannelInfo {
         return info;
     }
 
-    public void writeToNBT(CompoundNBT tag) {
+    public void writeToNBT(CompoundTag tag) {
         channelSettings.writeToNBT(tag);
         tag.putBoolean("enabled", enabled);
         if (channelName != null && !channelName.isEmpty()) {
             tag.putString("name", channelName);
         }
-        ListNBT conlist = new ListNBT();
+        ListTag conlist = new ListTag();
         for (Map.Entry<SidedConsumer, ConnectorInfo> entry : connectors.entrySet()) {
-            CompoundNBT tc = new CompoundNBT();
+            CompoundTag tc = new CompoundTag();
             ConnectorInfo connectorInfo = entry.getValue();
             connectorInfo.writeToNBT(tc);
             tc.putInt("consumerId", entry.getKey().getConsumerId().getId());
@@ -87,7 +87,7 @@ public class ChannelInfo {
         tag.put("connectors", conlist);
     }
 
-    public void readFromNBT(CompoundNBT tag) {
+    public void readFromNBT(CompoundTag tag) {
         channelSettings.readFromNBT(tag);
         enabled = tag.getBoolean("enabled");
         if (tag.contains("name")) {
@@ -95,9 +95,9 @@ public class ChannelInfo {
         } else {
             channelName = null;
         }
-        ListNBT conlist = tag.getList("connectors", Constants.NBT.TAG_COMPOUND);
+        ListTag conlist = tag.getList("connectors", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < conlist.size() ; i++) {
-            CompoundNBT tc = conlist.getCompound(i);
+            CompoundTag tc = conlist.getCompound(i);
             String id = tc.getString("type");
             IChannelType type = XNet.xNetApi.findType(id);
             if (type == null) {

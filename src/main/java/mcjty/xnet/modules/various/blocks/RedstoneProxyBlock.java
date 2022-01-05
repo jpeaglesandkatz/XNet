@@ -2,15 +2,15 @@ package mcjty.xnet.modules.various.blocks;
 
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.SafeClientTools;
-import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nonnull;
@@ -33,10 +33,10 @@ public class RedstoneProxyBlock extends Block implements ITooltipSettings {
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable IBlockReader worldIn, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn) {
+    public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter worldIn, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
         if (SafeClientTools.isSneaking()) {
-            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy.header").withStyle(TextFormatting.GREEN));
-            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy.gold").withStyle(TextFormatting.GOLD));
+            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy.header").withStyle(ChatFormatting.GREEN));
+            tooltip.add(new TranslationTextComponent("message.xnet.redstone_proxy.gold").withStyle(ChatFormatting.GOLD));
         } else {
             tooltip.add(new TranslationTextComponent("message.xnet.shiftmessage"));
         }

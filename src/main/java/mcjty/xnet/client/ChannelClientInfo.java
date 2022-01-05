@@ -8,8 +8,8 @@ import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -31,7 +31,7 @@ public class ChannelClientInfo {
 
     public static class Serializer implements ISerializer<ChannelClientInfo> {
         @Override
-        public Function<PacketBuffer, ChannelClientInfo> getDeserializer() {
+        public Function<FriendlyByteBuf, ChannelClientInfo> getDeserializer() {
             return buf -> {
                 if (buf.readBoolean()) {
                     return new ChannelClientInfo(buf);
@@ -42,7 +42,7 @@ public class ChannelClientInfo {
         }
 
         @Override
-        public BiConsumer<PacketBuffer, ChannelClientInfo> getSerializer() {
+        public BiConsumer<FriendlyByteBuf, ChannelClientInfo> getSerializer() {
             return (buf, info) -> {
                 if (info == null) {
                     buf.writeBoolean(false);
@@ -61,7 +61,7 @@ public class ChannelClientInfo {
         this.enabled = enabled;
     }
 
-    public ChannelClientInfo(@Nonnull PacketBuffer buf) {
+    public ChannelClientInfo(@Nonnull FriendlyByteBuf buf) {
         channelName = NetworkTools.readStringUTF8(buf);
         enabled = buf.readBoolean();
         String id = buf.readUtf(32767);
@@ -71,7 +71,7 @@ public class ChannelClientInfo {
         }
         type = t;
         channelSettings = type.createChannel();
-        CompoundNBT tag = buf.readNbt();
+        CompoundTag tag = buf.readNbt();
         channelSettings.readFromNBT(tag);
 
         int size = buf.readInt();
@@ -82,11 +82,11 @@ public class ChannelClientInfo {
         }
     }
 
-    public void writeToNBT(@Nonnull PacketBuffer buf) {
+    public void writeToNBT(@Nonnull FriendlyByteBuf buf) {
         NetworkTools.writeStringUTF8(buf, channelName);
         buf.writeBoolean(enabled);
         buf.writeUtf(type.getID());
-        CompoundNBT tag = new CompoundNBT();
+        CompoundTag tag = new CompoundTag();
         channelSettings.writeToNBT(tag);
         buf.writeNbt(tag);
         buf.writeInt(connectors.size());

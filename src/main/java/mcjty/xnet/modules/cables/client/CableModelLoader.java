@@ -5,10 +5,10 @@ import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import mcjty.xnet.XNet;
 import net.minecraft.client.renderer.model.*;
-import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.model.IModelConfiguration;
 import net.minecraftforge.client.model.IModelLoader;
 import net.minecraftforge.client.model.geometry.IModelGeometry;
@@ -20,10 +20,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.client.resources.model.UnbakedModel;
+
 public class CableModelLoader implements IModelLoader<CableModelLoader.CableModelGeometry> {
 
     @Override
-    public void onResourceManagerReload(@Nonnull IResourceManager resourceManager) {
+    public void onResourceManagerReload(@Nonnull ResourceManager resourceManager) {
 
     }
 
@@ -36,24 +43,24 @@ public class CableModelLoader implements IModelLoader<CableModelLoader.CableMode
     public static class CableModelGeometry implements IModelGeometry<CableModelGeometry> {
 
         @Override
-        public IBakedModel bake(IModelConfiguration owner, ModelBakery bakery, Function<RenderMaterial, TextureAtlasSprite> spriteGetter, IModelTransform modelTransform, ItemOverrideList overrides, ResourceLocation modelLocation) {
+        public BakedModel bake(IModelConfiguration owner, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelTransform, ItemOverrides overrides, ResourceLocation modelLocation) {
             return new GenericCableBakedModel();
         }
 
         @Override
-        public Collection<RenderMaterial> getTextures(IModelConfiguration owner, Function<ResourceLocation, IUnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors) {
-            List<RenderMaterial> materials = new ArrayList<>();
-            materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/connector_side")));
+        public Collection<Material> getTextures(IModelConfiguration owner, Function<ResourceLocation, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors) {
+            List<Material> materials = new ArrayList<>();
+            materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/connector_side")));
 
             for (int i = 0 ; i <= 4 ; i++) {
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/advanced_connector")));
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/connector")));
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_corner_netcable")));
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_cross_netcable")));
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_end_netcable")));
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_netcable")));
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_none_netcable")));
-                materials.add(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_three_netcable")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/advanced_connector")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/connector")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_corner_netcable")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_cross_netcable")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_end_netcable")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_netcable")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_none_netcable")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_three_netcable")));
             }
             return materials;
         }

@@ -1,7 +1,7 @@
 package mcjty.xnet.modules.controller;
 
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

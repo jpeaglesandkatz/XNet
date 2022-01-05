@@ -2,7 +2,7 @@ package mcjty.xnet.datagen;
 
 import mcjty.xnet.modules.cables.CableModule;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.ItemTagsProvider;
+import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.ForgeBlockTagsProvider;
 

@@ -11,10 +11,10 @@ import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.setup.Config;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
@@ -210,7 +210,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
 
 
     @Override
-    public void readFromNBT(CompoundNBT tag) {
+    public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
         fluidMode = FluidMode.values()[tag.getByte("fluidMode")];
         if (tag.contains("priority")) {
@@ -233,7 +233,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
             speed = 2;
         }
         if (tag.contains("filter")) {
-            CompoundNBT itemTag = tag.getCompound("filter");
+            CompoundTag itemTag = tag.getCompound("filter");
             filter = ItemStack.of(itemTag);
         } else {
             filter = ItemStack.EMPTY;
@@ -241,7 +241,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     }
 
     @Override
-    public void writeToNBT(CompoundNBT tag) {
+    public void writeToNBT(CompoundTag tag) {
         super.writeToNBT(tag);
         tag.putByte("fluidMode", (byte) fluidMode.ordinal());
         if (priority != null) {
@@ -255,7 +255,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         }
         tag.putInt("speed", speed);
         if (!filter.isEmpty()) {
-            CompoundNBT itemTag = new CompoundNBT();
+            CompoundTag itemTag = new CompoundTag();
             filter.save(itemTag);
             tag.put("filter", itemTag);
         }

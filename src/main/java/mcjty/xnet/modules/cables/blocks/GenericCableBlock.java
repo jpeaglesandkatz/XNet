@@ -1,7 +1,6 @@
 package mcjty.xnet.modules.cables.blocks;
 
 import mcjty.lib.compat.theoneprobe.TOPDriver;
-import mcjty.lib.compat.theoneprobe.TOPInfoProvider;
 import mcjty.xnet.compat.XNetTOPDriver;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.CableModule;
@@ -10,40 +9,38 @@ import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.IWaterLoggable;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.loot.LootContext;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.IBooleanFunction;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
-import net.minecraftforge.client.model.data.ModelProperty;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static net.minecraft.state.properties.BlockStateProperties.WATERLOGGED;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
 
 public abstract class GenericCableBlock extends Block implements TOPInfoProvider, IWaterLoggable {
 
@@ -61,19 +58,19 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 
     private static VoxelShape[] shapeCache = null;
 
-    private static final VoxelShape SHAPE_CABLE_NORTH = VoxelShapes.box(.4, .4, 0, .6, .6, .4);
-    private static final VoxelShape SHAPE_CABLE_SOUTH = VoxelShapes.box(.4, .4, .6, .6, .6, 1);
-    private static final VoxelShape SHAPE_CABLE_WEST = VoxelShapes.box(0, .4, .4, .4, .6, .6);
-    private static final VoxelShape SHAPE_CABLE_EAST = VoxelShapes.box(.6, .4, .4, 1, .6, .6);
-    private static final VoxelShape SHAPE_CABLE_UP = VoxelShapes.box(.4, .6, .4, .6, 1, .6);
-    private static final VoxelShape SHAPE_CABLE_DOWN = VoxelShapes.box(.4, 0, .4, .6, .4, .6);
+    private static final VoxelShape SHAPE_CABLE_NORTH = Shapes.box(.4, .4, 0, .6, .6, .4);
+    private static final VoxelShape SHAPE_CABLE_SOUTH = Shapes.box(.4, .4, .6, .6, .6, 1);
+    private static final VoxelShape SHAPE_CABLE_WEST = Shapes.box(0, .4, .4, .4, .6, .6);
+    private static final VoxelShape SHAPE_CABLE_EAST = Shapes.box(.6, .4, .4, 1, .6, .6);
+    private static final VoxelShape SHAPE_CABLE_UP = Shapes.box(.4, .6, .4, .6, 1, .6);
+    private static final VoxelShape SHAPE_CABLE_DOWN = Shapes.box(.4, 0, .4, .6, .4, .6);
 
-    private static final VoxelShape SHAPE_BLOCK_NORTH = VoxelShapes.box(.2, .2, 0, .8, .8, .1);
-    private static final VoxelShape SHAPE_BLOCK_SOUTH = VoxelShapes.box(.2, .2, .9, .8, .8, 1);
-    private static final VoxelShape SHAPE_BLOCK_WEST = VoxelShapes.box(0, .2, .2, .1, .8, .8);
-    private static final VoxelShape SHAPE_BLOCK_EAST = VoxelShapes.box(.9, .2, .2, 1, .8, .8);
-    private static final VoxelShape SHAPE_BLOCK_UP = VoxelShapes.box(.2, .9, .2, .8, 1, .8);
-    private static final VoxelShape SHAPE_BLOCK_DOWN = VoxelShapes.box(.2, 0, .2, .8, .1, .8);
+    private static final VoxelShape SHAPE_BLOCK_NORTH = Shapes.box(.2, .2, 0, .8, .8, .1);
+    private static final VoxelShape SHAPE_BLOCK_SOUTH = Shapes.box(.2, .2, .9, .8, .8, 1);
+    private static final VoxelShape SHAPE_BLOCK_WEST = Shapes.box(0, .2, .2, .1, .8, .8);
+    private static final VoxelShape SHAPE_BLOCK_EAST = Shapes.box(.9, .2, .2, 1, .8, .8);
+    private static final VoxelShape SHAPE_BLOCK_UP = Shapes.box(.2, .9, .2, .8, 1, .8);
+    private static final VoxelShape SHAPE_BLOCK_DOWN = Shapes.box(.2, 0, .2, .8, .1, .8);
 
     private final CableBlockType type;
 
@@ -126,7 +123,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     }
 
     private VoxelShape makeShape(ConnectorType north, ConnectorType south, ConnectorType west, ConnectorType east, ConnectorType up, ConnectorType down) {
-        VoxelShape shape = VoxelShapes.box(.4, .4, .4, .6, .6, .6);
+        VoxelShape shape = Shapes.box(.4, .4, .4, .6, .6, .6);
         shape = combineShape(shape, north, SHAPE_CABLE_NORTH, SHAPE_BLOCK_NORTH);
         shape = combineShape(shape, south, SHAPE_CABLE_SOUTH, SHAPE_BLOCK_SOUTH);
         shape = combineShape(shape, west, SHAPE_CABLE_WEST, SHAPE_BLOCK_WEST);
@@ -138,9 +135,9 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 
     private VoxelShape combineShape(VoxelShape shape, ConnectorType connectorType, VoxelShape cableShape, VoxelShape blockShape) {
         if (connectorType == ConnectorType.CABLE) {
-            return VoxelShapes.join(shape, cableShape, IBooleanFunction.OR);
+            return Shapes.join(shape, cableShape, BooleanOp.OR);
         } else if (connectorType == ConnectorType.BLOCK) {
-            return VoxelShapes.join(shape, blockShape, IBooleanFunction.OR);
+            return Shapes.join(shape, blockShape, BooleanOp.OR);
         } else {
             return shape;
         }
@@ -181,13 +178,13 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 
     @Nonnull
     @Override
-    public ItemStack getCloneItemStack(@Nonnull IBlockReader worldIn, @Nonnull BlockPos pos, BlockState state) {
+    public ItemStack getCloneItemStack(@Nonnull BlockGetter worldIn, @Nonnull BlockPos pos, BlockState state) {
         return new ItemStack(getItem(state.getValue(COLOR)));
     }
 
     @Nullable
-    protected BlockState getMimicBlock(IBlockReader blockAccess, BlockPos pos) {
-        TileEntity te = blockAccess.getBlockEntity(pos);
+    protected BlockState getMimicBlock(BlockGetter blockAccess, BlockPos pos) {
+        BlockEntity te = blockAccess.getBlockEntity(pos);
         if (te instanceof IFacadeSupport) {
             return ((IFacadeSupport) te).getMimicBlock();
         } else {
@@ -212,7 +209,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 
     @Nonnull
     @Override
-    public VoxelShape getShape(@Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull ISelectionContext context) {
+    public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
         if (getMimicBlock(world, pos) != null) {
             // In mimic mode we use original block
             return getMimicBlock(world, pos).getShape(world, pos, context);
@@ -233,7 +230,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     }
 
     @Override
-    public void setPlacedBy(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
+    public void setPlacedBy(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
         originalOnBlockPlacedBy(world, pos, state, placer, stack);
         if (!world.isClientSide) {
             createCableSegment(world, pos, stack);
@@ -244,11 +241,11 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
         }
     }
 
-    protected void originalOnBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+    protected void originalOnBlockPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(world, pos, state, placer, stack);
     }
 
-    public void createCableSegment(World world, BlockPos pos, ItemStack stack) {
+    public void createCableSegment(Level world, BlockPos pos, ItemStack stack) {
         XNetBlobData blobData = XNetBlobData.get(world);
         WorldBlob worldBlob = blobData.getWorldBlob(world);
         CableColor color = world.getBlockState(pos).getValue(COLOR);
@@ -257,14 +254,14 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     }
 
     @Override
-    public void onRemove(BlockState state, @Nonnull World world, @Nonnull BlockPos pos, BlockState newState, boolean isMoving) {
+    public void onRemove(BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, BlockState newState, boolean isMoving) {
         if (newState.getBlock() != state.getBlock() && !(newState.getBlock() instanceof GenericCableBlock)) {
             unlinkBlock(world, pos);
         }
         super.onRemove(state, world, pos, newState, isMoving);
     }
 
-    public void unlinkBlock(World world, BlockPos pos) {
+    public void unlinkBlock(Level world, BlockPos pos) {
         if (!world.isClientSide) {
             XNetBlobData blobData = XNetBlobData.get(world);
             WorldBlob worldBlob = blobData.getWorldBlob(world);
@@ -274,7 +271,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     }
 
     @Override
-    protected void createBlockStateDefinition(@Nonnull StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(WATERLOGGED, COLOR, NORTH, SOUTH, EAST, WEST, UP, DOWN);
     }
@@ -310,7 +307,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 
     @Nonnull
     @Override
-    public BlockState updateShape(BlockState state, @Nonnull Direction direction, @Nonnull BlockState neighbourState, @Nonnull IWorld world, @Nonnull BlockPos current, @Nonnull BlockPos offset) {
+    public BlockState updateShape(BlockState state, @Nonnull Direction direction, @Nonnull BlockState neighbourState, @Nonnull LevelAccessor world, @Nonnull BlockPos current, @Nonnull BlockPos offset) {
         if (state.getValue(WATERLOGGED)) {
             world.getLiquidTicks().scheduleTick(current, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
@@ -318,21 +315,21 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     }
 
     @Override
-    public boolean isPathfindable(@Nonnull BlockState state, @Nonnull IBlockReader worldIn, @Nonnull BlockPos pos, @Nonnull PathType type) {
+    public boolean isPathfindable(@Nonnull BlockState state, @Nonnull BlockGetter worldIn, @Nonnull BlockPos pos, @Nonnull PathComputationType type) {
         return super.isPathfindable(state, worldIn, pos, type);
     }
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
-        World world = context.getLevel();
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        Level world = context.getLevel();
         BlockPos pos = context.getClickedPos();
         return calculateState(world, pos, defaultBlockState())
                 .setValue(WATERLOGGED, world.getFluidState(pos).getType() == Fluids.WATER);
     }
 
     @Nonnull
-    public BlockState calculateState(IWorld world, BlockPos pos, BlockState state) {
+    public BlockState calculateState(LevelAccessor world, BlockPos pos, BlockState state) {
         CableColor color = state.getValue(COLOR);
         ConnectorType north = getConnectorType(color, world, pos, Direction.NORTH);
         ConnectorType south = getConnectorType(color, world, pos, Direction.SOUTH);
@@ -358,7 +355,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 
 
 
-    protected abstract ConnectorType getConnectorType(@Nonnull CableColor thisColor, IBlockReader world, BlockPos pos, Direction facing);
+    protected abstract ConnectorType getConnectorType(@Nonnull CableColor thisColor, BlockGetter world, BlockPos pos, Direction facing);
 
     @Override
     public TOPDriver getProbeDriver() {

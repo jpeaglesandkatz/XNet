@@ -1,11 +1,11 @@
 package mcjty.xnet.modules.facade.blocks;
 
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemUseContext;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
 
-public class ReplaceBlockItemUseContext extends BlockItemUseContext {
+public class ReplaceBlockItemUseContext extends BlockPlaceContext {
 
-    public ReplaceBlockItemUseContext(ItemUseContext context) {
+    public ReplaceBlockItemUseContext(UseOnContext context) {
         super(context);
         replaceClicked = true;
     }

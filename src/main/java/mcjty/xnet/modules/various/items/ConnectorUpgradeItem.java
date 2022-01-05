@@ -9,28 +9,30 @@ import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+
+import net.minecraft.world.item.Item.Properties;
 
 public class ConnectorUpgradeItem extends Item {
 
@@ -41,33 +43,33 @@ public class ConnectorUpgradeItem extends Item {
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable World worldIn, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn) {
+    public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        tooltip.add(new StringTextComponent(TextFormatting.BLUE + "Sneak right click this on a"));
-        tooltip.add(new StringTextComponent(TextFormatting.BLUE + "normal connector to upgrade it"));
-        tooltip.add(new StringTextComponent(TextFormatting.BLUE + "to an advanced connector"));
+        tooltip.add(new TextComponent(ChatFormatting.BLUE + "Sneak right click this on a"));
+        tooltip.add(new TextComponent(ChatFormatting.BLUE + "normal connector to upgrade it"));
+        tooltip.add(new TextComponent(ChatFormatting.BLUE + "to an advanced connector"));
     }
 
     @Override
     @Nonnull
-    public ActionResult<ItemStack> use(@Nonnull World worldIn, @Nonnull PlayerEntity playerIn, @Nonnull Hand hand) {
+    public InteractionResultHolder<ItemStack> use(@Nonnull Level worldIn, @Nonnull Player playerIn, @Nonnull InteractionHand hand) {
         return super.use(worldIn, playerIn, hand);
     }
 
     @Override
     @Nonnull
-    public ActionResultType useOn(@Nonnull ItemUseContext context) {
-        World world = context.getLevel();
+    public InteractionResult useOn(@Nonnull UseOnContext context) {
+        Level world = context.getLevel();
         BlockPos pos = context.getClickedPos();
         BlockState state = world.getBlockState(pos);
-        PlayerEntity player = context.getPlayer();
+        Player player = context.getPlayer();
         Block block = state.getBlock();
 
         if (block == CableModule.CONNECTOR.get()) {
             if (!world.isClientSide) {
-                TileEntity te = world.getBlockEntity(pos);
+                BlockEntity te = world.getBlockEntity(pos);
                 if (te instanceof ConnectorTileEntity) {
-                    CompoundNBT tag = new CompoundNBT();
+                    CompoundTag tag = new CompoundTag();
                     te.save(tag);
                     CableColor color = world.getBlockState(pos).getValue(GenericCableBlock.COLOR);
 
@@ -83,20 +85,20 @@ public class ConnectorUpgradeItem extends Item {
                     world.setBlock(pos, blockState, Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
                     player.inventory.removeItem(player.inventory.selected, 1);
                     player.containerMenu.broadcastChanges();
-                    player.displayClientMessage(new StringTextComponent(TextFormatting.GREEN + "Connector was upgraded"), false);
+                    player.displayClientMessage(new TextComponent(ChatFormatting.GREEN + "Connector was upgraded"), false);
                 }
             }
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         } else if (block == CableModule.ADVANCED_CONNECTOR.get()) {
             if (!world.isClientSide) {
-                player.displayClientMessage(new StringTextComponent(TextFormatting.YELLOW + "This connector is already advanced!"), false);
+                player.displayClientMessage(new TextComponent(ChatFormatting.YELLOW + "This connector is already advanced!"), false);
             }
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         } else {
             if (!world.isClientSide) {
-                player.displayClientMessage(new StringTextComponent(TextFormatting.RED + "Use this item on a connector to upgrade it!"), false);
+                player.displayClientMessage(new TextComponent(ChatFormatting.RED + "Use this item on a connector to upgrade it!"), false);
             }
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
     }
 

@@ -1,8 +1,8 @@
 package mcjty.xnet.compat;
 
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fml.ModList;
 
 import java.util.ArrayList;
@@ -78,7 +78,7 @@ public final class ForestrySupport {
      * @return		the item with appropriate NBT tags removed
      */
     public static ItemStack sanitize(ItemStack item, int flags) {
-	    CompoundNBT tagCompound = item.getTag().copy();
+	    CompoundTag tagCompound = item.getTag().copy();
 	    List<Tag> tagsToRemove = new ArrayList<>();
 	    switch (item.getItem().getRegistryName().toString()) {
 	        case QUEEN_BEE:
@@ -108,7 +108,7 @@ public final class ForestrySupport {
 	    return item;
     }
 
-    private static CompoundNBT removeTags(Iterable<Tag> tagsToRemove, CompoundNBT compound, int flags) {
+    private static CompoundTag removeTags(Iterable<Tag> tagsToRemove, CompoundTag compound, int flags) {
 	    for (Tag tag : tagsToRemove) {
 	        if ((flags & tag.flag) == tag.flag && compound.contains(tag.name)) {
 		        compound.remove(tag.name);

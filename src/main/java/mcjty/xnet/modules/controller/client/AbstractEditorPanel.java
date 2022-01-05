@@ -11,8 +11,8 @@ import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.xnet.XNet;
 import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;

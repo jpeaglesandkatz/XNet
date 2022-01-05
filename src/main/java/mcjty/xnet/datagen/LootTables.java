@@ -8,15 +8,15 @@ import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.various.VariousModule;
 import mcjty.xnet.modules.wireless.WirelessRouterModule;
-import net.minecraft.advancements.criterion.StatePropertiesPredicate;
-import net.minecraft.block.Block;
+import net.minecraft.advancements.critereon.StatePropertiesPredicate;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.item.Item;
-import net.minecraft.loot.ConstantRange;
-import net.minecraft.loot.ItemLootEntry;
-import net.minecraft.loot.LootPool;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.conditions.BlockStateProperty;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.storage.loot.ConstantIntValue;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 
 import javax.annotation.Nonnull;
 
@@ -60,9 +60,9 @@ public class LootTables extends BaseLootTableProvider {
     private LootPool.Builder getLootTableEntry(String cableName, Block cableBlock, Item cable, CableColor color) {
         return LootPool.lootPool()
                 .name(cableName)
-                .setRolls(ConstantRange.exactly(1))
-                .add(ItemLootEntry.lootTableItem(cable))
-                .when(BlockStateProperty.hasBlockStateProperties(cableBlock)
+                .setRolls(ConstantIntValue.exactly(1))
+                .add(LootItem.lootTableItem(cable))
+                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(cableBlock)
                         .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(GenericCableBlock.COLOR, color)));
     }
 

@@ -6,12 +6,12 @@ import mcjty.lib.worlddata.AbstractWorldData;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.xnet.XNet;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.GlobalPos;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
@@ -33,7 +33,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
     private int globalChannelVersion = 0;
 
-    public void transmitChannel(String channel, @Nonnull IChannelType channelType, @Nullable UUID ownerUUID, RegistryKey<World> dimension, BlockPos wirelessRouterPos, NetworkId network) {
+    public void transmitChannel(String channel, @Nonnull IChannelType channelType, @Nullable UUID ownerUUID, ResourceKey<Level> dimension, BlockPos wirelessRouterPos, NetworkId network) {
         WirelessChannelInfo channelInfo;
         WirelessChannelKey key = new WirelessChannelKey(channel, channelType, ownerUUID);
         if (channelToWireless.containsKey(key)) {
@@ -88,7 +88,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         }
     }
 
-    public void tick(World world, int amount) {
+    public void tick(Level world, int amount) {
         if (channelToWireless.isEmpty()) {
             return;
         }
@@ -133,7 +133,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     }
 
     @Nonnull
-    public static XNetWirelessChannels get(World world) {
+    public static XNetWirelessChannels get(Level world) {
         return getData(world, () -> new XNetWirelessChannels(NAME), NAME);
     }
 
@@ -154,11 +154,11 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     }
 
     @Override
-    public void load(CompoundNBT compound) {
+    public void load(CompoundTag compound) {
         channelToWireless.clear();
-        ListNBT tagList = compound.getList("channels", Constants.NBT.TAG_COMPOUND);
+        ListTag tagList = compound.getList("channels", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < tagList.size() ; i++) {
-            CompoundNBT tc = tagList.getCompound(i);
+            CompoundTag tc = tagList.getCompound(i);
             WirelessChannelInfo channelInfo = new WirelessChannelInfo();
             readRouters(tc.getList("routers", Constants.NBT.TAG_COMPOUND), channelInfo);
             UUID owner = null;
@@ -171,10 +171,10 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         }
     }
 
-    private void readRouters(ListNBT tagList, WirelessChannelInfo channelInfo) {
+    private void readRouters(ListTag tagList, WirelessChannelInfo channelInfo) {
         for (int i = 0 ; i < tagList.size() ; i++) {
-            CompoundNBT tc = tagList.getCompound(i);
-            RegistryKey<World> dim = LevelTools.getId(tc.getString("dim"));
+            CompoundTag tc = tagList.getCompound(i);
+            ResourceKey<Level> dim = LevelTools.getId(tc.getString("dim"));
             GlobalPos pos = GlobalPos.of(dim, new BlockPos(tc.getInt("x"), tc.getInt("y"), tc.getInt("z")));
             WirelessRouterInfo info = new WirelessRouterInfo(pos);
             info.setAge(tc.getInt("age"));
@@ -185,11 +185,11 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
     @Nonnull
     @Override
-    public CompoundNBT save(@Nonnull CompoundNBT compound) {
-        ListNBT channelTagList = new ListNBT();
+    public CompoundTag save(@Nonnull CompoundTag compound) {
+        ListTag channelTagList = new ListTag();
 
         for (Map.Entry<WirelessChannelKey, WirelessChannelInfo> entry : channelToWireless.entrySet()) {
-            CompoundNBT channelTc = new CompoundNBT();
+            CompoundTag channelTc = new CompoundTag();
             WirelessChannelInfo channelInfo = entry.getValue();
             WirelessChannelKey key = entry.getKey();
             channelTc.putString("name", key.getName());
@@ -206,11 +206,11 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         return compound;
     }
 
-    private ListNBT writeRouters(WirelessChannelInfo channelInfo) {
-        ListNBT tagList = new ListNBT();
+    private ListTag writeRouters(WirelessChannelInfo channelInfo) {
+        ListTag tagList = new ListTag();
 
         for (Map.Entry<GlobalPos, WirelessRouterInfo> infoEntry : channelInfo.getRouters().entrySet()) {
-            CompoundNBT tc = new CompoundNBT();
+            CompoundTag tc = new CompoundTag();
             GlobalPos pos = infoEntry.getKey();
             tc.putString("dim", pos.dimension().location().toString());
             tc.putInt("x", pos.pos().getX());

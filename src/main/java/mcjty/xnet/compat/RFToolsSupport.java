@@ -6,8 +6,8 @@ import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.apiimpl.items.ItemChannelSettings;
 import mcjty.xnet.apiimpl.items.ItemConnectorSettings;
 import mcjty.xnet.setup.Config;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -16,11 +16,11 @@ import java.util.function.Predicate;
 
 public class RFToolsSupport {
 
-    public static boolean isStorageScanner(TileEntity te) {
+    public static boolean isStorageScanner(BlockEntity te) {
         return te instanceof IStorageScanner;
     }
 
-    public static void tickStorageScanner(IControllerContext context, ItemConnectorSettings settings, TileEntity te, ItemChannelSettings channelSettings) {
+    public static void tickStorageScanner(IControllerContext context, ItemConnectorSettings settings, BlockEntity te, ItemChannelSettings channelSettings) {
         IStorageScanner scanner = (IStorageScanner) te;
         Predicate<ItemStack> extractMatcher = settings.getMatcher(context);
 
@@ -74,17 +74,17 @@ public class RFToolsSupport {
         }
     }
 
-    public static int countItems(TileEntity te, Predicate<ItemStack> matcher, int count) {
+    public static int countItems(BlockEntity te, Predicate<ItemStack> matcher, int count) {
         IStorageScanner scanner = (IStorageScanner) te;
         return scanner.countItems(matcher, true, count);
     }
 
-    public static int countItems(TileEntity te, ItemStack stack, int count) {
+    public static int countItems(BlockEntity te, ItemStack stack, int count) {
         IStorageScanner scanner = (IStorageScanner) te;
         return scanner.countItems(stack, true, count);
     }
 
-    public static ItemStack insertItem(TileEntity te, ItemStack stack, boolean simulate) {
+    public static ItemStack insertItem(BlockEntity te, ItemStack stack, boolean simulate) {
         IStorageScanner scanner = (IStorageScanner) te;
         return scanner.insertItem(stack, simulate);
     }

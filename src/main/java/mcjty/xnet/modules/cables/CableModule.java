@@ -8,14 +8,14 @@ import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
 import mcjty.xnet.modules.cables.client.ClientSetup;
 import mcjty.xnet.modules.cables.client.GuiConnector;
 import mcjty.xnet.setup.Registration;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITag;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.Item;
+import net.minecraft.tags.Tag;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -45,14 +45,14 @@ public class CableModule implements IModule {
     public static final RegistryObject<Item> ADVANCED_CONNECTOR_YELLOW = ITEMS.register("advanced_connector_yellow", () -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), Registration.createStandardProperties(), CableColor.YELLOW));
     public static final RegistryObject<Item> ADVANCED_CONNECTOR_ROUTING = ITEMS.register("advanced_connector_routing", () -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), Registration.createStandardProperties(), CableColor.ROUTING));
 
-    public static final RegistryObject<TileEntityType<?>> TYPE_CONNECTOR = TILES.register("connector", () -> TileEntityType.Builder.of(ConnectorTileEntity::new, CONNECTOR.get()).build(null));
-    public static final RegistryObject<TileEntityType<?>> TYPE_ADVANCED_CONNECTOR = TILES.register("advanced_connector", () -> TileEntityType.Builder.of(AdvancedConnectorTileEntity::new, ADVANCED_CONNECTOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<?>> TYPE_CONNECTOR = TILES.register("connector", () -> BlockEntityType.Builder.of(ConnectorTileEntity::new, CONNECTOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<?>> TYPE_ADVANCED_CONNECTOR = TILES.register("advanced_connector", () -> BlockEntityType.Builder.of(AdvancedConnectorTileEntity::new, ADVANCED_CONNECTOR.get()).build(null));
 
-    public static final RegistryObject<ContainerType<GenericContainer>> CONTAINER_CONNECTOR = CONTAINERS.register("connector", GenericContainer::createContainerType);
+    public static final RegistryObject<MenuType<GenericContainer>> CONTAINER_CONNECTOR = CONTAINERS.register("connector", GenericContainer::createContainerType);
 
-    public static final ITag.INamedTag<Item> TAG_CABLES = ItemTags.bind(XNet.MODID+":cables");
-    public static final ITag.INamedTag<Item> TAG_CONNECTORS = ItemTags.bind(XNet.MODID+":connectors");
-    public static final ITag.INamedTag<Item> TAG_ADVANCED_CONNECTORS = ItemTags.bind(XNet.MODID+":advanced_connectors");
+    public static final Tag.Named<Item> TAG_CABLES = ItemTags.bind(XNet.MODID+":cables");
+    public static final Tag.Named<Item> TAG_CONNECTORS = ItemTags.bind(XNet.MODID+":connectors");
+    public static final Tag.Named<Item> TAG_ADVANCED_CONNECTORS = ItemTags.bind(XNet.MODID+":advanced_connectors");
 
     public CableModule() {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {

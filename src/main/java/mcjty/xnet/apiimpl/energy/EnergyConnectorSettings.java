@@ -9,9 +9,9 @@ import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.setup.Config;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -151,7 +151,7 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     }
 
     @Override
-    public void readFromNBT(CompoundNBT tag) {
+    public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
         energyMode = EnergyMode.values()[tag.getByte("itemMode")];
         if (tag.contains("priority")) {
@@ -172,7 +172,7 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     }
 
     @Override
-    public void writeToNBT(CompoundNBT tag) {
+    public void writeToNBT(CompoundTag tag) {
         super.writeToNBT(tag);
         tag.putByte("itemMode", (byte) energyMode.ordinal());
         if (priority != null) {

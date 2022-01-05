@@ -21,18 +21,18 @@ import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.modules.wireless.WirelessRouterModule;
 import mcjty.xnet.multiblock.*;
 import mcjty.xnet.setup.Config;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.state.StateContainer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -65,7 +65,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
     private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.wirelessRouterMaxRF.get(), Config.wirelessRouterRfPerTick.get()));
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Wireless Router")
+    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Wireless Router")
             .containerSupplier(empty(WirelessRouterModule.CONTAINER_WIRELESS_ROUTER, this))
             .setupSync(this));
 
@@ -82,7 +82,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
                 .infoShift(TooltipBuilder.header(), TooltipBuilder.gold())
         ) {
             @Override
-            protected void createBlockStateDefinition(@Nonnull StateContainer.Builder<Block, BlockState> builder) {
+            protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
                 super.createBlockStateDefinition(builder);
                 builder.add(ERROR);
             }
@@ -190,7 +190,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
     }
 
     private boolean inRange(XNetWirelessChannels.WirelessRouterInfo wirelessRouter) {
-        World otherWorld = LevelTools.getLevel(level, wirelessRouter.getCoordinate().dimension());
+        Level otherWorld = LevelTools.getLevel(level, wirelessRouter.getCoordinate().dimension());
         if (otherWorld == null) {
             return false;
         }
@@ -216,7 +216,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
                             .filter(this::inRange)
                             .forEach(routerInfo -> {
                                 // Find all routers on this network
-                                World otherWorld = LevelTools.getLevel(level, routerInfo.getCoordinate().dimension());
+                                Level otherWorld = LevelTools.getLevel(level, routerInfo.getCoordinate().dimension());
                                 LogicTools.consumers(otherWorld, routerInfo.getNetworkId())
                                         .filter(otherWorld::hasChunkAt)
                                         // Range check not needed here since the check is already done on the wireless router
@@ -268,8 +268,8 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
                     .filter(routerPos -> !routerPos.dimension().equals(level.dimension()) || !routerPos.pos().equals(worldPosition))
                     .filter(routerPos -> LevelTools.isLoaded(LevelTools.getLevel(level, routerPos.dimension()), routerPos.pos()))
                     .forEach(routerPos -> {
-                        ServerWorld otherWorld = LevelTools.getLevel(level, routerPos.dimension());
-                        TileEntity otherTE = otherWorld.getBlockEntity(routerPos.pos());
+                        ServerLevel otherWorld = LevelTools.getLevel(level, routerPos.dimension());
+                        BlockEntity otherTE = otherWorld.getBlockEntity(routerPos.pos());
                         if (otherTE instanceof TileEntityWirelessRouter) {
                             TileEntityWirelessRouter otherRouter = (TileEntityWirelessRouter) otherTE;
                             if (inRange(otherRouter) && !otherRouter.inError()) {
@@ -323,33 +323,33 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
 
 
     @Override
-    public void saveAdditional(@Nonnull CompoundNBT tagCompound) {
+    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
         tagCompound.putBoolean("error", error);
         super.saveAdditional(tagCompound);
     }
 
     @Override
-    public void load(CompoundNBT tagCompound) {
+    public void load(CompoundTag tagCompound) {
         super.load(tagCompound);
         error = tagCompound.getBoolean("error");
     }
 
     @Override
-    public void saveInfo(CompoundNBT tagCompound) {
+    public void saveInfo(CompoundTag tagCompound) {
         super.saveInfo(tagCompound);
-        CompoundNBT info = getOrCreateInfo(tagCompound);
+        CompoundTag info = getOrCreateInfo(tagCompound);
         info.putBoolean("publicAcc", publicAccess);
     }
 
     @Override
-    public void loadInfo(CompoundNBT tagCompound) {
+    public void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
-        CompoundNBT info = tagCompound.getCompound("Info");
+        CompoundTag info = tagCompound.getCompound("Info");
         publicAccess = info.getBoolean("publicAcc");
     }
 
     @Override
-    public void onReplaced(World world, BlockPos pos, BlockState state, BlockState newstate) {
+    public void onReplaced(Level world, BlockPos pos, BlockState state, BlockState newstate) {
         if (state.getBlock() == newstate.getBlock()) {
             return;
         }
@@ -362,7 +362,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
     }
 
     @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+    public void onBlockPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
         if (!world.isClientSide) {
             XNetBlobData blobData = XNetBlobData.get(world);

@@ -14,12 +14,12 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.Config;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import org.apache.commons.lang3.tuple.Pair;
@@ -50,11 +50,11 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
 
 
     @Override
-    public void readFromNBT(CompoundNBT tag) {
+    public void readFromNBT(CompoundTag tag) {
     }
 
     @Override
-    public void writeToNBT(CompoundNBT tag) {
+    public void writeToNBT(CompoundTag tag) {
     }
 
     @Override
@@ -66,7 +66,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
     public void tick(int channel, IControllerContext context) {
         updateCache(channel, context);
 
-        World world = context.getControllerWorld();
+        Level world = context.getControllerWorld();
 
         // First find out how much energy we have to distribute in total
         int totalToDistribute = 0;
@@ -85,7 +85,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
                     continue;
                 }
 
-                TileEntity te = world.getBlockEntity(energyPos);
+                BlockEntity te = world.getBlockEntity(energyPos);
                 // @todo report error somewhere?
                 if (isEnergyTE(te, side.getOpposite())) {
                     EnergyConnectorSettings settings = entry.getValue();
@@ -163,7 +163,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
 
     private int insertEnergy(@Nonnull IControllerContext context, int energy) {
         int total = 0;
-        World world = context.getControllerWorld();
+        Level world = context.getControllerWorld();
         for (Pair<SidedConsumer, EnergyConnectorSettings> entry : energyConsumers) {
             EnergyConnectorSettings settings = entry.getValue();
             BlockPos extractorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
@@ -173,7 +173,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
                 if (!LevelTools.isLoaded(world, pos)) {
                     continue;
                 }
-                TileEntity te = world.getBlockEntity(pos);
+                BlockEntity te = world.getBlockEntity(pos);
                 // @todo report error somewhere?
                 if (isEnergyTE(te, settings.getFacing())) {
 
@@ -211,14 +211,14 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
     }
 
 
-    public static boolean isEnergyTE(@Nullable TileEntity te, @Nonnull Direction side) {
+    public static boolean isEnergyTE(@Nullable BlockEntity te, @Nonnull Direction side) {
         if (te == null) {
             return false;
         }
         return te.getCapability(CapabilityEnergy.ENERGY, side).isPresent();
     }
 
-    public static int getEnergyLevel(TileEntity tileEntity, @Nonnull Direction side) {
+    public static int getEnergyLevel(BlockEntity tileEntity, @Nonnull Direction side) {
         if (tileEntity != null) {
             return tileEntity.getCapability(CapabilityEnergy.ENERGY, side).map(IEnergyStorage::getEnergyStored).orElse(0);
         } else {

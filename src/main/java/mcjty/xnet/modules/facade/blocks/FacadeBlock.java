@@ -4,21 +4,23 @@ import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.NetCableBlock;
 import mcjty.xnet.modules.facade.FacadeModule;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.Constants.BlockFlags;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
 
 public class FacadeBlock extends NetCableBlock {
 
@@ -64,12 +66,12 @@ public class FacadeBlock extends NetCableBlock {
 
     @Nullable
     @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
         return new FacadeTileEntity();
     }
 
     @Override
-    public void playerDestroy(@Nonnull World worldIn, @Nonnull PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable TileEntity te, @Nonnull ItemStack stack) {
+    public void playerDestroy(@Nonnull Level worldIn, @Nonnull Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack) {
         ItemStack item = new ItemStack(FacadeModule.FACADE.get());
         BlockState mimicBlock;
         if (te instanceof FacadeTileEntity) {
@@ -82,7 +84,7 @@ public class FacadeBlock extends NetCableBlock {
         popResource(worldIn, pos, item);
     }
 
-    private boolean replaceWithCable(IWorld world, BlockPos pos, BlockState state) {
+    private boolean replaceWithCable(LevelAccessor world, BlockPos pos, BlockState state) {
         CableColor color = state.getValue(COLOR);
         BlockState defaultState = CableModule.NETCABLE.get().defaultBlockState().setValue(COLOR, color);
         BlockState newState = this.calculateState(world, pos, defaultState);
@@ -92,14 +94,14 @@ public class FacadeBlock extends NetCableBlock {
     }
 
     @Override
-    public void destroy(IWorld world, @Nonnull BlockPos pos, @Nonnull BlockState state) {
+    public void destroy(LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockState state) {
         if (world.isClientSide()) {
             replaceWithCable(world, pos, state);
         }
     }
 
     @Override
-    public boolean removedByPlayer(BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid) {
+    public boolean removedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         return replaceWithCable(world, pos, state);
     }
 
@@ -117,7 +119,7 @@ public class FacadeBlock extends NetCableBlock {
 
 
     @Override
-    public void onRemove(BlockState state, @Nonnull World world, @Nonnull BlockPos pos, BlockState newState, boolean isMoving) {
+    public void onRemove(BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, BlockState newState, boolean isMoving) {
         // Breaking a facade has no effect on blob network
         super.onRemove(state, world, pos, newState, isMoving);
     }

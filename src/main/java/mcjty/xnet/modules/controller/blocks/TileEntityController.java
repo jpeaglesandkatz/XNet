@@ -48,26 +48,26 @@ import mcjty.xnet.modules.controller.network.PacketJsonToClipboard;
 import mcjty.xnet.multiblock.*;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.XNetMessages;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.network.NetworkDirection;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -126,7 +126,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get());
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
+    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
             .containerSupplier(container(ControllerModule.CONTAINER_CONTROLLER, CONTAINER_FACTORY,this))
             .itemHandler(() -> items)
             .energyHandler(() -> energyStorage)
@@ -173,7 +173,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                 .infoShift(TooltipBuilder.header())
         ) {
             @Override
-            protected void createBlockStateDefinition(@Nonnull StateContainer.Builder<Block, BlockState> builder) {
+            protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
                 super.createBlockStateDefinition(builder);
                 builder.add(ERROR);
             }
@@ -200,7 +200,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     @Override
-    public World getControllerWorld() {
+    public Level getControllerWorld() {
         return level;
     }
 
@@ -369,7 +369,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundNBT tagCompound) {
+    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
         if (networkId != null) {
             tagCompound.putInt("networkId", networkId.getId());
         }
@@ -377,7 +377,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     @Override
-    public void load(CompoundNBT tagCompound) {
+    public void load(CompoundTag tagCompound) {
         super.load(tagCompound);
         if (tagCompound.contains("networkId")) {
             networkId = new NetworkId(tagCompound.getInt("networkId"));
@@ -387,14 +387,14 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     @Override
-    protected void saveInfo(CompoundNBT tagCompound) {
+    protected void saveInfo(CompoundTag tagCompound) {
         super.saveInfo(tagCompound);
-        CompoundNBT info = getOrCreateInfo(tagCompound);
+        CompoundTag info = getOrCreateInfo(tagCompound);
         info.putInt("colors", colors);
 
         for (int i = 0; i < MAX_CHANNELS; i++) {
             if (channels[i] != null) {
-                CompoundNBT tc = new CompoundNBT();
+                CompoundTag tc = new CompoundTag();
                 tc.putString("type", channels[i].getType().getID());
                 channels[i].writeToNBT(tc);
                 info.put("channel" + i, tc);
@@ -403,13 +403,13 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     @Override
-    public void loadInfo(CompoundNBT tagCompound) {
+    public void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
-        CompoundNBT info = tagCompound.getCompound("Info");
+        CompoundTag info = tagCompound.getCompound("Info");
         colors = info.getInt("colors");
         for (int i = 0; i < MAX_CHANNELS; i++) {
             if (info.contains("channel" + i)) {
-                CompoundNBT tc = info.getCompound("channel" + i);
+                CompoundTag tc = info.getCompound("channel" + i);
                 String id = tc.getString("type");
                 IChannelType type = XNet.xNetApi.findType(id);
                 if (type == null) {
@@ -445,7 +445,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         Stream<BlockPos> consumers = getConsumerStream(worldBlob);
         consumers.forEach(consumerPos -> {
             String name = "";
-            TileEntity te = level.getBlockEntity(consumerPos);
+            BlockEntity te = level.getBlockEntity(consumerPos);
             if (te instanceof ConnectorTileEntity) {
                 // Should always be the case. @todo error?
                 name = ((ConnectorTileEntity) te).getConnectorName();
@@ -472,7 +472,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         Stream<BlockPos> consumers = getConsumerStream(worldBlob);
         consumers.forEach(consumerPos -> {
             String name = "";
-            TileEntity te = level.getBlockEntity(consumerPos);
+            BlockEntity te = level.getBlockEntity(consumerPos);
             if (te instanceof ConnectorTileEntity) {
                 // Should always be the case. @todo error?
                 name = ((ConnectorTileEntity) te).getConnectorName();
@@ -648,7 +648,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         Stream<BlockPos> consumers = getConsumerStream(worldBlob);
         consumers.forEach(consumerPos -> {
             String name = "";
-            TileEntity te = level.getBlockEntity(consumerPos);
+            BlockEntity te = level.getBlockEntity(consumerPos);
             if (te instanceof ConnectorTileEntity) {
                 // Should always be the case. @todo error?
                 name = ((ConnectorTileEntity) te).getConnectorName();
@@ -669,7 +669,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         return set;
     }
 
-    private void copyConnector(PlayerEntity player, int index, SidedPos sidedPos) {
+    private void copyConnector(Player player, int index, SidedPos sidedPos) {
         ChannelInfo channel = channels[index];
         IChannelSettings settings = channel.getChannelSettings();
         JsonObject parent = new JsonObject();
@@ -685,14 +685,14 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 String json = gson.toJson(parent);
 
-                XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
         }
-        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error copying connector!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error copying connector!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
-    private void copyChannel(PlayerEntity player, int index) {
+    private void copyChannel(Player player, int index) {
         ChannelInfo channel = channels[index];
         IChannelSettings settings = channel.getChannelSettings();
         JsonObject parent = new JsonObject();
@@ -732,9 +732,9 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String json = gson.toJson(parent);
 
-            XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         } else {
-            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Channel does not support this!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Channel does not support this!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 
@@ -796,20 +796,20 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         return score;
     }
 
-    private void pasteConnector(PlayerEntity player, int channel, SidedPos sidedPos, String json) {
+    private void pasteConnector(Player player, int channel, SidedPos sidedPos, String json) {
         try {
             JsonParser parser = new JsonParser();
             JsonObject root = parser.parse(json).getAsJsonObject();
 
             if (!root.has("connector") || !root.has("type")) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid connector json!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid connector json!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
 
             String typeId = root.get("type").getAsString();
             IChannelType type = XNet.xNetApi.findType(typeId);
             if (type != channels[channel].getType()) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Wrong channel type!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Wrong channel type!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
             boolean advanced = root.get("advanced").getAsBoolean();
@@ -827,7 +827,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                     // If advanced is desired but our actual connector is not advanced then we give a penalty. The penalty is big
                     // if we can't match with the actual side or if we actually need advanced
                     if (advancedNeeded || !facingOverride.equals(facing)) {
-                        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Advanced connector is needed!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Advanced connector is needed!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                         return;
                     }
                 }
@@ -840,7 +840,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             ConnectorInfo info = createConnector(channel, sidedPos);
             info.getConnectorSettings().readFromJson(connectorObject);
         } catch (JsonSyntaxException e) {
-            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
 
         markAsDirty();
@@ -857,12 +857,12 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         }
     }
 
-    private void pasteChannel(PlayerEntity player, int channel, String json) {
+    private void pasteChannel(Player player, int channel, String json) {
         try {
             JsonParser parser = new JsonParser();
             JsonObject root = parser.parse(json).getAsJsonObject();
             if (!root.has("channel") || !root.has("type") || !root.has("name")) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid channel json!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid channel json!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
             String typeId = root.get("type").getAsString();
@@ -968,10 +968,10 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             }
 
             if (notEnoughConnectors) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Not everything could be pasted!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Not everything could be pasted!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
         } catch (JsonSyntaxException e) {
-            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
 
         markAsDirty();
@@ -1019,13 +1019,13 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             (te, player, params, list) -> te.clientConnectedBlocks = list);
 
     @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+    public void onBlockPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
         findNeighbourConnector(world, pos);
     }
 
     @Override
-    public void onReplaced(World world, BlockPos pos, BlockState state, BlockState newstate) {
+    public void onReplaced(Level world, BlockPos pos, BlockState state, BlockState newstate) {
         if (state.getBlock() == newstate.getBlock()) {
             return;
         }
@@ -1036,7 +1036,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     @Override
-    public void checkRedstone(World world, BlockPos pos) {
+    public void checkRedstone(Level world, BlockPos pos) {
         // We abuse the redstone check for something else
         if (!world.isClientSide) {
             findNeighbourConnector(world, pos);
@@ -1044,7 +1044,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     // Check neighbour blocks for a connector and inherit the color from that
-    private void findNeighbourConnector(World world, BlockPos pos) {
+    private void findNeighbourConnector(Level world, BlockPos pos) {
         if (world.isClientSide) {
             return;
         }
@@ -1071,7 +1071,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             worldBlob.createNetworkProvider(pos, newColor, networkId);
             blobData.save();
 
-            TileEntity te = world.getBlockEntity(pos);
+            BlockEntity te = world.getBlockEntity(pos);
             if (te instanceof TileEntityController) {
                 ((TileEntityController) te).setNetworkId(networkId);
             }

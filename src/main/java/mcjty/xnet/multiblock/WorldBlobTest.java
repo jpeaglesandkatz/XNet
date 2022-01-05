@@ -1,10 +1,10 @@
 package mcjty.xnet.multiblock;
 
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 public class WorldBlobTest {
 
@@ -21,7 +21,7 @@ public class WorldBlobTest {
         ColorId color2 = new ColorId(222);
         ColorId color3 = new ColorId(333);
 
-        WorldBlob world = new WorldBlob(World.OVERWORLD);
+        WorldBlob world = new WorldBlob(Level.OVERWORLD);
 
         BlockPos p1 = new BlockPos(10, 60, 10);
         world.createNetworkProvider(p1, color1, new NetworkId(1000));
@@ -50,10 +50,10 @@ public class WorldBlobTest {
         System.out.println("------------------------------------------------------------");
         world.dump();
 
-        CompoundNBT compound = new CompoundNBT();
+        CompoundTag compound = new CompoundTag();
         world.writeToNBT(compound);
 
-        world = new WorldBlob(World.OVERWORLD);
+        world = new WorldBlob(Level.OVERWORLD);
         world.readFromNBT(compound);
 
         System.out.println("------------------------------------------------------------");

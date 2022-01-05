@@ -31,17 +31,17 @@ import mcjty.xnet.multiblock.WirelessChannelKey;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
 import mcjty.xnet.setup.Config;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.state.StateContainer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import org.apache.commons.lang3.tuple.Pair;
@@ -69,7 +69,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     public List<ControllerChannelClientInfo> clientRemoteChannels = null;
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Router")
+    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Router")
             .containerSupplier(empty(RouterModule.CONTAINER_ROUTER, this)));
 
     public TileEntityRouter() {
@@ -85,7 +85,7 @@ public final class TileEntityRouter extends GenericTileEntity {
                 .infoShift(header())
         ) {
             @Override
-            protected void createBlockStateDefinition(@Nonnull StateContainer.Builder<Block, BlockState> builder) {
+            protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
                 super.createBlockStateDefinition(builder);
                 builder.add(ERROR);
             }
@@ -133,13 +133,13 @@ public final class TileEntityRouter extends GenericTileEntity {
     }
 
     @Override
-    public void saveInfo(CompoundNBT tagCompound) {
+    public void saveInfo(CompoundTag tagCompound) {
         super.saveInfo(tagCompound);
-        CompoundNBT info = getOrCreateInfo(tagCompound);
+        CompoundTag info = getOrCreateInfo(tagCompound);
         info.putInt("chancnt", channelCount);
-        ListNBT published = new ListNBT();
+        ListTag published = new ListTag();
         for (Map.Entry<LocalChannelId, String> entry : publishedChannels.entrySet()) {
-            CompoundNBT tc = new CompoundNBT();
+            CompoundTag tc = new CompoundTag();
             BlockPosTools.write(tc, "pos", entry.getKey().getControllerPos());
             tc.putInt("index", entry.getKey().getIndex());
             tc.putString("name", entry.getValue());
@@ -149,13 +149,13 @@ public final class TileEntityRouter extends GenericTileEntity {
     }
 
     @Override
-    public void loadInfo(CompoundNBT tagCompound) {
+    public void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
-        CompoundNBT info = tagCompound.getCompound("Info");
+        CompoundTag info = tagCompound.getCompound("Info");
         channelCount = info.getInt("chancnt");
-        ListNBT published = info.getList("published", Constants.NBT.TAG_COMPOUND);
+        ListTag published = info.getList("published", Constants.NBT.TAG_COMPOUND);
         for (int i = 0; i < published.size(); i++) {
-            CompoundNBT tc = published.getCompound(i);
+            CompoundTag tc = published.getCompound(i);
             LocalChannelId id = new LocalChannelId(BlockPosTools.read(tc, "pos"), tc.getInt("index"));
             String name = tc.getString("name");
             publishedChannels.put(id, name);
@@ -346,7 +346,7 @@ public final class TileEntityRouter extends GenericTileEntity {
             (te, player, params, list) -> te.clientRemoteChannels = list);
 
     @Override
-    public void onReplaced(World world, BlockPos pos, BlockState state, BlockState newstate) {
+    public void onReplaced(Level world, BlockPos pos, BlockState state, BlockState newstate) {
         if (state.getBlock() == newstate.getBlock()) {
             return;
         }
@@ -359,7 +359,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     }
 
     @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+    public void onBlockPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
         if (!world.isClientSide) {
             XNetBlobData blobData = XNetBlobData.get(world);

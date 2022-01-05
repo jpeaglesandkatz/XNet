@@ -2,8 +2,8 @@ package mcjty.xnet.modules.controller.network;
 
 import mcjty.lib.network.NetworkTools;
 import mcjty.xnet.modules.controller.client.GuiController;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -11,14 +11,14 @@ public class PacketJsonToClipboard {
 
     private String json;
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         NetworkTools.writeStringUTF8(buf, json);
     }
 
     public PacketJsonToClipboard() {
     }
 
-    public PacketJsonToClipboard(PacketBuffer buf) {
+    public PacketJsonToClipboard(FriendlyByteBuf buf) {
         json = NetworkTools.readStringUTF8(buf);
     }
 

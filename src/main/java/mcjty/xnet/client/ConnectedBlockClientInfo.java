@@ -4,9 +4,9 @@ import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.network.NetworkTools;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
@@ -28,7 +28,7 @@ public class ConnectedBlockClientInfo {
 
     public static class Serializer implements ISerializer<ConnectedBlockClientInfo> {
         @Override
-        public Function<PacketBuffer, ConnectedBlockClientInfo> getDeserializer() {
+        public Function<FriendlyByteBuf, ConnectedBlockClientInfo> getDeserializer() {
             return buf -> {
                 if (buf.readBoolean()) {
                     return new ConnectedBlockClientInfo(buf);
@@ -39,7 +39,7 @@ public class ConnectedBlockClientInfo {
         }
 
         @Override
-        public BiConsumer<PacketBuffer, ConnectedBlockClientInfo> getSerializer() {
+        public BiConsumer<FriendlyByteBuf, ConnectedBlockClientInfo> getSerializer() {
             return (buf, info) -> {
                 if (info == null) {
                     buf.writeBoolean(false);
@@ -58,14 +58,14 @@ public class ConnectedBlockClientInfo {
         this.blockName = getStackUnlocalizedName(connectedBlock);
     }
 
-    public ConnectedBlockClientInfo(@Nonnull PacketBuffer buf) {
+    public ConnectedBlockClientInfo(@Nonnull FriendlyByteBuf buf) {
         pos = new SidedPos(buf.readBlockPos(), OrientationTools.DIRECTION_VALUES[buf.readByte()]);
         connectedBlock = buf.readItem();
         name = NetworkTools.readStringUTF8(buf);
         blockName = NetworkTools.readStringUTF8(buf);
     }
 
-    public void writeToBuf(@Nonnull PacketBuffer buf) {
+    public void writeToBuf(@Nonnull FriendlyByteBuf buf) {
         buf.writeBlockPos(pos.getPos());
         buf.writeByte(pos.getSide().ordinal());
         buf.writeItem(connectedBlock);
@@ -111,7 +111,7 @@ public class ConnectedBlockClientInfo {
     }
 
     private static String getStackUnlocalizedName(ItemStack stack) {
-        CompoundNBT nbttagcompound = getSubCompound(stack, "display");
+        CompoundTag nbttagcompound = getSubCompound(stack, "display");
 
         if (nbttagcompound != null) {
             if (nbttagcompound.contains("Name", 8)) {
@@ -126,7 +126,7 @@ public class ConnectedBlockClientInfo {
         return stack.getItem().getDescriptionId(stack);
     }
 
-    private static CompoundNBT getSubCompound(ItemStack stack, String key) {
+    private static CompoundTag getSubCompound(ItemStack stack, String key) {
         if (stack.getTag() != null && stack.getTag().contains(key, 10)) {
             return stack.getTag().getCompound(key);
         } else {

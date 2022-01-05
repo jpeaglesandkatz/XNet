@@ -13,12 +13,12 @@ import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.setup.Config;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -69,14 +69,14 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
 
     @Override
-    public void readFromNBT(CompoundNBT tag) {
+    public void readFromNBT(CompoundTag tag) {
         channelMode = ChannelMode.values()[tag.getByte("mode")];
         delay = tag.getInt("delay");
         roundRobinOffset = tag.getInt("offset");
     }
 
     @Override
-    public void writeToNBT(CompoundNBT tag) {
+    public void writeToNBT(CompoundTag tag) {
         tag.putByte("mode", (byte) channelMode.ordinal());
         tag.putInt("delay", delay);
         tag.putInt("offset", roundRobinOffset);
@@ -95,7 +95,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
         updateCache(channel, context);
         // @todo optimize
-        World world = context.getControllerWorld();
+        Level world = context.getControllerWorld();
         extractorsLoop:
         for (Map.Entry<SidedConsumer, FluidConnectorSettings> entry : fluidExtractors.entrySet()) {
             FluidConnectorSettings settings = entry.getValue();
@@ -111,7 +111,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                     continue;
                 }
 
-                TileEntity te = world.getBlockEntity(pos);
+                BlockEntity te = world.getBlockEntity(pos);
                 // @todo ugly code!
                 IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing()).map(h -> h).orElse(null);
                 // @todo report error somewhere?
@@ -182,7 +182,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
     // Returns what could not be filled
     private int insertFluidSimulate(@Nonnull List<Pair<SidedConsumer, FluidConnectorSettings>> inserted, @Nonnull IControllerContext context, @Nonnull FluidStack stack) {
-        World world = context.getControllerWorld();
+        Level world = context.getControllerWorld();
         if (channelMode == ChannelMode.PRIORITY) {
             roundRobinOffset = 0;       // Always start at 0
         }
@@ -207,7 +207,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
                     Direction side = entry.getKey().getSide();
                     BlockPos pos = consumerPos.relative(side);
-                    TileEntity te = world.getBlockEntity(pos);
+                    BlockEntity te = world.getBlockEntity(pos);
                     // @todo ugly code!
                     IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing()).map(h -> h).orElse(null);
                     // @todo report error somewhere?
@@ -260,7 +260,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             Direction side = pair.getKey().getSide();
             FluidConnectorSettings settings = pair.getValue();
             BlockPos pos = consumerPosition.relative(side);
-            TileEntity te = context.getControllerWorld().getBlockEntity(pos);
+            BlockEntity te = context.getControllerWorld().getBlockEntity(pos);
             // @todo ugly code!
             IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing()).map(h -> h).orElse(null);
 
@@ -351,7 +351,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
     }
 
     @Nonnull
-    public static LazyOptional<IFluidHandler> getFluidHandlerAt(@Nullable TileEntity te, Direction intSide) {
+    public static LazyOptional<IFluidHandler> getFluidHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
             return te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, intSide);
         } else {

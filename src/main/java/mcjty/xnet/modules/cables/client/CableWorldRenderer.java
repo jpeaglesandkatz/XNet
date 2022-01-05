@@ -1,8 +1,8 @@
 package mcjty.xnet.modules.cables.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import mcjty.lib.client.CustomRenderTypes;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.ConnectorType;
@@ -11,20 +11,20 @@ import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.modules.facade.blocks.FacadeBlock;
 import mcjty.xnet.setup.Config;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import com.mojang.math.Matrix4f;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.client.event.RenderLevelLastEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +34,10 @@ import static mcjty.xnet.modules.cables.ConnectorType.CABLE;
 
 public class CableWorldRenderer {
 
-    public static void tick(RenderWorldLastEvent evt) {
+    public static void tick(RenderLevelLastEvent evt) {
         Minecraft mc = Minecraft.getInstance();
 
-        ItemStack heldItem = mc.player.getItemInHand(Hand.MAIN_HAND);
+        ItemStack heldItem = mc.player.getItemInHand(InteractionHand.MAIN_HAND);
         if (!heldItem.isEmpty()) {
             if (heldItem.getItem() instanceof BlockItem) {
                 if (((BlockItem) heldItem.getItem()).getBlock() instanceof GenericCableBlock) {
@@ -47,18 +47,18 @@ public class CableWorldRenderer {
         }
     }
 
-    private static void renderCables(RenderWorldLastEvent evt, Minecraft mc) {
-        PlayerEntity p = mc.player;
+    private static void renderCables(RenderLevelLastEvent evt, Minecraft mc) {
+        Player p = mc.player;
 
-        MatrixStack matrixStack = evt.getMatrixStack();
-        IRenderTypeBuffer.Impl buffer = Minecraft.getInstance().renderBuffers().bufferSource();
-        IVertexBuilder builder = buffer.getBuffer(CustomRenderTypes.OVERLAY_LINES);
+        PoseStack matrixStack = evt.getMatrixStack();
+        MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
+        VertexConsumer builder = buffer.getBuffer(CustomRenderTypes.OVERLAY_LINES);
 
-        World world = mc.level;
+        Level world = mc.level;
 
         matrixStack.pushPose();
 
-        Vector3d projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         matrixStack.translate(-projectedView.x, -projectedView.y, -projectedView.z);
 
         Matrix4f positionMatrix = matrixStack.last().pose();
@@ -70,7 +70,7 @@ public class CableWorldRenderer {
                     BlockState state = world.getBlockState(c);
                     Block block = state.getBlock();
                     if (block instanceof FacadeBlock || block instanceof ConnectorBlock || block instanceof GenericCableBlock) {
-                        TileEntity te = world.getBlockEntity(c);
+                        BlockEntity te = world.getBlockEntity(c);
                         if (te instanceof IFacadeSupport) {
                             BlockState facadeId = ((IFacadeSupport) te).getMimicBlock();
                             if (((!Config.showNonFacadedCablesWhileSneaking.get()) || (!p.isShiftKeyDown())) && facadeId == null && !(block instanceof FacadeBlock)) {
@@ -126,17 +126,17 @@ public class CableWorldRenderer {
     }
 
 
-    private static Vector3d v(double x, double y, double z) {
-        return new Vector3d(x, y, z);
+    private static Vec3 v(double x, double y, double z) {
+        return new Vec3(x, y, z);
     }
 
     private static class Rect {
-        public Vector3d v1;
-        public Vector3d v2;
-        public Vector3d v3;
-        public Vector3d v4;
+        public Vec3 v1;
+        public Vec3 v2;
+        public Vec3 v3;
+        public Vec3 v4;
 
-        public Rect(Vector3d v1, Vector3d v2, Vector3d v3, Vector3d v4) {
+        public Rect(Vec3 v1, Vec3 v2, Vec3 v3, Vec3 v4) {
             this.v1 = v1;
             this.v2 = v2;
             this.v3 = v3;
@@ -295,7 +295,7 @@ public class CableWorldRenderer {
         return quads;
     }
 
-    public static void renderRect(IVertexBuilder buffer, Matrix4f positionMatrix, Rect rect, BlockPos p, float r, float g, float b, float a) {
+    public static void renderRect(VertexConsumer buffer, Matrix4f positionMatrix, Rect rect, BlockPos p, float r, float g, float b, float a) {
         buffer.vertex(positionMatrix, (float)(p.getX() + rect.v1.x), (float)(p.getY() + rect.v1.y), (float)(p.getZ() + rect.v1.z)).color(r, g, b, a).endVertex();
         buffer.vertex(positionMatrix, (float)(p.getX() + rect.v2.x), (float)(p.getY() + rect.v2.y), (float)(p.getZ() + rect.v2.z)).color(r, g, b, a).endVertex();
         buffer.vertex(positionMatrix, (float)(p.getX() + rect.v2.x), (float)(p.getY() + rect.v2.y), (float)(p.getZ() + rect.v2.z)).color(r, g, b, a).endVertex();

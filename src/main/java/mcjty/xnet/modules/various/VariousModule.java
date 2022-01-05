@@ -5,9 +5,9 @@ import mcjty.xnet.modules.various.blocks.RedstoneProxyBlock;
 import mcjty.xnet.modules.various.blocks.RedstoneProxyUBlock;
 import mcjty.xnet.modules.various.items.ConnectorUpgradeItem;
 import mcjty.xnet.setup.Registration;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 

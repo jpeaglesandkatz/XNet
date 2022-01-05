@@ -11,12 +11,12 @@ import mcjty.rftoolsbase.api.xnet.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -44,13 +44,13 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
 
 
     @Override
-    public void readFromNBT(CompoundNBT tag) {
+    public void readFromNBT(CompoundTag tag) {
         delay = tag.getInt("delay");
         colors = tag.getInt("colors");
     }
 
     @Override
-    public void writeToNBT(CompoundNBT tag) {
+    public void writeToNBT(CompoundTag tag) {
         tag.putInt("delay", delay);
         tag.putInt("colors", colors);
     }
@@ -71,7 +71,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
         }
         int d = delay / 5;
         updateCache(channel, context);
-        World world = context.getControllerWorld();
+        Level world = context.getControllerWorld();
 
         colors = 0;
         for (Pair<SidedConsumer, LogicConnectorSettings> entry : sensors) {
@@ -101,7 +101,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
 
                 // If sense is false the sensor is disabled which means the colors from it will also be disabled
                 if (sense) {
-                    TileEntity te = world.getBlockEntity(pos);
+                    BlockEntity te = world.getBlockEntity(pos);
 
                     for (Sensor sensor : settings.getSensors()) {
                         if (sensor.test(te, world, pos, settings)) {
@@ -127,7 +127,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
                     continue;
                 }
 
-                TileEntity te = world.getBlockEntity(connectorPos);
+                BlockEntity te = world.getBlockEntity(connectorPos);
                 if (te instanceof ConnectorTileEntity) {
                     ConnectorTileEntity connectorTE = (ConnectorTileEntity) te;
                     int powerOut;

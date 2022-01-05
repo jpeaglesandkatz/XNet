@@ -24,35 +24,35 @@ import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
 import mcjty.xnet.setup.Config;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.LootParameters;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nonnull;
@@ -85,37 +85,37 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
 
     @Nullable
     @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
         return new ConnectorTileEntity();
     }
 
     @Override
     @Nonnull
-    public ActionResultType use(@Nonnull BlockState state, World world, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand handIn, @Nonnull BlockRayTraceResult hit) {
+    public InteractionResult use(@Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand handIn, @Nonnull BlockHitResult hit) {
         if (!world.isClientSide) {
-            TileEntity te = world.getBlockEntity(pos);
+            BlockEntity te = world.getBlockEntity(pos);
             if (te instanceof GenericTileEntity) {
                 GenericTileEntity genericTileEntity = (GenericTileEntity) te;
-                NetworkHooks.openGui((ServerPlayerEntity) player, new INamedContainerProvider() {
+                NetworkHooks.openGui((ServerPlayer) player, new MenuProvider() {
                     @Override
                     @Nonnull
-                    public ITextComponent getDisplayName() {
-                        return new StringTextComponent("Connector");
+                    public Component getDisplayName() {
+                        return new TextComponent("Connector");
                     }
 
                     @Nonnull
                     @Override
-                    public Container createMenu(int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player) {
+                    public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) {
                         return new GenericContainer(CableModule.CONTAINER_CONNECTOR, id, ContainerFactory.EMPTY, genericTileEntity, player);
                     }
                 }, pos);
             }
         }
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void playerDestroy(@Nonnull World worldIn, @Nonnull PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable TileEntity te, @Nonnull ItemStack stack) {
+    public void playerDestroy(@Nonnull Level worldIn, @Nonnull Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack) {
         if (te instanceof ConnectorTileEntity) {
             // If we are in mimic mode then the drop will be the facade as the connector will remain there
             ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
@@ -131,8 +131,8 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     }
 
     @Override
-    public boolean removedByPlayer(BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid) {
-        TileEntity te = world.getBlockEntity(pos);
+    public boolean removedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
+        BlockEntity te = world.getBlockEntity(pos);
         if (te instanceof ConnectorTileEntity) {
             ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
             if (connectorTileEntity.getMimicBlock() == null) {
@@ -153,17 +153,17 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
 
     @SuppressWarnings("deprecation")
     @Override
-    public void neighborChanged(@Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Block blockIn, @Nonnull BlockPos fromPos, boolean isMoving) {
+    public void neighborChanged(@Nonnull BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Block blockIn, @Nonnull BlockPos fromPos, boolean isMoving) {
         checkRedstone(world, pos);
         super.neighborChanged(state, world, pos, blockIn, fromPos, isMoving);
     }
 
     @Override
-    public void onNeighborChange(BlockState state, IWorldReader blockAccess, BlockPos pos, BlockPos neighbor) {
-        if (blockAccess instanceof World) {
-            World world = (World) blockAccess;
+    public void onNeighborChange(BlockState state, LevelReader blockAccess, BlockPos pos, BlockPos neighbor) {
+        if (blockAccess instanceof Level) {
+            Level world = (Level) blockAccess;
             if (!world.isClientSide) {
-                TileEntity te = world.getBlockEntity(pos);
+                BlockEntity te = world.getBlockEntity(pos);
                 if (te instanceof ConnectorTileEntity) {
                     ConnectorTileEntity connector = (ConnectorTileEntity) te;
                     connector.possiblyMarkNetworkDirty(neighbor);
@@ -174,12 +174,12 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     }
 
     @Override
-    public boolean shouldCheckWeakPower(BlockState state, IWorldReader world, BlockPos pos, Direction side) {
+    public boolean shouldCheckWeakPower(BlockState state, LevelReader world, BlockPos pos, Direction side) {
         return false;
     }
 
-    private void checkRedstone(World world, BlockPos pos) {
-        TileEntity te = world.getBlockEntity(pos);
+    private void checkRedstone(Level world, BlockPos pos) {
+        BlockEntity te = world.getBlockEntity(pos);
         if (te instanceof ConnectorTileEntity) {
 //            int powered = world.isBlockIndirectlyGettingPowered(pos);
             int powered = world.getBestNeighborSignal(pos); // @todo 1.14 check
@@ -196,18 +196,18 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
 
     @SuppressWarnings("deprecation")
     @Override
-    public int getSignal(@Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side) {
+    public int getSignal(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side) {
         return getRedstoneOutput(state, world, pos, side);
     }
 
     @SuppressWarnings("deprecation")
     @Override
-    public int getDirectSignal(@Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side) {
+    public int getDirectSignal(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side) {
         return getRedstoneOutput(state, world, pos, side);
     }
 
-    protected int getRedstoneOutput(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
-        TileEntity te = world.getBlockEntity(pos);
+    protected int getRedstoneOutput(BlockState state, BlockGetter world, BlockPos pos, Direction side) {
+        BlockEntity te = world.getBlockEntity(pos);
         if (state.getBlock() instanceof ConnectorBlock && te instanceof ConnectorTileEntity) {
             ConnectorTileEntity connector = (ConnectorTileEntity) te;
             return connector.getPowerOut(side.getOpposite());
@@ -216,7 +216,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     }
 
     @Override
-    protected ConnectorType getConnectorType(@Nonnull CableColor color, IBlockReader world, BlockPos connectorPos, Direction facing) {
+    protected ConnectorType getConnectorType(@Nonnull CableColor color, BlockGetter world, BlockPos connectorPos, Direction facing) {
         BlockPos pos = connectorPos.relative(facing);
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
@@ -231,8 +231,8 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         }
     }
 
-    public static boolean isConnectableRouting(IBlockReader world, BlockPos pos) {
-        TileEntity te = world.getBlockEntity(pos);
+    public static boolean isConnectableRouting(BlockGetter world, BlockPos pos) {
+        BlockEntity te = world.getBlockEntity(pos);
         if (te == null) {
             return false;
         }
@@ -242,7 +242,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         return false;
     }
 
-    public static boolean isConnectable(IBlockReader world, BlockPos connectorPos, Direction facing) {
+    public static boolean isConnectable(BlockGetter world, BlockPos connectorPos, Direction facing) {
 
         BlockPos pos = connectorPos.relative(facing);
         BlockState state = world.getBlockState(pos);
@@ -251,7 +251,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
             return false;
         }
 
-        TileEntity tileEntity = world.getBlockEntity(connectorPos);
+        BlockEntity tileEntity = world.getBlockEntity(connectorPos);
         if (!(tileEntity instanceof ConnectorTileEntity)) {
             return false;
         }
@@ -262,7 +262,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         }
 
 
-        TileEntity te = world.getBlockEntity(pos);
+        BlockEntity te = world.getBlockEntity(pos);
 
         if (block instanceof IConnectable) {
             IConnectable.ConnectResult result = ((IConnectable) block).canConnect(world, connectorPos, pos, te, facing);
@@ -334,10 +334,10 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     @Override
     public List<ItemStack> getDrops(@Nonnull BlockState state, @Nonnull LootContext.Builder builder) {
         List<ItemStack> drops = super.getDrops(state, builder);
-        ServerWorld world = builder.getLevel();
+        ServerLevel world = builder.getLevel();
         for (ItemStack drop : drops) {
             WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
-            ConsumerId consumer = worldBlob.getConsumerAt(new BlockPos(builder.getOptionalParameter(LootParameters.ORIGIN)));
+            ConsumerId consumer = worldBlob.getConsumerAt(new BlockPos(builder.getOptionalParameter(LootContextParams.ORIGIN)));
             if (consumer != null) {
                 drop.getOrCreateTag().putInt("consumerId", consumer.getId());
             }
@@ -346,13 +346,13 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable IBlockReader worldIn, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn) {
+    public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter worldIn, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
         tooltipBuilder.get().makeTooltip(getRegistryName(), stack, tooltip, flagIn);
     }
 
     @Override
-    public void createCableSegment(World world, BlockPos pos, ItemStack stack) {
+    public void createCableSegment(Level world, BlockPos pos, ItemStack stack) {
         ConsumerId consumer;
         if (!stack.isEmpty() && stack.hasTag() && stack.getTag().contains("consumerId")) {
             consumer = new ConsumerId(stack.getTag().getInt("consumerId"));
@@ -364,7 +364,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         createCableSegment(world, pos, consumer);
     }
 
-    public void createCableSegment(World world, BlockPos pos, ConsumerId consumer) {
+    public void createCableSegment(Level world, BlockPos pos, ConsumerId consumer) {
         XNetBlobData blobData = XNetBlobData.get(world);
         WorldBlob worldBlob = blobData.getWorldBlob(world);
         CableColor color = world.getBlockState(pos).getValue(COLOR);
@@ -372,7 +372,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         blobData.save();
     }
 
-    public static boolean isAdvancedConnector(World world, BlockPos pos) {
+    public static boolean isAdvancedConnector(Level world, BlockPos pos) {
         Block block = world.getBlockState(pos).getBlock();
         if (block instanceof GenericCableBlock) {
             return ((GenericCableBlock) block).isAdvancedConnector();

@@ -4,9 +4,9 @@ import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import java.util.Iterator;
@@ -17,7 +17,7 @@ import java.util.stream.StreamSupport;
 
 public class ConnectorIterator implements Iterator<BlockPos> {
 
-    @Nonnull private final World world;
+    @Nonnull private final Level world;
     @Nonnull private final BlockPos pos;
     private final boolean routing;
 
@@ -28,7 +28,7 @@ public class ConnectorIterator implements Iterator<BlockPos> {
         return StreamSupport.stream(Spliterators.spliterator(this, OrientationTools.DIRECTION_VALUES.length, Spliterator.ORDERED), false);
     }
 
-    ConnectorIterator(@Nonnull World world, @Nonnull BlockPos pos, boolean routing) {
+    ConnectorIterator(@Nonnull Level world, @Nonnull BlockPos pos, boolean routing) {
         this.world = world;
         this.pos = pos;
         this.routing = routing;

@@ -3,7 +3,7 @@ package mcjty.xnet.client;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 public class ConnectorInfo {
 
@@ -35,11 +35,11 @@ public class ConnectorInfo {
         return id;
     }
 
-    public void writeToNBT(CompoundNBT tag) {
+    public void writeToNBT(CompoundTag tag) {
         connectorSettings.writeToNBT(tag);
     }
 
-    public void readFromNBT(CompoundNBT tag) {
+    public void readFromNBT(CompoundTag tag) {
         connectorSettings.readFromNBT(tag);
     }
 }

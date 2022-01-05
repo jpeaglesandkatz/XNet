@@ -24,11 +24,11 @@ import mcjty.xnet.multiblock.BlobId;
 import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class XNetTOPDriver implements TOPDriver {
     private final Map<ResourceLocation, TOPDriver> drivers = new HashMap<>();
 
     @Override
-    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
+    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, Player player, Level world, BlockState blockState, IProbeHitData data) {
         Block block = blockState.getBlock();
         ResourceLocation id = block.getRegistryName();
         if (!drivers.containsKey(id)) {
@@ -69,14 +69,14 @@ public class XNetTOPDriver implements TOPDriver {
 
     private static class DefaultDriver implements TOPDriver {
         @Override
-        public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
+        public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, Player player, Level world, BlockState blockState, IProbeHitData data) {
             McJtyLibTOPDriver.DRIVER.addStandardProbeInfo(mode, probeInfo, player, world, blockState, data);
         }
     }
 
     private static class CableDriver extends DefaultDriver {
         @Override
-        public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
+        public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, Player player, Level world, BlockState blockState, IProbeHitData data) {
             super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
             Tools.safeConsume(world.getBlockState(data.getPos()).getBlock(), (GenericCableBlock block) -> {
                 WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
@@ -113,7 +113,7 @@ public class XNetTOPDriver implements TOPDriver {
 
     private static class ConnectorDriver extends CableDriver {
         @Override
-        public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
+        public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, Player player, Level world, BlockState blockState, IProbeHitData data) {
             super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
             Tools.safeConsume(world.getBlockEntity(data.getPos()), (ConnectorTileEntity te) -> {
                 String name = te.getConnectorName();
@@ -126,7 +126,7 @@ public class XNetTOPDriver implements TOPDriver {
 
     private static class ControllerDriver extends DefaultDriver {
         @Override
-        public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
+        public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, Player player, Level world, BlockState blockState, IProbeHitData data) {
             super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
             Tools.safeConsume(world.getBlockEntity(data.getPos()), (TileEntityController te) -> {
                 WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
@@ -176,7 +176,7 @@ public class XNetTOPDriver implements TOPDriver {
 
     private static class RouterDriver extends DefaultDriver {
         @Override
-        public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
+        public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, Player player, Level world, BlockState blockState, IProbeHitData data) {
             super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
             Tools.safeConsume(world.getBlockEntity(data.getPos()), (TileEntityRouter te) -> {
                 XNetBlobData blobData = XNetBlobData.get(world);
@@ -210,7 +210,7 @@ public class XNetTOPDriver implements TOPDriver {
 
     private static class WirelessRouterDriver extends DefaultDriver {
         @Override
-        public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
+        public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, Player player, Level world, BlockState blockState, IProbeHitData data) {
             super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
             Tools.safeConsume(world.getBlockEntity(data.getPos()), (TileEntityWirelessRouter te) -> {
                 XNetBlobData blobData = XNetBlobData.get(world);

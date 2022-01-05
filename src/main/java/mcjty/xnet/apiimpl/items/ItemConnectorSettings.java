@@ -11,10 +11,10 @@ import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -336,7 +336,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     }
 
     @Override
-    public void readFromNBT(CompoundNBT tag) {
+    public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
         itemMode = ItemMode.values()[tag.getByte("itemMode")];
         extractMode = ExtractMode.values()[tag.getByte("extractMode")];
@@ -378,7 +378,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         }
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             if (tag.contains("filter" + i)) {
-                CompoundNBT itemTag = tag.getCompound("filter" + i);
+                CompoundTag itemTag = tag.getCompound("filter" + i);
                 filters.set(i, ItemStack.of(itemTag));
             } else {
                 filters.set(i, ItemStack.EMPTY);
@@ -388,7 +388,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     }
 
     @Override
-    public void writeToNBT(CompoundNBT tag) {
+    public void writeToNBT(CompoundTag tag) {
         super.writeToNBT(tag);
         tag.putByte("itemMode", (byte) itemMode.ordinal());
         tag.putByte("extractMode", (byte) extractMode.ordinal());
@@ -410,7 +410,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         }
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             if (!filters.get(i).isEmpty()) {
-                CompoundNBT itemTag = new CompoundNBT();
+                CompoundTag itemTag = new CompoundTag();
                 filters.get(i).save(itemTag);
                 tag.put("filter" + i, itemTag);
             }

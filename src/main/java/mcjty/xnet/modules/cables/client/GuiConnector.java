@@ -1,6 +1,6 @@
 package mcjty.xnet.modules.cables.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
@@ -12,8 +12,8 @@ import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.XNetMessages;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.core.Direction;
 
 import javax.annotation.Nonnull;
 
@@ -31,7 +31,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
 //        this((ConnectorTileEntity) te, container, inventory);
 //    }
 
-    public GuiConnector(ConnectorTileEntity tileEntity, GenericContainer container, PlayerInventory inventory) {
+    public GuiConnector(ConnectorTileEntity tileEntity, GenericContainer container, Inventory inventory) {
         super(tileEntity, container, inventory, CableModule.CONNECTOR.get().getManualEntry());
 
         imageWidth = WIDTH;
@@ -76,7 +76,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
     }
 
     @Override
-    protected void renderBg(@Nonnull MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         drawWindow(matrixStack);
     }
 }

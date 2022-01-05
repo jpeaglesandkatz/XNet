@@ -6,9 +6,9 @@ import mcjty.lib.network.PacketRequestDataFromServer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.controller.network.PacketControllerError;
 import mcjty.xnet.modules.controller.network.PacketJsonToClipboard;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.simple.SimpleChannel;
 
 public class XNetMessages {
     public static SimpleChannel INSTANCE;

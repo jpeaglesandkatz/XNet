@@ -1,7 +1,7 @@
 package mcjty.xnet.modules.controller;
 
 import mcjty.xnet.setup.Config;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashSet;
 import java.util.Set;

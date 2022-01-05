@@ -1,7 +1,7 @@
 package mcjty.xnet.setup;
 
 import mcjty.xnet.multiblock.XNetWirelessChannels;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -13,7 +13,7 @@ public class ForgeEventHandlers {
 
     @SubscribeEvent
     public void onWorldTick(TickEvent.WorldTickEvent event) {
-        if (event.phase == TickEvent.Phase.START && !event.world.isClientSide && event.world.dimension().equals(World.OVERWORLD)) {
+        if (event.phase == TickEvent.Phase.START && !event.world.isClientSide && event.world.dimension().equals(Level.OVERWORLD)) {
             cnt--;
             if (cnt > 0) {
                 return;

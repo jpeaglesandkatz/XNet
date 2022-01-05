@@ -2,8 +2,8 @@ package mcjty.xnet.modules.controller.network;
 
 import mcjty.lib.network.NetworkTools;
 import mcjty.xnet.modules.controller.client.GuiController;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -12,14 +12,14 @@ public class PacketControllerError {
 
     private String error;
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         NetworkTools.writeStringUTF8(buf, error);
     }
 
     public PacketControllerError() {
     }
 
-    public PacketControllerError(PacketBuffer buf) {
+    public PacketControllerError(FriendlyByteBuf buf) {
         error = NetworkTools.readStringUTF8(buf);
     }
 

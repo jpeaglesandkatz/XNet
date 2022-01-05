@@ -15,13 +15,13 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.compat.RFToolsSupport;
 import mcjty.xnet.setup.Config;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -77,7 +77,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
 
     @Override
-    public void readFromNBT(CompoundNBT tag) {
+    public void readFromNBT(CompoundTag tag) {
         channelMode = ChannelMode.values()[tag.getByte("mode")];
         delay = tag.getInt("delay");
         roundRobinOffset = tag.getInt("offset");
@@ -88,7 +88,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     }
 
     @Override
-    public void writeToNBT(CompoundNBT tag) {
+    public void writeToNBT(CompoundTag tag) {
         tag.putByte("mode", (byte) channelMode.ordinal());
         tag.putInt("delay", delay);
         tag.putInt("offset", roundRobinOffset);
@@ -152,7 +152,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         int d = delay / 5;
 
         updateCache(channel, context);
-        World world = context.getControllerWorld();
+        Level world = context.getControllerWorld();
         for (Map.Entry<SidedConsumer, ItemConnectorSettings> entry : itemExtractors.entrySet()) {
             ItemConnectorSettings settings = entry.getValue();
             if (d % settings.getSpeed() != 0) {
@@ -175,7 +175,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                     continue;
                 }
 
-                TileEntity te = world.getBlockEntity(pos);
+                BlockEntity te = world.getBlockEntity(pos);
 
                 if (RFToolsSupport.isStorageScanner(te)) {
                     RFToolsSupport.tickStorageScanner(context, settings, te, this);
@@ -277,7 +277,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
     // Returns what could not be inserted
     public int insertStackSimulate(@Nonnull List<Pair<SidedConsumer, ItemConnectorSettings>> inserted, @Nonnull IControllerContext context, @Nonnull ItemStack stack) {
-        World world = context.getControllerWorld();
+        Level world = context.getControllerWorld();
         if (channelMode == ChannelMode.PRIORITY) {
             roundRobinOffset = 0;       // Always start at 0
         }
@@ -303,7 +303,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
                     Direction side = entry.getKey().getSide();
                     BlockPos pos = consumerPos.relative(side);
-                    TileEntity te = world.getBlockEntity(pos);
+                    BlockEntity te = world.getBlockEntity(pos);
                     int actuallyinserted;
                     int toinsert = total;
                     ItemStack remaining;
@@ -378,7 +378,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             Direction side = entry.getKey().getSide();
             ItemConnectorSettings settings = entry.getValue();
             BlockPos pos = consumerPosition.relative(side);
-            TileEntity te = context.getControllerWorld().getBlockEntity(pos);
+            BlockEntity te = context.getControllerWorld().getBlockEntity(pos);
             if (RFToolsSupport.isStorageScanner(te)) {
                 int toinsert = total;
                 Integer count = settings.getCount();
@@ -567,7 +567,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     }
 
     @Nonnull
-    public static LazyOptional<IItemHandler> getItemHandlerAt(@Nullable TileEntity te, Direction intSide) {
+    public static LazyOptional<IItemHandler> getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
             return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide);
         }
