@@ -22,7 +22,7 @@ public class MimicBlockSupport {
 
 
     public void readFromNBT(CompoundTag tagCompound) {
-        if (tagCompound.contains("mimic")) {
+        if (tagCompound != null && tagCompound.contains("mimic")) {
             mimicBlock = NbtUtils.readBlockState(tagCompound.getCompound("mimic"));
         } else {
             mimicBlock = null;
