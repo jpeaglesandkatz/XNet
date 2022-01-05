@@ -18,20 +18,19 @@ import mcjty.xnet.modules.facade.MimicBlockSupport;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
 import mcjty.xnet.setup.Config;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.MenuProvider;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.ModelDataManager;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -74,12 +73,12 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     private LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Connector")
             .containerSupplier(empty(CableModule.CONTAINER_CONNECTOR, this)));
 
-    public ConnectorTileEntity() {
-        this(TYPE_CONNECTOR.get());
+    public ConnectorTileEntity(BlockPos pos, BlockState state) {
+        this(TYPE_CONNECTOR.get(), pos, state);
     }
 
-    protected ConnectorTileEntity(BlockEntityType<?> type) {
-        super(type);
+    protected ConnectorTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
         sidedStorages = new LazyOptional[OrientationTools.DIRECTION_VALUES.length];
         for (Direction direction : OrientationTools.DIRECTION_VALUES) {
             sidedStorages[direction.ordinal()] = LazyOptional.of(() -> createSidedHandler(direction));
@@ -93,7 +92,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
         if (level.isClientSide) {
             ModelDataManager.requestModelDataRefresh(this);
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
         }
     }
 
@@ -122,7 +121,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         setChanged();
         Block block = getBlockState().getBlock();
         if (block instanceof GenericCableBlock) {
-            level.setBlock(worldPosition, ((GenericCableBlock) block).calculateState(level, worldPosition, getBlockState()), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+            level.setBlock(worldPosition, ((GenericCableBlock) block).calculateState(level, worldPosition, getBlockState()), Block.UPDATE_ALL);
         }
     }
 

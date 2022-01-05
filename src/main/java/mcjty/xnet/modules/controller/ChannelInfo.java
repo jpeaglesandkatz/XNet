@@ -7,10 +7,10 @@ import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.client.ConnectorInfo;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.core.Direction;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.Tag;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -95,7 +95,7 @@ public class ChannelInfo {
         } else {
             channelName = null;
         }
-        ListTag conlist = tag.getList("connectors", Constants.NBT.TAG_COMPOUND);
+        ListTag conlist = tag.getList("connectors", Tag.TAG_COMPOUND);
         for (int i = 0 ; i < conlist.size() ; i++) {
             CompoundTag tc = conlist.getCompound(i);
             String id = tc.getString("type");

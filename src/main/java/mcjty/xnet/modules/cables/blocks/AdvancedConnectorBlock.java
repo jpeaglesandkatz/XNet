@@ -1,8 +1,8 @@
 package mcjty.xnet.modules.cables.blocks;
 
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
@@ -14,8 +14,8 @@ public class AdvancedConnectorBlock extends ConnectorBlock {
 
     @Nullable
     @Override
-    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-        return new AdvancedConnectorTileEntity();
+    public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
+        return new AdvancedConnectorTileEntity(pPos, pState);
     }
 
     @Override

@@ -11,8 +11,8 @@ import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.xnet.XNet;
 import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -304,7 +304,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
             @Override
             public void select() {
                 //noinspection ConstantConditions
-                ItemStack holding = Minecraft.getInstance().player.inventory.getCarried();
+                ItemStack holding = Minecraft.getInstance().player.containerMenu.getCarried();
                 if (holding.isEmpty()) {
                     update(tag, holding);
                     blockRender.renderItem(null);

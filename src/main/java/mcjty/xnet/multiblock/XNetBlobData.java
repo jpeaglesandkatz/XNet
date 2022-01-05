@@ -17,13 +17,25 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
 
     private final Map<ResourceKey<Level>, WorldBlob> worldBlobMap = new HashMap<>();
 
-    public XNetBlobData(String name) {
-        super(name);
+    public XNetBlobData() {
+    }
+
+    public XNetBlobData(CompoundTag tag) {
+        if (tag.contains("worlds")) {
+            ListTag worlds = (ListTag) tag.get("worlds");
+            for (net.minecraft.nbt.Tag world : worlds) {
+                CompoundTag tc = (CompoundTag) world;
+                ResourceKey<Level> dim = LevelTools.getId(tc.getString("dimtype"));
+                WorldBlob blob = new WorldBlob(dim);
+                blob.readFromNBT(tc);
+                worldBlobMap.put(dim, blob);
+            }
+        }
     }
 
     @Nonnull
     public static XNetBlobData get(Level world) {
-        return getData(world, () -> new XNetBlobData(NAME), NAME);
+        return getData(world, XNetBlobData::new, XNetBlobData::new, NAME);
     }
 
     public WorldBlob getWorldBlob(Level world) {
@@ -37,21 +49,6 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
         return worldBlobMap.get(type);
     }
 
-
-    @Override
-    public void load(CompoundTag compound) {
-        worldBlobMap.clear();
-        if (compound.contains("worlds")) {
-            ListTag worlds = (ListTag) compound.get("worlds");
-            for (net.minecraft.nbt.Tag world : worlds) {
-                CompoundTag tc = (CompoundTag) world;
-                ResourceKey<Level> dim = LevelTools.getId(tc.getString("dimtype"));
-                WorldBlob blob = new WorldBlob(dim);
-                blob.readFromNBT(tc);
-                worldBlobMap.put(dim, blob);
-            }
-        }
-    }
 
     @Nonnull
     @Override

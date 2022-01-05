@@ -9,14 +9,14 @@ import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.various.VariousModule;
 import mcjty.xnet.modules.wireless.WirelessRouterModule;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.storage.loot.ConstantIntValue;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import javax.annotation.Nonnull;
 
@@ -33,9 +33,9 @@ public class LootTables extends BaseLootTableProvider {
         lootTables.put(WirelessRouterModule.ANTENNA_DISH.get(), createSimpleTable("antenna_dish", WirelessRouterModule.ANTENNA_DISH.get()));
         lootTables.put(VariousModule.REDSTONE_PROXY.get(), createSimpleTable("redstoneproxy", VariousModule.REDSTONE_PROXY.get()));
         lootTables.put(VariousModule.REDSTONE_PROXY_UPD.get(), createSimpleTable("redstoneproxy_upd", VariousModule.REDSTONE_PROXY_UPD.get()));
-        lootTables.put(ControllerModule.CONTROLLER.get(), createStandardTable("controller", ControllerModule.CONTROLLER.get()));
-        lootTables.put(RouterModule.ROUTER.get(), createStandardTable("router", RouterModule.ROUTER.get()));
-        lootTables.put(WirelessRouterModule.WIRELESS_ROUTER.get(), createStandardTable("wireless_router", WirelessRouterModule.WIRELESS_ROUTER.get()));
+        lootTables.put(ControllerModule.CONTROLLER.get(), createStandardTable("controller", ControllerModule.CONTROLLER.get(), ControllerModule.TYPE_CONTROLLER.get()));
+        lootTables.put(RouterModule.ROUTER.get(), createStandardTable("router", RouterModule.ROUTER.get(), RouterModule.TYPE_ROUTER.get()));
+        lootTables.put(WirelessRouterModule.WIRELESS_ROUTER.get(), createStandardTable("wireless_router", WirelessRouterModule.WIRELESS_ROUTER.get(), WirelessRouterModule.TYPE_WIRELESS_ROUTER.get()));
 
         lootTables.put(CableModule.NETCABLE.get(), LootTable.lootTable()
                 .withPool(getLootTableEntry("cable_blue", CableModule.NETCABLE.get(), CableModule.NETCABLE_BLUE.get(), CableColor.BLUE))
@@ -60,7 +60,7 @@ public class LootTables extends BaseLootTableProvider {
     private LootPool.Builder getLootTableEntry(String cableName, Block cableBlock, Item cable, CableColor color) {
         return LootPool.lootPool()
                 .name(cableName)
-                .setRolls(ConstantIntValue.exactly(1))
+                .setRolls(ConstantValue.exactly(1))
                 .add(LootItem.lootTableItem(cable))
                 .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(cableBlock)
                         .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(GenericCableBlock.COLOR, color)));

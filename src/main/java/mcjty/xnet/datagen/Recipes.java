@@ -29,7 +29,7 @@ public class Recipes extends BaseRecipeProvider {
     }
 
     @Override
-    protected void buildShapelessRecipes(@Nonnull Consumer<FinishedRecipe> consumer) {
+    protected void buildCraftingRecipes(@Nonnull Consumer<FinishedRecipe> consumer) {
         build(consumer, ShapedRecipeBuilder.shaped(WirelessRouterModule.ANTENNA.get())
                         .define('I', Items.IRON_BARS)
                         .unlockedBy("bars", has(Items.IRON_BARS)),

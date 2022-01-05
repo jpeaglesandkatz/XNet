@@ -11,7 +11,10 @@ import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.GenericItemHandler;
-import mcjty.lib.tileentity.*;
+import mcjty.lib.tileentity.Cap;
+import mcjty.lib.tileentity.CapType;
+import mcjty.lib.tileentity.GenericEnergyStorage;
+import mcjty.lib.tileentity.TickingTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
@@ -48,23 +51,21 @@ import mcjty.xnet.modules.controller.network.PacketJsonToClipboard;
 import mcjty.xnet.multiblock.*;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.XNetMessages;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.network.NetworkDirection;
@@ -134,8 +135,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
     private final Cached<NetworkChecker> networkChecker = Cached.of(this::createNetworkChecker);
 
-    public TileEntityController() {
-        super(TYPE_CONTROLLER.get());
+    public TileEntityController(BlockPos pos, BlockState state) {
+        super(TYPE_CONTROLLER.get(), pos, state);
         for (int i = 0; i < MAX_CHANNELS; i++) {
             channels[i] = null;
         }
@@ -274,12 +275,12 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         BlockState state = level.getBlockState(worldPosition);
         if (worldBlob.getNetworksAt(getBlockPos()).size() > 1) {
             if (!state.getValue(ERROR)) {
-                level.setBlock(worldPosition, state.setValue(ERROR, true), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+                level.setBlock(worldPosition, state.setValue(ERROR, true), Block.UPDATE_ALL);
             }
             return;
         } else {
             if (state.getValue(ERROR)) {
-                level.setBlock(worldPosition, state.setValue(ERROR, false), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+                level.setBlock(worldPosition, state.setValue(ERROR, false), Block.UPDATE_ALL);
             }
         }
 
@@ -660,7 +661,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                     BlockPos pos = consumerPos.relative(facing);
                     SidedPos sidedPos = new SidedPos(pos, facing.getOpposite());
                     BlockState state = level.getBlockState(pos);
-                    state = state.getBlock().isAir(state, level, pos) ? null : state;
+                    state = state.isAir() ? null : state;
                     ConnectedBlockInfo info = new ConnectedBlockInfo(sidedPos, state, name);
                     set.add(info);
                 }

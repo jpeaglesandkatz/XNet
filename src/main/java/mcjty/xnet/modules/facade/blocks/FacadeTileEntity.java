@@ -5,14 +5,15 @@ import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.modules.facade.MimicBlockSupport;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.ModelDataManager;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 
@@ -20,8 +21,8 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
 
     private MimicBlockSupport mimicBlockSupport = new MimicBlockSupport();
 
-    public FacadeTileEntity() {
-        super(FacadeModule.TYPE_FACADE.get());
+    public FacadeTileEntity(BlockPos pos, BlockState state) {
+        super(FacadeModule.TYPE_FACADE.get(), pos, state);
     }
 
     @Override
@@ -29,7 +30,7 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
         super.onDataPacket(net, packet);
 
         if (level.isClientSide) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
             ModelDataManager.requestModelDataRefresh(this);
         }
     }

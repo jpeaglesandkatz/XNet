@@ -1,6 +1,7 @@
 package mcjty.xnet.modules.cables.blocks;
 
 import mcjty.lib.compat.theoneprobe.TOPDriver;
+import mcjty.lib.compat.theoneprobe.TOPInfoProvider;
 import mcjty.xnet.compat.XNetTOPDriver;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.CableModule;
@@ -20,11 +21,13 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
@@ -34,7 +37,8 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.ToolType;
+import net.minecraft.world.ticks.ScheduledTick;
+import net.minecraftforge.client.model.data.ModelProperty;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,7 +46,7 @@ import java.util.List;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
 
-public abstract class GenericCableBlock extends Block implements TOPInfoProvider, IWaterLoggable {
+public abstract class GenericCableBlock extends Block implements TOPInfoProvider, SimpleWaterloggedBlock {
 
     // Properties that indicate if there is the same block in a certain direction.
     public static final EnumProperty<ConnectorType> NORTH = EnumProperty.<ConnectorType>create("north", ConnectorType.class);
@@ -85,8 +89,9 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
         super(Properties.of(material)
                 .strength(1.0f)
                 .sound(SoundType.METAL)
-                .harvestLevel(0)
-                .harvestTool(ToolType.PICKAXE)
+                // @todo 1.18
+//                .harvestLevel(0)
+//                .harvestTool(ToolType.PICKAXE)
                 .noOcclusion()
         );
         makeShapes();
@@ -144,36 +149,30 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     }
 
     private Item getItem(CableColor color) {
-        switch (type) {
-            case CABLE:
-                switch (color) {
-                    case BLUE: return CableModule.NETCABLE_BLUE.get();
-                    case RED: return CableModule.NETCABLE_RED.get();
-                    case YELLOW: return CableModule.NETCABLE_YELLOW.get();
-                    case GREEN: return CableModule.NETCABLE_GREEN.get();
-                    case ROUTING: return CableModule.NETCABLE_ROUTING.get();
-                }
-                break;
-            case CONNECTOR:
-                switch (color) {
-                    case BLUE: return CableModule.CONNECTOR_BLUE.get();
-                    case RED: return CableModule.CONNECTOR_RED.get();
-                    case YELLOW: return CableModule.CONNECTOR_YELLOW.get();
-                    case GREEN: return CableModule.CONNECTOR_GREEN.get();
-                    case ROUTING: return CableModule.CONNECTOR_ROUTING.get();
-                }
-                break;
-            case ADVANCED_CONNECTOR:
-                switch (color) {
-                    case BLUE: return CableModule.ADVANCED_CONNECTOR_BLUE.get();
-                    case RED: return CableModule.ADVANCED_CONNECTOR_RED.get();
-                    case YELLOW: return CableModule.ADVANCED_CONNECTOR_YELLOW.get();
-                    case GREEN: return CableModule.ADVANCED_CONNECTOR_GREEN.get();
-                    case ROUTING: return CableModule.ADVANCED_CONNECTOR_ROUTING.get();
-                }
-                break;
-        }
-        return Items.AIR;
+        return switch (type) {
+            case CABLE -> switch (color) {
+                case BLUE -> CableModule.NETCABLE_BLUE.get();
+                case RED -> CableModule.NETCABLE_RED.get();
+                case YELLOW -> CableModule.NETCABLE_YELLOW.get();
+                case GREEN -> CableModule.NETCABLE_GREEN.get();
+                case ROUTING -> CableModule.NETCABLE_ROUTING.get();
+            };
+            case CONNECTOR -> switch (color) {
+                case BLUE -> CableModule.CONNECTOR_BLUE.get();
+                case RED -> CableModule.CONNECTOR_RED.get();
+                case YELLOW -> CableModule.CONNECTOR_YELLOW.get();
+                case GREEN -> CableModule.CONNECTOR_GREEN.get();
+                case ROUTING -> CableModule.CONNECTOR_ROUTING.get();
+            };
+            case ADVANCED_CONNECTOR -> switch (color) {
+                case BLUE -> CableModule.ADVANCED_CONNECTOR_BLUE.get();
+                case RED -> CableModule.ADVANCED_CONNECTOR_RED.get();
+                case YELLOW -> CableModule.ADVANCED_CONNECTOR_YELLOW.get();
+                case GREEN -> CableModule.ADVANCED_CONNECTOR_GREEN.get();
+                case ROUTING -> CableModule.ADVANCED_CONNECTOR_ROUTING.get();
+            };
+            default -> Items.AIR;
+        };
     }
 
     @Nonnull
@@ -309,7 +308,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     @Override
     public BlockState updateShape(BlockState state, @Nonnull Direction direction, @Nonnull BlockState neighbourState, @Nonnull LevelAccessor world, @Nonnull BlockPos current, @Nonnull BlockPos offset) {
         if (state.getValue(WATERLOGGED)) {
-            world.getLiquidTicks().scheduleTick(current, Fluids.WATER, Fluids.WATER.getTickDelay(world));
+            world.getFluidTicks().schedule(new ScheduledTick<>(Fluids.WATER, current, Fluids.WATER.getTickDelay(world), 0L));   // @todo 1.18 what is this last parameter exactly?
         }
         return calculateState(world, current, state);
     }

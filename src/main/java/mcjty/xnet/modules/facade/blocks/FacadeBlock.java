@@ -4,25 +4,23 @@ import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.NetCableBlock;
 import mcjty.xnet.modules.facade.FacadeModule;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.Constants.BlockFlags;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Material;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
-
-public class FacadeBlock extends NetCableBlock {
+public class FacadeBlock extends NetCableBlock implements EntityBlock {
 
     public FacadeBlock(CableBlockType type) {
         super(Material.METAL, type);
@@ -59,15 +57,10 @@ public class FacadeBlock extends NetCableBlock {
 //    }
 
 
-    @Override
-    public boolean hasTileEntity(BlockState state) {
-        return true;
-    }
-
     @Nullable
     @Override
-    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-        return new FacadeTileEntity();
+    public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
+        return new FacadeTileEntity(pPos, pState);
     }
 
     @Override
@@ -89,8 +82,8 @@ public class FacadeBlock extends NetCableBlock {
         BlockState defaultState = CableModule.NETCABLE.get().defaultBlockState().setValue(COLOR, color);
         BlockState newState = this.calculateState(world, pos, defaultState);
         return world.setBlock(pos, newState, world.isClientSide()
-                ? BlockFlags.BLOCK_UPDATE + BlockFlags.NOTIFY_NEIGHBORS + BlockFlags.RERENDER_MAIN_THREAD
-                : BlockFlags.BLOCK_UPDATE + BlockFlags.NOTIFY_NEIGHBORS);
+                ? Block.UPDATE_ALL + Block.UPDATE_IMMEDIATE
+                : Block.UPDATE_ALL);
     }
 
     @Override
@@ -100,8 +93,9 @@ public class FacadeBlock extends NetCableBlock {
         }
     }
 
+
     @Override
-    public boolean removedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
+    public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         return replaceWithCable(world, pos, state);
     }
 

@@ -6,7 +6,10 @@ import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.tileentity.*;
+import mcjty.lib.tileentity.Cap;
+import mcjty.lib.tileentity.CapType;
+import mcjty.lib.tileentity.GenericEnergyStorage;
+import mcjty.lib.tileentity.TickingTileEntity;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
@@ -21,19 +24,17 @@ import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.modules.wireless.WirelessRouterModule;
 import mcjty.xnet.multiblock.*;
 import mcjty.xnet.setup.Config;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
@@ -69,8 +70,8 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
             .containerSupplier(empty(WirelessRouterModule.CONTAINER_WIRELESS_ROUTER, this))
             .setupSync(this));
 
-    public TileEntityWirelessRouter() {
-        super(TYPE_WIRELESS_ROUTER.get());
+    public TileEntityWirelessRouter(BlockPos pos, BlockState state) {
+        super(TYPE_WIRELESS_ROUTER.get(), pos, state);
     }
 
     public static BaseBlock createBlock() {
@@ -297,11 +298,11 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
             BlockState state = level.getBlockState(worldPosition);
             if (error) {
                 if (!state.getValue(ERROR)) {
-                    level.setBlock(worldPosition, state.setValue(ERROR, true), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+                    level.setBlock(worldPosition, state.setValue(ERROR, true), Block.UPDATE_ALL);
                 }
             } else {
                 if (state.getValue(ERROR)) {
-                    level.setBlock(worldPosition, state.setValue(ERROR, false), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+                    level.setBlock(worldPosition, state.setValue(ERROR, false), Block.UPDATE_ALL);
                 }
             }
             markDirtyQuick();

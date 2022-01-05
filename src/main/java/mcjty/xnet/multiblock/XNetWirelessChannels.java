@@ -6,13 +6,13 @@ import mcjty.lib.worlddata.AbstractWorldData;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.xnet.XNet;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,8 +25,24 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
     private final Map<WirelessChannelKey, WirelessChannelInfo> channelToWireless = new HashMap<>();
 
-    public XNetWirelessChannels(String name) {
-        super(name);
+    public XNetWirelessChannels() {
+    }
+
+    public XNetWirelessChannels(CompoundTag tag) {
+        channelToWireless.clear();
+        ListTag tagList = tag.getList("channels", Tag.TAG_COMPOUND);
+        for (int i = 0 ; i < tagList.size() ; i++) {
+            CompoundTag tc = tagList.getCompound(i);
+            WirelessChannelInfo channelInfo = new WirelessChannelInfo();
+            readRouters(tc.getList("routers", Tag.TAG_COMPOUND), channelInfo);
+            UUID owner = null;
+            if (tc.hasUUID("owner")) {
+                owner = tc.getUUID("owner");
+            }
+            String name = tc.getString("name");
+            IChannelType type = XNet.xNetApi.findType(tc.getString("type"));
+            channelToWireless.put(new WirelessChannelKey(name, type, owner), channelInfo);
+        }
     }
 
     private int cnt = 30;
@@ -134,7 +150,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
     @Nonnull
     public static XNetWirelessChannels get(Level world) {
-        return getData(world, () -> new XNetWirelessChannels(NAME), NAME);
+        return getData(world, XNetWirelessChannels::new, XNetWirelessChannels::new, NAME);
     }
 
     public WirelessChannelInfo findChannel(String name, @Nonnull IChannelType channelType, @Nullable UUID owner) {
@@ -151,24 +167,6 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             WirelessChannelKey key = pair.getKey();
             return (owner == null && key.getOwner() == null) || (owner != null && (key.getOwner() == null || owner.equals(key.getOwner())));
         }).map(Map.Entry::getValue);
-    }
-
-    @Override
-    public void load(CompoundTag compound) {
-        channelToWireless.clear();
-        ListTag tagList = compound.getList("channels", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < tagList.size() ; i++) {
-            CompoundTag tc = tagList.getCompound(i);
-            WirelessChannelInfo channelInfo = new WirelessChannelInfo();
-            readRouters(tc.getList("routers", Constants.NBT.TAG_COMPOUND), channelInfo);
-            UUID owner = null;
-            if (tc.hasUUID("owner")) {
-                owner = tc.getUUID("owner");
-            }
-            String name = tc.getString("name");
-            IChannelType type = XNet.xNetApi.findType(tc.getString("type"));
-            channelToWireless.put(new WirelessChannelKey(name, type, owner), channelInfo);
-        }
     }
 
     private void readRouters(ListTag tagList, WirelessChannelInfo channelInfo) {

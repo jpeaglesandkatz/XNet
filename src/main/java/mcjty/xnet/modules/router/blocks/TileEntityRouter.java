@@ -31,18 +31,18 @@ import mcjty.xnet.multiblock.WirelessChannelKey;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
 import mcjty.xnet.setup.Config;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraftforge.common.util.LazyOptional;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -72,8 +72,8 @@ public final class TileEntityRouter extends GenericTileEntity {
     private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Router")
             .containerSupplier(empty(RouterModule.CONTAINER_ROUTER, this)));
 
-    public TileEntityRouter() {
-        super(TYPE_ROUTER.get());
+    public TileEntityRouter(BlockPos pos, BlockState state) {
+        super(TYPE_ROUTER.get(), pos, state);
     }
 
     public static BaseBlock createBlock() {
@@ -122,11 +122,11 @@ public final class TileEntityRouter extends GenericTileEntity {
         BlockState state = level.getBlockState(worldPosition);
         if (inError()) {
             if (!state.getValue(ERROR)) {
-                level.setBlock(worldPosition, state.setValue(ERROR, true), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+                level.setBlock(worldPosition, state.setValue(ERROR, true), Block.UPDATE_ALL);
             }
         } else {
             if (state.getValue(ERROR)) {
-                level.setBlock(worldPosition, state.setValue(ERROR, false), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+                level.setBlock(worldPosition, state.setValue(ERROR, false), Block.UPDATE_ALL);
             }
         }
         markDirtyQuick();
@@ -153,7 +153,7 @@ public final class TileEntityRouter extends GenericTileEntity {
         super.loadInfo(tagCompound);
         CompoundTag info = tagCompound.getCompound("Info");
         channelCount = info.getInt("chancnt");
-        ListTag published = info.getList("published", Constants.NBT.TAG_COMPOUND);
+        ListTag published = info.getList("published", Tag.TAG_COMPOUND);
         for (int i = 0; i < published.size(); i++) {
             CompoundTag tc = published.getCompound(i);
             LocalChannelId id = new LocalChannelId(BlockPosTools.read(tc, "pos"), tc.getInt("index"));
