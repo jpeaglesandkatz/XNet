@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "xnet:controller",
+    "xnet:facade",
+    "xnet:router",
+    "xnet:wireless_router",
+    "xnet:antenna",
+    "xnet:antenna_base",
+    "xnet:antenna_dish"
+  ]
+}

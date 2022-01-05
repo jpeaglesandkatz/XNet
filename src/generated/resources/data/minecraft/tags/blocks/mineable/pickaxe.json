@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "xnet:advanced_connector",
+    "xnet:connector",
+    "xnet:netcable",
+    "xnet:redstone_proxy",
+    "xnet:redstone_proxy_upd",
+    "xnet:controller",
+    "xnet:facade",
+    "xnet:router",
+    "xnet:wireless_router",
+    "xnet:antenna",
+    "xnet:antenna_base",
+    "xnet:antenna_dish"
+  ]
+}

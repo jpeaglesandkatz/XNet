@@ -25,9 +25,6 @@ public class RedstoneProxyBlock extends Block implements ITooltipSettings {
     public RedstoneProxyBlock(Material materialIn) {
         super(Properties.of(materialIn)
                 .strength(2.0f)
-                // @todo 1.18
-//                .harvestLevel(0)
-//                .harvestTool(ToolType.PICKAXE)
                 .sound(SoundType.METAL)
         );
     }

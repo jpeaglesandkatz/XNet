@@ -27,7 +27,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
@@ -89,9 +88,6 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
         super(Properties.of(material)
                 .strength(1.0f)
                 .sound(SoundType.METAL)
-                // @todo 1.18
-//                .harvestLevel(0)
-//                .harvestTool(ToolType.PICKAXE)
                 .noOcclusion()
         );
         makeShapes();

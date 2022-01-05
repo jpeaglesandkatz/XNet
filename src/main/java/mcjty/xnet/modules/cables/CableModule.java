@@ -8,17 +8,18 @@ import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
 import mcjty.xnet.modules.cables.client.ClientSetup;
 import mcjty.xnet.modules.cables.client.GuiConnector;
 import mcjty.xnet.setup.Registration;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
-import net.minecraft.tags.Tag;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.RegistryObject;
 
 import static mcjty.xnet.setup.Registration.*;
 
@@ -50,9 +51,9 @@ public class CableModule implements IModule {
 
     public static final RegistryObject<MenuType<GenericContainer>> CONTAINER_CONNECTOR = CONTAINERS.register("connector", GenericContainer::createContainerType);
 
-    public static final Tag.Named<Item> TAG_CABLES = ItemTags.bind(XNet.MODID+":cables");
-    public static final Tag.Named<Item> TAG_CONNECTORS = ItemTags.bind(XNet.MODID+":connectors");
-    public static final Tag.Named<Item> TAG_ADVANCED_CONNECTORS = ItemTags.bind(XNet.MODID+":advanced_connectors");
+    public static final Tags.IOptionalNamedTag<Item> TAG_CABLES = ItemTags.createOptional(new ResourceLocation(XNet.MODID, "cables"));
+    public static final Tags.IOptionalNamedTag<Item> TAG_CONNECTORS = ItemTags.createOptional(new ResourceLocation(XNet.MODID, "connectors"));
+    public static final Tags.IOptionalNamedTag<Item> TAG_ADVANCED_CONNECTORS = ItemTags.createOptional(new ResourceLocation(XNet.MODID, "advanced_connectors"));
 
     public CableModule() {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
