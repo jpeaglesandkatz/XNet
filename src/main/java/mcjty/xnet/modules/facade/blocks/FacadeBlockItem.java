@@ -139,8 +139,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
                 }
             } else if (block == CableModule.CONNECTOR.get() || block == CableModule.ADVANCED_CONNECTOR.get()) {
                 BlockEntity te = world.getBlockEntity(pos);
-                if (te instanceof ConnectorTileEntity) {
-                    ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
+                if (te instanceof ConnectorTileEntity connectorTileEntity) {
                     if (connectorTileEntity.getMimicBlock() == null) {
                         connectorTileEntity.setMimicBlock(getMimicBlock(itemstack));
                         SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos), world, pos, player);
@@ -153,10 +152,9 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
                 }
             } else if (block == FacadeModule.FACADE.get()) {
                 BlockEntity te = world.getBlockEntity(pos);
-                if (!(te instanceof IFacadeSupport)) {
+                if (!(te instanceof IFacadeSupport facade)) {
                     return InteractionResult.FAIL;
                 }
-                IFacadeSupport facade = (IFacadeSupport) te;
                 if (facade.getMimicBlock() == null) {
                     return InteractionResult.FAIL;
                 }

@@ -78,13 +78,10 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     @Nullable
     @Override
     public IndicatorIcon getIndicatorIcon() {
-        switch (fluidMode) {
-            case INS:
-                return new IndicatorIcon(iconGuiElements, 0, 70, 13, 10);
-            case EXT:
-                return new IndicatorIcon(iconGuiElements, 13, 70, 13, 10);
-        }
-        return null;
+        return switch (fluidMode) {
+            case INS -> new IndicatorIcon(iconGuiElements, 0, 70, 13, 10);
+            case EXT -> new IndicatorIcon(iconGuiElements, 13, 70, 13, 10);
+        };
     }
 
     @Override
@@ -126,8 +123,8 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
                 .ghostSlot(TAG_FILTER, filter);
     }
 
-    private static Set<String> INSERT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_RATE, TAG_MINMAX, TAG_PRIORITY, TAG_FILTER);
-    private static Set<String> EXTRACT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_RATE, TAG_MINMAX, TAG_PRIORITY, TAG_FILTER, TAG_SPEED);
+    private static final Set<String> INSERT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_RATE, TAG_MINMAX, TAG_PRIORITY, TAG_FILTER);
+    private static final Set<String> EXTRACT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_RATE, TAG_MINMAX, TAG_PRIORITY, TAG_FILTER, TAG_SPEED);
 
     @Override
     public boolean isEnabled(String tag) {

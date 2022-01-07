@@ -156,8 +156,8 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         }
         listDirty--;
         if (listDirty <= 0) {
-            XNetMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETCHANNELS.getName()));
-            XNetMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETREMOTECHANNELS.getName()));
+            XNetMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETCHANNELS.name()));
+            XNetMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETREMOTECHANNELS.name()));
             listDirty = 10;
         }
     }

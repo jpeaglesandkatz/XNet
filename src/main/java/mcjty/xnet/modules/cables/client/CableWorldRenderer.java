@@ -7,7 +7,6 @@ import com.mojang.math.Matrix4f;
 import mcjty.lib.client.CustomRenderTypes;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.ConnectorType;
-import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.modules.facade.blocks.FacadeBlock;
@@ -69,7 +68,7 @@ public class CableWorldRenderer {
                     BlockPos c = p.blockPosition().offset(dx, dy, dz);
                     BlockState state = world.getBlockState(c);
                     Block block = state.getBlock();
-                    if (block instanceof FacadeBlock || block instanceof ConnectorBlock || block instanceof GenericCableBlock) {
+                    if (block instanceof GenericCableBlock) {
                         BlockEntity te = world.getBlockEntity(c);
                         if (te instanceof IFacadeSupport) {
                             BlockState facadeId = ((IFacadeSupport) te).getMimicBlock();
@@ -84,31 +83,31 @@ public class CableWorldRenderer {
                         float g = 0;
                         float b = 0;
                         switch (color) {
-                            case BLUE:
+                            case BLUE -> {
                                 r = .4f;
                                 g = .4f;
                                 b = 1f;
-                                break;
-                            case RED:
+                            }
+                            case RED -> {
                                 r = 1f;
                                 g = .4f;
                                 b = .4f;
-                                break;
-                            case YELLOW:
+                            }
+                            case YELLOW -> {
                                 r = 1f;
                                 g = 1f;
                                 b = .4f;
-                                break;
-                            case GREEN:
+                            }
+                            case GREEN -> {
                                 r = .4f;
                                 g = 1f;
                                 b = .4f;
-                                break;
-                            case ROUTING:
+                            }
+                            case ROUTING -> {
                                 r = .7f;
                                 g = .7f;
                                 b = .7f;
-                                break;
+                            }
                         }
                         List<Rect> quads = getQuads(state);
                         for (Rect quad : quads) {
@@ -130,18 +129,8 @@ public class CableWorldRenderer {
         return new Vec3(x, y, z);
     }
 
-    private static class Rect {
-        public Vec3 v1;
-        public Vec3 v2;
-        public Vec3 v3;
-        public Vec3 v4;
-
-        public Rect(Vec3 v1, Vec3 v2, Vec3 v3, Vec3 v4) {
-            this.v1 = v1;
-            this.v2 = v2;
-            this.v3 = v3;
-            this.v4 = v4;
-        }
+    private record Rect(Vec3 v1, Vec3 v2,
+                        Vec3 v3, Vec3 v4) {
     }
 
     private static List<Rect> getQuads(BlockState state) {

@@ -343,7 +343,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             cachedConnectors[channel] = new HashMap<>();
             for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channels[channel].getConnectors().entrySet()) {
                 SidedConsumer sidedConsumer = entry.getKey();
-                BlockPos pos = findConsumerPosition(sidedConsumer.getConsumerId());
+                BlockPos pos = findConsumerPosition(sidedConsumer.consumerId());
                 if (pos != null && worldBlob.getNetworksAt(pos).contains(getNetworkId())) {
                     cachedConnectors[channel].put(sidedConsumer, entry.getValue().getConnectorSettings());
                 }
@@ -372,7 +372,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     @Override
     public void saveAdditional(@Nonnull CompoundTag tagCompound) {
         if (networkId != null) {
-            tagCompound.putInt("networkId", networkId.getId());
+            tagCompound.putInt("networkId", networkId.id());
         }
         super.saveAdditional(tagCompound);
     }
@@ -517,11 +517,11 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                     SidedConsumer sidedConsumer = entry.getKey();
                     ConnectorInfo info = entry.getValue();
                     if (info.getConnectorSettings() != null) {
-                        BlockPos consumerPos = findConsumerPosition(worldBlob, sidedConsumer.getConsumerId());
+                        BlockPos consumerPos = findConsumerPosition(worldBlob, sidedConsumer.consumerId());
                         if (consumerPos != null) {
-                            SidedPos pos = new SidedPos(consumerPos.relative(sidedConsumer.getSide()), sidedConsumer.getSide().getOpposite());
+                            SidedPos pos = new SidedPos(consumerPos.relative(sidedConsumer.side()), sidedConsumer.side().getOpposite());
                             boolean advanced = level.getBlockState(consumerPos).getBlock() == CableModule.ADVANCED_CONNECTOR.get();
-                            ConnectorClientInfo ci = new ConnectorClientInfo(pos, sidedConsumer.getConsumerId(), channel.getType(), info.getConnectorSettings());
+                            ConnectorClientInfo ci = new ConnectorClientInfo(pos, sidedConsumer.consumerId(), channel.getType(), info.getConnectorSettings());
                             clientInfo.getConnectors().put(sidedConsumer, ci);
                         } else {
                             // Consumer was possibly removed. We might want to remove the entry from our list here?
@@ -541,7 +541,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     private void updateChannel(int channel, TypedMap params) {
         Map<String, Object> data = new HashMap<>();
         for (Key<?> key : params.getKeys()) {
-            data.put(key.getName(), params.get(key));
+            data.put(key.name(), params.get(key));
         }
         channels[channel].getChannelSettings().update(data);
 
@@ -574,13 +574,13 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
     private void updateConnector(int channel, SidedPos pos, TypedMap params) {
         WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
-        ConsumerId consumerId = worldBlob.getConsumerAt(pos.getPos().relative(pos.getSide()));
+        ConsumerId consumerId = worldBlob.getConsumerAt(pos.pos().relative(pos.side()));
         for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channels[channel].getConnectors().entrySet()) {
             SidedConsumer key = entry.getKey();
-            if (key.getConsumerId().equals(consumerId) && key.getSide().getOpposite().equals(pos.getSide())) {
+            if (key.consumerId().equals(consumerId) && key.side().getOpposite().equals(pos.side())) {
                 Map<String, Object> data = new HashMap<>();
                 for (Key<?> k : params.getKeys()) {
-                    data.put(k.getName(), params.get(k));
+                    data.put(k.name(), params.get(k));
                 }
                 channels[channel].getConnectors().get(key).getConnectorSettings().update(data);
                 markAsDirty();
@@ -591,12 +591,12 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
     private void removeConnector(int channel, SidedPos pos) {
         WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
-        ConsumerId consumerId = worldBlob.getConsumerAt(pos.getPos().relative(pos.getSide()));
+        ConsumerId consumerId = worldBlob.getConsumerAt(pos.pos().relative(pos.side()));
         SidedConsumer toremove = null;
         for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channels[channel].getConnectors().entrySet()) {
             SidedConsumer key = entry.getKey();
-            if (key.getSide().getOpposite().equals(pos.getSide())) {
-                if (key.getConsumerId().equals(consumerId)) {
+            if (key.side().getOpposite().equals(pos.side())) {
+                if (key.consumerId().equals(consumerId)) {
                     toremove = key;
                     break;
                 }
@@ -610,12 +610,12 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
     private ConnectorInfo createConnector(int channel, SidedPos pos) {
         WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
-        BlockPos consumerPos = pos.getPos().relative(pos.getSide());
+        BlockPos consumerPos = pos.pos().relative(pos.side());
         ConsumerId consumerId = worldBlob.getConsumerAt(consumerPos);
         if (consumerId == null) {
             throw new RuntimeException("What?");
         }
-        SidedConsumer id = new SidedConsumer(consumerId, pos.getSide().getOpposite());
+        SidedConsumer id = new SidedConsumer(consumerId, pos.side().getOpposite());
         boolean advanced = level.getBlockState(consumerPos).getBlock() == CableModule.ADVANCED_CONNECTOR.get();
         ConnectorInfo info = channels[channel].createConnector(id, advanced);
         markAsDirty();
@@ -629,9 +629,9 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             SidedConsumer sidedConsumer = entry.getKey();
             ConnectorInfo info = entry.getValue();
             if (info.getConnectorSettings() != null) {
-                BlockPos consumerPos = findConsumerPosition(worldBlob, sidedConsumer.getConsumerId());
+                BlockPos consumerPos = findConsumerPosition(worldBlob, sidedConsumer.consumerId());
                 if (consumerPos != null) {
-                    SidedPos pos = new SidedPos(consumerPos.relative(sidedConsumer.getSide()), sidedConsumer.getSide().getOpposite());
+                    SidedPos pos = new SidedPos(consumerPos.relative(sidedConsumer.side()), sidedConsumer.side().getOpposite());
                     if (pos.equals(p)) {
                         return info.getConnectorSettings();
                     }
@@ -680,7 +680,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             if (object != null) {
                 parent.add("type", new JsonPrimitive(channel.getType().getID()));
                 parent.add("connector", object);
-                boolean advanced = ConnectorBlock.isAdvancedConnector(level, sidedPos.getPos().relative(sidedPos.getSide()));
+                boolean advanced = ConnectorBlock.isAdvancedConnector(level, sidedPos.pos().relative(sidedPos.side()));
                 parent.add("advanced", new JsonPrimitive(advanced));
 
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -716,7 +716,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                         JsonObject connectorObject = new JsonObject();
                         connectorObject.add("connector", object);
                         connectorObject.add("name", new JsonPrimitive(connectedBlock.getName()));
-                        boolean advanced = ConnectorBlock.isAdvancedConnector(level, sidedPos.getPos().relative(sidedPos.getSide()));
+                        boolean advanced = ConnectorBlock.isAdvancedConnector(level, sidedPos.pos().relative(sidedPos.side()));
                         connectorObject.add("advanced", new JsonPrimitive(advanced));
                         if (!connectedBlock.isAir()) {
                             BlockState state = connectedBlock.getConnectedState();
@@ -749,8 +749,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             score += 100;
         }
 
-        BlockPos blockPos = info.getPos().getPos();
-        Direction facing = info.getPos().getSide();
+        BlockPos blockPos = info.getPos().pos();
+        Direction facing = info.getPos().side();
 
         // This block doesn't support this type. So bad score
         if (!type.supportsBlock(level, blockPos, facing)) {
@@ -817,8 +817,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             JsonObject connectorObject = root.get("connector").getAsJsonObject();
             boolean advancedNeeded = connectorObject.get("advancedneeded").getAsBoolean();
 
-            BlockPos blockPos = sidedPos.getPos();
-            Direction facing = sidedPos.getSide();
+            BlockPos blockPos = sidedPos.pos();
+            Direction facing = sidedPos.side();
 
             Direction side = Direction.byName(connectorObject.get("side").getAsString());
             Direction facingOverride = connectorObject.has("facingoverride") ? Direction.byName(connectorObject.get("facingoverride").getAsString()) : side;
@@ -941,7 +941,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
                 // 'info' refers to the real block on this local network
                 ConnectedBlockInfo info = pair.sortedMatches.get(0).getKey();
-                boolean infoAdvanced = ConnectorBlock.isAdvancedConnector(level, info.getPos().getPos());
+                boolean infoAdvanced = ConnectorBlock.isAdvancedConnector(level, info.getPos().pos());
 
                 JsonObject connectorSettings = connector.get("connector").getAsJsonObject();
                 if (!infoAdvanced) {

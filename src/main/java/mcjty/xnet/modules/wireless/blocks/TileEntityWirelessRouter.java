@@ -155,17 +155,13 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
 
     private int getAntennaRange() {
         int tier = getAntennaTier();
-        switch (tier) {
-            case TIER_INVALID:
-                return -1;
-            case TIER_1:
-                return Config.antennaTier1Range.get();
-            case TIER_2:
-                return Config.antennaTier2Range.get();
-            case TIER_INF:
-                return Integer.MAX_VALUE;
-        }
-        return -1;
+        return switch (tier) {
+            case TIER_INVALID -> -1;
+            case TIER_1 -> Config.antennaTier1Range.get();
+            case TIER_2 -> Config.antennaTier2Range.get();
+            case TIER_INF -> Integer.MAX_VALUE;
+            default -> -1;
+        };
     }
 
     private boolean inRange(TileEntityWirelessRouter otherRouter) {
@@ -271,8 +267,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
                     .forEach(routerPos -> {
                         ServerLevel otherWorld = LevelTools.getLevel(level, routerPos.dimension());
                         BlockEntity otherTE = otherWorld.getBlockEntity(routerPos.pos());
-                        if (otherTE instanceof TileEntityWirelessRouter) {
-                            TileEntityWirelessRouter otherRouter = (TileEntityWirelessRouter) otherTE;
+                        if (otherTE instanceof TileEntityWirelessRouter otherRouter) {
                             if (inRange(otherRouter) && !otherRouter.inError()) {
                                 NetworkId routingNetwork = otherRouter.findRoutingNetwork();
                                 if (routingNetwork != null) {

@@ -1,27 +1,17 @@
 package mcjty.xnet.multiblock;
 
-import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
 
 /**
  * A local position in a chunk can be represented with a single int like done
  * in this class.
  */
-public class IntPos {
-
-    private final int pos;
-
-    public IntPos(int pos) {
-        this.pos = pos;
-    }
+public record IntPos(int pos) {
 
     public IntPos(BlockPos pos) {
-        this.pos = toInt(pos);
-    }
-
-    public int getPos() {
-        return pos;
+        this(toInt(pos));
     }
 
     public int[] getSidePositions() {
@@ -33,37 +23,23 @@ public class IntPos {
     }
 
     public boolean isBorder(Direction facing) {
-        switch (facing) {
-            case DOWN:
-            case UP:
-                return false;
-            case NORTH:
-                return getZ() == 0;
-            case SOUTH:
-                return getZ() == 15;
-            case WEST:
-                return getX() == 0;
-            case EAST:
-                return getX() == 15;
-        }
-        return false;
+        return switch (facing) {
+            case DOWN, UP -> false;
+            case NORTH -> getZ() == 0;
+            case SOUTH -> getZ() == 15;
+            case WEST -> getX() == 0;
+            case EAST -> getX() == 15;
+        };
     }
 
     public IntPos otherSide(Direction facing) {
-        switch (facing) {
-            case DOWN:
-            case UP:
-                return this;
-            case NORTH:
-                return new IntPos(pos + (15 << 12));
-            case SOUTH:
-                return new IntPos(pos - (15 << 12));
-            case WEST:
-                return new IntPos(pos + 15);
-            case EAST:
-                return new IntPos(pos - 15);
-        }
-        return this;
+        return switch (facing) {
+            case DOWN, UP -> this;
+            case NORTH -> new IntPos(pos + (15 << 12));
+            case SOUTH -> new IntPos(pos - (15 << 12));
+            case WEST -> new IntPos(pos + 15);
+            case EAST -> new IntPos(pos - 15);
+        };
     }
 
     public int getX() {
@@ -118,23 +94,6 @@ public class IntPos {
             return -1;
         }
         return pos - (1<<4);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        IntPos intPos = (IntPos) o;
-
-        if (pos != intPos.pos) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return pos;
     }
 
     private static int toInt(BlockPos pos) {

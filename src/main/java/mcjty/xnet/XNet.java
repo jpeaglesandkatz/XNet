@@ -15,6 +15,7 @@ import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.ModSetup;
 import mcjty.xnet.setup.Registration;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
@@ -43,13 +44,14 @@ public class XNet {
 
         Registration.register();
 
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(setup::init);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(modules::init);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
+        IEventBus modbus = FMLJavaModLoadingContext.get().getModEventBus();
+        modbus.addListener(setup::init);
+        modbus.addListener(modules::init);
+        modbus.addListener(this::processIMC);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            FMLJavaModLoadingContext.get().getModEventBus().addListener(modules::initClient);
-            FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::registerBlockColor);
+            modbus.addListener(modules::initClient);
+            modbus.addListener(ClientSetup::registerBlockColor);
         });
     }
 

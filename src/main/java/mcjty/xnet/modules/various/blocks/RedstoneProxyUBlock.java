@@ -36,7 +36,7 @@ public class RedstoneProxyUBlock extends RedstoneProxyBlock implements ITooltipS
         }
     }
 
-    private Set<BlockPos> loopDetector = new HashSet<>();
+    private final Set<BlockPos> loopDetector = new HashSet<>();
 
     @SuppressWarnings("deprecation")
     @Override

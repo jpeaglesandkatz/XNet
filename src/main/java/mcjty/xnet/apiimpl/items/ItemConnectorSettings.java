@@ -71,7 +71,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     @Nullable private Integer count = null;
     @Nullable private Integer extractAmount = null;
 
-    private ItemStackList filters = ItemStackList.create(FILTER_SIZE);
+    private final ItemStackList filters = ItemStackList.create(FILTER_SIZE);
     private int filterIndex = -1;
 
     // Cached matcher for items
@@ -88,13 +88,10 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     @Nullable
     @Override
     public IndicatorIcon getIndicatorIcon() {
-        switch (itemMode) {
-            case INS:
-                return new IndicatorIcon(iconGuiElements, 0, 70, 13, 10);
-            case EXT:
-                return new IndicatorIcon(iconGuiElements, 13, 70, 13, 10);
-        }
-        return null;
+        return switch (itemMode) {
+            case INS -> new IndicatorIcon(iconGuiElements, 0, 70, 13, 10);
+            case EXT -> new IndicatorIcon(iconGuiElements, 13, 70, 13, 10);
+        };
     }
 
     @Override

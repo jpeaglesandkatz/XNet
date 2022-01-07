@@ -73,13 +73,10 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     @Nullable
     @Override
     public IndicatorIcon getIndicatorIcon() {
-        switch (logicMode) {
-            case SENSOR:
-                return new IndicatorIcon(iconGuiElements, 26, 70, 13, 10);
-            case OUTPUT:
-                return new IndicatorIcon(iconGuiElements, 39, 70, 13, 10);
-        }
-        return null;
+        return switch (logicMode) {
+            case SENSOR -> new IndicatorIcon(iconGuiElements, 26, 70, 13, 10);
+            case OUTPUT -> new IndicatorIcon(iconGuiElements, 39, 70, 13, 10);
+        };
     }
 
 
@@ -90,7 +87,7 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
         return null;
     }
 
-    private static Set<String> TAGS = ImmutableSet.of(TAG_REDSTONE_OUT, TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3");
+    private static final Set<String> TAGS = ImmutableSet.of(TAG_REDSTONE_OUT, TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3");
 
     @Override
     public boolean isEnabled(String tag) {

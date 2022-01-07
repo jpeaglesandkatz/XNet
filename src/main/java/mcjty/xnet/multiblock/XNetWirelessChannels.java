@@ -45,8 +45,6 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         }
     }
 
-    private int cnt = 30;
-
     private int globalChannelVersion = 0;
 
     public void transmitChannel(String channel, @Nonnull IChannelType channelType, @Nullable UUID ownerUUID, ResourceKey<Level> dimension, BlockPos wirelessRouterPos, NetworkId network) {
@@ -99,7 +97,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             for (Map.Entry<GlobalPos, WirelessRouterInfo> infoEntry : channelInfo.getRouters().entrySet()) {
                 GlobalPos pos = infoEntry.getKey();
                 WirelessRouterInfo info = infoEntry.getValue();
-                System.out.println("    Pos = " + BlockPosTools.toString(pos.pos()) + " (age " + info.age + ", net " + info.networkId.getId() + ")");
+                System.out.println("    Pos = " + BlockPosTools.toString(pos.pos()) + " (age " + info.age + ", net " + info.networkId.id() + ")");
             }
         }
     }
@@ -165,7 +163,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     public Stream<WirelessChannelInfo> findChannels(@Nullable UUID owner) {
         return channelToWireless.entrySet().stream().filter(pair -> {
             WirelessChannelKey key = pair.getKey();
-            return (owner == null && key.getOwner() == null) || (owner != null && (key.getOwner() == null || owner.equals(key.getOwner())));
+            return (owner == null && key.owner() == null) || (owner != null && (key.owner() == null || owner.equals(key.owner())));
         }).map(Map.Entry::getValue);
     }
 
@@ -190,10 +188,10 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             CompoundTag channelTc = new CompoundTag();
             WirelessChannelInfo channelInfo = entry.getValue();
             WirelessChannelKey key = entry.getKey();
-            channelTc.putString("name", key.getName());
-            channelTc.putString("type", key.getChannelType().getID());
-            if (key.getOwner() != null) {
-                channelTc.putUUID("owner", key.getOwner());
+            channelTc.putString("name", key.name());
+            channelTc.putString("type", key.channelType().getID());
+            if (key.owner() != null) {
+                channelTc.putUUID("owner", key.owner());
             }
             channelTc.put("routers", writeRouters(channelInfo));
             channelTagList.add(channelTc);
@@ -216,7 +214,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             tc.putInt("z", pos.pos().getZ());
             WirelessRouterInfo info = infoEntry.getValue();
             tc.putInt("age", info.getAge());
-            tc.putInt("network", info.getNetworkId().getId());
+            tc.putInt("network", info.getNetworkId().id());
             tagList.add(tc);
         }
         return tagList;

@@ -167,7 +167,7 @@ public class Sensor {
 
     public boolean test(@Nullable BlockEntity te, @Nonnull Level world, @Nonnull BlockPos pos, LogicConnectorSettings settings) {
         switch (sensorMode) {
-            case ITEM: {
+            case ITEM -> {
                 if (RFToolsSupport.isStorageScanner(te)) {
                     int cnt = RFToolsSupport.countItems(te, filter, amount + 1);
                     return operator.match(cnt, amount);
@@ -178,26 +178,24 @@ public class Sensor {
                     }).orElse(false);
                 }
             }
-            case FLUID: {
+            case FLUID -> {
                 return FluidChannelSettings.getFluidHandlerAt(te, settings.getFacing()).map(h -> {
                     int cnt = countFluid(h, filter, amount + 1);
                     return operator.match(cnt, amount);
                 }).orElse(false);
             }
-            case ENERGY: {
+            case ENERGY -> {
                 if (EnergyChannelSettings.isEnergyTE(te, settings.getFacing())) {
                     int cnt = EnergyChannelSettings.getEnergyLevel(te, settings.getFacing());
                     return operator.match(cnt, amount);
                 }
-                break;
             }
-            case RS: {
+            case RS -> {
                 int cnt = world.getSignal(pos, settings.getFacing());
                 return operator.match(cnt, amount);
             }
-            case OFF:
-            default:
-                break;
+            case OFF -> {
+            }
         }
 
         return false;

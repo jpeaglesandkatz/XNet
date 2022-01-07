@@ -39,14 +39,14 @@ public class ConnectorClientInfo {
         }
         channelType = t;
         CompoundTag tag = buf.readNbt();
-        connectorSettings = channelType.createConnector(pos.getSide());
+        connectorSettings = channelType.createConnector(pos.side());
         connectorSettings.readFromNBT(tag);
     }
 
     public void writeToBuf(@Nonnull FriendlyByteBuf buf) {
-        buf.writeBlockPos(pos.getPos());
-        buf.writeByte(pos.getSide().ordinal());
-        buf.writeInt(consumerId.getId());
+        buf.writeBlockPos(pos.pos());
+        buf.writeByte(pos.side().ordinal());
+        buf.writeInt(consumerId.id());
         buf.writeUtf(channelType.getID());
         CompoundTag tag = new CompoundTag();
         connectorSettings.writeToNBT(tag);

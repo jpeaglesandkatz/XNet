@@ -140,8 +140,8 @@ public final class TileEntityRouter extends GenericTileEntity {
         ListTag published = new ListTag();
         for (Map.Entry<LocalChannelId, String> entry : publishedChannels.entrySet()) {
             CompoundTag tc = new CompoundTag();
-            BlockPosTools.write(tc, "pos", entry.getKey().getControllerPos());
-            tc.putInt("index", entry.getKey().getIndex());
+            BlockPosTools.write(tc, "pos", entry.getKey().controllerPos());
+            tc.putInt("index", entry.getKey().index());
             tc.putString("name", entry.getValue());
             published.add(tc);
         }

@@ -55,7 +55,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     public static final String TAG_NAME = "name";
 
     private WidgetList connectorList;
-    private List<SidedPos> connectorPositions = new ArrayList<>();
+    private final List<SidedPos> connectorPositions = new ArrayList<>();
     private int listDirty;
     private TextField searchBar;
 
@@ -66,7 +66,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     private Panel channelEditPanel;
     private Panel connectorEditPanel;
 
-    private ToggleButton channelButtons[] = new ToggleButton[MAX_CHANNELS];
+    private final ToggleButton[] channelButtons = new ToggleButton[MAX_CHANNELS];
 
     private SidedPos editingConnector = null;
     private int editingChannel = -1;
@@ -152,7 +152,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         }
         ConnectedBlockClientInfo c = tileEntity.clientConnectedBlocks.get(index);
         if (c != null) {
-            RFToolsBase.instance.clientInfo.hilightBlock(c.getPos().getPos(), System.currentTimeMillis() + 1000 * 5);
+            RFToolsBase.instance.clientInfo.hilightBlock(c.getPos().pos(), System.currentTimeMillis() + 1000 * 5);
             Logging.message(minecraft.player, "The block is now highlighted");
             minecraft.player.closeContainer();
         }
@@ -243,8 +243,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_REMOVECONNECTOR,
                 TypedMap.builder()
                         .put(PARAM_CHANNEL, getSelectedChannel())
-                        .put(PARAM_POS, sidedPos.getPos())
-                        .put(PARAM_SIDE, sidedPos.getSide().ordinal())
+                        .put(PARAM_POS, sidedPos.pos())
+                        .put(PARAM_SIDE, sidedPos.side().ordinal())
                         .build());
         refresh();
     }
@@ -253,8 +253,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_CREATECONNECTOR,
                 TypedMap.builder()
                         .put(PARAM_CHANNEL, getSelectedChannel())
-                        .put(PARAM_POS, sidedPos.getPos())
-                        .put(PARAM_SIDE, sidedPos.getSide().ordinal())
+                        .put(PARAM_POS, sidedPos.pos())
+                        .put(PARAM_SIDE, sidedPos.side().ordinal())
                         .build());
         refresh();
     }
@@ -386,8 +386,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_COPYCONNECTOR,
                     TypedMap.builder()
                             .put(PARAM_INDEX, getSelectedChannel())
-                            .put(PARAM_POS, editingConnector.getPos())
-                            .put(PARAM_SIDE, editingConnector.getSide().ordinal())
+                            .put(PARAM_POS, editingConnector.pos())
+                            .put(PARAM_SIDE, editingConnector.side().ordinal())
                             .build());
         }
     }
@@ -434,8 +434,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_PASTECONNECTOR,
                     TypedMap.builder()
                             .put(PARAM_INDEX, getSelectedChannel())
-                            .put(PARAM_POS, editingConnector.getPos())
-                            .put(PARAM_SIDE, editingConnector.getSide().ordinal())
+                            .put(PARAM_POS, editingConnector.pos())
+                            .put(PARAM_SIDE, editingConnector.side().ordinal())
                             .put(PARAM_JSON, json)
                             .build());
             if (connectorList.getSelected() != -1) {
@@ -495,7 +495,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             if (info != null) {
                 ConnectorClientInfo clientInfo = findClientInfo(info, editingConnector);
                 if (clientInfo != null) {
-                    Direction side = clientInfo.getPos().getSide();
+                    Direction side = clientInfo.getPos().side();
                     SidedConsumer sidedConsumer = new SidedConsumer(clientInfo.getConsumerId(), side.getOpposite());
                     ConnectorClientInfo connectorInfo = info.getConnectors().get(sidedConsumer);
 
@@ -534,8 +534,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         }
         listDirty--;
         if (listDirty <= 0) {
-            XNetMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETCHANNELS.getName()));
-            XNetMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETCONNECTEDBLOCKS.getName()));
+            XNetMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETCHANNELS.name()));
+            XNetMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETCONNECTEDBLOCKS.name()));
             listDirty = 10;
             showingChannel = -1;
             showingConnector = null;
@@ -570,7 +570,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
         for (ConnectedBlockClientInfo connectedBlock : tileEntity.clientConnectedBlocks) {
             SidedPos sidedPos = connectedBlock.getPos();
-            BlockPos coordinate = sidedPos.getPos();
+            BlockPos coordinate = sidedPos.pos();
             String name = connectedBlock.getName();
             String blockUnlocName = connectedBlock.getBlockUnlocName();
             String blockName = I18n.get(blockUnlocName).trim();
@@ -603,7 +603,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                         ChatFormatting.WHITE + "(doubleclick to highlight)");
             }
 
-            panel.children(label(sidedPos.getSide().getSerializedName().substring(0, 1).toUpperCase()).color(color).desiredWidth(18));
+            panel.children(label(sidedPos.side().getSerializedName().substring(0, 1).toUpperCase()).color(color).desiredWidth(18));
             for (int i = 0 ; i < MAX_CHANNELS ; i++) {
                 Button but = new Button().desiredWidth(14);
                 ChannelClientInfo info = tileEntity.clientChannels.get(i);

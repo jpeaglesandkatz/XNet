@@ -66,8 +66,8 @@ public class ConnectedBlockClientInfo {
     }
 
     public void writeToBuf(@Nonnull FriendlyByteBuf buf) {
-        buf.writeBlockPos(pos.getPos());
-        buf.writeByte(pos.getSide().ordinal());
+        buf.writeBlockPos(pos.pos());
+        buf.writeByte(pos.side().ordinal());
         buf.writeItem(connectedBlock);
         NetworkTools.writeStringUTF8(buf, name);
         NetworkTools.writeStringUTF8(buf, blockName);
@@ -100,9 +100,7 @@ public class ConnectedBlockClientInfo {
 
         ConnectedBlockClientInfo that = (ConnectedBlockClientInfo) o;
 
-        if (!pos.equals(that.pos)) return false;
-
-        return true;
+        return pos.equals(that.pos);
     }
 
     @Override

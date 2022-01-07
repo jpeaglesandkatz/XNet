@@ -6,12 +6,12 @@ import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.facade.FacadeModule;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntArrayTag;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -362,27 +362,27 @@ public class ChunkBlob {
         System.out.println("################# Chunk (" + chunkPos.x + "," + chunkPos.z + ") #################");
         System.out.println("Network providers:");
         for (Map.Entry<IntPos, NetworkId> entry : networkProviders.entrySet()) {
-            System.out.println("    " + toString(entry.getKey()) + ", network = " + entry.getValue().getId());
+            System.out.println("    " + toString(entry.getKey()) + ", network = " + entry.getValue().id());
         }
         System.out.println("Network consumers:");
         for (Map.Entry<IntPos, ConsumerId> entry : networkConsumers.entrySet()) {
-            System.out.println("    " + toString(entry.getKey()) + ", consumer = " + entry.getValue().getId());
+            System.out.println("    " + toString(entry.getKey()) + ", consumer = " + entry.getValue().id());
         }
         System.out.println("Network mappings:");
         for (Map.Entry<BlobId, Set<NetworkId>> entry : networkMappings.entrySet()) {
             String s = "";
             for (NetworkId networkId : entry.getValue()) {
-                s += networkId.getId() + " ";
+                s += networkId.id() + " ";
             }
-            System.out.println("    Blob(" + entry.getKey().getId() + "): networks = " + s);
+            System.out.println("    Blob(" + entry.getKey().id() + "): networks = " + s);
         }
         System.out.println("Blob colors:");
         for (Map.Entry<BlobId, ColorId> entry : blobColors.entrySet()) {
-            System.out.println("    Blob(" + entry.getKey().getId() + "): color = " + entry.getValue().getId());
+            System.out.println("    Blob(" + entry.getKey().id() + "): color = " + entry.getValue().id());
         }
         System.out.println("Allocations:");
         for (Map.Entry<IntPos, BlobId> entry : blobAllocations.entrySet()) {
-            System.out.println("    " + toString(entry.getKey()) + ", Blob(" + entry.getValue().getId() + ")");
+            System.out.println("    " + toString(entry.getKey()) + ", Blob(" + entry.getValue().id() + ")");
         }
     }
 
@@ -474,9 +474,9 @@ public class ChunkBlob {
 
         List<Integer> m = new ArrayList<>();
         for (Map.Entry<BlobId, Set<NetworkId>> entry : networkMappings.entrySet()) {
-            m.add(entry.getKey().getId());
+            m.add(entry.getKey().id());
             for (NetworkId v : entry.getValue()) {
-                m.add(v.getId());
+                m.add(v.id());
             }
             m.add(-1);
         }
@@ -485,32 +485,32 @@ public class ChunkBlob {
 
         m.clear();
         for (Map.Entry<IntPos, BlobId> entry : blobAllocations.entrySet()) {
-            m.add(entry.getKey().getPos());
-            m.add(entry.getValue().getId());
+            m.add(entry.getKey().pos());
+            m.add(entry.getValue().id());
         }
         IntArrayTag allocations = new IntArrayTag(m.stream().mapToInt(i -> i).toArray());
         compound.put("allocations", allocations);
 
         m.clear();
         for (Map.Entry<IntPos, NetworkId> entry : networkProviders.entrySet()) {
-            m.add(entry.getKey().getPos());
-            m.add(entry.getValue().getId());
+            m.add(entry.getKey().pos());
+            m.add(entry.getValue().id());
         }
         IntArrayTag providers = new IntArrayTag(m.stream().mapToInt(i -> i).toArray());
         compound.put("providers", providers);
 
         m.clear();
         for (Map.Entry<IntPos, ConsumerId> entry : networkConsumers.entrySet()) {
-            m.add(entry.getKey().getPos());
-            m.add(entry.getValue().getId());
+            m.add(entry.getKey().pos());
+            m.add(entry.getValue().id());
         }
         IntArrayTag consumers = new IntArrayTag(m.stream().mapToInt(i -> i).toArray());
         compound.put("consumers", consumers);
 
         m.clear();
         for (Map.Entry<BlobId, ColorId> entry : blobColors.entrySet()) {
-            m.add(entry.getKey().getId());
-            m.add(entry.getValue().getId());
+            m.add(entry.getKey().id());
+            m.add(entry.getValue().id());
         }
         IntArrayTag colors = new IntArrayTag(m.stream().mapToInt(i -> i).toArray());
         compound.put("colors", colors);

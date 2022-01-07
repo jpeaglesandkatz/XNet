@@ -16,7 +16,7 @@ public class ConnectorInfo {
         this.type = type;
         this.id = id;
         this.advanced = advanced;
-        connectorSettings = type.createConnector(id.getSide().getOpposite());
+        connectorSettings = type.createConnector(id.side().getOpposite());
     }
 
     public IChannelType getType() {

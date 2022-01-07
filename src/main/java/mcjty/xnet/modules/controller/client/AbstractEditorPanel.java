@@ -270,18 +270,10 @@ public abstract class AbstractEditorPanel implements IEditorGui {
                 .choice("On", "Redstone mode:\nOn to activate", iconGuiElements, 33, 1)
                 .choice("Pulse", "Do one operation\non a pulse", iconGuiElements, 49, 1);
         switch (current) {
-            case IGNORED:
-                redstoneMode.setCurrentChoice("Ignored");
-                break;
-            case OFF:
-                redstoneMode.setCurrentChoice("Off");
-                break;
-            case ON:
-                redstoneMode.setCurrentChoice("On");
-                break;
-            case PULSE:
-                redstoneMode.setCurrentChoice("Pulse");
-                break;
+            case IGNORED -> redstoneMode.setCurrentChoice("Ignored");
+            case OFF -> redstoneMode.setCurrentChoice("Off");
+            case ON -> redstoneMode.setCurrentChoice("On");
+            case PULSE -> redstoneMode.setCurrentChoice("Pulse");
         }
         redstoneMode.hint(x, y, w, 14);
         data.put(tag, current.name());

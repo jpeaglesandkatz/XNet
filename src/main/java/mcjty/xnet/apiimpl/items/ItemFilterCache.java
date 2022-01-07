@@ -12,12 +12,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ItemFilterCache {
-    private boolean matchDamage = true;
-    private boolean tagsMode = false;
-    private boolean blacklistMode = true;
-    private boolean nbtMode = false;
-    private ItemStackList stacks;
-    private Set<ResourceLocation> tagMatches = new HashSet<>();
+    private final boolean matchDamage;
+    private final boolean tagsMode;
+    private final boolean blacklistMode;
+    private final boolean nbtMode;
+    private final ItemStackList stacks;
+    private final Set<ResourceLocation> tagMatches = new HashSet<>();
 
     public ItemFilterCache(boolean matchDamage, boolean tagsMode, boolean blacklistMode, boolean nbtMode, @Nonnull ItemStackList stacks) {
         this.matchDamage = matchDamage;

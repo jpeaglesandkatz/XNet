@@ -24,8 +24,8 @@ public class ConnectorEditorPanel extends AbstractEditorPanel {
         data.put(tag, value);
         TypedMap.Builder builder = TypedMap.builder();
         int i = 0;
-        builder.put(PARAM_POS, sidedPos.getPos())
-            .put(PARAM_SIDE, sidedPos.getSide().ordinal())
+        builder.put(PARAM_POS, sidedPos.pos())
+            .put(PARAM_SIDE, sidedPos.side().ordinal())
             .put(PARAM_CHANNEL, channel);
         performUpdate(builder, i, TileEntityController.CMD_UPDATECONNECTOR);
     }
@@ -34,7 +34,7 @@ public class ConnectorEditorPanel extends AbstractEditorPanel {
         super(panel, mc, gui);
         this.channel = channel;
         this.sidedPos = sidedPos;
-        advanced = ConnectorBlock.isAdvancedConnector(mc.level, sidedPos.getPos().relative(sidedPos.getSide()));
+        advanced = ConnectorBlock.isAdvancedConnector(mc.level, sidedPos.pos().relative(sidedPos.side()));
     }
 
     @Override

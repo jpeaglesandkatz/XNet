@@ -49,13 +49,10 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     @Nullable
     @Override
     public IndicatorIcon getIndicatorIcon() {
-        switch (energyMode) {
-            case INS:
-                return new IndicatorIcon(iconGuiElements, 0, 70, 13, 10);
-            case EXT:
-                return new IndicatorIcon(iconGuiElements, 13, 70, 13, 10);
-        }
-        return null;
+        return switch (energyMode) {
+            case INS -> new IndicatorIcon(iconGuiElements, 0, 70, 13, 10);
+            case EXT -> new IndicatorIcon(iconGuiElements, 13, 70, 13, 10);
+        };
     }
 
     @Override

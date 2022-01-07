@@ -52,7 +52,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     private ChannelMode channelMode = ChannelMode.PRIORITY;
     private int delay = 0;
     private int roundRobinOffset = 0;
-    private Map<ConsumerId, Integer> extractIndices = new HashMap<>();
+    private final Map<ConsumerId, Integer> extractIndices = new HashMap<>();
 
     public ChannelMode getChannelMode() {
         return channelMode;
@@ -97,7 +97,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             int[] cons = new int[extractIndices.size() * 2];
             int idx = 0;
             for (Map.Entry<ConsumerId, Integer> entry : extractIndices.entrySet()) {
-                cons[idx++] = entry.getKey().getId();
+                cons[idx++] = entry.getKey().id();
                 cons[idx++] = entry.getValue();
             }
             tag.putIntArray("extidx", cons);
@@ -138,7 +138,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         }
     }
 
-    private static Random random = new Random();
+    private static final Random random = new Random();
 
     @Override
     public void tick(int channel, IControllerContext context) {
@@ -159,10 +159,10 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 continue;
             }
 
-            ConsumerId consumerId = entry.getKey().getConsumerId();
+            ConsumerId consumerId = entry.getKey().consumerId();
             BlockPos extractorPos = context.findConsumerPosition(consumerId);
             if (extractorPos != null) {
-                Direction side = entry.getKey().getSide();
+                Direction side = entry.getKey().side();
                 BlockPos pos = extractorPos.relative(side);
                 if (!LevelTools.isLoaded(world, pos)) {
                     continue;
@@ -288,7 +288,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             ItemConnectorSettings settings = entry.getValue();
 
             if (settings.getMatcher(context).test(stack)) {
-                BlockPos consumerPos = context.findConsumerPosition(entry.getKey().getConsumerId());
+                BlockPos consumerPos = context.findConsumerPosition(entry.getKey().consumerId());
                 if (consumerPos != null) {
                     if (!LevelTools.isLoaded(world, consumerPos)) {
                         continue;
@@ -301,7 +301,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                         continue;
                     }
 
-                    Direction side = entry.getKey().getSide();
+                    Direction side = entry.getKey().side();
                     BlockPos pos = consumerPos.relative(side);
                     BlockEntity te = world.getBlockEntity(pos);
                     int actuallyinserted;
@@ -318,11 +318,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                             }
                             toinsert = Math.min(toinsert, caninsert);
                             stack = stack.copy();
-                            if (toinsert <= 0) {
-                                stack.setCount(0);
-                            } else {
-                                stack.setCount(toinsert);
-                            }
+                            stack.setCount(Math.max(toinsert, 0));
                         }
                         remaining = RFToolsSupport.insertItem(te, stack, true);
                     } else {
@@ -336,11 +332,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                                 }
                                 toinsert = Math.min(toinsert, caninsert);
                                 stack = stack.copy();
-                                if (toinsert <= 0) {
-                                    stack.setCount(0);
-                                } else {
-                                    stack.setCount(toinsert);
-                                }
+                                stack.setCount(Math.max(toinsert, 0));
                             }
                             ItemStack finalStack = stack;
                             remaining = itemHandler.map(h -> ItemHandlerHelper.insertItem(h, finalStack, true)).orElse(ItemStack.EMPTY);
@@ -374,8 +366,8 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     public void insertStackReal(@Nonnull IControllerContext context, @Nonnull List<Pair<SidedConsumer, ItemConnectorSettings>> inserted, @Nonnull ItemStack stack) {
         int total = stack.getCount();
         for (Pair<SidedConsumer, ItemConnectorSettings> entry : inserted) {
-            BlockPos consumerPosition = context.findConsumerPosition(entry.getKey().getConsumerId());
-            Direction side = entry.getKey().getSide();
+            BlockPos consumerPosition = context.findConsumerPosition(entry.getKey().consumerId());
+            Direction side = entry.getKey().side();
             ItemConnectorSettings settings = entry.getValue();
             BlockPos pos = consumerPosition.relative(side);
             BlockEntity te = context.getControllerWorld().getBlockEntity(pos);
@@ -390,11 +382,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                     }
                     toinsert = Math.min(toinsert, caninsert);
                     stack = stack.copy();
-                    if (toinsert <= 0) {
-                        stack.setCount(0);
-                    } else {
-                        stack.setCount(toinsert);
-                    }
+                    stack.setCount(Math.max(toinsert, 0));
                 }
                 ItemStack remaining = RFToolsSupport.insertItem(te, stack, false);
                 int actuallyinserted = toinsert - remaining.getCount();
@@ -428,11 +416,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                     }
                     toinsert = Math.min(toinsert, caninsert);
                     stack = stack.copy();
-                    if (toinsert <= 0) {
-                        stack.setCount(0);
-                    } else {
-                        stack.setCount(toinsert);
-                    }
+                    stack.setCount(Math.max(toinsert, 0));
                 }
                 ItemStack finalStack = stack;
                 ItemStack remaining = handler.map(h -> ItemHandlerHelper.insertItem(h, finalStack, false)).orElse(ItemStack.EMPTY);
@@ -483,18 +467,11 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             int j = i % handler.getSlots();
             ItemStack stack = handler.getStackInSlot(j);
             if (!stack.isEmpty()) {
-                int s = 0;
-                switch (stackMode) {
-                    case SINGLE:
-                        s = 1;
-                        break;
-                    case STACK:
-                        s = stack.getMaxStackSize();
-                        break;
-                    case COUNT:
-                        s = extractAmount;
-                        break;
-                }
+                int s = switch (stackMode) {
+                    case SINGLE -> 1;
+                    case STACK -> stack.getMaxStackSize();
+                    case COUNT -> extractAmount;
+                };
                 s = Math.min(s, maxamount);
                 stack = handler.extractItem(j, s, simulate);
                 if (!stack.isEmpty() && matcher.test(stack)) {

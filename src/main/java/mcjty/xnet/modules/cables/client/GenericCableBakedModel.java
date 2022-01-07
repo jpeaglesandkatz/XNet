@@ -95,35 +95,24 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
     private static TextureAtlasSprite getSpriteNormal(CablePatterns.SpriteIdx idx, int index) {
         initTextures();
         CableTextures cableTexture = cableTextures[index];
-        switch (idx) {
-            case SPRITE_NONE:
-                return cableTexture.spriteNoneCable;
-            case SPRITE_END:
-                return cableTexture.spriteEndCable;
-            case SPRITE_STRAIGHT:
-                return cableTexture.spriteNormalCable;
-            case SPRITE_CORNER:
-                return cableTexture.spriteCornerCable;
-            case SPRITE_THREE:
-                return cableTexture.spriteThreeCable;
-            case SPRITE_CROSS:
-                return cableTexture.spriteCrossCable;
-        }
-        return cableTexture.spriteNoneCable;
+        return switch (idx) {
+            case SPRITE_NONE -> cableTexture.spriteNoneCable;
+            case SPRITE_END -> cableTexture.spriteEndCable;
+            case SPRITE_STRAIGHT -> cableTexture.spriteNormalCable;
+            case SPRITE_CORNER -> cableTexture.spriteCornerCable;
+            case SPRITE_THREE -> cableTexture.spriteThreeCable;
+            case SPRITE_CROSS -> cableTexture.spriteCrossCable;
+        };
     }
 
     private BakedQuad createQuad(Vec3 v1, Vec3 v2, Vec3 v3, Vec3 v4, TextureAtlasSprite sprite, int rotation, float hilight) {
-        switch (rotation) {
-            case 0:
-                return createQuad(v1, v2, v3, v4, sprite, hilight);
-            case 1:
-                return createQuad(v2, v3, v4, v1, sprite, hilight);
-            case 2:
-                return createQuad(v3, v4, v1, v2, sprite, hilight);
-            case 3:
-                return createQuad(v4, v1, v2, v3, sprite, hilight);
-        }
-        return createQuad(v1, v2, v3, v4, sprite, hilight);
+        return switch (rotation) {
+            case 0 -> createQuad(v1, v2, v3, v4, sprite, hilight);
+            case 1 -> createQuad(v2, v3, v4, v1, sprite, hilight);
+            case 2 -> createQuad(v3, v4, v1, v2, sprite, hilight);
+            case 3 -> createQuad(v4, v1, v2, v3, sprite, hilight);
+            default -> createQuad(v1, v2, v3, v4, sprite, hilight);
+        };
     }
 
     @Nonnull
@@ -314,7 +303,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
                 BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(facadeId);
                 try {
                     quads.addAll(model.getQuads(state, side, rand, EmptyModelData.INSTANCE));
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
             }
         }

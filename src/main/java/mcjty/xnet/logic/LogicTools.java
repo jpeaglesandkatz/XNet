@@ -83,9 +83,9 @@ public class LogicTools {
         WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
         return consumers.stream()
                 .map(sidedConsumer -> {
-                    BlockPos consumerPos = findConsumerPosition(networkId, worldBlob, sidedConsumer.getConsumerId());
+                    BlockPos consumerPos = findConsumerPosition(networkId, worldBlob, sidedConsumer.consumerId());
                     if (consumerPos != null) {
-                        return consumerPos.relative(sidedConsumer.getSide());
+                        return consumerPos.relative(sidedConsumer.side());
                     } else {
                         return null;
                     }

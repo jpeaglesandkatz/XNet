@@ -94,8 +94,8 @@ public class ChannelClientInfo {
             SidedConsumer key = entry.getKey();
             ConnectorClientInfo info = entry.getValue();
 
-            buf.writeInt(key.getConsumerId().getId());
-            buf.writeByte(key.getSide().ordinal());
+            buf.writeInt(key.consumerId().id());
+            buf.writeByte(key.side().ordinal());
 
             info.writeToBuf(buf);
         }

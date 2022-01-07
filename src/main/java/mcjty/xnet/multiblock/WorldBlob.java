@@ -334,7 +334,7 @@ public class WorldBlob implements IWorldBlob {
     private void dump(String prefix, Set<NetworkId> networks) {
         String s = prefix + ": ";
         for (NetworkId network : networks) {
-            s += network.getId() + " ";
+            s += network.id() + " ";
         }
         System.out.println("s = " + s);
     }

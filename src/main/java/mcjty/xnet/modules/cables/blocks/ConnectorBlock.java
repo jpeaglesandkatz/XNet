@@ -112,9 +112,8 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
 
     @Override
     public void playerDestroy(@Nonnull Level worldIn, @Nonnull Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack) {
-        if (te instanceof ConnectorTileEntity) {
+        if (te instanceof ConnectorTileEntity connectorTileEntity) {
             // If we are in mimic mode then the drop will be the facade as the connector will remain there
-            ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
             if (connectorTileEntity.getMimicBlock() != null) {
                 ItemStack item = new ItemStack(FacadeModule.FACADE.get());
                 FacadeBlockItem.setMimicBlock(item, connectorTileEntity.getMimicBlock());
@@ -155,14 +154,10 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
 
     @Override
     public void onNeighborChange(BlockState state, LevelReader blockAccess, BlockPos pos, BlockPos neighbor) {
-        if (blockAccess instanceof Level) {
-            Level world = (Level) blockAccess;
-            if (!world.isClientSide) {
-                BlockEntity te = world.getBlockEntity(pos);
-                if (te instanceof ConnectorTileEntity) {
-                    ConnectorTileEntity connector = (ConnectorTileEntity) te;
-                    connector.possiblyMarkNetworkDirty(neighbor);
-                }
+        if (!blockAccess.isClientSide()) {
+            BlockEntity te = blockAccess.getBlockEntity(pos);
+            if (te instanceof ConnectorTileEntity connector) {
+                connector.possiblyMarkNetworkDirty(neighbor);
             }
         }
         super.onNeighborChange(state, blockAccess, pos, neighbor);
@@ -175,11 +170,10 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
 
     private void checkRedstone(Level world, BlockPos pos) {
         BlockEntity te = world.getBlockEntity(pos);
-        if (te instanceof ConnectorTileEntity) {
+        if (te instanceof ConnectorTileEntity connector) {
 //            int powered = world.isBlockIndirectlyGettingPowered(pos);
             int powered = world.getBestNeighborSignal(pos); // @todo 1.14 check
-            ConnectorTileEntity genericTileEntity = (ConnectorTileEntity) te;
-            genericTileEntity.setPowerInput(powered);
+            connector.setPowerInput(powered);
         }
     }
 
@@ -203,8 +197,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
 
     protected int getRedstoneOutput(BlockState state, BlockGetter world, BlockPos pos, Direction side) {
         BlockEntity te = world.getBlockEntity(pos);
-        if (state.getBlock() instanceof ConnectorBlock && te instanceof ConnectorTileEntity) {
-            ConnectorTileEntity connector = (ConnectorTileEntity) te;
+        if (state.getBlock() instanceof ConnectorBlock && te instanceof ConnectorTileEntity connector) {
             return connector.getPowerOut(side.getOpposite());
         }
         return 0;
@@ -247,10 +240,9 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         }
 
         BlockEntity tileEntity = world.getBlockEntity(connectorPos);
-        if (!(tileEntity instanceof ConnectorTileEntity)) {
+        if (!(tileEntity instanceof ConnectorTileEntity connectorTE)) {
             return false;
         }
-        ConnectorTileEntity connectorTE = (ConnectorTileEntity) tileEntity;
 
         if (!connectorTE.isEnabled(facing)) {
             return false;
@@ -334,7 +326,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
             WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
             ConsumerId consumer = worldBlob.getConsumerAt(new BlockPos(builder.getOptionalParameter(LootContextParams.ORIGIN)));
             if (consumer != null) {
-                drop.getOrCreateTag().putInt("consumerId", consumer.getId());
+                drop.getOrCreateTag().putInt("consumerId", consumer.id());
             }
         }
         return drops;

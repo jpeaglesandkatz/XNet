@@ -11,12 +11,12 @@ import mcjty.rftoolsbase.api.xnet.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -82,9 +82,9 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
                 continue;
             }
             int sensorColors = 0;
-            BlockPos connectorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
+            BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
             if (connectorPos != null) {
-                Direction side = entry.getKey().getSide();
+                Direction side = entry.getKey().side();
                 BlockPos pos = connectorPos.relative(side);
                 if (!LevelTools.isLoaded(world, pos)) {
                     // If it is not chunkloaded we just use the color settings as we last remembered it
@@ -120,16 +120,15 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
                 continue;
             }
 
-            BlockPos connectorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
+            BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
             if (connectorPos != null) {
-                Direction side = entry.getKey().getSide();
+                Direction side = entry.getKey().side();
                 if (!LevelTools.isLoaded(world, connectorPos)) {
                     continue;
                 }
 
                 BlockEntity te = world.getBlockEntity(connectorPos);
-                if (te instanceof ConnectorTileEntity) {
-                    ConnectorTileEntity connectorTE = (ConnectorTileEntity) te;
+                if (te instanceof ConnectorTileEntity connectorTE) {
                     int powerOut;
                     if (checkRedstone(world, settings, connectorPos)) {
                         powerOut = 0;

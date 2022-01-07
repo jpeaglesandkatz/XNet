@@ -46,11 +46,11 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     private final MimicBlockSupport mimicBlockSupport = new MimicBlockSupport();
 
     private int energy = 0;
-    private int inputFromSide[] = new int[] { 0, 0, 0, 0, 0, 0 };
+    private int[] inputFromSide = new int[] { 0, 0, 0, 0, 0, 0 };
 
     // Count the number of redstone pulses we got
     private int pulseCounter;
-    private int powerOut[] = new int[] { 0, 0, 0, 0, 0, 0 };
+    private final int[] powerOut = new int[] { 0, 0, 0, 0, 0, 0 };
 
     private byte enabled = 0x3f;
 

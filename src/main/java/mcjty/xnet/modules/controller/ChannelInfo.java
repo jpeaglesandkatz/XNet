@@ -78,8 +78,8 @@ public class ChannelInfo {
             CompoundTag tc = new CompoundTag();
             ConnectorInfo connectorInfo = entry.getValue();
             connectorInfo.writeToNBT(tc);
-            tc.putInt("consumerId", entry.getKey().getConsumerId().getId());
-            tc.putInt("side", entry.getKey().getSide().ordinal());
+            tc.putInt("consumerId", entry.getKey().consumerId().id());
+            tc.putInt("side", entry.getKey().side().ordinal());
             tc.putString("type", connectorInfo.getType().getID());
             tc.putBoolean("advanced", connectorInfo.isAdvanced());
             conlist.add(tc);

@@ -10,55 +10,15 @@ import javax.annotation.Nullable;
  * is an optional nodename and an optional side. If side is null then
  * it means the node or processor itself.
  */
-public class BlockSide {
-    @Nullable private final String nodeName;          // An inventory on a network
-    @Nullable private final EnumFacing side;      // The side at which the inventory can be found
+public record BlockSide(@Nullable String nodeName, @Nullable EnumFacing side) {
 
     public BlockSide(@Nullable String name, @Nullable EnumFacing side) {
         this.nodeName = (name == null || name.isEmpty()) ? null : name;
         this.side = side;
     }
 
-    @Nullable
-    public String getNodeName() {
-        return nodeName;
-    }
-
     public boolean hasNodeName() {
         return nodeName != null && !nodeName.isEmpty();
-    }
-
-    @Nullable
-    public EnumFacing getSide() {
-        return side;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        BlockSide blockSide = (BlockSide) o;
-
-        if (nodeName != null ? !nodeName.equals(blockSide.nodeName) : blockSide.nodeName != null) {
-            return false;
-        }
-        if (side != blockSide.side) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = nodeName != null ? nodeName.hashCode() : 0;
-        result = 31 * result + (side != null ? side.hashCode() : 0);
-        return result;
     }
 
     @Override

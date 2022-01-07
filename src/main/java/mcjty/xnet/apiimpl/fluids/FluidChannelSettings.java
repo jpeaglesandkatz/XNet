@@ -103,9 +103,9 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                 continue;
             }
 
-            BlockPos extractorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
+            BlockPos extractorPos = context.findConsumerPosition(entry.getKey().consumerId());
             if (extractorPos != null) {
-                Direction side = entry.getKey().getSide();
+                Direction side = entry.getKey().side();
                 BlockPos pos = extractorPos.relative(side);
                 if (!LevelTools.isLoaded(world, pos)) {
                     continue;
@@ -189,11 +189,11 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
         int amount = stack.getAmount();
         for (int j = 0 ; j < fluidConsumers.size() ; j++) {
             int i = (j + roundRobinOffset)  % fluidConsumers.size();
-            Pair<SidedConsumer, FluidConnectorSettings> entry = fluidConsumers.get(i);
+            var entry = fluidConsumers.get(i);
             FluidConnectorSettings settings = entry.getValue();
 
             if (settings.getMatcher() == null || settings.getMatcher().equals(stack)) {
-                BlockPos consumerPos = context.findConsumerPosition(entry.getKey().getConsumerId());
+                BlockPos consumerPos = context.findConsumerPosition(entry.getKey().consumerId());
                 if (consumerPos != null) {
                     if (!LevelTools.isLoaded(world, consumerPos)) {
                         continue;
@@ -205,7 +205,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                         continue;
                     }
 
-                    Direction side = entry.getKey().getSide();
+                    Direction side = entry.getKey().side();
                     BlockPos pos = consumerPos.relative(side);
                     BlockEntity te = world.getBlockEntity(pos);
                     // @todo ugly code!
@@ -255,9 +255,9 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
     private void insertFluidReal(@Nonnull IControllerContext context, @Nonnull List<Pair<SidedConsumer, FluidConnectorSettings>> inserted, @Nonnull FluidStack stack) {
         int amount = stack.getAmount();
-        for (Pair<SidedConsumer, FluidConnectorSettings> pair : inserted) {
-            BlockPos consumerPosition = context.findConsumerPosition(pair.getKey().getConsumerId());
-            Direction side = pair.getKey().getSide();
+        for (var pair : inserted) {
+            BlockPos consumerPosition = context.findConsumerPosition(pair.getKey().consumerId());
+            Direction side = pair.getKey().side();
             FluidConnectorSettings settings = pair.getValue();
             BlockPos pos = consumerPosition.relative(side);
             BlockEntity te = context.getControllerWorld().getBlockEntity(pos);
@@ -297,7 +297,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             fluidExtractors = new HashMap<>();
             fluidConsumers = new ArrayList<>();
             Map<SidedConsumer, IConnectorSettings> connectors = context.getConnectors(channel);
-            for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
+            for (var entry : connectors.entrySet()) {
                 FluidConnectorSettings con = (FluidConnectorSettings) entry.getValue();
                 if (con.getFluidMode() == FluidConnectorSettings.FluidMode.EXT) {
                     fluidExtractors.put(entry.getKey(), con);
@@ -307,7 +307,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             }
 
             connectors = context.getRoutedConnectors(channel);
-            for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
+            for (var entry : connectors.entrySet()) {
                 FluidConnectorSettings con = (FluidConnectorSettings) entry.getValue();
                 if (con.getFluidMode() == FluidConnectorSettings.FluidMode.INS) {
                     fluidConsumers.add(Pair.of(entry.getKey(), con));

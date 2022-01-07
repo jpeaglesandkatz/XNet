@@ -76,10 +76,10 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
 
         List<Pair<ConnectorTileEntity, Integer>> energyProducers = new ArrayList<>();
         for (Pair<SidedConsumer, EnergyConnectorSettings> entry : energyExtractors) {
-            BlockPos connectorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
+            BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
             if (connectorPos != null) {
 
-                Direction side = entry.getKey().getSide();
+                Direction side = entry.getKey().side();
                 BlockPos energyPos = connectorPos.relative(side);
                 if (!LevelTools.isLoaded(world, energyPos)) {
                     continue;
@@ -166,9 +166,9 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
         Level world = context.getControllerWorld();
         for (Pair<SidedConsumer, EnergyConnectorSettings> entry : energyConsumers) {
             EnergyConnectorSettings settings = entry.getValue();
-            BlockPos extractorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
+            BlockPos extractorPos = context.findConsumerPosition(entry.getKey().consumerId());
             if (extractorPos != null) {
-                Direction side = entry.getKey().getSide();
+                Direction side = entry.getKey().side();
                 BlockPos pos = extractorPos.relative(side);
                 if (!LevelTools.isLoaded(world, pos)) {
                     continue;
@@ -239,7 +239,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             energyExtractors = new ArrayList<>();
             energyConsumers = new ArrayList<>();
             Map<SidedConsumer, IConnectorSettings> connectors = context.getConnectors(channel);
-            for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
+            for (var entry : connectors.entrySet()) {
                 EnergyConnectorSettings con = (EnergyConnectorSettings) entry.getValue();
                 if (con.getEnergyMode() == EnergyConnectorSettings.EnergyMode.EXT) {
                     energyExtractors.add(Pair.of(entry.getKey(), con));
@@ -249,7 +249,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             }
 
             connectors = context.getRoutedConnectors(channel);
-            for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
+            for (var entry : connectors.entrySet()) {
                 EnergyConnectorSettings con = (EnergyConnectorSettings) entry.getValue();
                 if (con.getEnergyMode() == EnergyConnectorSettings.EnergyMode.INS) {
                     energyConsumers.add(Pair.of(entry.getKey(), con));

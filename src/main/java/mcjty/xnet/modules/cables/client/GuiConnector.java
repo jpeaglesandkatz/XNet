@@ -25,7 +25,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
     public static final int WIDTH = 220;
     public static final int HEIGHT = 50;
 
-    private ToggleButton toggleButtons[] = new ToggleButton[6];
+    private final ToggleButton[] toggleButtons = new ToggleButton[6];
 
 //    public GuiConnector(AdvancedConnectorTileEntity te, EmptyContainer container, PlayerInventory inventory) {
 //        this((ConnectorTileEntity) te, container, inventory);

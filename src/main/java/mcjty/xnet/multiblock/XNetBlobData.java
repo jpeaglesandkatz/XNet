@@ -54,7 +54,7 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
     @Override
     public CompoundTag save(@Nonnull CompoundTag compound) {
         ListTag list = new ListTag();
-        for (Map.Entry<ResourceKey<Level>, WorldBlob> entry : worldBlobMap.entrySet()) {
+        for (var entry : worldBlobMap.entrySet()) {
             WorldBlob blob = entry.getValue();
             CompoundTag tc = new CompoundTag();
             tc.putString("dimtype", blob.getDimensionType().location().toString());
