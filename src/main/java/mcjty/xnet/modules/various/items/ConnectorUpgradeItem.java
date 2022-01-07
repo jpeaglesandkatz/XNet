@@ -66,8 +66,7 @@ public class ConnectorUpgradeItem extends Item {
             if (!world.isClientSide) {
                 BlockEntity te = world.getBlockEntity(pos);
                 if (te instanceof ConnectorTileEntity) {
-                    CompoundTag tag = new CompoundTag();
-                    te.save(tag);
+                    CompoundTag tag = te.saveWithoutMetadata();
                     CableColor color = world.getBlockState(pos).getValue(GenericCableBlock.COLOR);
 
                     XNetBlobData blobData = XNetBlobData.get(world);
