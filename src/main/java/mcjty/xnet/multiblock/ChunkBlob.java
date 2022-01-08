@@ -157,7 +157,7 @@ public class ChunkBlob {
         System.out.println("Checking chunk: " + chunkPos);
         for (int cx = 0 ; cx < 16 ; cx++) {
             for (int cz = 0 ; cz < 16 ; cz++) {
-                for (int cy = 0 ; cy < 256 ; cy++) {
+                for (int cy = world.getMinBuildHeight() ; cy < world.getMaxBuildHeight() ; cy++) {
                     BlockPos pos = new BlockPos((chunkPos.x << 4) + cx, cy, (chunkPos.z << 4) + cz);
 //                    BlockPos pos = chunkPos.getBlock(cx, cy, cz);
                     Block block = world.getBlockState(pos).getBlock();

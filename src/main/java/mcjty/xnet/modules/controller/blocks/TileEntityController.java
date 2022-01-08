@@ -499,8 +499,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
     private Stream<BlockPos> getConsumerStream(WorldBlob worldBlob) {
         return XNet.xNetApi.getConsumerProviders().stream()
-                .map(provider -> provider.getConsumers(level, worldBlob, getNetworkId()).stream())
-                .flatMap(s -> s);
+                .flatMap(provider -> provider.getConsumers(level, worldBlob, getNetworkId()).stream());
     }
 
     @Nonnull
