@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed a problem with XNet networks not working below 0. Networks should be automatically upgraded to being below 0 compatible
+
 1.18-4.0.1:
 - Updates for McJtyLib and fixes
 

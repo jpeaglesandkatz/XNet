@@ -17,6 +17,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
+import static mcjty.xnet.multiblock.IntPos.CURRENT_VERSION;
+
 /**
  * All blobs in a single chunk are represented here as well
  * as how blob id's are mapped to global network id's.
@@ -26,6 +28,8 @@ public class ChunkBlob {
     private final ChunkPos chunkPos;
     private final long chunkNum;
     private int lastBlobId = 0;             // Local chunk blob ID
+
+    private int intPosVersion = CURRENT_VERSION;    // In order to fix old worlds (IntPos)
 
     // Every local (chunk) blob id can be allocated to multiple global network id's
     private final Map<BlobId, Set<NetworkId>> networkMappings = new HashMap<>();
@@ -396,13 +400,15 @@ public class ChunkBlob {
         cachedConsumers = null;
         cachedProviders = null;
 
+        int intVersion = compound.getInt("lastIntVersion");
+
         lastBlobId = compound.getInt("lastBlob");
         Set<BlobId> foundBlobs = new HashSet<>();       // Keep track of blobs we found
         if (compound.contains("allocations")) {
             int[] allocations = compound.getIntArray("allocations");
             int idx = 0;
             while (idx < allocations.length-1) {
-                IntPos pos = new IntPos(allocations[idx]);
+                IntPos pos = new IntPos(allocations[idx]).upgrade(intVersion);
                 BlobId blob = new BlobId(allocations[idx + 1]);
                 blobAllocations.put(pos, blob);
                 foundBlobs.add(blob);
@@ -437,7 +443,7 @@ public class ChunkBlob {
             int[] providers = compound.getIntArray("providers");
             int idx = 0;
             while (idx < providers.length-1) {
-                networkProviders.put(new IntPos(providers[idx]), new NetworkId(providers[idx+1]));
+                networkProviders.put(new IntPos(providers[idx]).upgrade(intVersion), new NetworkId(providers[idx+1]));
                 idx += 2;
             }
         }
@@ -446,7 +452,7 @@ public class ChunkBlob {
             int[] consumers = compound.getIntArray("consumers");
             int idx = 0;
             while (idx < consumers.length-1) {
-                IntPos intPos = new IntPos(consumers[idx]);
+                IntPos intPos = new IntPos(consumers[idx]).upgrade(intVersion);
                 ConsumerId consumerId = new ConsumerId(consumers[idx + 1]);
                 networkConsumers.put(intPos, consumerId);
                 consumerPositions.put(consumerId, intPos);
@@ -471,6 +477,7 @@ public class ChunkBlob {
 
     public CompoundTag writeToNBT(CompoundTag compound) {
         compound.putInt("lastBlob", lastBlobId);
+        compound.putInt("lastIntVersion", CURRENT_VERSION);
 
         List<Integer> m = new ArrayList<>();
         for (Map.Entry<BlobId, Set<NetworkId>> entry : networkMappings.entrySet()) {
