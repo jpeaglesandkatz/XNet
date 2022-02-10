@@ -11,7 +11,10 @@ import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.GenericItemHandler;
-import mcjty.lib.tileentity.*;
+import mcjty.lib.tileentity.Cap;
+import mcjty.lib.tileentity.CapType;
+import mcjty.lib.tileentity.GenericEnergyStorage;
+import mcjty.lib.tileentity.TickingTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
@@ -58,7 +61,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
-import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
@@ -85,9 +87,11 @@ import static mcjty.xnet.modules.controller.ControllerModule.TYPE_CONTROLLER;
 public final class TileEntityController extends TickingTileEntity implements IControllerContext {
 
     public static final Key<Integer> PARAM_INDEX = new Key<>("index", Type.INTEGER);
-    public static final Key<String> PARAM_TYPE = new Key<>("type", Type.STRING);
+    public static final String JSON_TYPE = "type";
+    public static final Key<String> PARAM_TYPE = new Key<>(JSON_TYPE, Type.STRING);
     public static final Key<String> PARAM_JSON = new Key<>("json", Type.STRING);
-    public static final Key<Integer> PARAM_CHANNEL = new Key<>("channel", Type.INTEGER);
+    public static final String JSON_CHANNEL = "channel";
+    public static final Key<Integer> PARAM_CHANNEL = new Key<>(JSON_CHANNEL, Type.INTEGER);
     public static final Key<Integer> PARAM_SIDE = new Key<>("side", Type.INTEGER);
     public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
 
@@ -95,6 +99,12 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
     public static final int SLOT_FILTER = 0;
     public static final int FILTER_SLOTS = 4;
+
+    public static final String JSON_CONNECTOR = "cn";
+    public static final String JSON_NAME = "n";
+    public static final String JSON_ADVANCED = "ad";
+    public static final String JSON_BLOCK = "b";
+    public static final String JSON_CONNECTORS = "cns";
 
     // For client
     public List<ChannelClientInfo> clientChannels = null;
@@ -395,9 +405,9 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         for (int i = 0; i < MAX_CHANNELS; i++) {
             if (channels[i] != null) {
                 CompoundNBT tc = new CompoundNBT();
-                tc.putString("type", channels[i].getType().getID());
+                tc.putString(JSON_TYPE, channels[i].getType().getID());
                 channels[i].writeToNBT(tc);
-                info.put("channel" + i, tc);
+                info.put(JSON_CHANNEL + i, tc);
             }
         }
     }
@@ -408,9 +418,9 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         CompoundNBT info = tagCompound.getCompound("Info");
         colors = info.getInt("colors");
         for (int i = 0; i < MAX_CHANNELS; i++) {
-            if (info.contains("channel" + i)) {
-                CompoundNBT tc = info.getCompound("channel" + i);
-                String id = tc.getString("type");
+            if (info.contains(JSON_CHANNEL + i)) {
+                CompoundNBT tc = info.getCompound(JSON_CHANNEL + i);
+                String id = tc.getString(JSON_TYPE);
                 IChannelType type = XNet.xNetApi.findType(id);
                 if (type == null) {
                     XNet.setup.getLogger().warn("Unsupported type " + id + "!");
@@ -671,18 +681,17 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
     private void copyConnector(PlayerEntity player, int index, SidedPos sidedPos) {
         ChannelInfo channel = channels[index];
-        IChannelSettings settings = channel.getChannelSettings();
         JsonObject parent = new JsonObject();
         IConnectorSettings connectorSettings = findConnectorSettings(channel, sidedPos);
         if (connectorSettings != null) {
             JsonObject object = connectorSettings.writeToJson();
             if (object != null) {
-                parent.add("type", new JsonPrimitive(channel.getType().getID()));
-                parent.add("connector", object);
+                parent.add(JSON_TYPE, new JsonPrimitive(channel.getType().getID()));
+                parent.add(JSON_CONNECTOR, object);
                 boolean advanced = ConnectorBlock.isAdvancedConnector(level, sidedPos.getPos().relative(sidedPos.getSide()));
-                parent.add("advanced", new JsonPrimitive(advanced));
+                parent.add(JSON_ADVANCED, new JsonPrimitive(advanced));
 
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                Gson gson = new GsonBuilder().create();
                 String json = gson.toJson(parent);
 
                 XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
@@ -699,9 +708,9 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         JsonObject channelObject = settings.writeToJson();
 
         if (channelObject != null) {
-            parent.add("type", new JsonPrimitive(channel.getType().getID()));
-            parent.add("name", new JsonPrimitive(channel.getChannelName()));
-            parent.add("channel", channelObject);
+            parent.add(JSON_TYPE, new JsonPrimitive(channel.getType().getID()));
+            parent.add(JSON_NAME, new JsonPrimitive(channel.getChannelName()));
+            parent.add(JSON_CHANNEL, channelObject);
 
             JsonArray connectors = new JsonArray();
 
@@ -713,13 +722,13 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                     JsonObject object = connectorSettings.writeToJson();
                     if (object != null) {
                         JsonObject connectorObject = new JsonObject();
-                        connectorObject.add("connector", object);
-                        connectorObject.add("name", new JsonPrimitive(connectedBlock.getName()));
+                        connectorObject.add(JSON_CONNECTOR, object);
+                        connectorObject.add(JSON_NAME, new JsonPrimitive(connectedBlock.getName()));
                         boolean advanced = ConnectorBlock.isAdvancedConnector(level, sidedPos.getPos().relative(sidedPos.getSide()));
-                        connectorObject.add("advanced", new JsonPrimitive(advanced));
+                        connectorObject.add(JSON_ADVANCED, new JsonPrimitive(advanced));
                         if (!connectedBlock.isAir()) {
                             BlockState state = connectedBlock.getConnectedState();
-                            connectorObject.add("block", new JsonPrimitive(state.getBlock().getRegistryName().toString()));
+                            connectorObject.add(JSON_BLOCK, new JsonPrimitive(state.getBlock().getRegistryName().toString()));
                         }
 
                         connectors.add(connectorObject);
@@ -727,9 +736,9 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                 }
             }
 
-            parent.add("connectors", connectors);
+            parent.add(JSON_CONNECTORS, connectors);
 
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            Gson gson = new GsonBuilder().create();
             String json = gson.toJson(parent);
 
             XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
@@ -801,19 +810,19 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             JsonParser parser = new JsonParser();
             JsonObject root = parser.parse(json).getAsJsonObject();
 
-            if (!root.has("connector") || !root.has("type")) {
+            if (!root.has(JSON_CONNECTOR) || !root.has(JSON_TYPE)) {
                 XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid connector json!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
 
-            String typeId = root.get("type").getAsString();
+            String typeId = root.get(JSON_TYPE).getAsString();
             IChannelType type = XNet.xNetApi.findType(typeId);
             if (type != channels[channel].getType()) {
                 XNetMessages.INSTANCE.sendTo(new PacketControllerError("Wrong channel type!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
-            boolean advanced = root.get("advanced").getAsBoolean();
-            JsonObject connectorObject = root.get("connector").getAsJsonObject();
+            boolean advanced = root.get(JSON_ADVANCED).getAsBoolean();
+            JsonObject connectorObject = root.get(JSON_CONNECTOR).getAsJsonObject();
             boolean advancedNeeded = connectorObject.get("advancedneeded").getAsBoolean();
 
             BlockPos blockPos = sidedPos.getPos();
@@ -861,15 +870,15 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         try {
             JsonParser parser = new JsonParser();
             JsonObject root = parser.parse(json).getAsJsonObject();
-            if (!root.has("channel") || !root.has("type") || !root.has("name")) {
+            if (!root.has(JSON_CHANNEL) || !root.has(JSON_TYPE) || !root.has(JSON_NAME)) {
                 XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid channel json!"), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 return;
             }
-            String typeId = root.get("type").getAsString();
+            String typeId = root.get(JSON_TYPE).getAsString();
             IChannelType type = XNet.xNetApi.findType(typeId);
             channels[channel] = new ChannelInfo(type);
-            channels[channel].setChannelName(root.get("name").getAsString());
-            channels[channel].getChannelSettings().readFromJson(root.get("channel").getAsJsonObject());
+            channels[channel].setChannelName(root.get(JSON_NAME).getAsString());
+            channels[channel].getChannelSettings().readFromJson(root.get(JSON_CHANNEL).getAsJsonObject());
             channels[channel].setEnabled(false);
 
             // Find all blocks connected to this controller. We'll try to match and paste the json data
@@ -882,7 +891,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
             // First scan all connectors from the json clip and from that make a list of possible connections
             // on the in-world blocks
-            JsonArray connectors = root.get("connectors").getAsJsonArray();
+            JsonArray connectors = root.get(JSON_CONNECTORS).getAsJsonArray();
             List<PossibleConnection> connections = new ArrayList<>();
             for (JsonElement con : connectors) {
                 JsonObject connector = con.getAsJsonObject();
@@ -890,13 +899,13 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                 // Fetch some useful information from the connector as it is defined in the json. Basically we
                 // need the connector name, wether or not the original connector (we copied from) was advanced
                 // and also the name of the block we were connecting too
-                String name = connector.get("name").getAsString();
-                boolean advanced = connector.get("advanced").getAsBoolean();
-                ResourceLocation block = connector.has("block") ? new ResourceLocation(connector.get("block").getAsString()) : null;
+                String name = connector.get(JSON_NAME).getAsString();
+                boolean advanced = connector.get(JSON_ADVANCED).getAsBoolean();
+                ResourceLocation block = connector.has(JSON_BLOCK) ? new ResourceLocation(connector.get(JSON_BLOCK).getAsString()) : null;
 
                 // Also get some useful settings from the connector data itself. Using these we can estimate a
                 // matching score to see how well the destination connector matches with this one
-                JsonObject connectorSettings = connector.get("connector").getAsJsonObject();
+                JsonObject connectorSettings = connector.get(JSON_CONNECTOR).getAsJsonObject();
                 Direction side = Direction.byName(connectorSettings.get("side").getAsString());
                 Direction facingOverride = connectorSettings.has("facingoverride") ? Direction.byName(connectorSettings.get("facingoverride").getAsString()) : side;
 
@@ -942,7 +951,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                 ConnectedBlockInfo info = pair.sortedMatches.get(0).getKey();
                 boolean infoAdvanced = ConnectorBlock.isAdvancedConnector(level, info.getPos().getPos());
 
-                JsonObject connectorSettings = connector.get("connector").getAsJsonObject();
+                JsonObject connectorSettings = connector.get(JSON_CONNECTOR).getAsJsonObject();
                 if (!infoAdvanced) {
                     // Remove the facingoverride because this is not an advanced connector so it doesn't
                     // support different facings
@@ -950,7 +959,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                 }
 
                 // Actually create the connector and paste the connector settings
-                ResourceLocation block = connector.has("block") ? new ResourceLocation(connector.get("block").getAsString()) : null;
+                ResourceLocation block = connector.has(JSON_BLOCK) ? new ResourceLocation(connector.get(JSON_BLOCK).getAsString()) : null;
                 System.out.println("Pasting " + info.getName() + " (" + block.toString() + " into " + info.getConnectedState().getBlock().getRegistryName().toString() + ") with score = " + pair.sortedMatches.get(0).getRight());
                 ConnectorInfo connectorInfo = createConnector(channel, info.getPos());
                 connectorInfo.getConnectorSettings().readFromJson(connectorSettings);

@@ -14,6 +14,7 @@ import mcjty.lib.gui.events.ButtonEvent;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.network.PacketGetListFromServer;
+import mcjty.lib.network.PacketServerCommandTyped;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Logging;
@@ -419,7 +420,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     private void pasteConnector() {
         try {
             String json = Minecraft.getInstance().keyboardHandler.getClipboard();
-            if (json.length() > 26000) {
+            if (json.length() > 28000) {
                 showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard too large!");
                 return;
             }
@@ -431,13 +432,15 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Unsupported channel type: " + type + "!");
                 return;
             }
-            sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_PASTECONNECTOR,
-                    TypedMap.builder()
-                            .put(PARAM_INDEX, getSelectedChannel())
-                            .put(PARAM_POS, editingConnector.getPos())
-                            .put(PARAM_SIDE, editingConnector.getSide().ordinal())
-                            .put(PARAM_JSON, json)
-                            .build());
+
+            PacketServerCommandTyped packet = new PacketServerCommandTyped(tileEntity.getBlockPos(), tileEntity.getDimension(), CMD_PASTECONNECTOR.getName(), TypedMap.builder()
+                    .put(PARAM_INDEX, getSelectedChannel())
+                    .put(PARAM_POS, editingConnector.getPos())
+                    .put(PARAM_SIDE, editingConnector.getSide().ordinal())
+                    .put(PARAM_JSON, json)
+                    .build());
+            XNetMessages.INSTANCE.sendToServer(packet);
+
             if (connectorList.getSelected() != -1) {
                 delayedSelectedChannel = getSelectedChannel();
                 delayedSelectedLine = connectorList.getSelected();
@@ -452,7 +455,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     private void pasteChannel() {
         try {
             String json = Minecraft.getInstance().keyboardHandler.getClipboard();
-            if (json.length() > 26000) {
+            if (json.length() > 28000) {
                 showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard too large!");
                 return;
             }

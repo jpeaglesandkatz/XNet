@@ -1,3 +1,6 @@
+Upcoming:
+- Copy/paste will now use a more compact json so that more can be copied before hitting the limit
+
 1.16-3.0.16:
 - Updated to latest version of McJtyLib
 
