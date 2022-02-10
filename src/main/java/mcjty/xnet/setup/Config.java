@@ -31,6 +31,7 @@ public class Config {
     public static ForgeConfigSpec.IntValue maxFluidRateNormal;
     public static ForgeConfigSpec.IntValue maxFluidRateAdvanced;
 
+    public static ForgeConfigSpec.IntValue controllerMaxPaste;     // Maximum size of the copy/paste buffer for the controller
     public static ForgeConfigSpec.IntValue controllerRFT;          // RF per tick that the controller uses all the time
     public static ForgeConfigSpec.IntValue controllerChannelRFT;   // RF Per tick per enabled channel
     public static ForgeConfigSpec.IntValue controllerOperationRFT; // RF Per tick per operation
@@ -108,6 +109,10 @@ public class Config {
         maxPublishedChannels = SERVER_BUILDER
                 .comment("Maximum number of published channels that a routing channel can support")
                 .defineInRange("maxPublishedChannels", 32, 1, 1000000000);
+
+        controllerMaxPaste = CLIENT_BUILDER
+                .comment("Maximum size of the packet used to send copy/pasted channels/connectors to the server. -1 means no maximum (packets are split)")
+                .defineInRange("controllerMaxPaste", -1, -1, 1000000000);
 
         controllerRFT = SERVER_BUILDER
                 .comment("Power usage for the controller regardless of what it is doing")

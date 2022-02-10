@@ -30,16 +30,23 @@ import mcjty.xnet.client.ConnectedBlockClientInfo;
 import mcjty.xnet.client.ConnectorClientInfo;
 import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
+import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.network.IPacket;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.PacketDirection;
+import net.minecraft.network.ProtocolType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.network.VanillaPacketSplitter;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
@@ -420,7 +427,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     private void pasteConnector() {
         try {
             String json = Minecraft.getInstance().keyboardHandler.getClipboard();
-            if (json.length() > 28000) {
+            int max = Config.controllerMaxPaste.get();
+            if (max >= 0 && json.length() > max) {
                 showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard too large!");
                 return;
             }
@@ -439,7 +447,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                     .put(PARAM_SIDE, editingConnector.getSide().ordinal())
                     .put(PARAM_JSON, json)
                     .build());
-            XNetMessages.INSTANCE.sendToServer(packet);
+            sendSplit(packet, max < 0);
 
             if (connectorList.getSelected() != -1) {
                 delayedSelectedChannel = getSelectedChannel();
@@ -455,7 +463,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     private void pasteChannel() {
         try {
             String json = Minecraft.getInstance().keyboardHandler.getClipboard();
-            if (json.length() > 28000) {
+            int max = Config.controllerMaxPaste.get();
+            if (max >= 0 && json.length() > max) {
                 showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard too large!");
                 return;
             }
@@ -467,14 +476,27 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Unsupported channel type: " + type + "!");
                 return;
             }
-            sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_PASTECHANNEL,
-                    TypedMap.builder()
-                            .put(PARAM_INDEX, getSelectedChannel())
-                            .put(PARAM_JSON, json)
-                            .build());
+            PacketServerCommandTyped packet = new PacketServerCommandTyped(tileEntity.getBlockPos(), tileEntity.getDimension(), CMD_PASTECHANNEL.getName(), TypedMap.builder()
+                    .put(PARAM_INDEX, getSelectedChannel())
+                    .put(PARAM_JSON, json)
+                    .build());
+            sendSplit(packet, max < 0);
+
             refresh();
         } catch (Exception e) {
             showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error reading from clipboard!");
+        }
+    }
+
+    private void sendSplit(PacketServerCommandTyped packet, boolean doSplit) {
+        if (doSplit) {
+            IPacket<?> vanillaPacket = XNetMessages.INSTANCE.toVanillaPacket(packet, NetworkDirection.PLAY_TO_SERVER);
+            List<IPacket<?>> packets = new ArrayList<>();
+            VanillaPacketSplitter.appendPackets(ProtocolType.PLAY, PacketDirection.SERVERBOUND, vanillaPacket, packets);
+            NetworkManager connection = Minecraft.getInstance().getConnection().getConnection();
+            packets.forEach(connection::send);
+        } else {
+            XNetMessages.INSTANCE.sendToServer(packet);
         }
     }
 
