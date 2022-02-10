@@ -1,3 +1,6 @@
+Upcoming:
+- Copy/paste will now use a more compact json so that more can be copied before hitting the limit
+
 1.18-4.0.3:
 - Fixed a problem with items not getting restored when breaking and placing blocks
 
