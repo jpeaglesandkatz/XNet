@@ -1,4 +1,4 @@
-Upcoming:
+1.18-4.0.4:
 - Copy/paste will now use a more compact json so that more can be copied before hitting the limit
 - New system to automatically split the copy/paste packet from client to server in case of huge networks. Can be disabled by setting the client config controllerMaxPaste to a value like 28000
 
