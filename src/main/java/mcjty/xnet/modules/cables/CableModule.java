@@ -8,13 +8,13 @@ import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
 import mcjty.xnet.modules.cables.client.ClientSetup;
 import mcjty.xnet.modules.cables.client.GuiConnector;
 import mcjty.xnet.setup.Registration;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.Tags;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -51,9 +51,9 @@ public class CableModule implements IModule {
 
     public static final RegistryObject<MenuType<GenericContainer>> CONTAINER_CONNECTOR = CONTAINERS.register("connector", GenericContainer::createContainerType);
 
-    public static final Tags.IOptionalNamedTag<Item> TAG_CABLES = ItemTags.createOptional(new ResourceLocation(XNet.MODID, "cables"));
-    public static final Tags.IOptionalNamedTag<Item> TAG_CONNECTORS = ItemTags.createOptional(new ResourceLocation(XNet.MODID, "connectors"));
-    public static final Tags.IOptionalNamedTag<Item> TAG_ADVANCED_CONNECTORS = ItemTags.createOptional(new ResourceLocation(XNet.MODID, "advanced_connectors"));
+    public static final TagKey<Item> TAG_CABLES = TagKey.create(Registry.ITEM.key(), new ResourceLocation(XNet.MODID, "cables"));
+    public static final TagKey<Item> TAG_CONNECTORS = TagKey.create(Registry.ITEM.key(), new ResourceLocation(XNet.MODID, "connectors"));
+    public static final TagKey<Item> TAG_ADVANCED_CONNECTORS = TagKey.create(Registry.ITEM.key(), new ResourceLocation(XNet.MODID, "advanced_connectors"));
 
     public CableModule() {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
