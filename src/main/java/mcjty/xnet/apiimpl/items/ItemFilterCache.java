@@ -2,18 +2,17 @@ package mcjty.xnet.apiimpl.items;
 
 import mcjty.lib.varia.ItemStackList;
 import mcjty.lib.varia.ItemStackTools;
+import mcjty.lib.varia.TagTools;
 import mcjty.xnet.compat.ForestrySupport;
-import net.minecraft.core.Registry;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ItemFilterCache {
     private final boolean matchDamage;
@@ -30,7 +29,7 @@ public class ItemFilterCache {
         this.nbtMode = nbtMode;
         this.stacks = stacks;
         for (ItemStack s : stacks) {
-            ItemStackTools.addCommonTags(s.getItem().builtInRegistryHolder().tags().collect(Collectors.toSet()), tagMatches);
+            ItemStackTools.addCommonTags(TagTools.getTags(s.getItem()), tagMatches);
         }
     }
 
@@ -40,7 +39,7 @@ public class ItemFilterCache {
 
             if (tagsMode) {
                 // @todo more optimal?
-                Set<TagKey<Item>> tags = stack.getItem().builtInRegistryHolder().tags().collect(Collectors.toSet());
+                Collection<TagKey<Item>> tags = TagTools.getTags(stack.getItem());
                 if (tags.isEmpty()) {
                     match = itemMatches(stack);
                 } else {
