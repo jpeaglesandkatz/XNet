@@ -6,6 +6,7 @@ import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.tooltips.ITooltipSettings;
+import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.EnergyTools;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectable;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
@@ -27,7 +28,6 @@ import mcjty.xnet.setup.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -96,7 +96,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
                     @Override
                     @Nonnull
                     public Component getDisplayName() {
-                        return new TextComponent("Connector");
+                        return ComponentFactory.literal("Connector");
                     }
 
                     @Nonnull

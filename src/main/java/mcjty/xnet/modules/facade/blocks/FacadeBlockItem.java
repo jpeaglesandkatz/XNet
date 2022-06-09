@@ -2,31 +2,31 @@ package mcjty.xnet.modules.facade.blocks;
 
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.tooltips.ITooltipSettings;
+import mcjty.lib.varia.ComponentFactory;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.facade.IFacadeSupport;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -36,8 +36,6 @@ import java.util.List;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
 import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.*;
-
-import net.minecraft.world.item.Item.Properties;
 
 public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
@@ -76,7 +74,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
         Player player = context.getPlayer();
         setMimicBlock(item, mimicBlock);
         if (world.isClientSide) {
-            player.displayClientMessage(new TextComponent("Facade is now mimicking " + mimicBlock.getBlock().getDescriptionId()), false);
+            player.displayClientMessage(ComponentFactory.literal("Facade is now mimicking " + mimicBlock.getBlock().getDescriptionId()), false);
         }
     }
 

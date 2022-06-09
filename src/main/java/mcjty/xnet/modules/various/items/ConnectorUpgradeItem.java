@@ -1,5 +1,6 @@
 package mcjty.xnet.modules.various.items;
 
+import mcjty.lib.varia.ComponentFactory;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableColor;
@@ -13,7 +14,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -42,9 +42,9 @@ public class ConnectorUpgradeItem extends Item {
     @Override
     public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        tooltip.add(new TextComponent(ChatFormatting.BLUE + "Sneak right click this on a"));
-        tooltip.add(new TextComponent(ChatFormatting.BLUE + "normal connector to upgrade it"));
-        tooltip.add(new TextComponent(ChatFormatting.BLUE + "to an advanced connector"));
+        tooltip.add(ComponentFactory.literal(ChatFormatting.BLUE + "Sneak right click this on a"));
+        tooltip.add(ComponentFactory.literal(ChatFormatting.BLUE + "normal connector to upgrade it"));
+        tooltip.add(ComponentFactory.literal(ChatFormatting.BLUE + "to an advanced connector"));
     }
 
     @Override
@@ -81,18 +81,18 @@ public class ConnectorUpgradeItem extends Item {
                     world.setBlock(pos, blockState, Block.UPDATE_ALL);
                     player.getInventory().removeItem(player.getInventory().selected, 1);
                     player.containerMenu.broadcastChanges();
-                    player.displayClientMessage(new TextComponent(ChatFormatting.GREEN + "Connector was upgraded"), false);
+                    player.displayClientMessage(ComponentFactory.literal(ChatFormatting.GREEN + "Connector was upgraded"), false);
                 }
             }
             return InteractionResult.SUCCESS;
         } else if (block == CableModule.ADVANCED_CONNECTOR.get()) {
             if (!world.isClientSide) {
-                player.displayClientMessage(new TextComponent(ChatFormatting.YELLOW + "This connector is already advanced!"), false);
+                player.displayClientMessage(ComponentFactory.literal(ChatFormatting.YELLOW + "This connector is already advanced!"), false);
             }
             return InteractionResult.SUCCESS;
         } else {
             if (!world.isClientSide) {
-                player.displayClientMessage(new TextComponent(ChatFormatting.RED + "Use this item on a connector to upgrade it!"), false);
+                player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Use this item on a connector to upgrade it!"), false);
             }
             return InteractionResult.SUCCESS;
         }
