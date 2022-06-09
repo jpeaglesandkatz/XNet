@@ -3,6 +3,7 @@ package mcjty.xnet.modules.facade.blocks;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.ComponentFactory;
+import mcjty.lib.varia.Tools;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
@@ -169,6 +170,6 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
     @Override
     public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
         super.appendHoverText(stack, worldIn, tooltip, flag);
-        tooltipBuilder.get().makeTooltip(getRegistryName(), stack, tooltip, flag);
+        tooltipBuilder.get().makeTooltip(Tools.getId(this), stack, tooltip, flag);
     }
 }

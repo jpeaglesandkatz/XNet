@@ -21,6 +21,7 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Cached;
 import mcjty.lib.varia.OrientationTools;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
@@ -726,7 +727,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                         connectorObject.add(JSON_ADVANCED, new JsonPrimitive(advanced));
                         if (!connectedBlock.isAir()) {
                             BlockState state = connectedBlock.getConnectedState();
-                            connectorObject.add(JSON_BLOCK, new JsonPrimitive(state.getBlock().getRegistryName().toString()));
+                            connectorObject.add(JSON_BLOCK, new JsonPrimitive(Tools.getId(state).toString()));
                         }
 
                         connectors.add(connectorObject);
@@ -763,7 +764,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             score -= 1000;
         }
 
-        ResourceLocation infoBlock = info.getConnectedState().getBlock().getRegistryName();
+        ResourceLocation infoBlock = Tools.getId(info.getConnectedState());
 
         // If the side doesn't match we give a bad penalty
         if (!KnownUnsidedBlocks.isUnsided(infoBlock) && !facingOverride.equals(facing)) {
@@ -958,7 +959,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
                 // Actually create the connector and paste the connector settings
                 ResourceLocation block = connector.has(JSON_BLOCK) ? new ResourceLocation(connector.get(JSON_BLOCK).getAsString()) : null;
-                System.out.println("Pasting " + info.getName() + " (" + block.toString() + " into " + info.getConnectedState().getBlock().getRegistryName().toString() + ") with score = " + pair.sortedMatches.get(0).getRight());
+                System.out.println("Pasting " + info.getName() + " (" + block.toString() + " into " + Tools.getId(info.getConnectedState()).toString() + ") with score = " + pair.sortedMatches.get(0).getRight());
                 ConnectorInfo connectorInfo = createConnector(channel, info.getPos());
                 connectorInfo.getConnectorSettings().readFromJson(connectorSettings);
 

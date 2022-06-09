@@ -24,11 +24,11 @@ import mcjty.xnet.multiblock.BlobId;
 import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +45,7 @@ public class XNetTOPDriver implements TOPDriver {
     @Override
     public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, Player player, Level world, BlockState blockState, IProbeHitData data) {
         Block block = blockState.getBlock();
-        ResourceLocation id = block.getRegistryName();
+        ResourceLocation id = Tools.getId(block);
         if (!drivers.containsKey(id)) {
             if (block == CableModule.NETCABLE.get() || block == FacadeModule.FACADE.get()) {
                 drivers.put(id, new CableDriver());

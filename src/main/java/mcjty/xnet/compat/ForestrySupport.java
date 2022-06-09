@@ -1,8 +1,9 @@
 package mcjty.xnet.compat;
 
 
-import net.minecraft.world.item.ItemStack;
+import mcjty.lib.varia.Tools;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
 
 import java.util.ArrayList;
@@ -61,7 +62,7 @@ public final class ForestrySupport {
      * @return		true if breedable, else false
      */
     public static boolean isBreedable(ItemStack item) {
-        String itemName = item.getItem().getRegistryName().toString();
+        String itemName = Tools.getId(item).toString();
         for (String forestryName : FORESTRY_NAMES) {
 	        if (itemName.equals(forestryName)) {
 	        	return true;
@@ -80,7 +81,7 @@ public final class ForestrySupport {
     public static ItemStack sanitize(ItemStack item, int flags) {
 	    CompoundTag tagCompound = item.getTag().copy();
 	    List<Tag> tagsToRemove = new ArrayList<>();
-	    switch (item.getItem().getRegistryName().toString()) {
+	    switch (Tools.getId(item).toString()) {
 	        case QUEEN_BEE:
 	        case PRINCESS_BEE:
 	            tagsToRemove.add(Tag.GEN);
@@ -103,7 +104,7 @@ public final class ForestrySupport {
 	            item.setTag(removeTags(tagsToRemove, tagCompound, flags));
 	            break;
 	        default:
-	            throw new IllegalArgumentException("Tried to sanitize \"" + item.getItem().getRegistryName().toString() + "\" for Forestry!");
+	            throw new IllegalArgumentException("Tried to sanitize \"" + Tools.getId(item).toString() + "\" for Forestry!");
 	    }
 	    return item;
     }

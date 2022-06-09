@@ -8,6 +8,7 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.EnergyTools;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectable;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.tools.ManualHelper;
@@ -335,7 +336,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     @Override
     public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter worldIn, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        tooltipBuilder.get().makeTooltip(getRegistryName(), stack, tooltip, flagIn);
+        tooltipBuilder.get().makeTooltip(Tools.getId(this), stack, tooltip, flagIn);
     }
 
     @Override
