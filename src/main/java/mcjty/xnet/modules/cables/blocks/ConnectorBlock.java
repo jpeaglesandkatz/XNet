@@ -93,7 +93,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
             BlockEntity te = world.getBlockEntity(pos);
             if (te instanceof GenericTileEntity) {
                 GenericTileEntity genericTileEntity = (GenericTileEntity) te;
-                NetworkHooks.openGui((ServerPlayer) player, new MenuProvider() {
+                NetworkHooks.openScreen((ServerPlayer) player, new MenuProvider() {
                     @Override
                     @Nonnull
                     public Component getDisplayName() {

@@ -12,7 +12,7 @@ public class ForgeEventHandlers {
     private int cnt = AMOUNT;
 
     @SubscribeEvent
-    public void onWorldTick(TickEvent.WorldTickEvent event) {
+    public void onWorldTick(TickEvent.LevelTickEvent event) {
         if (event.phase == TickEvent.Phase.START && !event.world.isClientSide && event.world.dimension().equals(Level.OVERWORLD)) {
             cnt--;
             if (cnt > 0) {
