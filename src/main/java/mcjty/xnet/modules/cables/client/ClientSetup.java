@@ -1,11 +1,8 @@
 package mcjty.xnet.modules.cables.client;
 
-import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableModule;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.common.MinecraftForge;
 
 public class ClientSetup {
@@ -15,7 +12,7 @@ public class ClientSetup {
         MinecraftForge.EVENT_BUS.addListener(CableWorldRenderer::tick);
     }
 
-    public static void modelInit(ModelRegistryEvent event) {
-        ModelLoaderRegistry.registerLoader(new ResourceLocation(XNet.MODID, "cableloader"), new CableModelLoader());
+    public static void modelInit(ModelEvent.RegisterGeometryLoaders event) {
+        CableModelLoader.register(event);
     }
 }

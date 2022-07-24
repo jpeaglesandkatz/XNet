@@ -13,15 +13,15 @@ public class ForgeEventHandlers {
 
     @SubscribeEvent
     public void onWorldTick(TickEvent.LevelTickEvent event) {
-        if (event.phase == TickEvent.Phase.START && !event.world.isClientSide && event.world.dimension().equals(Level.OVERWORLD)) {
+        if (event.phase == TickEvent.Phase.START && !event.level.isClientSide && event.level.dimension().equals(Level.OVERWORLD)) {
             cnt--;
             if (cnt > 0) {
                 return;
             }
             cnt = AMOUNT;
 
-            XNetWirelessChannels data = XNetWirelessChannels.get(event.world);
-            data.tick(event.world, AMOUNT);
+            XNetWirelessChannels data = XNetWirelessChannels.get(event.level);
+            data.tick(event.level, AMOUNT);
         }
     }
 }

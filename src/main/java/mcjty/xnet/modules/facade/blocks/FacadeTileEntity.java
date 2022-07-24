@@ -11,15 +11,13 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.ModelDataManager;
-import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.data.ModelDataMap;
+import net.minecraftforge.client.model.data.ModelData;
 
 import javax.annotation.Nonnull;
 
 public class FacadeTileEntity extends GenericTileEntity implements IFacadeSupport {
 
-    private MimicBlockSupport mimicBlockSupport = new MimicBlockSupport();
+    private final MimicBlockSupport mimicBlockSupport = new MimicBlockSupport();
 
     public FacadeTileEntity(BlockPos pos, BlockState state) {
         super(FacadeModule.TYPE_FACADE.get(), pos, state);
@@ -31,7 +29,7 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
 
         if (level.isClientSide) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
-            ModelDataManager.requestModelDataRefresh(this);
+            requestModelDataUpdate();
         }
     }
 
@@ -43,9 +41,9 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
 
     @Nonnull
     @Override
-    public IModelData getModelData() {
-        return new ModelDataMap.Builder()
-                .withInitial(GenericCableBlock.FACADEID, getMimicBlock())
+    public ModelData getModelData() {
+        return ModelData.builder()
+                .with(GenericCableBlock.FACADEID, getMimicBlock())
                 .build();
     }
 

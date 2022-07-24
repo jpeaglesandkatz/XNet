@@ -27,9 +27,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.ModelDataManager;
-import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.data.ModelDataMap;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -91,7 +89,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         super.onDataPacket(net, packet);
 
         if (level.isClientSide) {
-            ModelDataManager.requestModelDataRefresh(this);
+            requestModelDataUpdate();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
         }
     }
@@ -291,9 +289,9 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     @Nonnull
     @Override
-    public IModelData getModelData() {
-        return new ModelDataMap.Builder()
-                .withInitial(GenericCableBlock.FACADEID, getMimicBlock())
+    public ModelData getModelData() {
+        return ModelData.builder()
+                .with(GenericCableBlock.FACADEID, getMimicBlock())
                 .build();
     }
 

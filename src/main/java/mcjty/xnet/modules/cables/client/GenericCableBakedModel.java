@@ -7,6 +7,7 @@ import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.ConnectorType;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
@@ -19,9 +20,8 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -115,11 +115,10 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         };
     }
 
-    @Nonnull
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
+    @NotNull
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType layer) {
         List<BakedQuad> quads = new ArrayList<>();
-        RenderType layer = MinecraftForgeClient.getRenderType();
 
         if (side == null && (layer == null || layer.equals(RenderType.solid()))) {
             // Called with the blockstate from our block. Here we get the values of the six properties and pass that to
@@ -297,12 +296,12 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
             }
         }
 
-        BlockState facadeId = extraData.getData(GenericCableBlock.FACADEID);
+        BlockState facadeId = extraData.get(GenericCableBlock.FACADEID);
         if (facadeId != null) {
             if (layer == null || ItemBlockRenderTypes.canRenderInLayer(facadeId, layer)) { // always render in the null layer or the block-breaking textures don't show up
                 BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(facadeId);
                 try {
-                    quads.addAll(model.getQuads(state, side, rand, EmptyModelData.INSTANCE));
+                    quads.addAll(model.getQuads(state, side, rand, ModelData.EMPTY, layer));
                 } catch (Exception ignored) {
                 }
             }
