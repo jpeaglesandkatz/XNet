@@ -12,7 +12,7 @@ public class ClientSetup {
     }
 
     public static void registerBlockColor(RegisterColorHandlersEvent.Block event) {
-        event.getBlockColors().register(new FacadeBlockColor(),
+        event.register(new FacadeBlockColor(),
                 FacadeModule.FACADE.get(), CableModule.CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR.get());
     }
 }
