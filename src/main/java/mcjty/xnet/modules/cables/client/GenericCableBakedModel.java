@@ -7,19 +7,19 @@ import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.ConnectorType;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.ChunkRenderTypeSet;
 import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +27,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import static mcjty.xnet.modules.cables.ConnectorType.BLOCK;
 import static mcjty.xnet.modules.cables.ConnectorType.CABLE;
@@ -298,8 +297,9 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
 
         BlockState facadeId = extraData.get(GenericCableBlock.FACADEID);
         if (facadeId != null) {
-            if (layer == null || ItemBlockRenderTypes.canRenderInLayer(facadeId, layer)) { // always render in the null layer or the block-breaking textures don't show up
-                BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(facadeId);
+            BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(facadeId);
+            ChunkRenderTypeSet renderTypes = model.getRenderTypes(facadeId, rand, extraData);
+            if (layer == null || renderTypes.contains(layer)) { // always render in the null layer or the block-breaking textures don't show up
                 try {
                     quads.addAll(model.getQuads(state, side, rand, ModelData.EMPTY, layer));
                 } catch (Exception ignored) {
@@ -309,7 +309,6 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
 
         return quads;
     }
-
 
     @Override
     public boolean useAmbientOcclusion() {
