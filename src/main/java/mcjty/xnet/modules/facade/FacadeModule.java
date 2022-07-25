@@ -5,12 +5,11 @@ import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.modules.facade.blocks.FacadeBlock;
 import mcjty.xnet.modules.facade.blocks.FacadeBlockItem;
 import mcjty.xnet.modules.facade.blocks.FacadeTileEntity;
-import mcjty.xnet.modules.facade.client.ClientSetup;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.registries.RegistryObject;
 
 import static mcjty.xnet.setup.Registration.*;
 
@@ -27,7 +26,6 @@ public class FacadeModule implements IModule {
 
     @Override
     public void initClient(FMLClientSetupEvent event) {
-        ClientSetup.initClient();
     }
 
     @Override

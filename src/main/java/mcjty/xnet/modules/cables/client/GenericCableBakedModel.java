@@ -325,6 +325,12 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         return false;
     }
 
+    @Override
+    @Nonnull
+    public ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data) {
+        return ChunkRenderTypeSet.all();
+    }
+
     @Nonnull
     @Override
     public TextureAtlasSprite getParticleIcon() {

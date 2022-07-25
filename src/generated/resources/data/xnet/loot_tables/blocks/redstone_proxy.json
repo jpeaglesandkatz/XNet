@@ -2,15 +2,15 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "name": "redstoneproxy",
-      "rolls": 1.0,
       "bonus_rolls": 0.0,
       "entries": [
         {
           "type": "minecraft:item",
           "name": "xnet:redstone_proxy"
         }
-      ]
+      ],
+      "name": "redstoneproxy",
+      "rolls": 1.0
     }
   ]
 }

@@ -1,5 +1,6 @@
 {
   "parent": "block/cube",
+  "render_type": "minecraft:cutout",
   "loader": "forge:obj",
   "model": "xnet:models/block/antenna.obj",
   "flip-v": true

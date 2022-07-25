@@ -7,22 +7,21 @@ import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.modules.IModule;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
-import mcjty.xnet.modules.wireless.client.ClientSetup;
 import mcjty.xnet.modules.wireless.client.GuiWirelessRouter;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.Registration;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 
@@ -112,8 +111,6 @@ public class WirelessRouterModule implements IModule {
         event.enqueueWork(() -> {
             GuiWirelessRouter.register();
         });
-
-        ClientSetup.initClient();
     }
 
     @Override

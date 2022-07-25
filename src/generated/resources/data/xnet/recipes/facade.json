@@ -1,23 +1,23 @@
 {
   "type": "minecraft:crafting_shaped",
+  "key": {
+    "G": {
+      "tag": "forge:glass"
+    },
+    "p": {
+      "item": "minecraft:paper"
+    },
+    "w": {
+      "tag": "minecraft:wool"
+    }
+  },
   "pattern": [
     "pwp",
     "wGw",
     "pwp"
   ],
-  "key": {
-    "w": {
-      "tag": "minecraft:wool"
-    },
-    "p": {
-      "item": "minecraft:paper"
-    },
-    "G": {
-      "tag": "forge:glass"
-    }
-  },
   "result": {
-    "item": "xnet:facade",
-    "count": 16
+    "count": 16,
+    "item": "xnet:facade"
   }
 }
