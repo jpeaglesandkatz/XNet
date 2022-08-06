@@ -1,3 +1,6 @@
+Upcoming:
+- You can again change the side of an advanced connector (in the gui)
+
 1.19-5.0.0:
 - Port to 1.19
 
