@@ -1,3 +1,6 @@
+Upcoming:
+- Bugfix by StevenDoesStuffs so that the filter on fluid extraction works again
+
 1.19-5.0.1:
 - You can again change the side of an advanced connector (in the gui)
 
