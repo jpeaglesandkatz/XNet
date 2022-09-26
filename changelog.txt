@@ -1,3 +1,6 @@
+Upcoming:
+- Fix patchouli manual
+
 1.18-4.0.6:
 - Bugfix by StevenDoesStuffs so that the filter on fluid extraction works again
 
