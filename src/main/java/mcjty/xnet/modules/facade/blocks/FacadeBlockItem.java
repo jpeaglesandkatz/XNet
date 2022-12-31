@@ -66,8 +66,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
 
     public FacadeBlockItem(FacadeBlock block) {
-        super(block, new Properties()
-            .tab(XNet.setup.getTab()));
+        super(block, XNet.setup.defaultProperties());
     }
 
     private static void userSetMimicBlock(@Nonnull ItemStack item, BlockState mimicBlock, UseOnContext context) {

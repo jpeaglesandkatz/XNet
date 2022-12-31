@@ -34,9 +34,7 @@ import java.util.List;
 public class ConnectorUpgradeItem extends Item {
 
     public ConnectorUpgradeItem() {
-        super(new Properties()
-                .tab(XNet.setup.getTab())
-        );
+        super(XNet.setup.defaultProperties());
     }
 
     @Override
