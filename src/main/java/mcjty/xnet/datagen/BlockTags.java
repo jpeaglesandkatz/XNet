@@ -2,7 +2,6 @@ package mcjty.xnet.datagen;
 
 import mcjty.lib.datagen.BaseBlockTagsProvider;
 import mcjty.xnet.XNet;
-import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.router.RouterModule;
@@ -22,7 +21,6 @@ public class BlockTags extends BaseBlockTagsProvider {
     @Override
     protected void addTags() {
         stonePickaxe(
-                CableModule.ADVANCED_CONNECTOR, CableModule.CONNECTOR, CableModule.NETCABLE,
                 VariousModule.REDSTONE_PROXY, VariousModule.REDSTONE_PROXY_UPD
         );
         ironPickaxe(

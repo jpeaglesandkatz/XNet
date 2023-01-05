@@ -66,76 +66,9 @@ public class Recipes extends BaseRecipeProvider {
                         .define('w', ItemTags.WOOL)
                         .unlockedBy("glass", has(Items.GLASS)),
                 "pwp", "wGw", "pwp");
-        build(consumer, ShapedRecipeBuilder.shaped(CableModule.NETCABLE_BLUE.get(), 16)
-                        .define('g', Tags.Items.NUGGETS_GOLD)
-                        .define('s', Items.STRING)
-                        .define('1', Tags.Items.DYES_BLUE)
-                        .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
-                "s1s", "rgr", "srs");
-        build(consumer, ShapedRecipeBuilder.shaped(CableModule.NETCABLE_YELLOW.get(), 16)
-                        .define('g', Tags.Items.NUGGETS_GOLD)
-                        .define('s', Items.STRING)
-                        .define('1', Tags.Items.DYES_YELLOW)
-                        .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
-                "s1s", "rgr", "srs");
-        build(consumer, ShapedRecipeBuilder.shaped(CableModule.NETCABLE_RED.get(), 16)
-                        .define('g', Tags.Items.NUGGETS_GOLD)
-                        .define('s', Items.STRING)
-                        .define('1', Tags.Items.DYES_RED)
-                        .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
-                "s1s", "rgr", "srs");
-        build(consumer, ShapedRecipeBuilder.shaped(CableModule.NETCABLE_GREEN.get(), 16)
-                        .define('g', Tags.Items.NUGGETS_GOLD)
-                        .define('s', Items.STRING)
-                        .define('1', Tags.Items.DYES_GREEN)
-                        .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
-                "s1s", "rgr", "srs");
-        build(consumer, ShapedRecipeBuilder.shaped(CableModule.NETCABLE_ROUTING.get(), 32)
-                        .define('g', Tags.Items.NUGGETS_GOLD)
-                        .define('s', Items.STRING)
-                        .define('1', Tags.Items.DYES_BLACK)
-                        .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
-                "s1s", "rgr", "srs");
         build(consumer, ShapedRecipeBuilder.shaped(VariousModule.UPGRADE.get())
                         .unlockedBy("pearl", has(Items.ENDER_PEARL)),
                 "po", "dr");
-        build(consumer, ShapedRecipeBuilder.shaped(CableModule.CONNECTOR_BLUE.get())
-                        .define('g', Tags.Items.INGOTS_GOLD)
-                        .define('1', Tags.Items.DYES_BLUE)
-                        .define('C', Tags.Items.CHESTS)
-                        .unlockedBy("chest", has(Items.CHEST)),
-                "1C1", "rgr", "1r1");
-        build(consumer, ShapedRecipeBuilder.shaped(CableModule.CONNECTOR_RED.get())
-                        .define('g', Tags.Items.INGOTS_GOLD)
-                        .define('1', Tags.Items.DYES_RED)
-                        .define('C', Tags.Items.CHESTS)
-                        .unlockedBy("chest", has(Items.CHEST)),
-                "1C1", "rgr", "1r1");
-        build(consumer, ShapedRecipeBuilder.shaped(CableModule.CONNECTOR_GREEN.get())
-                        .define('g', Tags.Items.INGOTS_GOLD)
-                        .define('1', Tags.Items.DYES_GREEN)
-                        .define('C', Tags.Items.CHESTS)
-                        .unlockedBy("chest", has(Items.CHEST)),
-                "1C1", "rgr", "1r1");
-        build(consumer, ShapedRecipeBuilder.shaped(CableModule.CONNECTOR_YELLOW.get())
-                        .define('g', Tags.Items.INGOTS_GOLD)
-                        .define('1', Tags.Items.DYES_YELLOW)
-                        .define('C', Tags.Items.CHESTS)
-                        .unlockedBy("chest", has(Items.CHEST)),
-                "1C1", "rgr", "1r1");
-        build(consumer, ShapedRecipeBuilder.shaped(CableModule.CONNECTOR_ROUTING.get())
-                        .define('g', Tags.Items.NUGGETS_GOLD)
-                        .define('C', CableModule.TAG_CONNECTORS)
-                        .unlockedBy("chest", has(Items.CHEST)),
-                "rrr", "gCg", "rrr");
-        build(consumer, ShapedRecipeBuilder.shaped(CableModule.ADVANCED_CONNECTOR_BLUE.get())
-                        .define('C', CableModule.CONNECTOR_BLUE.get())
-                        .unlockedBy("chest", has(Items.CHEST)),
-                "Co", "dr");
-        build(consumer, ShapedRecipeBuilder.shaped(CableModule.ADVANCED_CONNECTOR_YELLOW.get())
-                        .define('C', CableModule.CONNECTOR_YELLOW.get())
-                        .unlockedBy("chest", has(Items.CHEST)),
-                "Co", "dr");
         build(consumer, ShapedRecipeBuilder.shaped(CableModule.ADVANCED_CONNECTOR_RED.get())
                         .define('C', CableModule.CONNECTOR_RED.get())
                         .unlockedBy("chest", has(Items.CHEST)),

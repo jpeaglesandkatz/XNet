@@ -1,6 +1,7 @@
 package mcjty.xnet;
 
 
+import mcjty.lib.datagen.DataGen;
 import mcjty.lib.modules.Modules;
 import mcjty.rftoolsbase.api.xnet.IXNet;
 import mcjty.xnet.apiimpl.XNetApi;
@@ -15,6 +16,7 @@ import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.ModSetup;
 import mcjty.xnet.setup.Registration;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -44,15 +46,22 @@ public class XNet {
 
         Registration.register();
 
-        IEventBus modbus = FMLJavaModLoadingContext.get().getModEventBus();
-        modbus.addListener(setup::init);
-        modbus.addListener(modules::init);
-        modbus.addListener(this::processIMC);
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        bus.addListener(setup::init);
+        bus.addListener(modules::init);
+        bus.addListener(this::processIMC);
+        bus.addListener(this::onDataGen);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            modbus.addListener(modules::initClient);
-            modbus.addListener(ClientSetup::registerBlockColor);
+            bus.addListener(modules::initClient);
+            bus.addListener(ClientSetup::registerBlockColor);
         });
+    }
+
+    private void onDataGen(GatherDataEvent event) {
+        DataGen datagen = new DataGen(MODID, event);
+        modules.datagen(datagen);
+        datagen.generate();
     }
 
     private void setupModules() {
