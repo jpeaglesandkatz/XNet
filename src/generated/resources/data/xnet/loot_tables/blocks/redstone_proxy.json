@@ -9,7 +9,7 @@
           "name": "xnet:redstone_proxy"
         }
       ],
-      "name": "redstoneproxy",
+      "name": "redstone_proxy",
       "rolls": 1.0
     }
   ]

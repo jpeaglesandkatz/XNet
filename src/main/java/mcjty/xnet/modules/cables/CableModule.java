@@ -12,6 +12,7 @@ import mcjty.xnet.modules.cables.client.GuiConnector;
 import mcjty.xnet.setup.Registration;
 import net.minecraft.core.Registry;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.MenuType;
@@ -29,6 +30,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 import java.util.List;
 
+import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.xnet.setup.Registration.*;
 
 public class CableModule implements IModule {
@@ -125,101 +127,166 @@ public class CableModule implements IModule {
 
                 Dob.itemBuilder(NETCABLE_BLUE)
                         .itemTags(List.of(TAG_CABLES))
-                        .shaped(ShapedRecipeBuilder.shaped(NETCABLE_BLUE.get(), 16)
+                        .shaped(builder -> builder
                                         .define('g', Tags.Items.NUGGETS_GOLD)
                                         .define('s', Items.STRING)
                                         .define('1', Tags.Items.DYES_BLUE)
-                                        .unlockedBy("nugget", DataGen.has(Items.GOLD_NUGGET)),
-                                "s1s", "rgr", "srs"),
+                                        .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
+                                16,
+                                "s1s", "rgr", "srs")
+                        .shapeless("netcable_blue_dye", builder -> builder
+                                .requires(Tags.Items.DYES_BLUE)
+                                .requires(CableModule.TAG_CABLES)
+                                .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(NETCABLE_GREEN)
                         .itemTags(List.of(TAG_CABLES))
-                        .shaped(ShapedRecipeBuilder.shaped(NETCABLE_GREEN.get(), 16)
+                        .shaped(builder -> builder
                                         .define('g', Tags.Items.NUGGETS_GOLD)
                                         .define('s', Items.STRING)
                                         .define('1', Tags.Items.DYES_GREEN)
-                                        .unlockedBy("nugget", DataGen.has(Items.GOLD_NUGGET)),
-                                "s1s", "rgr", "srs"),
+                                        .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
+                                16,
+                                "s1s", "rgr", "srs")
+                        .shapeless("netcable_green_dye", builder -> builder
+                                .requires(Tags.Items.DYES_GREEN)
+                                .requires(CableModule.TAG_CABLES)
+                                .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(NETCABLE_RED)
                         .itemTags(List.of(TAG_CABLES))
-                        .shaped(ShapedRecipeBuilder.shaped(NETCABLE_RED.get(), 16)
+                        .shaped(builder -> builder
                                         .define('g', Tags.Items.NUGGETS_GOLD)
                                         .define('s', Items.STRING)
                                         .define('1', Tags.Items.DYES_RED)
-                                        .unlockedBy("nugget", DataGen.has(Items.GOLD_NUGGET)),
-                                "s1s", "rgr", "srs"),
+                                        .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
+                                16,
+                                "s1s", "rgr", "srs")
+                        .shapeless("netcable_red_dye", builder -> builder
+                                .requires(Tags.Items.DYES_RED)
+                                .requires(CableModule.TAG_CABLES)
+                                .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(NETCABLE_YELLOW)
                         .itemTags(List.of(TAG_CABLES))
-                        .shaped(ShapedRecipeBuilder.shaped(NETCABLE_YELLOW.get(), 16)
+                        .shaped(builder -> builder
                                         .define('g', Tags.Items.NUGGETS_GOLD)
                                         .define('s', Items.STRING)
                                         .define('1', Tags.Items.DYES_YELLOW)
-                                        .unlockedBy("nugget", DataGen.has(Items.GOLD_NUGGET)),
-                                "s1s", "rgr", "srs"),
+                                        .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
+                                16,
+                                "s1s", "rgr", "srs")
+                        .shapeless("netcable_yellow_dye", builder -> builder
+                                .requires(Tags.Items.DYES_YELLOW)
+                                .requires(CableModule.TAG_CABLES)
+                                .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(NETCABLE_ROUTING)
                         .itemTags(List.of(TAG_CABLES))
-                        .shaped(ShapedRecipeBuilder.shaped(NETCABLE_ROUTING.get(), 32)
+                        .shaped(builder -> builder
                                         .define('g', Tags.Items.NUGGETS_GOLD)
                                         .define('s', Items.STRING)
                                         .define('1', Tags.Items.DYES_BLACK)
-                                        .unlockedBy("nugget", DataGen.has(Items.GOLD_NUGGET)),
+                                        .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
+                                32,
                                 "s1s", "rgr", "srs"),
                 Dob.itemBuilder(CONNECTOR_BLUE)
                         .itemTags(List.of(TAG_CONNECTORS))
-                        .shaped(ShapedRecipeBuilder.shaped(CONNECTOR_BLUE.get())
+                        .shaped(builder -> builder
                                         .define('g', Tags.Items.INGOTS_GOLD)
                                         .define('1', Tags.Items.DYES_BLUE)
                                         .define('C', Tags.Items.CHESTS)
-                                        .unlockedBy("chest", DataGen.has(Items.CHEST)),
-                                "1C1", "rgr", "1r1"),
+                                        .unlockedBy("chest", has(Items.CHEST)),
+                                "1C1", "rgr", "1r1")
+                        .shapeless("connector_blue_dye", builder -> builder
+                                .requires(Tags.Items.DYES_BLUE)
+                                .requires(CableModule.TAG_CONNECTORS)
+                                .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(CONNECTOR_GREEN)
                         .itemTags(List.of(TAG_CONNECTORS))
-                        .shaped(ShapedRecipeBuilder.shaped(CONNECTOR_GREEN.get())
+                        .shaped(builder -> builder
                                         .define('g', Tags.Items.INGOTS_GOLD)
                                         .define('1', Tags.Items.DYES_GREEN)
                                         .define('C', Tags.Items.CHESTS)
-                                        .unlockedBy("chest", DataGen.has(Items.CHEST)),
-                                "1C1", "rgr", "1r1"),
+                                        .unlockedBy("chest", has(Items.CHEST)),
+                                "1C1", "rgr", "1r1")
+                        .shapeless("connector_green_dye", builder -> builder
+                                .requires(Tags.Items.DYES_GREEN)
+                                .requires(CableModule.TAG_CONNECTORS)
+                                .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(CONNECTOR_RED)
                         .itemTags(List.of(TAG_CONNECTORS))
-                        .shaped(ShapedRecipeBuilder.shaped(CONNECTOR_RED.get())
+                        .shaped(builder -> builder
                                         .define('g', Tags.Items.INGOTS_GOLD)
                                         .define('1', Tags.Items.DYES_RED)
                                         .define('C', Tags.Items.CHESTS)
-                                        .unlockedBy("chest", DataGen.has(Items.CHEST)),
-                                "1C1", "rgr", "1r1"),
+                                        .unlockedBy("chest", has(Items.CHEST)),
+                                "1C1", "rgr", "1r1")
+                        .shapeless("connector_red_dye", builder -> builder
+                                .requires(Tags.Items.DYES_RED)
+                                .requires(CableModule.TAG_CONNECTORS)
+                                .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(CONNECTOR_YELLOW)
                         .itemTags(List.of(TAG_CONNECTORS))
-                        .shaped(ShapedRecipeBuilder.shaped(CONNECTOR_YELLOW.get())
+                        .shaped(builder -> builder
                                         .define('g', Tags.Items.INGOTS_GOLD)
                                         .define('1', Tags.Items.DYES_YELLOW)
                                         .define('C', Tags.Items.CHESTS)
-                                        .unlockedBy("chest", DataGen.has(Items.CHEST)),
-                                "1C1", "rgr", "1r1"),
+                                        .unlockedBy("chest", has(Items.CHEST)),
+                                "1C1", "rgr", "1r1")
+                        .shapeless("connector_yellow_dye", builder -> builder
+                                .requires(Tags.Items.DYES_YELLOW)
+                                .requires(CableModule.TAG_CONNECTORS)
+                                .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(CONNECTOR_ROUTING)
                         .itemTags(List.of(TAG_CONNECTORS))
-                        .shaped(ShapedRecipeBuilder.shaped(CONNECTOR_ROUTING.get())
+                        .shaped(builder -> builder
                                         .define('g', Tags.Items.NUGGETS_GOLD)
                                         .define('C', TAG_CONNECTORS)
-                                        .unlockedBy("chest", DataGen.has(Items.CHEST)),
+                                        .unlockedBy("chest", has(Items.CHEST)),
                                 "rrr", "gCg", "rrr"),
                 Dob.itemBuilder(ADVANCED_CONNECTOR_BLUE)
                         .itemTags(List.of(TAG_ADVANCED_CONNECTORS))
-                        .shaped(ShapedRecipeBuilder.shaped(ADVANCED_CONNECTOR_BLUE.get())
+                        .shaped(builder -> builder
                                         .define('C', CONNECTOR_BLUE.get())
-                                        .unlockedBy("chest", DataGen.has(Items.CHEST)),
-                                "Co", "dr"),
+                                        .unlockedBy("chest", has(Items.CHEST)),
+                                "Co", "dr")
+                        .shapeless("advanced_connector_blue_dye", builder -> builder
+                                .requires(Tags.Items.DYES_BLUE)
+                                .requires(CableModule.TAG_ADVANCED_CONNECTORS)
+                                .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(ADVANCED_CONNECTOR_GREEN)
-                        .itemTags(List.of(TAG_ADVANCED_CONNECTORS)),
+                        .itemTags(List.of(TAG_ADVANCED_CONNECTORS))
+                        .shaped(builder -> builder
+                                        .define('C', CONNECTOR_GREEN.get())
+                                        .unlockedBy("chest", has(Items.CHEST)),
+                                "Co", "dr")
+                        .shapeless("advanced_connector_green_dye", builder -> builder
+                                .requires(Tags.Items.DYES_GREEN)
+                                .requires(CableModule.TAG_ADVANCED_CONNECTORS)
+                                .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(ADVANCED_CONNECTOR_RED)
-                        .itemTags(List.of(TAG_ADVANCED_CONNECTORS)),
+                        .itemTags(List.of(TAG_ADVANCED_CONNECTORS))
+                        .shaped(builder -> builder
+                                        .define('C', CONNECTOR_RED.get())
+                                        .unlockedBy("chest", has(Items.CHEST)),
+                                "Co", "dr")
+                        .shapeless("advanced_connector_red_dye", builder -> builder
+                                .requires(Tags.Items.DYES_RED)
+                                .requires(CableModule.TAG_ADVANCED_CONNECTORS)
+                                .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(ADVANCED_CONNECTOR_YELLOW)
                         .itemTags(List.of(TAG_ADVANCED_CONNECTORS))
-                        .shaped(ShapedRecipeBuilder.shaped(ADVANCED_CONNECTOR_YELLOW.get())
+                        .shaped(builder -> builder
                                         .define('C', CONNECTOR_YELLOW.get())
-                                        .unlockedBy("chest", DataGen.has(Items.CHEST)),
-                                "Co", "dr"),
+                                        .unlockedBy("chest", has(Items.CHEST)),
+                                "Co", "dr")
+                        .shapeless("advanced_connector_yellow_dye", builder -> builder
+                                .requires(Tags.Items.DYES_YELLOW)
+                                .requires(CableModule.TAG_ADVANCED_CONNECTORS)
+                                .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(ADVANCED_CONNECTOR_ROUTING)
                         .itemTags(List.of(TAG_ADVANCED_CONNECTORS))
+                        .shaped(builder -> builder
+                                        .define('C', CONNECTOR_ROUTING.get())
+                                        .unlockedBy("chest", has(Items.CHEST)),
+                                "Co", "dr")
         );
     }
 

@@ -1,9 +1,9 @@
 {
   "values": [
     "xnet:advanced_connector_blue",
-    "xnet:advanced_connector_yellow",
     "xnet:advanced_connector_green",
     "xnet:advanced_connector_red",
+    "xnet:advanced_connector_yellow",
     "xnet:advanced_connector_routing"
   ]
 }

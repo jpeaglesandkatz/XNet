@@ -5,26 +5,38 @@ import mcjty.lib.blocks.RotationType;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.GenericContainer;
+import mcjty.lib.datagen.DataGen;
+import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
+import mcjty.lib.varia.OrientationTools;
+import mcjty.rftoolsbase.modules.various.VariousModule;
+import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import mcjty.xnet.modules.wireless.client.GuiWirelessRouter;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.Registration;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.VariantBlockStateBuilder;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 
+import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.xnet.setup.Registration.*;
 
 public class WirelessRouterModule implements IModule {
@@ -116,5 +128,52 @@ public class WirelessRouterModule implements IModule {
     @Override
     public void initConfig() {
 
+    }
+
+    @Override
+    public void initDatagen(DataGen dataGen) {
+        dataGen.add(
+                Dob.blockBuilder(WIRELESS_ROUTER)
+                        .ironPickaxeTags()
+                        .parentedItem("block/wireless_router")
+                        .standardLoot(TYPE_WIRELESS_ROUTER)
+                        .blockState(p -> {
+                            ModelFile modelOk = p.frontBasedModel("wireless_router", p.modLoc("block/machine_wireless_router"));
+                            ModelFile modelError = p.frontBasedModel("wireless_router_error", p.modLoc("block/machine_wireless_router_error"));
+                            VariantBlockStateBuilder builder = p.getVariantBuilder(WIRELESS_ROUTER.get());
+                            for (Direction direction : OrientationTools.DIRECTION_VALUES) {
+                                p.applyRotation(builder.partialState().with(BlockStateProperties.FACING, direction).with(TileEntityController.ERROR, false)
+                                        .modelForState().modelFile(modelOk), direction);
+                                p.applyRotation(builder.partialState().with(BlockStateProperties.FACING, direction).with(TileEntityController.ERROR, true)
+                                        .modelForState().modelFile(modelError), direction);
+                            }
+                        })
+                        .shaped(builder -> builder
+                                        .define('F', VariousModule.MACHINE_FRAME.get())
+                                        .define('C', Items.COMPARATOR)
+                                        .unlockedBy("frame", has(VariousModule.MACHINE_FRAME.get())),
+                                "oCo", "rFr", "oro"),
+                Dob.blockBuilder(ANTENNA)
+                        .simpleLoot()
+                        .ironPickaxeTags()
+                        .shaped(builder -> builder
+                                        .define('I', Items.IRON_BARS)
+                                        .unlockedBy("bars", has(Items.IRON_BARS)),
+                                "IiI", "IiI", " i "),
+                Dob.blockBuilder(ANTENNA_BASE)
+                        .simpleLoot()
+                        .ironPickaxeTags()
+                        .shaped(builder -> builder
+                                        .define('I', Items.IRON_BLOCK)
+                                        .unlockedBy("block", has(Items.IRON_BLOCK)),
+                                " i ", " i ", "iIi"),
+                Dob.blockBuilder(ANTENNA_DISH)
+                        .simpleLoot()
+                        .ironPickaxeTags()
+                        .shaped(builder -> builder
+                                        .define('I', Items.IRON_TRAPDOOR)
+                                        .unlockedBy("trapdoor", has(Items.IRON_TRAPDOOR)),
+                                "III", "IoI", " i ")
+        );
     }
 }
