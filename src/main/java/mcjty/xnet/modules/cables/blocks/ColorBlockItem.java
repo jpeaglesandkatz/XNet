@@ -1,7 +1,11 @@
 package mcjty.xnet.modules.cables.blocks;
 
+import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableColor;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -38,10 +42,10 @@ public class ColorBlockItem extends BlockItem {
     }
 
     // @todo 1.19.3
-//    @Override
-//    public void fillItemCategory(@Nonnull CreativeModeTab group, @Nonnull NonNullList<ItemStack> items) {
-//        if (XNet.setup.getTab().equals(group)) {
-//            items.add(new ItemStack(this));
-//        }
-//    }
+    @Override
+    public void fillItemCategory(@Nonnull CreativeModeTab group, @Nonnull NonNullList<ItemStack> items) {
+        if (XNet.setup.getTab().equals(group)) {
+            items.add(new ItemStack(this));
+        }
+    }
 }
