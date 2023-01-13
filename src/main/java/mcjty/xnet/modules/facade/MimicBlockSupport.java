@@ -1,8 +1,9 @@
 package mcjty.xnet.modules.facade;
 
-import net.minecraft.world.level.block.state.BlockState;
+import mcjty.lib.varia.NBTTools;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
@@ -23,7 +24,7 @@ public class MimicBlockSupport {
 
     public void readFromNBT(CompoundTag tagCompound) {
         if (tagCompound != null && tagCompound.contains("mimic")) {
-            mimicBlock = NbtUtils.readBlockState(tagCompound.getCompound("mimic"));
+            mimicBlock = NBTTools.readBlockState(tagCompound.getCompound("mimic"));
         } else {
             mimicBlock = null;
         }

@@ -25,12 +25,13 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.RegistryObject;
 
 import static mcjty.lib.datagen.DataGen.has;
+import static mcjty.xnet.XNet.tab;
 import static mcjty.xnet.setup.Registration.*;
 
 public class ControllerModule implements IModule {
 
     public static final RegistryObject<BaseBlock> CONTROLLER = BLOCKS.register("controller", TileEntityController::createBlock);
-    public static final RegistryObject<Item> CONTROLLER_ITEM = ITEMS.register("controller", () -> new BlockItem(CONTROLLER.get(), Registration.createStandardProperties()));
+    public static final RegistryObject<Item> CONTROLLER_ITEM = ITEMS.register("controller", tab(() -> new BlockItem(CONTROLLER.get(), Registration.createStandardProperties())));
     public static final RegistryObject<BlockEntityType<?>> TYPE_CONTROLLER = TILES.register("controller", () -> BlockEntityType.Builder.of(TileEntityController::new, CONTROLLER.get()).build(null));
     public static final RegistryObject<MenuType<GenericContainer>> CONTAINER_CONTROLLER = CONTAINERS.register("controller", GenericContainer::createContainerType);
 

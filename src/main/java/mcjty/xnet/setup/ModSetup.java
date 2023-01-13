@@ -20,7 +20,7 @@ public class ModSetup extends DefaultModSetup {
     public static boolean rftoolsControl = false;
 
     public ModSetup() {
-        createTab("xnet", () -> new ItemStack(ControllerModule.CONTROLLER.get()));
+        createTab(XNet.MODID, "xnet", () -> new ItemStack(ControllerModule.CONTROLLER.get()));
     }
 
     @Override

@@ -3,6 +3,7 @@ package mcjty.xnet.modules.facade.blocks;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.ComponentFactory;
+import mcjty.lib.varia.NBTTools;
 import mcjty.lib.varia.Tools;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableModule;
@@ -90,7 +91,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
         if (tagCompound == null || !tagCompound.contains("mimic")) {
             return Blocks.COBBLESTONE.defaultBlockState();
         } else {
-            return NbtUtils.readBlockState(tagCompound.getCompound("mimic"));
+            return NBTTools.readBlockState(tagCompound.getCompound("mimic"));
         }
     }
 

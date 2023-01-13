@@ -35,27 +35,29 @@ public class CableModelLoader implements IGeometryLoader<CableModelLoader.CableM
 
     public static class CableModelGeometry implements IUnbakedGeometry<CableModelGeometry> {
 
+        // @todo 1.19.3
         @Override
-        public BakedModel bake(IGeometryBakingContext context, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
+        public BakedModel bake(IGeometryBakingContext context, ModelBaker bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
             return new GenericCableBakedModel();
         }
 
-        @Override
-        public Collection<Material> getMaterials(IGeometryBakingContext context, Function<ResourceLocation, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors) {
-            List<Material> materials = new ArrayList<>();
-            materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/connector_side")));
-
-            for (int i = 0 ; i <= 4 ; i++) {
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/advanced_connector")));
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/connector")));
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_corner_netcable")));
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_cross_netcable")));
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_end_netcable")));
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_netcable")));
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_none_netcable")));
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_three_netcable")));
-            }
-            return materials;
-        }
+        // @todo 1.19.3
+//        @Override
+//        public Collection<Material> getMaterials(IGeometryBakingContext context, Function<ResourceLocation, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors) {
+//            List<Material> materials = new ArrayList<>();
+//            materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/connector_side")));
+//
+//            for (int i = 0 ; i <= 4 ; i++) {
+//                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/advanced_connector")));
+//                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/connector")));
+//                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_corner_netcable")));
+//                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_cross_netcable")));
+//                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_end_netcable")));
+//                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_netcable")));
+//                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_none_netcable")));
+//                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_three_netcable")));
+//            }
+//            return materials;
+//        }
     }
 }

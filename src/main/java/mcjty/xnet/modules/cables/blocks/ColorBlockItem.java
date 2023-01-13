@@ -1,19 +1,13 @@
 package mcjty.xnet.modules.cables.blocks;
 
-import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableColor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.NonNullList;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import net.minecraft.world.item.Item.Properties;
 
 public class ColorBlockItem extends BlockItem {
 
@@ -43,10 +37,11 @@ public class ColorBlockItem extends BlockItem {
         return super.getOrCreateDescriptionId();
     }
 
-    @Override
-    public void fillItemCategory(@Nonnull CreativeModeTab group, @Nonnull NonNullList<ItemStack> items) {
-        if (XNet.setup.getTab().equals(group)) {
-            items.add(new ItemStack(this));
-        }
-    }
+    // @todo 1.19.3
+//    @Override
+//    public void fillItemCategory(@Nonnull CreativeModeTab group, @Nonnull NonNullList<ItemStack> items) {
+//        if (XNet.setup.getTab().equals(group)) {
+//            items.add(new ItemStack(this));
+//        }
+//    }
 }
