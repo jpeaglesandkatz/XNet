@@ -1,3 +1,6 @@
+Upcoming:
+- Updated to Latest McJtyLib and made compatible with 1.19.3
+
 1.19-5.0.2:
 - Bugfix by StevenDoesStuffs so that the filter on fluid extraction works again
 
