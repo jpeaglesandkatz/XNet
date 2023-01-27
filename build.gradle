@@ -13,7 +13,8 @@ buildscript {
     }
 }
 
-plugins { id "com.modrinth.minotaur" version "2.+" }apply plugin: 'net.minecraftforge.gradle'
+plugins { id "com.modrinth.minotaur" version "2.+" }
+apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'eclipse'
 apply plugin: 'com.matthewprenger.cursegradle'
