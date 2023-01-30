@@ -86,12 +86,12 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
         item.setTag(tagCompound);
     }
 
-    public static BlockState getMimicBlock(@Nonnull ItemStack stack) {
+    public static BlockState getMimicBlock(Level level, @Nonnull ItemStack stack) {
         CompoundTag tagCompound = stack.getTag();
         if (tagCompound == null || !tagCompound.contains("mimic")) {
             return Blocks.COBBLESTONE.defaultBlockState();
         } else {
-            return NBTTools.readBlockState(tagCompound.getCompound("mimic"));
+            return NBTTools.readBlockState(level, tagCompound.getCompound("mimic"));
         }
     }
 
@@ -131,7 +131,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
                     world.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
                     BlockEntity te = world.getBlockEntity(pos);
                     if (te instanceof FacadeTileEntity) {
-                        ((FacadeTileEntity) te).setMimicBlock(getMimicBlock(itemstack));
+                        ((FacadeTileEntity) te).setMimicBlock(getMimicBlock(world, itemstack));
                     }
                     int amount = -1;
                     itemstack.grow(amount);
@@ -140,7 +140,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
                 BlockEntity te = world.getBlockEntity(pos);
                 if (te instanceof ConnectorTileEntity connectorTileEntity) {
                     if (connectorTileEntity.getMimicBlock() == null) {
-                        connectorTileEntity.setMimicBlock(getMimicBlock(itemstack));
+                        connectorTileEntity.setMimicBlock(getMimicBlock(world, itemstack));
                         SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos), world, pos, player);
                         world.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
                         int amount = -1;
