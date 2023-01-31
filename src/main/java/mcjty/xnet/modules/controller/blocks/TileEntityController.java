@@ -559,6 +559,14 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         String name = (String) data.get(GuiController.TAG_NAME);
         channels[channel].setChannelName(name);
 
+        for (Map.Entry<WirelessChannelKey, Integer> entry : wirelessVersions.entrySet()) {
+            XNetWirelessChannels channels = XNetWirelessChannels.get(level);
+            XNetWirelessChannels.WirelessChannelInfo ch = channels.findChannel(entry.getKey());
+            if (ch != null) {
+                ch.incVersion();
+            }
+        }
+
         markAsDirty();
     }
 
