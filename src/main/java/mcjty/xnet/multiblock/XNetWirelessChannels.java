@@ -17,7 +17,7 @@ import net.minecraft.world.level.Level;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.stream.Stream;
+import java.util.function.Consumer;
 
 public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels> {
 
@@ -160,11 +160,12 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         return channelToWireless.get(key);
     }
 
-    public Stream<WirelessChannelInfo> findChannels(@Nullable UUID owner) {
-        return channelToWireless.entrySet().stream().filter(pair -> {
-            WirelessChannelKey key = pair.getKey();
-            return (owner == null && key.owner() == null) || (owner != null && (key.owner() == null || owner.equals(key.owner())));
-        }).map(Map.Entry::getValue);
+    public void forEachChannel(@Nullable UUID owner, Consumer<WirelessChannelInfo> consumer) {
+        channelToWireless.forEach((key, info) -> {
+            if ((owner == null && key.owner() == null) || (owner != null && (key.owner() == null || owner.equals(key.owner())))) {
+                consumer.accept(info);
+            }
+        });
     }
 
     private void readRouters(ListTag tagList, WirelessChannelInfo channelInfo) {

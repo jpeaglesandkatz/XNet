@@ -22,10 +22,7 @@ import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Cached;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.lib.varia.Tools;
-import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
-import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
-import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
-import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
+import mcjty.rftoolsbase.api.xnet.channels.*;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
@@ -75,9 +72,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.container;
 import static mcjty.lib.container.SlotDefinition.specific;
@@ -194,16 +190,18 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         NetworkChecker checker = new NetworkChecker();
         checker.add(networkId);
         WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
-        LogicTools.routers(level, networkId)
-                .forEach(router -> {
+        LogicTools.forEachRouter(level, networkId, router -> {
                     checker.add(worldBlob.getNetworksAt(router.getBlockPos()));
                     // We're only interested in one network. The other router networks are all same topology
                     NetworkId routerNetwork = worldBlob.getNetworkAt(router.getBlockPos());
                     if (routerNetwork != null) {
-                        LogicTools.routers(level, routerNetwork)
-                                .filter(r -> router != r)
-                                .forEach(r -> LogicTools.connectors(level, r.getBlockPos())
-                                        .forEach(connectorPos -> checker.add(worldBlob.getNetworkAt(connectorPos))));
+                        LogicTools.forEachRouter(level, routerNetwork, r -> {
+                            if (r != router) {
+                                LogicTools.forEachConnector(level, r.getBlockPos(), connectorPos -> {
+                                    checker.add(worldBlob.getNetworkAt(connectorPos));
+                                });
+                            }
+                        });
                     }
                 });
         return checker;
@@ -369,10 +367,11 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
             wirelessVersions.clear();
             if (!channels[channel].getChannelName().isEmpty()) {
-                LogicTools.routers(level, networkId)
-                        .forEach(router -> router.addRoutedConnectors(cachedRoutedConnectors[channel], getBlockPos(),
-                                channel, channels[channel].getType(),
-                                wirelessVersions));
+                LogicTools.forEachRouter(level, networkId, router -> {
+                            router.addRoutedConnectors(cachedRoutedConnectors[channel], getBlockPos(),
+                                    channel, channels[channel].getType(),
+                                    wirelessVersions);
+                        });
             }
         }
         return cachedRoutedConnectors[channel];
@@ -451,15 +450,9 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
 
         List<SidedPos> result = new ArrayList<>();
-        Set<ConnectedBlockClientInfo> set = new HashSet<>();
-        Stream<BlockPos> consumers = getConsumerStream(worldBlob);
-        consumers.forEach(consumerPos -> {
-            String name = "";
+        forEachConsumer(worldBlob, consumerPos -> {
             BlockEntity te = level.getBlockEntity(consumerPos);
-            if (te instanceof ConnectorTileEntity) {
-                // Should always be the case. @todo error?
-                name = ((ConnectorTileEntity) te).getConnectorName();
-            } else {
+            if (!(te instanceof ConnectorTileEntity)) {
                 XNet.setup.getLogger().warn("What? The connector at " + BlockPosTools.toString(consumerPos) + " is not a connector?");
             }
             for (Direction facing : OrientationTools.DIRECTION_VALUES) {
@@ -479,8 +472,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
 
         Set<ConnectedBlockClientInfo> set = new HashSet<>();
-        Stream<BlockPos> consumers = getConsumerStream(worldBlob);
-        consumers.forEach(consumerPos -> {
+        forEachConsumer(worldBlob, consumerPos -> {
             String name = "";
             BlockEntity te = level.getBlockEntity(consumerPos);
             if (te instanceof ConnectorTileEntity) {
@@ -506,9 +498,12 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         return list;
     }
 
-    private Stream<BlockPos> getConsumerStream(WorldBlob worldBlob) {
-        return XNet.xNetApi.getConsumerProviders().stream()
-                .flatMap(provider -> provider.getConsumers(level, worldBlob, getNetworkId()).stream());
+    private void forEachConsumer(WorldBlob worldBlob, Consumer<BlockPos> consumer) {
+        for (IConsumerProvider provider : XNet.xNetApi.getConsumerProviders()) {
+            for (BlockPos pos : provider.getConsumers(level, worldBlob, getNetworkId())) {
+                consumer.accept(pos);
+            }
+        }
     }
 
     @Nonnull
@@ -657,13 +652,10 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         return null;
     }
 
-    @Nonnull
-    private Set<ConnectedBlockInfo> findConnectedBlocks() {
+    private void forEachConnectedBlock(Consumer<ConnectedBlockInfo> consumer) {
         WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
 
-        Set<ConnectedBlockInfo> set = new HashSet<>();
-        Stream<BlockPos> consumers = getConsumerStream(worldBlob);
-        consumers.forEach(consumerPos -> {
+        forEachConsumer(worldBlob, consumerPos -> {
             String name = "";
             BlockEntity te = level.getBlockEntity(consumerPos);
             if (te instanceof ConnectorTileEntity) {
@@ -679,11 +671,10 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                     BlockState state = level.getBlockState(pos);
                     state = state.isAir() ? null : state;
                     ConnectedBlockInfo info = new ConnectedBlockInfo(sidedPos, state, name);
-                    set.add(info);
+                    consumer.accept(info);
                 }
             }
         });
-        return set;
     }
 
     private void copyConnector(Player player, int index, SidedPos sidedPos) {
@@ -721,8 +712,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
             JsonArray connectors = new JsonArray();
 
-            Set<ConnectedBlockInfo> connectedBlocks = findConnectedBlocks();
-            for (ConnectedBlockInfo connectedBlock : connectedBlocks) {
+            forEachConnectedBlock(connectedBlock -> {
                 SidedPos sidedPos = connectedBlock.getPos();
                 IConnectorSettings connectorSettings = findConnectorSettings(channel, sidedPos);
                 if (connectorSettings != null) {
@@ -741,7 +731,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                         connectors.add(connectorObject);
                     }
                 }
-            }
+            });
 
             parent.add(JSON_CONNECTORS, connectors);
 
@@ -888,10 +878,6 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             channels[channel].getChannelSettings().readFromJson(root.get(JSON_CHANNEL).getAsJsonObject());
             channels[channel].setEnabled(false);
 
-            // Find all blocks connected to this controller. We'll try to match and paste the json data
-            // to these blocks in the best way possible
-            Set<ConnectedBlockInfo> connectedBlocks = findConnectedBlocks();
-
             // We try to paste the best matches first. If there are any connectors in the clip that can't
             // be pasted we'll give a warning to the user
             boolean notEnoughConnectors = false;
@@ -922,13 +908,18 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                 // then we don't need an advanced connector
                 boolean advancedNeeded = connectorSettings.get("advancedneeded").getAsBoolean();
 
+                // Find all blocks connected to this controller. We'll try to match and paste the json data
+                // to these blocks in the best way possible
+
                 // Given these desired settings from the json connector we calculate a sorted list of connection
                 // candidates. If there are good candidates in this list we remember this sorted list and
                 // add it to our list of possible connections
-                List<Pair<ConnectedBlockInfo, Integer>> sortedMatches = connectedBlocks.stream()
-                        .map(info -> Pair.of(info, calculateMatchingScore(type, info, name, block, side, facingOverride, advanced, advancedNeeded)))
-                        .sorted((p1, p2) -> Integer.compare(p2.getRight(), p1.getRight()))
-                        .collect(Collectors.toList());
+                List<Pair<ConnectedBlockInfo, Integer>> sortedMatches = new ArrayList<>();
+                forEachConnectedBlock(info -> {
+                    int score = calculateMatchingScore(type, info, name, block, side, facingOverride, advanced, advancedNeeded);
+                    sortedMatches.add(Pair.of(info, score));
+                });
+                sortedMatches.sort((p1, p2) -> Integer.compare(p2.getRight(), p1.getRight()));
                 if (!sortedMatches.isEmpty() && sortedMatches.get(0).getRight() > -50) {
                     connections.add(new PossibleConnection(connector, sortedMatches));
                 } else {

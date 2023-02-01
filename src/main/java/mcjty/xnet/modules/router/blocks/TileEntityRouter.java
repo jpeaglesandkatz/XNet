@@ -24,6 +24,7 @@ import mcjty.xnet.compat.XNetTOPDriver;
 import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.controller.ChannelInfo;
+import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.router.LocalChannelId;
 import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.multiblock.ColorId;
@@ -44,14 +45,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraftforge.common.util.LazyOptional;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import java.util.function.BiConsumer;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.empty;
 import static mcjty.lib.builder.TooltipBuilder.header;
@@ -100,8 +99,7 @@ public final class TileEntityRouter extends GenericTileEntity {
         Set<String> channels = new HashSet<>();
         NetworkId networkId = findRoutingNetwork();
         if (networkId != null) {
-            LogicTools.routers(level, networkId)
-                    .forEach(router -> router.addPublishedChannels(channels));
+            LogicTools.forEachRouter(level, networkId, router -> router.addPublishedChannels(channels));
         }
         return channels.size();
     }
@@ -162,50 +160,49 @@ public final class TileEntityRouter extends GenericTileEntity {
         }
     }
 
-    public Stream<Pair<String, IChannelType>> publishedChannelStream() {
-        return LogicTools.connectors(level, worldPosition)
-                .map(connectorPos -> LogicTools.getControllerForConnector(level, connectorPos))
-                .filter(Objects::nonNull)
-                .flatMap(controller -> IntStream.range(0, MAX_CHANNELS)
-                        .mapToObj(i -> {
-                            ChannelInfo channelInfo = controller.getChannels()[i];
-                            if (channelInfo != null && !channelInfo.getChannelName().isEmpty()) {
-                                LocalChannelId id = new LocalChannelId(controller.getBlockPos(), i);
-                                String publishedName = publishedChannels.get(id);
-                                if (publishedName != null && !publishedName.isEmpty()) {
-                                    return Pair.of(publishedName, channelInfo.getType());
-                                }
-                            }
-                            return null;
-                        })
-                        .filter(Objects::nonNull));
+    public void forEachPublishedChannel(BiConsumer<String, IChannelType> consumer) {
+        LogicTools.forEachConnector(level, worldPosition, connectorPos -> {
+            TileEntityController controller = LogicTools.getControllerForConnector(level, connectorPos);
+            if (controller != null) {
+                for (int i = 0 ; i < MAX_CHANNELS ; i++) {
+                    ChannelInfo channelInfo = controller.getChannels()[i];
+                    if (channelInfo != null && !channelInfo.getChannelName().isEmpty()) {
+                        LocalChannelId id = new LocalChannelId(controller.getBlockPos(), i);
+                        String publishedName = publishedChannels.get(id);
+                        if (publishedName != null && !publishedName.isEmpty()) {
+                            consumer.accept(publishedName, channelInfo.getType());
+                        }
+                    }
+                }
+            }
+        });
     }
 
     public void findLocalChannelInfo(List<ControllerChannelClientInfo> list, boolean onlyPublished, boolean remote) {
-        LogicTools.connectors(level, getBlockPos())
-                .map(connectorPos -> LogicTools.getControllerForConnector(level, connectorPos))
-                .filter(Objects::nonNull)
-                .forEach(controller -> {
-                    for (int i = 0; i < MAX_CHANNELS; i++) {
-                        ChannelInfo channelInfo = controller.getChannels()[i];
-                        if (channelInfo != null && !channelInfo.getChannelName().isEmpty()) {
-                            LocalChannelId id = new LocalChannelId(controller.getBlockPos(), i);
-                            String publishedName = publishedChannels.get(id);
-                            if (publishedName == null) {
-                                publishedName = "";
-                            }
-                            if ((!onlyPublished) || !publishedName.isEmpty()) {
-                                ControllerChannelClientInfo ci = new ControllerChannelClientInfo(channelInfo.getChannelName(), publishedName, controller.getBlockPos(), channelInfo.getType(), remote, i);
-                                if (list.stream().noneMatch(ii -> Objects.equals(ii.getPublishedName(), ci.getPublishedName())
-                                        && Objects.equals(ii.getChannelName(), ci.getChannelName())
-                                        && Objects.equals(ii.getChannelType(), ci.getChannelType())
-                                        && Objects.equals(ii.getPos(), ci.getPos()))) {
-                                    list.add(ci);
-                                }
+        LogicTools.forEachConnector(level, getBlockPos(), connectorPos -> {
+            TileEntityController controller = LogicTools.getControllerForConnector(level, connectorPos);
+            if (controller != null) {
+                for (int i = 0; i < MAX_CHANNELS; i++) {
+                    ChannelInfo channelInfo = controller.getChannels()[i];
+                    if (channelInfo != null && !channelInfo.getChannelName().isEmpty()) {
+                        LocalChannelId id = new LocalChannelId(controller.getBlockPos(), i);
+                        String publishedName = publishedChannels.get(id);
+                        if (publishedName == null) {
+                            publishedName = "";
+                        }
+                        if ((!onlyPublished) || !publishedName.isEmpty()) {
+                            ControllerChannelClientInfo ci = new ControllerChannelClientInfo(channelInfo.getChannelName(), publishedName, controller.getBlockPos(), channelInfo.getType(), remote, i);
+                            if (list.stream().noneMatch(ii -> Objects.equals(ii.getPublishedName(), ci.getPublishedName())
+                                    && Objects.equals(ii.getChannelName(), ci.getChannelName())
+                                    && Objects.equals(ii.getChannelType(), ci.getChannelType())
+                                    && Objects.equals(ii.getPos(), ci.getPos()))) {
+                                list.add(ci);
                             }
                         }
                     }
-                });
+                }
+            }
+        });
     }
 
     private void findRemoteChannelInfo(List<ControllerChannelClientInfo> list) {
@@ -215,14 +212,18 @@ public final class TileEntityRouter extends GenericTileEntity {
             LogicTools.consumers(level, networkId)
                     .forEach(consumerPos -> {
                         // Find all routers connected to this network and add their published local channels
-                        LogicTools.routers(level, consumerPos)
-                                .filter(r -> r != this)
-                                .forEach(router -> router.findLocalChannelInfo(list, true, false));
+                        LogicTools.forEachRouter(level, consumerPos, router -> {
+                            if (router != this) {
+                                router.findLocalChannelInfo(list, true, false);
+                            }
+                        });
                         // Find all wireless routers connected to this network and add the public or private
                         // channels that can be reached by them
-                        LogicTools.wirelessRouters(level, consumerPos)
-                                .filter(router -> !router.inError())
-                                .forEach(router -> router.findRemoteChannelInfo(list));
+                        LogicTools.forEachWirelessRouters(level, consumerPos, router -> {
+                            if (!router.inError()) {
+                                router.findRemoteChannelInfo(list);
+                            }
+                        });
                     });
         }
     }
@@ -230,10 +231,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     @Nullable
     public NetworkId findRoutingNetwork() {
         WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
-        return LogicTools.routingConnectors(level, getBlockPos())
-                .findFirst()
-                .map(worldBlob::getNetworkAt)
-                .orElse(null);
+        return LogicTools.findRoutingConnector(level, getBlockPos(), worldBlob::getNetworkAt);
     }
 
     public void addRoutedConnectors(Map<SidedConsumer, IConnectorSettings> connectors, @Nonnull BlockPos controllerPos, int channel, IChannelType type,
@@ -249,17 +247,15 @@ public final class TileEntityRouter extends GenericTileEntity {
             if (networkId != null) {
                 LogicTools.consumers(level, networkId)
                         .forEach(consumerPos -> {
-                            LogicTools.routers(level, consumerPos)
-                                    .forEach(router -> router.addConnectorsFromConnectedNetworks(connectors, publishedName, type));
-                            // First public channels
-                            LogicTools.wirelessRouters(level, consumerPos)
-                                    .filter(router -> !router.inError())
-                                    .forEach(router -> {
-                                        // First public
-                                        router.addWirelessConnectors(connectors, publishedName, type, null, wirelessVersions);
-                                        // Now private
-                                        router.addWirelessConnectors(connectors, publishedName, type, getOwnerUUID(), wirelessVersions);
-                                    });
+                            LogicTools.forEachRouter(level, consumerPos, router -> router.addConnectorsFromConnectedNetworks(connectors, publishedName, type));
+                            LogicTools.forEachWirelessRouters(level, consumerPos, router -> {
+                                if (!router.inError()) {
+                                    // First public
+                                    router.addWirelessConnectors(connectors, publishedName, type, null, wirelessVersions);
+                                    // Now private
+                                    router.addWirelessConnectors(connectors, publishedName, type, getOwnerUUID(), wirelessVersions);
+                                }
+                            });
                         });
             } else {
                 // If there is no routing network that means we have a local network only
@@ -270,23 +266,23 @@ public final class TileEntityRouter extends GenericTileEntity {
 
     public boolean addConnectorsFromConnectedNetworks(Map<SidedConsumer, IConnectorSettings> connectors, String channelName, IChannelType type) {
         AtomicBoolean rc = new AtomicBoolean(false);
-        LogicTools.connectors(level, getBlockPos())
-                .map(connectorPos -> LogicTools.getControllerForConnector(level, connectorPos))
-                .filter(Objects::nonNull)
-                .forEach(controller -> {
-                    for (int i = 0; i < MAX_CHANNELS; i++) {
-                        ChannelInfo info = controller.getChannels()[i];
-                        if (info != null) {
-                            String publishedName = publishedChannels.get(new LocalChannelId(controller.getBlockPos(), i));
-                            if (publishedName != null && !publishedName.isEmpty()) {
-                                if (channelName.equals(publishedName) && type.equals(info.getType())) {
-                                    connectors.putAll(controller.getConnectors(i));
-                                    rc.set(true);
-                                }
+        LogicTools.forEachConnector(level, getBlockPos(), connectorPos -> {
+            TileEntityController controller = LogicTools.getControllerForConnector(level, connectorPos);
+            if (controller != null) {
+                for (int i = 0; i < MAX_CHANNELS; i++) {
+                    ChannelInfo info = controller.getChannels()[i];
+                    if (info != null) {
+                        String publishedName = publishedChannels.get(new LocalChannelId(controller.getBlockPos(), i));
+                        if (publishedName != null && !publishedName.isEmpty()) {
+                            if (channelName.equals(publishedName) && type.equals(info.getType())) {
+                                connectors.putAll(controller.getConnectors(i));
+                                rc.set(true);
                             }
                         }
                     }
-                });
+                }
+            }
+        });
         return rc.get();
     }
 
@@ -302,8 +298,7 @@ public final class TileEntityRouter extends GenericTileEntity {
         NetworkId networkId = findRoutingNetwork();
         if (networkId != null) {
             if (number != channelCount) {
-                LogicTools.routers(level, networkId)
-                        .forEach(router -> router.setChannelCount(number));
+                LogicTools.forEachRouter(level, networkId, router -> router.setChannelCount(number));
             }
             worldBlob.markNetworkDirty(networkId); // Force a recalc of affected networks
         }

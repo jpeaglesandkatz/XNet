@@ -1,26 +1,28 @@
 package mcjty.xnet.logic;
 
-import mcjty.lib.varia.OrientationTools;
 import mcjty.lib.varia.LevelTools;
-import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
+import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
-import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
+import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
+import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Stream;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class LogicTools {
 
@@ -53,79 +55,85 @@ public class LogicTools {
     }
 
     // All consumers for a given network
-    public static Stream<BlockPos> consumers(@Nonnull Level world, @Nonnull NetworkId networkId) {
+    public static Set<BlockPos> consumers(@Nonnull Level world, @Nonnull NetworkId networkId) {
         WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
-        return worldBlob.getConsumers(networkId).stream();
+        return worldBlob.getConsumers(networkId);
     }
 
     // All normal connectors for a given position
-    public static Stream<BlockPos> connectors(@Nonnull Level world, @Nonnull BlockPos pos) {
-        return new ConnectorIterator(world, pos, false).stream();
+    public static void forEachConnector(@Nonnull Level world, @Nonnull BlockPos pos, Consumer<BlockPos> consumer) {
+        for (Direction direction : OrientationTools.DIRECTION_VALUES) {
+            BlockPos connectorPos = pos.relative(direction);
+            BlockState state = world.getBlockState(connectorPos);
+            if (state.getBlock() instanceof ConnectorBlock) {
+                CableColor color = state.getValue(GenericCableBlock.COLOR);
+                if ((color != CableColor.ROUTING)) {
+                    consumer.accept(connectorPos);
+                }
+            }
+        }
     }
 
     // All routing connectors for a given position
-    public static Stream<BlockPos> routingConnectors(@Nonnull Level world, @Nonnull BlockPos pos) {
-        return new ConnectorIterator(world, pos, true).stream();
-    }
-
-    // All routers from a given position
-    public static Stream<TileEntityRouter> routers(@Nonnull Level world, @Nonnull BlockPos pos) {
-        return new RouterIterator<>(world, pos, TileEntityRouter.class).stream();
-    }
-
-    // All wireless routers from a given position
-    public static Stream<TileEntityWirelessRouter> wirelessRouters(@Nonnull Level world, @Nonnull BlockPos pos) {
-        return new RouterIterator<>(world, pos, TileEntityWirelessRouter.class).stream();
-    }
-
-    // Return all connected blocks that have an actual connector defined in a channel
-    public static Stream<BlockPos> connectedBlocks(@Nonnull Level world, @Nonnull NetworkId networkId, @Nonnull Set<SidedConsumer> consumers) {
-        WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
-        return consumers.stream()
-                .map(sidedConsumer -> {
-                    BlockPos consumerPos = findConsumerPosition(networkId, worldBlob, sidedConsumer.consumerId());
-                    if (consumerPos != null) {
-                        return consumerPos.relative(sidedConsumer.side());
-                    } else {
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull);
-    }
-
-    // Return all controllers connected to a network
-    public static Stream<TileEntityController> controllers(@Nonnull Level world, @Nonnull NetworkId networkId) {
-        return connectedBlocks(world, networkId)
-                .filter(pos -> world.getBlockEntity(pos) instanceof TileEntityController)
-                .map(pos -> (TileEntityController) world.getBlockEntity(pos));
-    }
-
-    // Return all routers connected to a network
-    public static Stream<TileEntityRouter> routers(@Nonnull Level world, @Nonnull NetworkId networkId) {
-        return connectedBlocks(world, networkId)
-                .filter(pos -> world.getBlockEntity(pos) instanceof TileEntityRouter)
-                .map(pos -> (TileEntityRouter) world.getBlockEntity(pos));
-    }
-
-    // Return all potential connected blocks (with or an actual connector defined in the channel)
-    public static Stream<BlockPos> connectedBlocks(@Nonnull Level world, @Nonnull NetworkId networkId) {
-        return consumers(world, networkId)
-                .flatMap(blockPos -> Arrays.stream(OrientationTools.DIRECTION_VALUES)
-                        .filter(facing -> ConnectorBlock.isConnectable(world, blockPos, facing))
-                        .map(blockPos::relative));
-    }
-
     @Nullable
-    public static BlockPos findConsumerPosition(@Nonnull NetworkId networkId, @Nonnull WorldBlob worldBlob, @Nonnull ConsumerId consumerId) {
-        Set<BlockPos> consumers = worldBlob.getConsumers(networkId);
-        for (BlockPos pos : consumers) {
-            ConsumerId c = worldBlob.getConsumerAt(pos);
-            if (consumerId.equals(c)) {
-                return pos;
+    public static <T> T findRoutingConnector(@Nonnull Level world, @Nonnull BlockPos pos, Function<BlockPos, T> consumer) {
+        for (Direction direction : OrientationTools.DIRECTION_VALUES) {
+            BlockPos connectorPos = pos.relative(direction);
+            BlockState state = world.getBlockState(connectorPos);
+            if (state.getBlock() instanceof ConnectorBlock) {
+                CableColor color = state.getValue(GenericCableBlock.COLOR);
+                if ((color == CableColor.ROUTING)) {
+                    T result = consumer.apply(connectorPos);
+                    if (result != null) {
+                        return result;
+                    }
+                }
             }
         }
         return null;
     }
 
+    // All routers from a given position
+    public static void forEachRouter(@Nonnull Level world, @Nonnull BlockPos pos, Consumer<TileEntityRouter> consumer) {
+        for (Direction direction : OrientationTools.DIRECTION_VALUES) {
+            if (world.getBlockEntity(pos.relative(direction)) instanceof TileEntityRouter router) {
+                consumer.accept(router);
+            }
+        }
+    }
 
+    // All wireless routers from a given position
+    public static void forEachWirelessRouters(@Nonnull Level world, @Nonnull BlockPos pos, Consumer<TileEntityWirelessRouter> consumer) {
+        for (Direction direction : OrientationTools.DIRECTION_VALUES) {
+            if (world.getBlockEntity(pos.relative(direction)) instanceof TileEntityWirelessRouter router) {
+                consumer.accept(router);
+            }
+        }
+    }
+
+    public static boolean findWirelessRouter(@Nonnull Level world, @Nonnull BlockPos pos, Predicate<TileEntityWirelessRouter> predicate) {
+        for (Direction direction : OrientationTools.DIRECTION_VALUES) {
+            if (world.getBlockEntity(pos.relative(direction)) instanceof TileEntityWirelessRouter router) {
+                if (predicate.test(router)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Return all routers connected to a network
+    public static void forEachRouter(@Nonnull Level world, @Nonnull NetworkId networkId, Consumer<TileEntityRouter> consumer) {
+        Set<BlockPos> consumers = consumers(world, networkId);
+        for (BlockPos pos : consumers) {
+            for (Direction direction : OrientationTools.DIRECTION_VALUES) {
+                if (ConnectorBlock.isConnectable(world, pos, direction)) {
+                    BlockPos p = pos.relative(direction);
+                    if (world.getBlockEntity(p) instanceof TileEntityRouter router) {
+                        consumer.accept(router);
+                    }
+                }
+            }
+        }
+    }
 }

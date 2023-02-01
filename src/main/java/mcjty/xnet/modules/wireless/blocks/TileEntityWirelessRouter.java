@@ -127,8 +127,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
             NetworkId networkId = findRoutingNetwork();
             if (networkId != null) {
                 LogicTools.consumers(level, networkId)
-                        .forEach(consumerPos -> LogicTools.routers(level, consumerPos)
-                                .forEach(r -> publishChannels(r, networkId)));
+                        .forEach(consumerPos -> LogicTools.forEachRouter(level, consumerPos, r -> publishChannels(r, networkId)));
             }
         }
 
@@ -191,10 +190,14 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
         if (otherWorld == null) {
             return false;
         }
-        return LogicTools.consumers(otherWorld, wirelessRouter.getNetworkId())
-                .filter(consumerPos -> LevelTools.isLoaded(otherWorld, consumerPos))
-                .anyMatch(consumerPos -> LogicTools.wirelessRouters(otherWorld, consumerPos)
-                        .anyMatch(this::inRange));
+        for (BlockPos consumerPos : LogicTools.consumers(otherWorld, wirelessRouter.getNetworkId())) {
+            if (LevelTools.isLoaded(otherWorld, consumerPos)) {
+                if (LogicTools.findWirelessRouter(otherWorld, consumerPos, this::inRange)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public void findRemoteChannelInfo(List<ControllerChannelClientInfo> list) {
@@ -204,25 +207,21 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
         }
 
         XNetWirelessChannels wirelessData = XNetWirelessChannels.get(level);
-        wirelessData.findChannels(getOwnerUUID())
-                .forEach(channel -> {
+        wirelessData.forEachChannel(getOwnerUUID(), channel -> {
                     // Find all wireless routers on a given channel but remove the ones on our own channel
-                    channel.getRouters().values().stream()
-                            // Make sure this is not the same router
-                            .filter(routerInfo -> isDifferentRouter(network, routerInfo))
-                            .filter(this::inRange)
-                            .forEach(routerInfo -> {
-                                // Find all routers on this network
-                                Level otherWorld = LevelTools.getLevel(level, routerInfo.getCoordinate().dimension());
-                                LogicTools.consumers(otherWorld, routerInfo.getNetworkId())
-                                        .filter(otherWorld::hasChunkAt)
-                                        // Range check not needed here since the check is already done on the wireless router
-                                        .forEach(consumerPos -> LogicTools.routers(otherWorld, consumerPos)
-                                                .forEach(router -> {
-                                                    router.findLocalChannelInfo(list, true, true);
-                                                }));
-
-                            });
+                    channel.getRouters().values().forEach(routerInfo -> {
+                        // Make sure this is not the same router
+                        if (isDifferentRouter(network, routerInfo) && inRange(routerInfo)) {
+                            // Find all routers on this network
+                            Level otherWorld = LevelTools.getLevel(level, routerInfo.getCoordinate().dimension());
+                            for (BlockPos consumerPos : LogicTools.consumers(otherWorld, routerInfo.getNetworkId())) {
+                                if (otherWorld.hasChunkAt(consumerPos)) {
+                                    // Range check not needed here since the check is already done on the wireless router
+                                    LogicTools.forEachRouter(otherWorld, consumerPos, router -> router.findLocalChannelInfo(list, true, true));
+                                }
+                            }
+                        }
+                    });
                 });
     }
 
@@ -240,18 +239,14 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
         UUID ownerUUID = publicAccess ? null : getOwnerUUID();
         XNetWirelessChannels wirelessData = XNetWirelessChannels.get(level);
         energyHandler.ifPresent(h -> {
-
-            router.publishedChannelStream()
-                    .forEach(pair -> {
-                        String name = pair.getKey();
-                        IChannelType channelType = pair.getValue();
-                        long energyStored = h.getEnergy();
-                        if (Config.wirelessRouterRfPerChannel[tier].get() <= energyStored) {
-                            h.consumeEnergy(Config.wirelessRouterRfPerChannel[tier].get());
-                            wirelessData.transmitChannel(name, channelType, ownerUUID, level.dimension(),
-                                    worldPosition, networkId);
-                        }
-                    });
+            router.forEachPublishedChannel((name, channelType) -> {
+                long energyStored = h.getEnergy();
+                if (Config.wirelessRouterRfPerChannel[tier].get() <= energyStored) {
+                    h.consumeEnergy(Config.wirelessRouterRfPerChannel[tier].get());
+                    wirelessData.transmitChannel(name, channelType, ownerUUID, level.dimension(),
+                            worldPosition, networkId);
+                }
+            });
         });
     }
 
@@ -260,29 +255,28 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
         WirelessChannelKey key = new WirelessChannelKey(channelName, type, owner);
         XNetWirelessChannels.WirelessChannelInfo info = XNetWirelessChannels.get(level).findChannel(key);
         if (info != null) {
-            info.getRouters().keySet().stream()
-                    // Don't do this for ourselves
-                    .filter(routerPos -> !routerPos.dimension().equals(level.dimension()) || !routerPos.pos().equals(worldPosition))
-                    .filter(routerPos -> LevelTools.isLoaded(LevelTools.getLevel(level, routerPos.dimension()), routerPos.pos()))
-                    .forEach(routerPos -> {
-                        ServerLevel otherWorld = LevelTools.getLevel(level, routerPos.dimension());
+            info.getRouters().keySet().forEach(routerPos -> {
+                // Don't do this for ourselves
+                if (!routerPos.dimension().equals(level.dimension()) || !routerPos.pos().equals(worldPosition)) {
+                    ServerLevel otherWorld = LevelTools.getLevel(level, routerPos.dimension());
+                    if (LevelTools.isLoaded(otherWorld, routerPos.pos())) {
                         BlockEntity otherTE = otherWorld.getBlockEntity(routerPos.pos());
                         if (otherTE instanceof TileEntityWirelessRouter otherRouter) {
                             if (inRange(otherRouter) && !otherRouter.inError()) {
                                 NetworkId routingNetwork = otherRouter.findRoutingNetwork();
                                 if (routingNetwork != null) {
                                     LogicTools.consumers(level, routingNetwork)
-                                            .forEach(consumerPos -> LogicTools.routers(otherWorld, consumerPos).
-                                                    forEach(router -> {
-                                                        if (router.addConnectorsFromConnectedNetworks(connectors, channelName, type)) {
-                                                            wirelessVersions.put(key, info.getVersion());
-                                                        }
-                                                    }));
+                                            .forEach(consumerPos -> LogicTools.forEachRouter(otherWorld, consumerPos, router -> {
+                                                if (router.addConnectorsFromConnectedNetworks(connectors, channelName, type)) {
+                                                    wirelessVersions.put(key, info.getVersion());
+                                                }
+                                            }));
                                 }
                             }
                         }
-
-                    });
+                    }
+                }
+            });
         }
     }
 
@@ -311,10 +305,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
     @Nullable
     public NetworkId findRoutingNetwork() {
         WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
-        return LogicTools.routingConnectors(level, getBlockPos())
-                .findFirst()
-                .map(worldBlob::getNetworkAt)
-                .orElse(null);
+        return LogicTools.findRoutingConnector(level, getBlockPos(), worldBlob::getNetworkAt);
     }
 
 
