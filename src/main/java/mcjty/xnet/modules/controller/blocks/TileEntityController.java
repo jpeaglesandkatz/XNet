@@ -113,6 +113,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             .playerSlots(91, 157));
 
     private NetworkId networkId;
+    private int wirelessVersion = -1;   // To invalidate wireless channels if needed
 
     private final ChannelInfo[] channels = new ChannelInfo[MAX_CHANNELS];
     private int colors = 0;
@@ -120,7 +121,6 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     // Cached/transient data
     private final Map<SidedConsumer, IConnectorSettings> cachedConnectors[] = new Map[MAX_CHANNELS];
     private final Map<SidedConsumer, IConnectorSettings> cachedRoutedConnectors[] = new Map[MAX_CHANNELS];
-    private final Map<WirelessChannelKey, Integer> wirelessVersions = new HashMap<>();
 
     @Cap(type = CapType.ITEMS_AUTOMATION)
     private final GenericItemHandler items = GenericItemHandler.create(this, CONTAINER_FACTORY)
@@ -244,17 +244,11 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         }
 
         // Check wireless
-        for (Map.Entry<WirelessChannelKey, Integer> entry : wirelessVersions.entrySet()) {
-            XNetWirelessChannels channels = XNetWirelessChannels.get(level);
-            XNetWirelessChannels.WirelessChannelInfo channel = channels.findChannel(entry.getKey());
-            if (channel == null) {
-                cleanCaches();
-                return;
-            }
-            if (channel.getVersion() != entry.getValue()) {
-                cleanCaches();
-                return;
-            }
+        XNetWirelessChannels channels = XNetWirelessChannels.get(level);
+        if (wirelessVersion != channels.getGlobalChannelVersion()) {
+            wirelessVersion = channels.getGlobalChannelVersion();
+            setChanged();
+            cleanCaches();
         }
     }
 
@@ -365,12 +359,10 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         if (cachedRoutedConnectors[channel] == null) {
             cachedRoutedConnectors[channel] = new HashMap<>();
 
-            wirelessVersions.clear();
             if (!channels[channel].getChannelName().isEmpty()) {
                 LogicTools.forEachRouter(level, networkId, router -> {
                             router.addRoutedConnectors(cachedRoutedConnectors[channel], getBlockPos(),
-                                    channel, channels[channel].getType(),
-                                    wirelessVersions);
+                                    channel, channels[channel].getType());
                         });
             }
         }
@@ -554,14 +546,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         String name = (String) data.get(GuiController.TAG_NAME);
         channels[channel].setChannelName(name);
 
-        for (Map.Entry<WirelessChannelKey, Integer> entry : wirelessVersions.entrySet()) {
-            XNetWirelessChannels channels = XNetWirelessChannels.get(level);
-            XNetWirelessChannels.WirelessChannelInfo ch = channels.findChannel(entry.getKey());
-            if (ch != null) {
-                ch.incVersion();
-            }
-        }
-
+        XNetWirelessChannels channels = XNetWirelessChannels.get(level);
+        channels.updateGlobalChannelVersion();
         markAsDirty();
     }
 
