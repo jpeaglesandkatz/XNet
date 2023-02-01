@@ -63,12 +63,11 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         if (info == null) {
             info = new WirelessRouterInfo(pos);
             channelInfo.updateRouterInfo(pos, info);
-            channelInfo.incVersion();
 
             // Global version increase to make sure all wireless routers can detect if there is a need
             // to make their local network dirty to ensure that all controllers connected to that network
             // get a chance to pick up the new transmitted channel
-            channelUpdated();
+            updateGlobalChannelVersion();
         }
         info.setAge(0);
         info.setNetworkId(network);
@@ -82,7 +81,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 //        dump();
     }
 
-    private void channelUpdated() {
+    public void updateGlobalChannelVersion() {
         globalChannelVersion++;
     }
 
@@ -129,7 +128,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 //                System.out.println("Clean up wireless network = " + networkId + " (" + entry.getKey() + ")");
                 worldBlob.markNetworkDirty(networkId);
                 channelInfo.removeRouterInfo(pos);
-                channelInfo.incVersion();
+                XNetWirelessChannels.get(world).updateGlobalChannelVersion();
             }
             if (channelInfo.getRouters().isEmpty()) {
                 toDeleteChannel.add(entry.getKey());
@@ -223,7 +222,6 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
     public static class WirelessChannelInfo {
         private final Map<GlobalPos, WirelessRouterInfo> routers = new HashMap<>();
-        private int version = 0;
 
         public void updateRouterInfo(GlobalPos pos, WirelessRouterInfo info) {
             routers.put(pos, info);
@@ -239,18 +237,6 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
         public Map<GlobalPos, WirelessRouterInfo> getRouters() {
             return routers;
-        }
-
-        public int getVersion() {
-            return version;
-        }
-
-        public void setVersion(int version) {
-            this.version = version;
-        }
-
-        public void incVersion() {
-            version++;
         }
     }
 

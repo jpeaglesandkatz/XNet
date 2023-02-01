@@ -251,7 +251,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
     }
 
     public void addWirelessConnectors(Map<SidedConsumer, IConnectorSettings> connectors, String channelName, IChannelType type,
-                                      @Nullable UUID owner, @Nonnull Map<WirelessChannelKey, Integer> wirelessVersions) {
+                                      @Nullable UUID owner) {
         WirelessChannelKey key = new WirelessChannelKey(channelName, type, owner);
         XNetWirelessChannels.WirelessChannelInfo info = XNetWirelessChannels.get(level).findChannel(key);
         if (info != null) {
@@ -267,9 +267,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
                                 if (routingNetwork != null) {
                                     LogicTools.consumers(level, routingNetwork)
                                             .forEach(consumerPos -> LogicTools.forEachRouter(otherWorld, consumerPos, router -> {
-                                                if (router.addConnectorsFromConnectedNetworks(connectors, channelName, type)) {
-                                                    wirelessVersions.put(key, info.getVersion());
-                                                }
+                                                router.addConnectorsFromConnectedNetworks(connectors, channelName, type);
                                             }));
                                 }
                             }
@@ -279,7 +277,6 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
             });
         }
     }
-
 
     private void setError(boolean err) {
         if (error != err) {
