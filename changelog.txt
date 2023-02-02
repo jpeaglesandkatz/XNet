@@ -1,3 +1,6 @@
+Upcoming:
+- Big improvements to the routing and wireless routing in general. It should now start and stop much quicker if something changes and it will also respect the fact that a channel is disabled
+
 1.18-4.0.7:
 - Fix patchouli manual
 

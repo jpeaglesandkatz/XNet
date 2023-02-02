@@ -218,7 +218,7 @@ public final class TileEntityRouter extends GenericTileEntity {
                         });
                         // Find all wireless routers connected to this network and add the public or private
                         // channels that can be reached by them
-                        LogicTools.forEachWirelessRouters(level, consumerPos, router -> {
+                        LogicTools.forEachWirelessRouter(level, consumerPos, router -> {
                             if (!router.inError()) {
                                 router.findRemoteChannelInfo(list);
                             }
@@ -246,7 +246,7 @@ public final class TileEntityRouter extends GenericTileEntity {
                 LogicTools.consumers(level, networkId)
                         .forEach(consumerPos -> {
                             LogicTools.forEachRouter(level, consumerPos, router -> router.addConnectorsFromConnectedNetworks(connectors, publishedName, type));
-                            LogicTools.forEachWirelessRouters(level, consumerPos, router -> {
+                            LogicTools.forEachWirelessRouter(level, consumerPos, router -> {
                                 if (!router.inError()) {
                                     // First public
                                     router.addWirelessConnectors(connectors, publishedName, type, null);
@@ -268,7 +268,7 @@ public final class TileEntityRouter extends GenericTileEntity {
             if (controller != null) {
                 for (int i = 0; i < MAX_CHANNELS; i++) {
                     ChannelInfo info = controller.getChannels()[i];
-                    if (info != null) {
+                    if (info != null && info.isEnabled()) {
                         String publishedName = publishedChannels.get(new LocalChannelId(controller.getBlockPos(), i));
                         if (publishedName != null && !publishedName.isEmpty()) {
                             if (channelName.equals(publishedName) && type.equals(info.getType())) {
