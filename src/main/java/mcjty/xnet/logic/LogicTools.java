@@ -103,7 +103,7 @@ public class LogicTools {
     }
 
     // All wireless routers from a given position
-    public static void forEachWirelessRouters(@Nonnull Level world, @Nonnull BlockPos pos, Consumer<TileEntityWirelessRouter> consumer) {
+    public static void forEachWirelessRouter(@Nonnull Level world, @Nonnull BlockPos pos, Consumer<TileEntityWirelessRouter> consumer) {
         for (Direction direction : OrientationTools.DIRECTION_VALUES) {
             if (world.getBlockEntity(pos.relative(direction)) instanceof TileEntityWirelessRouter router) {
                 consumer.accept(router);
