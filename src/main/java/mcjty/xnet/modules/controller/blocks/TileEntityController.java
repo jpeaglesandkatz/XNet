@@ -812,7 +812,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             Direction facing = sidedPos.side();
 
             Direction side = Direction.byName(connectorObject.get("side").getAsString());
-            Direction facingOverride = connectorObject.has("facingoverride") ? Direction.byName(connectorObject.get("facingoverride").getAsString()) : side;
+            Direction facingOverride = connectorObject.has("facingoverride") ? Direction.byName(connectorObject.get("facingoverride").getAsString().toLowerCase()) : side;
             boolean infoAdvanced = ConnectorBlock.isAdvancedConnector(level, blockPos.relative(facing));
             if (advanced) {
                 if (!infoAdvanced) {

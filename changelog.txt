@@ -1,5 +1,6 @@
 Upcoming:
 - Fixed a problem with fluid filters which would cause crashes if it wasn't a valid bucket item to filter on
+- Pasting to an advanced connector with a direction different from default would not correctly set that direction
 
 1.19-5.1.2:
 - Big improvements to the routing and wireless routing in general. It should now start and stop much quicker if something changes and it will also respect the fact that a channel is disabled
