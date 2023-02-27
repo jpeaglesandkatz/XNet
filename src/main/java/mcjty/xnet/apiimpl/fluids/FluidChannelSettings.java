@@ -178,7 +178,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
     @Nonnull
     private FluidStack fetchFluid(IFluidHandler handler, boolean simulate, @Nullable FluidStack matcher, int rate) {
         IFluidHandler.FluidAction action = simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE;
-        if (matcher == null) {
+        if (matcher == null || matcher.isEmpty()) {
             return handler.drain(rate, action);
         } else {
             matcher = matcher.copy();
