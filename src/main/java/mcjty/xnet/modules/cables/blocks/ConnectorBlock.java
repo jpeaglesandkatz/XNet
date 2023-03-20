@@ -52,6 +52,7 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -325,7 +326,8 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         ServerLevel world = builder.getLevel();
         for (ItemStack drop : drops) {
             WorldBlob worldBlob = XNetBlobData.get(world).getWorldBlob(world);
-            ConsumerId consumer = worldBlob.getConsumerAt(new BlockPos(builder.getOptionalParameter(LootContextParams.ORIGIN)));
+            Vec3 pos = builder.getOptionalParameter(LootContextParams.ORIGIN);
+            ConsumerId consumer = worldBlob.getConsumerAt(new BlockPos((int) pos.x, (int) pos.y, (int) pos.z));
             if (consumer != null) {
                 drop.getOrCreateTag().putInt("consumerId", consumer.id());
             }
