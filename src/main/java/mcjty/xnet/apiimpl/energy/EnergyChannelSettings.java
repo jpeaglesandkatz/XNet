@@ -20,7 +20,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.energy.IEnergyStorage;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -215,12 +215,12 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
         if (te == null) {
             return false;
         }
-        return te.getCapability(CapabilityEnergy.ENERGY, side).isPresent();
+        return te.getCapability(ForgeCapabilities.ENERGY, side).isPresent();
     }
 
     public static int getEnergyLevel(BlockEntity tileEntity, @Nonnull Direction side) {
         if (tileEntity != null) {
-            return tileEntity.getCapability(CapabilityEnergy.ENERGY, side).map(IEnergyStorage::getEnergyStored).orElse(0);
+            return tileEntity.getCapability(ForgeCapabilities.ENERGY, side).map(IEnergyStorage::getEnergyStored).orElse(0);
         } else {
             return 0;
         }

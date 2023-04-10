@@ -53,9 +53,8 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
@@ -286,10 +285,10 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         if (EnergyTools.isEnergyTE(te, null)) {
             return true;
         }
-        if (te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).isPresent()) {
+        if (te.getCapability(ForgeCapabilities.ITEM_HANDLER).isPresent()) {
             return true;
         }
-        if (te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).isPresent()) {
+        if (te.getCapability(ForgeCapabilities.FLUID_HANDLER).isPresent()) {
             return true;
         }
         if (te instanceof TileEntityController) {

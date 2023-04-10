@@ -23,7 +23,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
@@ -546,7 +546,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     @Nonnull
     public static LazyOptional<IItemHandler> getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
-            return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide);
+            return te.getCapability(ForgeCapabilities.ITEM_HANDLER, intSide);
         }
         return LazyOptional.empty();
     }

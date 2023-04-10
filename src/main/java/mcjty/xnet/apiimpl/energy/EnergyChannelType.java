@@ -3,11 +3,11 @@ package mcjty.xnet.apiimpl.energy;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,7 +30,7 @@ public class EnergyChannelType implements IChannelType {
         if (te == null) {
             return false;
         }
-        if (te.getCapability(CapabilityEnergy.ENERGY, side).isPresent()) {
+        if (te.getCapability(ForgeCapabilities.ENERGY, side).isPresent()) {
             return true;
         }
 //        if (te instanceof IInventory) {

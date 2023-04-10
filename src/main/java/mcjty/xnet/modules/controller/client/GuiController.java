@@ -44,7 +44,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.filters.VanillaPacketSplitter;
 import org.lwjgl.glfw.GLFW;
@@ -705,7 +705,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             int y = (int) window.getToplevel().getBounds().getY();
             RenderHelper.drawVerticalGradientRect(x+channel * 14 + 41, y+22, x+channel * 14 + 41+12, y+230, 0x33aaffff, 0x33aaffff);
         }
-        tileEntity.getCapability(CapabilityEnergy.ENERGY).ifPresent(h -> {
+        tileEntity.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
             long currentRF = h.getEnergyStored();
             int max = h.getMaxEnergyStored();
             energyBar.value(currentRF).maxValue(max);
