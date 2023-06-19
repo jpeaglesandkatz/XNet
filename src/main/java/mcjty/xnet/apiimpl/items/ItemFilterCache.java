@@ -69,11 +69,11 @@ public class ItemFilterCache {
                 if (nbtMode) {
                     if((cleanedStack != null) && ForestrySupport.isBreedable(itemStack)) {
                         ItemStack cleanedItemStack = ForestrySupport.sanitize(itemStack, forestryFlags);
-                        if(!ItemStack.tagMatches(cleanedItemStack, cleanedStack)) {
+                        if(!ItemStack.isSameItemSameTags(cleanedItemStack, cleanedStack)) {
                     		continue;
                     	}
                     }
-                    else if(!ItemStack.tagMatches(itemStack, stack)) {
+                    else if(!ItemStack.isSameItemSameTags(itemStack, stack)) {
                         continue;
                     }
                 }

@@ -10,7 +10,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.material.Material;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,11 +18,7 @@ import java.util.List;
 public class RedstoneProxyBlock extends Block implements ITooltipSettings {
 
     public RedstoneProxyBlock() {
-        this(Material.METAL);
-    }
-
-    public RedstoneProxyBlock(Material materialIn) {
-        super(Properties.of(materialIn)
+        super(Properties.of()
                 .strength(2.0f)
                 .sound(SoundType.METAL)
         );

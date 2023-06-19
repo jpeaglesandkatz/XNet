@@ -268,7 +268,7 @@ public class Sensor {
             if (!stack.isEmpty()) {
                 if (!matcher.isEmpty()) {
                     // @todo 1.14 oredict?
-                    if (matcher.sameItem(stack)) {
+                    if (ItemStack.isSameItem(matcher, stack)) {
                         cnt += stack.getCount();
                         if (cnt >= maxNeeded) {
                             return cnt;

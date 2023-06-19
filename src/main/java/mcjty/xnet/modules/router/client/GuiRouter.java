@@ -17,6 +17,7 @@ import mcjty.xnet.client.ControllerChannelClientInfo;
 import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.setup.XNetMessages;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
@@ -164,9 +165,9 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
 
 
     @Override
-    protected void renderBg(@Nonnull PoseStack matrixStack, float v, int x1, int x2) {
+    protected void renderBg(@Nonnull GuiGraphics graphics, float v, int x1, int x2) {
         requestListsIfNeeded();
         populateList();
-        drawWindow(matrixStack);
+        drawWindow(graphics);
     }
 }

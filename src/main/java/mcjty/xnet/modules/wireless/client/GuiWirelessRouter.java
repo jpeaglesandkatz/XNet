@@ -8,6 +8,7 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.modules.wireless.WirelessRouterModule;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import mcjty.xnet.setup.XNetMessages;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.resources.ResourceLocation;
 
@@ -31,7 +32,7 @@ public class GuiWirelessRouter extends GenericGuiContainer<TileEntityWirelessRou
 
 
     @Override
-    protected void renderBg(@Nonnull PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
-        drawWindow(matrixStack);
+    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+        drawWindow(graphics);
     }
 }

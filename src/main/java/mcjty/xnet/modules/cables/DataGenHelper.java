@@ -13,7 +13,7 @@ public class DataGenHelper {
 
     public static LootPool.Builder getLootTableEntry(String cableName, Block cableBlock, Item cable, CableColor color) {
         return LootPool.lootPool()
-                .name(cableName)
+//                .name(cableName)  @todo 1.20
                 .setRolls(ConstantValue.exactly(1))
                 .add(LootItem.lootTableItem(cable))
                 .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(cableBlock)

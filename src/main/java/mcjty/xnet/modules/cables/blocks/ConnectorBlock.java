@@ -42,14 +42,14 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.SignalGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -72,7 +72,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
                     parameter("info", stack -> Integer.toString(isAdvancedConnector() ? Config.maxRfAdvancedConnector.get() : Config.maxRfConnector.get())));
 
     public ConnectorBlock(CableBlockType type) {
-        super(Material.METAL, type);
+        super(type);
     }
 
     @Override
@@ -165,7 +165,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     }
 
     @Override
-    public boolean shouldCheckWeakPower(BlockState state, LevelReader world, BlockPos pos, Direction side) {
+    public boolean shouldCheckWeakPower(BlockState state, SignalGetter level, BlockPos pos, Direction side) {
         return false;
     }
 
@@ -320,7 +320,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
 //
     @Nonnull
     @Override
-    public List<ItemStack> getDrops(@Nonnull BlockState state, @Nonnull LootContext.Builder builder) {
+    public List<ItemStack> getDrops(@Nonnull BlockState state, @Nonnull LootParams.Builder builder) {
         List<ItemStack> drops = super.getDrops(state, builder);
         ServerLevel world = builder.getLevel();
         for (ItemStack drop : drops) {

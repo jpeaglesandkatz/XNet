@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Material;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,7 +22,7 @@ import javax.annotation.Nullable;
 public class FacadeBlock extends NetCableBlock implements EntityBlock {
 
     public FacadeBlock(CableBlockType type) {
-        super(Material.METAL, type);
+        super(type);
         // @todo 1.14
 //        setHardness(0.8f);
     }

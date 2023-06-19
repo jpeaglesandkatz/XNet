@@ -34,6 +34,7 @@ import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
@@ -666,7 +667,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     @Override
-    protected void renderBg(@Nonnull PoseStack matrixStack, float v, int x1, int x2) {
+    protected void renderBg(@Nonnull GuiGraphics graphics, float v, int x1, int x2) {
         updateFields();
         requestListsIfNeeded();
         populateList();
@@ -698,7 +699,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 }
             }
         }
-        drawWindow(matrixStack);
+        drawWindow(graphics);
         int channel = getSelectedChannel();
         if (channel != -1) {
             int x = (int) window.getToplevel().getBounds().getX();
@@ -713,7 +714,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     @Override
-    protected void drawStackTooltips(PoseStack matrixStack, int mouseX, int mouseY) {
+    protected void drawStackTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
         int x = GuiTools.getRelativeX(this);
         int y = GuiTools.getRelativeY(this);
         Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);
@@ -723,6 +724,6 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 return;     // Don't do the normal tooltip rendering
             }
         }
-        super.drawStackTooltips(matrixStack, mouseX, mouseY);
+        super.drawStackTooltips(graphics, mouseX, mouseY);
     }
 }

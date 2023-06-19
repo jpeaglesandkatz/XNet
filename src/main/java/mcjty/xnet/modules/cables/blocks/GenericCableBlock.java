@@ -29,9 +29,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -84,8 +83,8 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
         FACADE
     }
 
-    public GenericCableBlock(Material material, CableBlockType type) {
-        super(Properties.of(material)
+    public GenericCableBlock(CableBlockType type) {
+        super(Properties.of()
                 .strength(1.0f)
                 .sound(SoundType.METAL)
                 .noOcclusion()
@@ -294,9 +293,8 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 //    }
 
 
-    @Nonnull
     @Override
-    public List<ItemStack> getDrops(@Nonnull BlockState state, @Nonnull LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         return super.getDrops(state, builder);
     }
 

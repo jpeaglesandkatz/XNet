@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.RenderLevelLastEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,8 @@ import static mcjty.xnet.modules.cables.ConnectorType.CABLE;
 
 public class CableWorldRenderer {
 
-    public static void tick(RenderLevelLastEvent evt) {
+    // @todo 1.20 is this correct?
+    public static void tick(RenderLevelStageEvent evt) {
         Minecraft mc = Minecraft.getInstance();
 
         ItemStack heldItem = mc.player.getItemInHand(InteractionHand.MAIN_HAND);
@@ -46,7 +47,7 @@ public class CableWorldRenderer {
         }
     }
 
-    private static void renderCables(RenderLevelLastEvent evt, Minecraft mc) {
+    private static void renderCables(RenderLevelStageEvent evt, Minecraft mc) {
         Player p = mc.player;
 
         PoseStack matrixStack = evt.getPoseStack();
