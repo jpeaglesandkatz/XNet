@@ -9,8 +9,6 @@ import mcjty.xnet.apiimpl.fluids.FluidChannelType;
 import mcjty.xnet.apiimpl.items.ItemChannelType;
 import mcjty.xnet.apiimpl.logic.LogicChannelType;
 import mcjty.xnet.compat.TopExtras;
-import mcjty.xnet.modules.controller.ControllerModule;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -18,10 +16,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 public class ModSetup extends DefaultModSetup {
 
     public static boolean rftoolsControl = false;
-
-    public ModSetup() {
-        createTab(XNet.MODID, "xnet", () -> new ItemStack(ControllerModule.CONTROLLER.get()));
-    }
 
     @Override
     public void init(FMLCommonSetupEvent e) {
