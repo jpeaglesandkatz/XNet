@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[39,)"
+loaderVersion="[47,)"
 license="MIT License https://github.com/McJtyMods/XNet/blob/1.16/LICENCE"
 issueTrackerURL="http://github.com/McJtyMods/XNet/issues"
 displayURL="http://github.com/McJtyMods/XNet/"
@@ -18,18 +18,18 @@ Powerful item/fluid/energy transfer
 [[dependencies.xnet]]
     modId="forge"
     mandatory=true
-    versionRange="[39.0.0,)"
+    versionRange="[47,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.xnet]]
     modId="mcjtylib"
     mandatory=true
-    versionRange="[1.19-7.2.2,)"
+    versionRange="[1.20-8.0.0,)"
     ordering="AFTER"
     side="BOTH"
 [[dependencies.xnet]]
     modId="rftoolsbase"
     mandatory=true
-    versionRange="[1.18-3.0.8,)"
+    versionRange="[1.20-5.0.0,)"
     ordering="AFTER"
     side="BOTH"
