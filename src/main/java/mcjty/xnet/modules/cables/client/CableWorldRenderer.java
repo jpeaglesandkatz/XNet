@@ -48,6 +48,10 @@ public class CableWorldRenderer {
     }
 
     private static void renderCables(RenderLevelStageEvent evt, Minecraft mc) {
+        if (evt.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
+            return;
+        }
+
         Player p = mc.player;
 
         PoseStack matrixStack = evt.getPoseStack();
