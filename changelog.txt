@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed shape calculation for connectors so that they are more accurate
+
 1.19-5.1.4:
 - Update to 1.19.4
 
