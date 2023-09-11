@@ -1,7 +1,7 @@
 {
   "name": "Simple Network",
   "description": "A simple network",
-  "parent": "xnet:category_xnet",
+  "parent": "rftoolsbase:category_xnet",
   "icon": "xnet:netcable_red",
   "sortnum": 10
 }

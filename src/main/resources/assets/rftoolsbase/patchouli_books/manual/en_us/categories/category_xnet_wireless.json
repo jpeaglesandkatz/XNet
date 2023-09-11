@@ -1,7 +1,7 @@
 {
   "name": "Wireless Networks",
   "description": "Connecting multiple networks wirelessly",
-  "parent": "xnet:category_xnet",
+  "parent": "rftoolsbase:category_xnet",
   "icon": "xnet:antenna",
   "sortnum": 30
 }

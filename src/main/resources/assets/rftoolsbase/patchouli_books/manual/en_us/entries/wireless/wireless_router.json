@@ -1,7 +1,7 @@
 {
   "name": "Wireless Router",
   "icon": "xnet:wireless_router",
-  "category": "xnet:category_xnet_wireless",
+  "category": "rftoolsbase:category_xnet_wireless",
   "sortnum": 10,
   "pages": [
     {

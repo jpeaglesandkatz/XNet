@@ -1,7 +1,7 @@
 {
   "name": "Router",
   "icon": "xnet:router",
-  "category": "xnet:category_xnet_network",
+  "category": "rftoolsbase:category_xnet_network",
   "sortnum": 10,
   "pages": [
     {

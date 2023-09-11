@@ -1,7 +1,7 @@
 {
   "name": "Controller",
   "icon": "xnet:controller",
-  "category": "xnet:category_xnet_simple",
+  "category": "rftoolsbase:category_xnet_simple",
   "sortnum": 10,
   "pages": [
     {

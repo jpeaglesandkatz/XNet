@@ -1,7 +1,7 @@
 {
   "name": "Connectors",
   "icon": "xnet:connector_red",
-  "category": "xnet:category_xnet_simple",
+  "category": "rftoolsbase:category_xnet_simple",
   "sortnum": 30,
   "pages": [
     {
