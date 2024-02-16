@@ -2,7 +2,6 @@ package mcjty.xnet.modules.controller.client;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.client.RenderHelper;
@@ -442,7 +441,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 return;
             }
 
-            PacketServerCommandTyped packet = new PacketServerCommandTyped(tileEntity.getBlockPos(), tileEntity.getDimension(), CMD_PASTECONNECTOR.name(), TypedMap.builder()
+            PacketServerCommandTyped packet = PacketServerCommandTyped.create(tileEntity.getBlockPos(), tileEntity.getDimension(), CMD_PASTECONNECTOR.name(), TypedMap.builder()
                     .put(PARAM_INDEX, getSelectedChannel())
                     .put(PARAM_POS, editingConnector.pos())
                     .put(PARAM_SIDE, editingConnector.side().ordinal())
@@ -477,7 +476,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Unsupported channel type: " + type + "!");
                 return;
             }
-            PacketServerCommandTyped packet = new PacketServerCommandTyped(tileEntity.getBlockPos(), tileEntity.getDimension(), CMD_PASTECHANNEL.name(), TypedMap.builder()
+            PacketServerCommandTyped packet = PacketServerCommandTyped.create(tileEntity.getBlockPos(), tileEntity.getDimension(), CMD_PASTECHANNEL.name(), TypedMap.builder()
                     .put(PARAM_INDEX, getSelectedChannel())
                     .put(PARAM_JSON, json)
                     .build());
@@ -560,8 +559,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         }
         listDirty--;
         if (listDirty <= 0) {
-            XNetMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETCHANNELS.name()));
-            XNetMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETCONNECTEDBLOCKS.name()));
+            XNetMessages.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCHANNELS.name()));
+            XNetMessages.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCONNECTEDBLOCKS.name()));
             listDirty = 10;
             showingChannel = -1;
             showingConnector = null;

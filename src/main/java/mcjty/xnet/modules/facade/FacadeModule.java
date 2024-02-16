@@ -3,6 +3,8 @@ package mcjty.xnet.modules.facade;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
+import mcjty.lib.setup.DeferredBlock;
+import mcjty.lib.setup.DeferredItem;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.modules.facade.blocks.FacadeBlock;
 import mcjty.xnet.modules.facade.blocks.FacadeBlockItem;
@@ -16,15 +18,17 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.function.Supplier;
+
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.xnet.XNet.tab;
 import static mcjty.xnet.setup.Registration.*;
 
 public class FacadeModule implements IModule {
 
-    public static final RegistryObject<FacadeBlock> FACADE = BLOCKS.register("facade", () -> new FacadeBlock(GenericCableBlock.CableBlockType.FACADE)); // @todo 1.14
-    public static final RegistryObject<Item> FACADE_ITEM = ITEMS.register("facade", tab(() -> new FacadeBlockItem(FACADE.get())));
-    public static final RegistryObject<BlockEntityType<?>> TYPE_FACADE = TILES.register("facade", () -> BlockEntityType.Builder.of(FacadeTileEntity::new, FACADE.get()).build(null));
+    public static final DeferredBlock<FacadeBlock> FACADE = BLOCKS.register("facade", () -> new FacadeBlock(GenericCableBlock.CableBlockType.FACADE)); // @todo 1.14
+    public static final DeferredItem<Item> FACADE_ITEM = ITEMS.register("facade", tab(() -> new FacadeBlockItem(FACADE.get())));
+    public static final Supplier<BlockEntityType<?>> TYPE_FACADE = TILES.register("facade", () -> BlockEntityType.Builder.of(FacadeTileEntity::new, FACADE.get()).build(null));
 
     @Override
     public void init(FMLCommonSetupEvent event) {

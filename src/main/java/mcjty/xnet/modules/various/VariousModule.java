@@ -3,6 +3,8 @@ package mcjty.xnet.modules.various;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
+import mcjty.lib.setup.DeferredBlock;
+import mcjty.lib.setup.DeferredItem;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.various.blocks.RedstoneProxyBlock;
 import mcjty.xnet.modules.various.blocks.RedstoneProxyUBlock;
@@ -26,12 +28,12 @@ import static net.minecraftforge.client.model.generators.ModelProvider.BLOCK_FOL
 
 public class VariousModule implements IModule {
 
-    public static final RegistryObject<RedstoneProxyBlock> REDSTONE_PROXY = BLOCKS.register("redstone_proxy", RedstoneProxyBlock::new);
-    public static final RegistryObject<RedstoneProxyUBlock> REDSTONE_PROXY_UPD = BLOCKS.register("redstone_proxy_upd", RedstoneProxyUBlock::new);
-    public static final RegistryObject<Item> REDSTONE_PROXY_ITEM = ITEMS.register("redstone_proxy", tab(() -> new BlockItem(REDSTONE_PROXY.get(), Registration.createStandardProperties())));
-    public static final RegistryObject<Item> REDSTONE_PROXY_UPD_ITEM = ITEMS.register("redstone_proxy_upd", tab(() -> new BlockItem(REDSTONE_PROXY_UPD.get(), Registration.createStandardProperties())));
+    public static final DeferredBlock<RedstoneProxyBlock> REDSTONE_PROXY = BLOCKS.register("redstone_proxy", RedstoneProxyBlock::new);
+    public static final DeferredBlock<RedstoneProxyUBlock> REDSTONE_PROXY_UPD = BLOCKS.register("redstone_proxy_upd", RedstoneProxyUBlock::new);
+    public static final DeferredItem<Item> REDSTONE_PROXY_ITEM = ITEMS.register("redstone_proxy", tab(() -> new BlockItem(REDSTONE_PROXY.get(), Registration.createStandardProperties())));
+    public static final DeferredItem<Item> REDSTONE_PROXY_UPD_ITEM = ITEMS.register("redstone_proxy_upd", tab(() -> new BlockItem(REDSTONE_PROXY_UPD.get(), Registration.createStandardProperties())));
 
-    public static final RegistryObject<ConnectorUpgradeItem> UPGRADE = ITEMS.register("connector_upgrade", ConnectorUpgradeItem::new);
+    public static final DeferredItem<ConnectorUpgradeItem> UPGRADE = ITEMS.register("connector_upgrade", ConnectorUpgradeItem::new);
 
     @Override
     public void init(FMLCommonSetupEvent event) {

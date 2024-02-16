@@ -1,36 +1,38 @@
 package mcjty.xnet.modules.controller.network;
 
+import mcjty.lib.network.CustomPacketPayload;
 import mcjty.lib.network.NetworkTools;
+import mcjty.lib.network.PlayPayloadContext;
+import mcjty.xnet.XNet;
 import mcjty.xnet.modules.controller.client.GuiController;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.resources.ResourceLocation;
 
-import java.util.function.Supplier;
+public record PacketJsonToClipboard(String json) implements CustomPacketPayload {
 
-public class PacketJsonToClipboard {
+    public static final ResourceLocation ID = new ResourceLocation(XNet.MODID, "jsontoclipboard");
 
-    private String json;
+    public static PacketJsonToClipboard create(FriendlyByteBuf buf) {
+        return new PacketJsonToClipboard(NetworkTools.readStringUTF8(buf));
+    }
 
-    public void toBytes(FriendlyByteBuf buf) {
+    public static PacketJsonToClipboard create(String json) {
+        return new PacketJsonToClipboard(json);
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
         NetworkTools.writeStringUTF8(buf, json);
     }
 
-    public PacketJsonToClipboard() {
+    @Override
+    public ResourceLocation id() {
+        return ID;
     }
 
-    public PacketJsonToClipboard(FriendlyByteBuf buf) {
-        json = NetworkTools.readStringUTF8(buf);
-    }
-
-    public PacketJsonToClipboard(String json) {
-        this.json = json;
-    }
-
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(() -> {
+    public void handle(PlayPayloadContext ctx) {
+        ctx.workHandler().submitAsync(() -> {
             GuiController.toClipboard(json);
         });
-        ctx.setPacketHandled(true);
     }
 }

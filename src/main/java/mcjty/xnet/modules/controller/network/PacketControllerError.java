@@ -1,37 +1,39 @@
 package mcjty.xnet.modules.controller.network;
 
+import mcjty.lib.network.CustomPacketPayload;
 import mcjty.lib.network.NetworkTools;
+import mcjty.lib.network.PlayPayloadContext;
+import mcjty.xnet.XNet;
 import mcjty.xnet.modules.controller.client.GuiController;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
-
-import java.util.function.Supplier;
+import net.minecraft.resources.ResourceLocation;
 
 
-public class PacketControllerError {
+public record PacketControllerError(String error) implements CustomPacketPayload {
 
-    private String error;
+    public static final ResourceLocation ID = new ResourceLocation(XNet.MODID, "controllererror");
 
-    public void toBytes(FriendlyByteBuf buf) {
+    public static PacketControllerError create(FriendlyByteBuf buf) {
+        return new PacketControllerError(NetworkTools.readStringUTF8(buf));
+    }
+
+    public static PacketControllerError create(String error) {
+        return new PacketControllerError(error);
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
         NetworkTools.writeStringUTF8(buf, error);
     }
 
-    public PacketControllerError() {
+    @Override
+    public ResourceLocation id() {
+        return ID;
     }
 
-    public PacketControllerError(FriendlyByteBuf buf) {
-        error = NetworkTools.readStringUTF8(buf);
-    }
-
-    public PacketControllerError(String error) {
-        this.error = error;
-    }
-
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(() -> {
+    public void handle(PlayPayloadContext ctx) {
+        ctx.workHandler().submitAsync(() -> {
             GuiController.showError(error);
         });
-        ctx.setPacketHandled(true);
     }
 }

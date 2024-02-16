@@ -53,7 +53,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -66,7 +65,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.network.NetworkDirection;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -678,11 +676,11 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                 Gson gson = new GsonBuilder().create();
                 String json = gson.toJson(parent);
 
-                XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.sendToPlayer(PacketJsonToClipboard.create(json), player);
                 return;
             }
         }
-        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error copying connector!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        XNetMessages.sendToPlayer(PacketControllerError.create("Error copying connector!"), player);
     }
 
     private void copyChannel(Player player, int index) {
@@ -724,9 +722,9 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             Gson gson = new GsonBuilder().create();
             String json = gson.toJson(parent);
 
-            XNetMessages.INSTANCE.sendTo(new PacketJsonToClipboard(json), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.sendToPlayer(PacketJsonToClipboard.create(json), player);
         } else {
-            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Channel does not support this!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.sendToPlayer(PacketControllerError.create("Channel does not support this!"), player);
         }
     }
 
@@ -794,14 +792,14 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             JsonObject root = parser.parse(json).getAsJsonObject();
 
             if (!root.has(JSON_CONNECTOR) || !root.has(JSON_TYPE)) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid connector json!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.sendToPlayer(PacketControllerError.create("Invalid connector json!"), player);
                 return;
             }
 
             String typeId = root.get(JSON_TYPE).getAsString();
             IChannelType type = XNet.xNetApi.findType(typeId);
             if (type != channels[channel].getType()) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Wrong channel type!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.sendToPlayer(PacketControllerError.create("Wrong channel type!"), player);
                 return;
             }
             boolean advanced = root.get(JSON_ADVANCED).getAsBoolean();
@@ -819,7 +817,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                     // If advanced is desired but our actual connector is not advanced then we give a penalty. The penalty is big
                     // if we can't match with the actual side or if we actually need advanced
                     if (advancedNeeded || !facingOverride.equals(facing)) {
-                        XNetMessages.INSTANCE.sendTo(new PacketControllerError("Advanced connector is needed!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                        XNetMessages.sendToPlayer(PacketControllerError.create("Advanced connector is needed!"), player);
                         return;
                     }
                 }
@@ -832,7 +830,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             ConnectorInfo info = createConnector(channel, sidedPos);
             info.getConnectorSettings().readFromJson(connectorObject);
         } catch (JsonSyntaxException e) {
-            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.sendToPlayer(PacketControllerError.create("Error pasting clipboard data!"), player);
         }
 
         markAsDirty();
@@ -854,7 +852,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             JsonParser parser = new JsonParser();
             JsonObject root = parser.parse(json).getAsJsonObject();
             if (!root.has(JSON_CHANNEL) || !root.has(JSON_TYPE) || !root.has(JSON_NAME)) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Invalid channel json!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.sendToPlayer(PacketControllerError.create("Invalid channel json!"), player);
                 return;
             }
             String typeId = root.get(JSON_TYPE).getAsString();
@@ -961,10 +959,10 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             }
 
             if (notEnoughConnectors) {
-                XNetMessages.INSTANCE.sendTo(new PacketControllerError("Not everything could be pasted!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                XNetMessages.sendToPlayer(PacketControllerError.create("Not everything could be pasted!"), player);
             }
         } catch (JsonSyntaxException e) {
-            XNetMessages.INSTANCE.sendTo(new PacketControllerError("Error pasting clipboard data!"), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            XNetMessages.sendToPlayer(PacketControllerError.create("Error pasting clipboard data!"), player);
         }
 
         markAsDirty();

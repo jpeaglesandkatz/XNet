@@ -1,14 +1,18 @@
 package mcjty.xnet.setup;
 
-import mcjty.lib.network.ChannelBoundHandler;
 import mcjty.lib.network.PacketHandler;
 import mcjty.lib.network.PacketRequestDataFromServer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.controller.network.PacketControllerError;
 import mcjty.xnet.modules.controller.network.PacketJsonToClipboard;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
+
+import static mcjty.lib.network.PlayPayloadContext.wrap;
 
 public class XNetMessages {
     public static SimpleChannel INSTANCE;
@@ -24,10 +28,10 @@ public class XNetMessages {
 
         INSTANCE = net;
 
-        net.registerMessage(id(), PacketJsonToClipboard.class, PacketJsonToClipboard::toBytes, PacketJsonToClipboard::new, PacketJsonToClipboard::handle);
-        net.registerMessage(id(), PacketControllerError.class, PacketControllerError::toBytes, PacketControllerError::new, PacketControllerError::handle);
+        net.registerMessage(id(), PacketJsonToClipboard.class, PacketJsonToClipboard::write, PacketJsonToClipboard::create, wrap(PacketJsonToClipboard::handle));
+        net.registerMessage(id(), PacketControllerError.class, PacketControllerError::write, PacketControllerError::create, wrap(PacketControllerError::handle));
 
-        net.registerMessage(id(), PacketRequestDataFromServer.class, PacketRequestDataFromServer::toBytes, PacketRequestDataFromServer::new, new ChannelBoundHandler<>(net, PacketRequestDataFromServer::handle));
+        PacketRequestDataFromServer.register(net, id());
 
         PacketHandler.registerStandardMessages(id(), net);
     }
@@ -35,5 +39,13 @@ public class XNetMessages {
     private static int packetId = 0;
     private static int id() {
         return packetId++;
+    }
+
+    public static <T> void sendToPlayer(T packet, Player player) {
+        INSTANCE.sendTo(packet, ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+    }
+
+    public static <T> void sendToServer(T packet) {
+        INSTANCE.sendToServer(packet);
     }
 }
