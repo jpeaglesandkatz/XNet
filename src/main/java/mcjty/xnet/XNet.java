@@ -19,7 +19,6 @@ import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -45,11 +44,11 @@ public class XNet {
         Dist dist = FMLEnvironment.dist;
 
         instance = this;
-        setupModules();
+        setupModules(bus, dist);
 
         Config.register(modules);
 
-        Registration.register();
+        Registration.register(bus);
 
         bus.addListener(setup::init);
         bus.addListener(modules::init);
@@ -72,8 +71,8 @@ public class XNet {
         datagen.generate();
     }
 
-    private void setupModules() {
-        modules.register(new CableModule());
+    private void setupModules(IEventBus bus, Dist dist) {
+        modules.register(new CableModule(bus, dist));
         modules.register(new ControllerModule());
         modules.register(new FacadeModule());
         modules.register(new RouterModule());

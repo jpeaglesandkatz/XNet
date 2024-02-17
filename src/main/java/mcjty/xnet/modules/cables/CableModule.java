@@ -13,9 +13,6 @@ import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
 import mcjty.xnet.modules.cables.client.ClientSetup;
 import mcjty.xnet.modules.cables.client.GuiConnector;
 import mcjty.xnet.setup.Registration;
-import net.minecraft.core.Registry;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.MenuType;
@@ -25,11 +22,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.Tags;
-import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.RegistryObject;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -70,10 +65,10 @@ public class CableModule implements IModule {
     public static final TagKey<Item> TAG_CONNECTORS = TagTools.createItemTagKey(new ResourceLocation(XNet.MODID, "connectors"));
     public static final TagKey<Item> TAG_ADVANCED_CONNECTORS = TagTools.createItemTagKey(new ResourceLocation(XNet.MODID, "advanced_connectors"));
 
-    public CableModule() {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::modelInit);
-        });
+    public CableModule(IEventBus bus, Dist dist) {
+        if (dist.isClient()) {
+            bus.addListener(ClientSetup::modelInit);
+        }
     }
 
     @Override
@@ -90,7 +85,7 @@ public class CableModule implements IModule {
     }
 
     @Override
-    public void initConfig() {
+    public void initConfig(IEventBus bus) {
 
     }
 
