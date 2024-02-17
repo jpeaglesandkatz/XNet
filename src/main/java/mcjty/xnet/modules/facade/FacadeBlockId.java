@@ -4,7 +4,6 @@ import mcjty.lib.varia.Tools;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class FacadeBlockId {
     private final String registryName;
@@ -15,7 +14,7 @@ public class FacadeBlockId {
     }
 
     public BlockState getBlockState() {
-        return ForgeRegistries.BLOCKS.getValue(new ResourceLocation(registryName)).defaultBlockState();
+        return Tools.getBlock(new ResourceLocation(registryName)).defaultBlockState();
     }
 
     @Override
