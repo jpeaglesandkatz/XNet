@@ -9,7 +9,6 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolsbase.api.xnet.channels.RSMode;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.xnet.XNet;
-import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -60,7 +59,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
             }
         }
 
-        gui.sendServerCommandTyped(XNetMessages.INSTANCE, cmd, builder.build());
+        gui.sendServerCommandTyped(cmd, builder.build());
         gui.refresh();
     }
 

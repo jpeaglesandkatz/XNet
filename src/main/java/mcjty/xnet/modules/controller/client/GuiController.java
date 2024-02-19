@@ -2,6 +2,7 @@ package mcjty.xnet.modules.controller.client;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.client.RenderHelper;
@@ -30,7 +31,6 @@ import mcjty.xnet.client.ConnectorClientInfo;
 import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.setup.Config;
-import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -106,7 +106,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     @Override
     public void init() {
-        window = new Window(this, tileEntity, XNetMessages.INSTANCE, new ResourceLocation(XNet.MODID, "gui/controller.gui"));
+        window = new Window(this, tileEntity, new ResourceLocation(XNet.MODID, "gui/controller.gui"));
         super.init();
 
         initializeFields();
@@ -248,7 +248,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private void removeConnector(SidedPos sidedPos) {
-        sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_REMOVECONNECTOR,
+        sendServerCommandTyped(TileEntityController.CMD_REMOVECONNECTOR,
                 TypedMap.builder()
                         .put(PARAM_CHANNEL, getSelectedChannel())
                         .put(PARAM_POS, sidedPos.pos())
@@ -258,7 +258,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private void createConnector(SidedPos sidedPos) {
-        sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_CREATECONNECTOR,
+        sendServerCommandTyped(TileEntityController.CMD_CREATECONNECTOR,
                 TypedMap.builder()
                         .put(PARAM_CHANNEL, getSelectedChannel())
                         .put(PARAM_POS, sidedPos.pos())
@@ -269,7 +269,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private void removeChannel() {
         showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Really remove channel " + (getSelectedChannel() + 1) + "?", () -> {
-            sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_REMOVECHANNEL,
+            sendServerCommandTyped(TileEntityController.CMD_REMOVECHANNEL,
                     TypedMap.builder()
                             .put(PARAM_INDEX, getSelectedChannel())
                             .build());
@@ -278,7 +278,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private void createChannel(String typeId) {
-        sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_CREATECHANNEL,
+        sendServerCommandTyped(TileEntityController.CMD_CREATECHANNEL,
                 TypedMap.builder()
                         .put(PARAM_INDEX, getSelectedChannel())
                         .put(PARAM_TYPE, typeId)
@@ -391,7 +391,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private void copyConnector() {
         if (editingConnector != null) {
-            sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_COPYCONNECTOR,
+            sendServerCommandTyped(TileEntityController.CMD_COPYCONNECTOR,
                     TypedMap.builder()
                             .put(PARAM_INDEX, getSelectedChannel())
                             .put(PARAM_POS, editingConnector.pos())
@@ -403,7 +403,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private void copyChannel() {
         showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.GREEN + "Copied channel");
-        sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_COPYCHANNEL,
+        sendServerCommandTyped(TileEntityController.CMD_COPYCHANNEL,
                 TypedMap.builder()
                         .put(PARAM_INDEX, getSelectedChannel())
                         .build());
@@ -490,13 +490,13 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private void sendSplit(PacketServerCommandTyped packet, boolean doSplit) {
         if (doSplit) {
-            Packet<?> vanillaPacket = XNetMessages.INSTANCE.toVanillaPacket(packet, NetworkDirection.PLAY_TO_SERVER);
+            Packet<?> vanillaPacket = McJtyLib.networkHandler.toVanillaPacket(packet, NetworkDirection.PLAY_TO_SERVER);
             List<Packet<?>> packets = new ArrayList<>();
             VanillaPacketSplitter.appendPackets(ConnectionProtocol.PLAY, PacketFlow.SERVERBOUND, vanillaPacket, packets);
             Connection connection = Minecraft.getInstance().getConnection().getConnection();
             packets.forEach(connection::send);
         } else {
-            XNetMessages.INSTANCE.sendToServer(packet);
+            McJtyLib.sendToServer(packet);
         }
     }
 
@@ -559,8 +559,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         }
         listDirty--;
         if (listDirty <= 0) {
-            XNetMessages.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCHANNELS.name()));
-            XNetMessages.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCONNECTEDBLOCKS.name()));
+            McJtyLib.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCHANNELS.name()));
+            McJtyLib.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCONNECTEDBLOCKS.name()));
             listDirty = 10;
             showingChannel = -1;
             showingConnector = null;

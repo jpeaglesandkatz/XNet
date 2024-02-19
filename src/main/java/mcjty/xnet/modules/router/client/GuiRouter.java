@@ -1,5 +1,6 @@
 package mcjty.xnet.modules.router.client;
 
+import mcjty.lib.McJtyLib;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
@@ -15,11 +16,10 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.client.ControllerChannelClientInfo;
 import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
-import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
 
@@ -45,7 +45,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
 
     @Override
     public void init() {
-        window = new Window(this, tileEntity, XNetMessages.INSTANCE, new ResourceLocation(XNet.MODID, "gui/router.gui"));
+        window = new Window(this, tileEntity, new ResourceLocation(XNet.MODID, "gui/router.gui"));
         super.init();
 
         localChannelList = window.findChild("localchannels");
@@ -56,7 +56,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
     }
 
     private void updatePublish(BlockPos pos, int index, String name) {
-        sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityRouter.CMD_UPDATENAME,
+        sendServerCommandTyped(TileEntityRouter.CMD_UPDATENAME,
                 TypedMap.builder()
                         .put(PARAM_POS, pos)
                         .put(PARAM_CHANNEL, index)
@@ -156,8 +156,8 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         }
         listDirty--;
         if (listDirty <= 0) {
-            XNetMessages.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCHANNELS.name()));
-            XNetMessages.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETREMOTECHANNELS.name()));
+            McJtyLib.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCHANNELS.name()));
+            McJtyLib.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETREMOTECHANNELS.name()));
             listDirty = 10;
         }
     }
