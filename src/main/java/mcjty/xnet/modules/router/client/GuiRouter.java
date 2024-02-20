@@ -1,6 +1,5 @@
 package mcjty.xnet.modules.router.client;
 
-import mcjty.lib.McJtyLib;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
@@ -8,6 +7,7 @@ import mcjty.lib.gui.widgets.ImageLabel;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.gui.widgets.WidgetList;
+import mcjty.lib.network.Networking;
 import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
@@ -156,8 +156,8 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         }
         listDirty--;
         if (listDirty <= 0) {
-            McJtyLib.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCHANNELS.name()));
-            McJtyLib.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETREMOTECHANNELS.name()));
+            Networking.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCHANNELS.name()));
+            Networking.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETREMOTECHANNELS.name()));
             listDirty = 10;
         }
     }

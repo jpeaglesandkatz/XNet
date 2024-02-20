@@ -24,7 +24,7 @@ public class ModSetup extends DefaultModSetup {
         MinecraftForge.EVENT_BUS.register(new ForgeEventHandlers());
 //        CommandHandler.registerCommands();
 
-        XNetMessages.registerMessages("xnet");
+        XNetMessages.registerMessages();
 
         XNet.xNetApi.registerConsumerProvider((world, blob, net) -> blob.getConsumers(net));
         XNet.xNetApi.registerChannelType(new ItemChannelType());

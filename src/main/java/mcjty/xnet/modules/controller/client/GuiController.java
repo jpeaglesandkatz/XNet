@@ -2,7 +2,6 @@ package mcjty.xnet.modules.controller.client;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.client.RenderHelper;
@@ -13,6 +12,7 @@ import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.ButtonEvent;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
 import mcjty.lib.gui.widgets.*;
+import mcjty.lib.network.Networking;
 import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.lib.network.PacketServerCommandTyped;
 import mcjty.lib.typed.TypedMap;
@@ -490,13 +490,13 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private void sendSplit(PacketServerCommandTyped packet, boolean doSplit) {
         if (doSplit) {
-            Packet<?> vanillaPacket = McJtyLib.networkHandler.toVanillaPacket(packet, NetworkDirection.PLAY_TO_SERVER);
+            Packet<?> vanillaPacket = Networking.getChannel().toVanillaPacket(packet, NetworkDirection.PLAY_TO_SERVER);
             List<Packet<?>> packets = new ArrayList<>();
             VanillaPacketSplitter.appendPackets(ConnectionProtocol.PLAY, PacketFlow.SERVERBOUND, vanillaPacket, packets);
             Connection connection = Minecraft.getInstance().getConnection().getConnection();
             packets.forEach(connection::send);
         } else {
-            McJtyLib.sendToServer(packet);
+            Networking.sendToServer(packet);
         }
     }
 
@@ -559,8 +559,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         }
         listDirty--;
         if (listDirty <= 0) {
-            McJtyLib.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCHANNELS.name()));
-            McJtyLib.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCONNECTEDBLOCKS.name()));
+            Networking.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCHANNELS.name()));
+            Networking.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCONNECTEDBLOCKS.name()));
             listDirty = 10;
             showingChannel = -1;
             showingConnector = null;
