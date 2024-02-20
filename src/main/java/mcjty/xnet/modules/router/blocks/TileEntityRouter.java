@@ -44,7 +44,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -67,7 +67,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     public List<ControllerChannelClientInfo> clientRemoteChannels = null;
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Router")
+    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<GenericContainer>("Router")
             .containerSupplier(empty(RouterModule.CONTAINER_ROUTER, this)));
 
     public TileEntityRouter(BlockPos pos, BlockState state) {
