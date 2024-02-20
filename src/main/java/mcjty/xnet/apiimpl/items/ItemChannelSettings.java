@@ -15,14 +15,13 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.compat.RFToolsSupport;
 import mcjty.xnet.setup.Config;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.LazyOptional;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -180,13 +179,14 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 if (RFToolsSupport.isStorageScanner(te)) {
                     RFToolsSupport.tickStorageScanner(context, settings, te, this);
                 } else {
-                    getItemHandlerAt(te, settings.getFacing()).ifPresent(handler -> {
+                    IItemHandler handler = getItemHandlerAt(te, settings.getFacing());
+                    if (handler != null) {
                         int idx = getStartExtractIndex(settings, consumerId, handler);
                         idx = tickItemHandler(context, settings, handler, idx);
                         if (handler.getSlots() > 0) {
                             rememberExtractIndex(consumerId, (idx + 1) % handler.getSlots());
                         }
-                    });
+                    }
                 }
             }
         }
@@ -322,8 +322,8 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                         }
                         remaining = RFToolsSupport.insertItem(te, stack, true);
                     } else {
-                        LazyOptional<IItemHandler> itemHandler = getItemHandlerAt(te, settings.getFacing());
-                        if (itemHandler.isPresent()) {
+                        IItemHandler itemHandler = getItemHandlerAt(te, settings.getFacing());
+                        if (itemHandler != null) {
                             if (count != null) {
                                 int amount = countItems(itemHandler, settings.getMatcher(context));
                                 int caninsert = count - amount;
@@ -335,7 +335,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                                 stack.setCount(Math.max(toinsert, 0));
                             }
                             ItemStack finalStack = stack;
-                            remaining = itemHandler.map(h -> ItemHandlerHelper.insertItem(h, finalStack, true)).orElse(ItemStack.EMPTY);
+                            remaining = ItemHandlerHelper.insertItem(itemHandler, finalStack, true);
                         } else {
                             continue;
                         }
@@ -404,7 +404,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 }
 
             } else {
-                LazyOptional<IItemHandler> handler = getItemHandlerAt(te, settings.getFacing());
+                IItemHandler handler = getItemHandlerAt(te, settings.getFacing());
 
                 int toinsert = total;
                 Integer count = settings.getCount();
@@ -419,7 +419,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                     stack.setCount(Math.max(toinsert, 0));
                 }
                 ItemStack finalStack = stack;
-                ItemStack remaining = handler.map(h -> ItemHandlerHelper.insertItem(h, finalStack, false)).orElse(ItemStack.EMPTY);
+                ItemStack remaining = handler == null ? ItemStack.EMPTY : ItemHandlerHelper.insertItem(handler, finalStack, false);
                 int actuallyinserted = toinsert - remaining.getCount();
                 if (count == null) {
                     // If we are not using a count then we restore 'stack' here as that is what
@@ -441,11 +441,10 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         }
     }
 
-    private int countItems(LazyOptional<IItemHandler> handler, Predicate<ItemStack> matcher) {
-        return handler.map(h -> countItems(h, matcher)).orElse(0);
-    }
-
     private Integer countItems(IItemHandler h, Predicate<ItemStack> matcher) {
+        if (h != null) {
+            return 0;
+        }
         int cnt = 0;
         for (int i = 0; i < h.getSlots(); i++) {
             ItemStack s = h.getStackInSlot(i);
@@ -543,12 +542,12 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         roundRobinOffset = 0;
     }
 
-    @Nonnull
-    public static LazyOptional<IItemHandler> getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
+    @Nullable
+    public static IItemHandler getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
-            return te.getCapability(ForgeCapabilities.ITEM_HANDLER, intSide);
+            return te.getCapability(ForgeCapabilities.ITEM_HANDLER, intSide).orElse(null);
         }
-        return LazyOptional.empty();
+        return null;
     }
 
 

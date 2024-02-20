@@ -172,10 +172,12 @@ public class Sensor {
                     int cnt = RFToolsSupport.countItems(te, filter, amount + 1);
                     return operator.match(cnt, amount);
                 } else {
-                    return ItemChannelSettings.getItemHandlerAt(te, settings.getFacing()).map(h -> {
-                        int cnt = countItem(h, filter, amount + 1);
-                        return operator.match(cnt, amount);
-                    }).orElse(false);
+                    IItemHandler handler = ItemChannelSettings.getItemHandlerAt(te, settings.getFacing());
+                    if (handler == null) {
+                        return false;
+                    }
+                    int cnt = countItem(handler, filter, amount + 1);
+                    return operator.match(cnt, amount);
                 }
             }
             case FLUID -> {
