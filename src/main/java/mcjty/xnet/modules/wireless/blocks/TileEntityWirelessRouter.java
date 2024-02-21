@@ -36,7 +36,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -64,7 +63,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
     private int globalChannelVersion = -1;      // Used to detect if a wireless channel has been published and we might need to recheck
 
     @Cap(type = CapType.ENERGY)
-    private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.wirelessRouterMaxRF.get(), Config.wirelessRouterRfPerTick.get()));
+    private final GenericEnergyStorage energyHandler = new GenericEnergyStorage(this, true, Config.wirelessRouterMaxRF.get(), Config.wirelessRouterRfPerTick.get());
 
     @Cap(type = CapType.CONTAINER)
     private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<GenericContainer>("Wireless Router")
@@ -239,15 +238,13 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
         int tier = getAntennaTier();
         UUID ownerUUID = publicAccess ? null : getOwnerUUID();
         XNetWirelessChannels wirelessData = XNetWirelessChannels.get(level);
-        energyHandler.ifPresent(h -> {
-            router.forEachPublishedChannel((name, channelType) -> {
-                long energyStored = h.getEnergy();
-                if (Config.wirelessRouterRfPerChannel[tier].get() <= energyStored) {
-                    h.consumeEnergy(Config.wirelessRouterRfPerChannel[tier].get());
-                    wirelessData.transmitChannel(name, channelType, ownerUUID, level.dimension(),
-                            worldPosition, networkId);
-                }
-            });
+        router.forEachPublishedChannel((name, channelType) -> {
+            long energyStored = energyHandler.getEnergy();
+            if (Config.wirelessRouterRfPerChannel[tier].get() <= energyStored) {
+                energyHandler.consumeEnergy(Config.wirelessRouterRfPerChannel[tier].get());
+                wirelessData.transmitChannel(name, channelType, ownerUUID, level.dimension(),
+                        worldPosition, networkId);
+            }
         });
     }
 
