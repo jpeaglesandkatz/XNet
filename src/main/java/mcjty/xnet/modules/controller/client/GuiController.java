@@ -44,9 +44,9 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.filters.VanillaPacketSplitter;
+import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.network.NetworkDirection;
+import net.neoforged.neoforge.network.filters.VanillaPacketSplitter;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;

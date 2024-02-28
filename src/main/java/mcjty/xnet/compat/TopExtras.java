@@ -8,7 +8,7 @@ import mcjty.xnet.modules.facade.blocks.FacadeTileEntity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.fml.InterModComms;
+import net.neoforged.neoforge.fml.InterModComms;
 
 import java.util.function.Function;
 

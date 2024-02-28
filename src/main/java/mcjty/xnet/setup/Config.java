@@ -5,9 +5,9 @@ import com.electronwill.nightconfig.core.io.WritingMode;
 import com.google.common.collect.Lists;
 import mcjty.lib.modules.Modules;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.config.ModConfig;
+import net.neoforged.neoforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.fml.ModLoadingContext;
+import net.neoforged.neoforge.fml.config.ModConfig;
 
 import java.nio.file.Path;
 import java.util.List;

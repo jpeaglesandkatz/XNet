@@ -1,7 +1,7 @@
 package mcjty.xnet.modules.cables.client;
 
-import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.common.MinecraftForge;
 
 public class ClientSetup {
     public static void initClient() {

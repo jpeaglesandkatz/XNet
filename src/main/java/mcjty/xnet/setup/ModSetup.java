@@ -9,9 +9,9 @@ import mcjty.xnet.apiimpl.fluids.FluidChannelType;
 import mcjty.xnet.apiimpl.items.ItemChannelType;
 import mcjty.xnet.apiimpl.logic.LogicChannelType;
 import mcjty.xnet.compat.TopExtras;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.MinecraftForge;
+import net.neoforged.neoforge.fml.ModList;
+import net.neoforged.neoforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 public class ModSetup extends DefaultModSetup {
 
