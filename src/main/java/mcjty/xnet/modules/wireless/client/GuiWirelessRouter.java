@@ -31,6 +31,6 @@ public class GuiWirelessRouter extends GenericGuiContainer<TileEntityWirelessRou
 
     @Override
     protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-        drawWindow(graphics);
+        drawWindow(graphics, xxx, xxx, yyy);
     }
 }

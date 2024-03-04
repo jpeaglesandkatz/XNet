@@ -76,6 +76,6 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
 
     @Override
     protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-        drawWindow(graphics);
+        drawWindow(graphics, xxx, xxx, yyy);
     }
 }

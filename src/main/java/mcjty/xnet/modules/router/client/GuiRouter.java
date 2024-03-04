@@ -167,6 +167,6 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
     protected void renderBg(@Nonnull GuiGraphics graphics, float v, int x1, int x2) {
         requestListsIfNeeded();
         populateList();
-        drawWindow(graphics);
+        drawWindow(graphics, xxx, xxx, yyy);
     }
 }

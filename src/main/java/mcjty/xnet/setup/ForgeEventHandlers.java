@@ -3,7 +3,7 @@ package mcjty.xnet.setup;
 import mcjty.xnet.multiblock.XNetWirelessChannels;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.event.TickEvent;
-import net.neoforged.neoforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 
 public class ForgeEventHandlers {
 

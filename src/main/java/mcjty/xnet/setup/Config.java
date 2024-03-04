@@ -5,7 +5,7 @@ import com.electronwill.nightconfig.core.io.WritingMode;
 import com.google.common.collect.Lists;
 import mcjty.lib.modules.Modules;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
-import net.neoforged.neoforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.fml.ModLoadingContext;
 import net.neoforged.neoforge.fml.config.ModConfig;
 
@@ -15,33 +15,33 @@ import java.util.List;
 public class Config {
     public static final String CATEGORY_GENERAL = "general";
 
-    public static ForgeConfigSpec.IntValue controllerMaxRF;
-    public static ForgeConfigSpec.IntValue controllerRfPerTick;
+    public static ModConfigSpec.IntValue controllerMaxRF;
+    public static ModConfigSpec.IntValue controllerRfPerTick;
 
-    public static ForgeConfigSpec.IntValue wirelessRouterMaxRF;
-    public static ForgeConfigSpec.IntValue wirelessRouterRfPerTick;
-    public static ForgeConfigSpec.IntValue wirelessRouterRfPerChannel[] = new ForgeConfigSpec.IntValue[3];
+    public static ModConfigSpec.IntValue wirelessRouterMaxRF;
+    public static ModConfigSpec.IntValue wirelessRouterRfPerTick;
+    public static ModConfigSpec.IntValue wirelessRouterRfPerChannel[] = new ModConfigSpec.IntValue[3];
 
-    public static ForgeConfigSpec.IntValue maxRfConnector;
-    public static ForgeConfigSpec.IntValue maxRfAdvancedConnector;
+    public static ModConfigSpec.IntValue maxRfConnector;
+    public static ModConfigSpec.IntValue maxRfAdvancedConnector;
 
-    public static ForgeConfigSpec.IntValue maxRfRateNormal;
-    public static ForgeConfigSpec.IntValue maxRfRateAdvanced;
+    public static ModConfigSpec.IntValue maxRfRateNormal;
+    public static ModConfigSpec.IntValue maxRfRateAdvanced;
 
-    public static ForgeConfigSpec.IntValue maxFluidRateNormal;
-    public static ForgeConfigSpec.IntValue maxFluidRateAdvanced;
+    public static ModConfigSpec.IntValue maxFluidRateNormal;
+    public static ModConfigSpec.IntValue maxFluidRateAdvanced;
 
-    public static ForgeConfigSpec.IntValue controllerMaxPaste;     // Maximum size of the copy/paste buffer for the controller
-    public static ForgeConfigSpec.IntValue controllerRFT;          // RF per tick that the controller uses all the time
-    public static ForgeConfigSpec.IntValue controllerChannelRFT;   // RF Per tick per enabled channel
-    public static ForgeConfigSpec.IntValue controllerOperationRFT; // RF Per tick per operation
+    public static ModConfigSpec.IntValue controllerMaxPaste;     // Maximum size of the copy/paste buffer for the controller
+    public static ModConfigSpec.IntValue controllerRFT;          // RF per tick that the controller uses all the time
+    public static ModConfigSpec.IntValue controllerChannelRFT;   // RF Per tick per enabled channel
+    public static ModConfigSpec.IntValue controllerOperationRFT; // RF Per tick per operation
 
-    public static ForgeConfigSpec.IntValue maxPublishedChannels;    // Maximum number of published channels on a routing network
+    public static ModConfigSpec.IntValue maxPublishedChannels;    // Maximum number of published channels on a routing network
 
-    public static ForgeConfigSpec.IntValue antennaTier1Range;
-    public static ForgeConfigSpec.IntValue antennaTier2Range;
+    public static ModConfigSpec.IntValue antennaTier1Range;
+    public static ModConfigSpec.IntValue antennaTier2Range;
 
-    public static ForgeConfigSpec.BooleanValue showNonFacadedCablesWhileSneaking;
+    public static ModConfigSpec.BooleanValue showNonFacadedCablesWhileSneaking;
 
     private static String[] unsidedBlocksAr = new String[] {
             "minecraft:chest",
@@ -50,10 +50,10 @@ public class Config {
             "rftools:storage_scanner",
             "rftools:pearl_injector",
     };
-    public static ForgeConfigSpec.ConfigValue<List<? extends String>> unsidedBlocks;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> unsidedBlocks;
 
-    public static final ForgeConfigSpec.Builder SERVER_BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
+    public static final ModConfigSpec.Builder SERVER_BUILDER = new ModConfigSpec.Builder();
+    public static final ModConfigSpec.Builder CLIENT_BUILDER = new ModConfigSpec.Builder();
 
     public static void register(Modules modules) {
         SERVER_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
@@ -144,10 +144,10 @@ public class Config {
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SERVER_CONFIG);
     }
 
-    public static ForgeConfigSpec SERVER_CONFIG;
-    public static ForgeConfigSpec CLIENT_CONFIG;
+    public static ModConfigSpec SERVER_CONFIG;
+    public static ModConfigSpec CLIENT_CONFIG;
 
-    public static void loadConfig(ForgeConfigSpec spec, Path path) {
+    public static void loadConfig(ModConfigSpec spec, Path path) {
 
         final CommentedFileConfig configData = CommentedFileConfig.builder(path)
                 .sync()
