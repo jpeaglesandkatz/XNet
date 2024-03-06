@@ -28,14 +28,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static mcjty.xnet.apiimpl.Constants.TAG_ADVANCED_NEEDED;
+import static mcjty.xnet.apiimpl.Constants.TAG_AMOUNT;
+import static mcjty.xnet.apiimpl.Constants.TAG_COLORS;
+import static mcjty.xnet.apiimpl.Constants.TAG_FILTER;
+import static mcjty.xnet.apiimpl.Constants.TAG_LOGIC_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_OPERATOR;
+import static mcjty.xnet.apiimpl.Constants.TAG_OUTPUT;
+import static mcjty.xnet.apiimpl.Constants.TAG_OUTPUT_COLOR;
+import static mcjty.xnet.apiimpl.Constants.TAG_REDSTONE_OUT;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_CHANNEL_1;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_CHANNEL_2;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_COUNTING_HOLDER;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_FILTER;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_TICKS_HOLDER;
+import static mcjty.xnet.apiimpl.Constants.TAG_SENSORS;
+import static mcjty.xnet.apiimpl.Constants.TAG_SENSOR_MODE;
+
 @Getter
 @Setter
 public class LogicConnectorSettings extends AbstractConnectorSettings {
 
     public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
-
-    public static final String TAG_MODE = "mode";
-    public static final String TAG_REDSTONE_OUT = "rsout";
 
     public enum LogicMode {
         SENSOR,
@@ -134,30 +149,31 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     public JsonObject writeToJson() {
         JsonObject object = new JsonObject();
         super.writeToJsonInternal(object);
-        setEnumSafe(object, "logicmode", logicMode);
+        setEnumSafe(object, TAG_LOGIC_MODE, logicMode);
         JsonArray sensorArray = new JsonArray();
         for (RSSensor sensor : sensors) {
             JsonObject o = new JsonObject();
-            setEnumSafe(o, "sensormode", sensor.getSensorMode());
-            setEnumSafe(o, "outputcolor", sensor.getOutputColor());
-            setEnumSafe(o, "operator", sensor.getOperator());
-            setIntegerSafe(o, "amount", sensor.getAmount());
+            setEnumSafe(o, TAG_SENSOR_MODE, sensor.getSensorMode());
+            setEnumSafe(o, TAG_OUTPUT_COLOR, sensor.getOutputColor());
+            setEnumSafe(o, TAG_OPERATOR, sensor.getOperator());
+            setIntegerSafe(o, TAG_AMOUNT, sensor.getAmount());
             if (!sensor.getFilter().isEmpty()) {
-                o.add("filter", JSonTools.itemStackToJson(sensor.getFilter()));
+                o.add(TAG_FILTER, JSonTools.itemStackToJson(sensor.getFilter()));
             }
             sensorArray.add(o);
         }
+        object.add(TAG_SENSORS, sensorArray);
         if (!output.getLogicFilter().equals(LogicFilter.OFF)) {
-            object.add("advancedneeded", new JsonPrimitive(true));
+            object.add(TAG_ADVANCED_NEEDED, new JsonPrimitive(true));
         }
         JsonObject outputJSON = new JsonObject();
-        setEnumSafe(outputJSON, "logicFilter", output.getLogicFilter());
-        setEnumSafe(outputJSON, "inputChannel1", output.getInputChannel1());
-        setEnumSafe(outputJSON, "inputChannel2", output.getInputChannel2());
-        outputJSON.addProperty("countingHolder", output.getCountingHolder());
-        outputJSON.addProperty("ticksHolder", output.getTicksHolder());
-        outputJSON.addProperty("redstoneOutput", output.getRedstoneOut());
-        object.add("output", outputJSON);
+        setEnumSafe(outputJSON, TAG_RS_FILTER, output.getLogicFilter());
+        setEnumSafe(outputJSON, TAG_RS_CHANNEL_1, output.getInputChannel1());
+        setEnumSafe(outputJSON, TAG_RS_CHANNEL_2, output.getInputChannel2());
+        outputJSON.addProperty(TAG_RS_COUNTING_HOLDER, output.getCountingHolder());
+        outputJSON.addProperty(TAG_RS_TICKS_HOLDER, output.getTicksHolder());
+        outputJSON.addProperty(TAG_REDSTONE_OUT, output.getRedstoneOut());
+        object.add(TAG_OUTPUT, outputJSON);
 
         return object;
     }
@@ -165,38 +181,38 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void readFromJson(JsonObject object) {
         super.readFromJsonInternal(object);
-        logicMode = getEnumSafe(object, "logicmode", EnumStringTranslators::getLogicMode);
-        JsonArray sensorArray = object.get("sensors").getAsJsonArray();
+        logicMode = getEnumSafe(object, TAG_LOGIC_MODE, EnumStringTranslators::getLogicMode);
+        JsonArray sensorArray = object.get(TAG_SENSORS).getAsJsonArray();
         sensors.clear();
         for (JsonElement oe : sensorArray) {
             JsonObject o = oe.getAsJsonObject();
             RSSensor sensor = new RSSensor(sensors.size());
-            sensor.setAmount(getIntegerNotNull(o, "amount"));
-            sensor.setOperator(getEnumSafe(o, "operator", EnumStringTranslators::getOperator));
-            sensor.setOutputColor(getEnumSafe(o, "outputcolor", BaseStringTranslators::getColor));
-            sensor.setSensorMode(getEnumSafe(o, "sensormode", EnumStringTranslators::getSensorMode));
-            if (o.has("filter")) {
-                sensor.setFilter(JSonTools.jsonToItemStack(o.get("filter").getAsJsonObject()));
+            sensor.setAmount(getIntegerNotNull(o, TAG_AMOUNT));
+            sensor.setOperator(getEnumSafe(o, TAG_OPERATOR, EnumStringTranslators::getOperator));
+            sensor.setOutputColor(getEnumSafe(o, TAG_OUTPUT_COLOR, BaseStringTranslators::getColor));
+            sensor.setSensorMode(getEnumSafe(o, TAG_SENSOR_MODE, EnumStringTranslators::getSensorMode));
+            if (o.has(TAG_FILTER)) {
+                sensor.setFilter(JSonTools.jsonToItemStack(o.get(TAG_FILTER).getAsJsonObject()));
             } else {
                 sensor.setFilter(ItemStack.EMPTY);
             }
             sensors.add(sensor);
         }
-        JsonObject outputJSON = object.getAsJsonObject("output");
+        JsonObject outputJSON = object.getAsJsonObject(TAG_OUTPUT);
         output = new RSOutput(advanced);
-        output.setLogicFilter(getEnumSafe(outputJSON, "logicFilter", EnumStringTranslators::getLogicFilter));
-        output.setInputChannel1(getEnumSafe(outputJSON, "inputChannel1", BaseStringTranslators::getColor));
-        output.setInputChannel2(getEnumSafe(outputJSON, "inputChannel2", BaseStringTranslators::getColor));
-        output.setCountingHolder(getIntegerNotNull(outputJSON, "countingHolder"));
-        output.setTicksHolder(getIntegerNotNull(outputJSON, "ticksHolder"));
-        output.setRedstoneOut(getIntegerNotNull(outputJSON, "redstoneOutput"));
+        output.setLogicFilter(getEnumSafe(outputJSON, TAG_RS_FILTER, EnumStringTranslators::getLogicFilter));
+        output.setInputChannel1(getEnumSafe(outputJSON, TAG_RS_CHANNEL_1, BaseStringTranslators::getColor));
+        output.setInputChannel2(getEnumSafe(outputJSON, TAG_RS_CHANNEL_2, BaseStringTranslators::getColor));
+        output.setCountingHolder(getIntegerNotNull(outputJSON, TAG_RS_COUNTING_HOLDER));
+        output.setTicksHolder(getIntegerNotNull(outputJSON, TAG_RS_TICKS_HOLDER));
+        output.setRedstoneOut(getIntegerNotNull(outputJSON, TAG_REDSTONE_OUT));
     }
 
     @Override
     public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
-        logicMode = LogicMode.values()[tag.getByte("logicMode")];
-        colorMask = tag.getInt("colors");
+        logicMode = LogicMode.values()[tag.getByte(TAG_LOGIC_MODE)];
+        colorMask = tag.getInt(TAG_COLORS);
         for (RSSensor sensor : sensors) {
             sensor.readFromNBT(tag);
         }
@@ -206,8 +222,8 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void writeToNBT(CompoundTag tag) {
         super.writeToNBT(tag);
-        tag.putByte("logicMode", (byte) logicMode.ordinal());
-        tag.putInt("colors", colorMask);
+        tag.putByte(TAG_LOGIC_MODE, (byte) logicMode.ordinal());
+        tag.putInt(TAG_COLORS, colorMask);
         for (RSSensor sensor : sensors) {
             sensor.writeToNBT(tag);
         }

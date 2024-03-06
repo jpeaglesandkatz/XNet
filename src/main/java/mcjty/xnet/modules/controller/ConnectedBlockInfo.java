@@ -1,5 +1,6 @@
 package mcjty.xnet.modules.controller;
 
+import lombok.Getter;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -9,14 +10,15 @@ import javax.annotation.Nullable;
 public class ConnectedBlockInfo {
 
     /// The position of the block we are connecting too
-    @Nonnull
+    @Getter(onMethod_ = {@Nonnull})
     private final SidedPos pos;
 
-    @Nullable
+    @Getter(onMethod_ = {@Nullable})
     private final BlockState state;
 
     /// The name of the connector
-    @Nonnull private final String name;
+    @Getter(onMethod_ = {@Nonnull})
+    private final String name;
 
     public ConnectedBlockInfo(@Nonnull SidedPos pos, @Nullable BlockState state, @Nonnull String name) {
         this.pos = pos;
@@ -24,20 +26,6 @@ public class ConnectedBlockInfo {
         this.name = name;
     }
 
-    @Nonnull
-    public String getName() {
-        return name;
-    }
-
-    @Nonnull
-    public SidedPos getPos() {
-        return pos;
-    }
-
-    @Nullable
-    public BlockState getConnectedState() {
-        return state;
-    }
 
     public boolean isAir() {
         return state == null;
@@ -50,9 +38,7 @@ public class ConnectedBlockInfo {
 
         ConnectedBlockInfo that = (ConnectedBlockInfo) o;
 
-        if (!pos.equals(that.pos)) return false;
-
-        return true;
+        return pos.equals(that.pos);
     }
 
     @Override

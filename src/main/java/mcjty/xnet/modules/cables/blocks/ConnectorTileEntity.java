@@ -1,5 +1,6 @@
 package mcjty.xnet.modules.cables.blocks;
 
+import lombok.Getter;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.blockcommands.Command;
@@ -37,12 +38,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.empty;
+import static mcjty.xnet.apiimpl.Constants.TAG_ENABLED;
+import static mcjty.xnet.apiimpl.Constants.TAG_FACING;
+import static mcjty.xnet.apiimpl.Constants.TAG_NAME;
 import static mcjty.xnet.modules.cables.CableModule.TYPE_CONNECTOR;
 
 public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSupport, IConnectorTile {
 
     private final MimicBlockSupport mimicBlockSupport = new MimicBlockSupport();
 
+    @Getter
     private int energy = 0;
     private int[] inputFromSide = new int[] { 0, 0, 0, 0, 0, 0 };
 
@@ -184,9 +189,9 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     public void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
         CompoundTag info = tagCompound.getCompound("Info");
-        name = info.getString("name");
-        if (info.contains("enabled")) {
-            enabled = info.getByte("enabled");
+        name = info.getString(TAG_NAME);
+        if (info.contains(TAG_ENABLED)) {
+            enabled = info.getByte(TAG_ENABLED);
         } else {
             enabled = 0x3f;
         }
@@ -218,8 +223,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     public void saveInfo(CompoundTag tagCompound) {
         super.saveInfo(tagCompound);
         CompoundTag info = getOrCreateInfo(tagCompound);
-        info.putString("name", name);
-        info.putByte("enabled", enabled);
+        info.putString(TAG_NAME, name);
+        info.putByte(TAG_ENABLED, enabled);
     }
 
     public void setConnectorName(String n) {
@@ -230,10 +235,6 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     public String getConnectorName() {
         return name;
-    }
-
-    public int getEnergy() {
-        return energy;
     }
 
     public void setEnergy(int energy) {
@@ -296,8 +297,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
 
-    public static final Key<Integer> PARAM_FACING = new Key<>("facing", Type.INTEGER);
-    public static final Key<Boolean> PARAM_ENABLED = new Key<>("enabled", Type.BOOLEAN);
+    public static final Key<Integer> PARAM_FACING = new Key<>(TAG_FACING, Type.INTEGER);
+    public static final Key<Boolean> PARAM_ENABLED = new Key<>(TAG_ENABLED, Type.BOOLEAN);
     @ServerCommand
     public static final Command<?> CMD_ENABLE = Command.<ConnectorTileEntity>create("connector.enable",
             (te, playerEntity, params) -> {

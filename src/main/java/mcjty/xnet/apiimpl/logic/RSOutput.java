@@ -14,20 +14,21 @@ import java.util.Map;
 
 import static mcjty.rftoolsbase.api.xnet.channels.Color.COLORS;
 import static mcjty.rftoolsbase.api.xnet.channels.Color.OFF;
-import static mcjty.xnet.apiimpl.logic.LogicConnectorSettings.TAG_REDSTONE_OUT;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_COUNTER;
+import static mcjty.xnet.apiimpl.Constants.TAG_REDSTONE_OUT;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_CHANNEL_1;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_CHANNEL_2;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_COUNTING_HOLDER;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_FILTER;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_TICKS_HOLDER;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_TIMER;
 
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
 public class RSOutput {
-
-    public static final String TAG_RS_FILTER = "RSFilter";
-    public static final String TAG_RS_CHANNEL_1 = "RSChannel1";
-    public static final String TAG_RS_CHANNEL_2 = "RSChannel2";
-    public static final String TAG_COUNTER = "RSCounter";
-    public static final String TAG_TIMER = "RSTimer";
-
+    
     private boolean isAdvanced;
     private LogicFilter logicFilter = LogicFilter.OFF;
     private Color inputChannel1 = OFF;    // First input channel for logic filter
@@ -63,13 +64,13 @@ public class RSOutput {
                 case OFF -> {}
                 case COUNTER -> {
                     gui.colors(TAG_RS_CHANNEL_1, "Input RS channel", inputChannel1.getColor(), COLORS);
-                    gui.integer(TAG_COUNTER, "Count inputs before output impulse", countingHolder, 50, Integer.MAX_VALUE, 0);
+                    gui.integer(TAG_RS_COUNTER, "Count inputs before output impulse", countingHolder, 50, Integer.MAX_VALUE, 0);
                 }
                 case LATCH, NOT -> {
                     gui.colors(TAG_RS_CHANNEL_1, "Input RS channel", inputChannel1.getColor(), COLORS);
                 }
                 case TIMER -> {
-                    gui.integer(TAG_TIMER, "Count ticks before output impulse", ticksHolder, 50, Integer.MAX_VALUE, 5);
+                    gui.integer(TAG_RS_TIMER, "Count ticks before output impulse", ticksHolder, 50, Integer.MAX_VALUE, 5);
                 }
                 case OR, NOR, NAND, XOR, XNOR, AND -> {
                     gui.colors(TAG_RS_CHANNEL_1, "Input RS channel 1", inputChannel1.getColor(), COLORS);
@@ -88,14 +89,14 @@ public class RSOutput {
         logicFilter = LogicTools.safeLogicFilter(data.get(TAG_RS_FILTER));
         inputChannel1 = LogicTools.safeColor(data.get(TAG_RS_CHANNEL_1));
         inputChannel2 = LogicTools.safeColor(data.get(TAG_RS_CHANNEL_2));
-        countingHolder = LogicTools.safeIntOrValue(data.get(TAG_COUNTER), countingHolder);
-        ticksHolder = LogicTools.safeIntOrValue(data.get(TAG_TIMER), ticksHolder);
+        countingHolder = LogicTools.safeIntOrValue(data.get(TAG_RS_COUNTER), countingHolder);
+        ticksHolder = LogicTools.safeIntOrValue(data.get(TAG_RS_TIMER), ticksHolder);
         redstoneOut = LogicTools.safeIntOrValue(data.get(TAG_REDSTONE_OUT), redstoneOut);
     }
 
     public boolean isEnabled(String tag) {
         switch (tag) {
-            case TAG_RS_FILTER, TAG_REDSTONE_OUT, TAG_RS_CHANNEL_1, TAG_RS_CHANNEL_2, TAG_COUNTER, TAG_TIMER -> {
+            case TAG_RS_FILTER, TAG_REDSTONE_OUT, TAG_RS_CHANNEL_1, TAG_RS_CHANNEL_2, TAG_RS_COUNTER, TAG_RS_TIMER -> {
                 return true;
             }
             default -> {return false;}
@@ -103,20 +104,20 @@ public class RSOutput {
     }
 
     public void readFromNBT(CompoundTag tag) {
-        logicFilter = LogicFilter.values()[tag.getByte("logicFilter")];
-        inputChannel1 = Color.values()[tag.getByte("inputChannel1")];
-        inputChannel2 = Color.values()[tag.getByte("inputChannel2")];
-        setCountingHolder(tag.getInt("countingHolder"));
-        setTicksHolder(tag.getInt("ticksHolder"));
-        redstoneOut = tag.getInt("redstoneOutput");
+        logicFilter = LogicFilter.values()[tag.getByte(TAG_RS_FILTER)];
+        inputChannel1 = Color.values()[tag.getByte(TAG_RS_CHANNEL_1)];
+        inputChannel2 = Color.values()[tag.getByte(TAG_RS_CHANNEL_2)];
+        setCountingHolder(tag.getInt(TAG_RS_COUNTING_HOLDER));
+        setTicksHolder(tag.getInt(TAG_RS_TICKS_HOLDER));
+        redstoneOut = tag.getInt(TAG_REDSTONE_OUT);
     }
 
     public void writeToNBT(CompoundTag tag) {
-        tag.putByte("logicFilter", (byte) logicFilter.ordinal());
-        tag.putByte("inputChannel1", (byte) inputChannel1.ordinal());
-        tag.putByte("inputChannel2", (byte) inputChannel2.ordinal());
-        tag.putInt("countingHolder", countingHolder);
-        tag.putInt("ticksHolder", ticksHolder);
-        tag.putInt("redstoneOutput", redstoneOut);
+        tag.putByte(TAG_RS_FILTER, (byte) logicFilter.ordinal());
+        tag.putByte(TAG_RS_CHANNEL_1, (byte) inputChannel1.ordinal());
+        tag.putByte(TAG_RS_CHANNEL_2, (byte) inputChannel2.ordinal());
+        tag.putInt(TAG_RS_COUNTING_HOLDER, countingHolder);
+        tag.putInt(TAG_RS_TICKS_HOLDER, ticksHolder);
+        tag.putInt(TAG_REDSTONE_OUT, redstoneOut);
     }
 }

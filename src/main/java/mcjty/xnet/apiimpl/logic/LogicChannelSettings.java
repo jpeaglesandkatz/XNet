@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static mcjty.xnet.apiimpl.Constants.TAG_COLORS;
+
 public class LogicChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
     public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
@@ -45,12 +47,12 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
 
     @Override
     public void readFromNBT(CompoundTag tag) {
-        colors = tag.getInt("colors");
+        colors = tag.getInt(TAG_COLORS);
     }
 
     @Override
     public void writeToNBT(CompoundTag tag) {
-        tag.putInt("colors", colors);
+        tag.putInt(TAG_COLORS, colors);
     }
 
     @Override

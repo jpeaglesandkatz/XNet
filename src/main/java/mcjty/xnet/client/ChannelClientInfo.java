@@ -1,5 +1,6 @@
 package mcjty.xnet.client;
 
+import lombok.Getter;
 import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.network.NetworkTools;
 import mcjty.lib.varia.OrientationTools;
@@ -22,11 +23,16 @@ import java.util.function.Function;
  */
 public class ChannelClientInfo {
 
-    @Nonnull private final IChannelType type;
-    @Nonnull private final IChannelSettings channelSettings;
-    @Nonnull private final String channelName;
+    @Getter(onMethod_ = {@Nonnull})
+    private final IChannelType type;
+    @Getter(onMethod_ = {@Nonnull})
+    private final IChannelSettings channelSettings;
+    @Getter(onMethod_ = {@Nonnull})
+    private final String channelName;
+    @Getter
     private final boolean enabled;
 
+    @Getter(onMethod_ = {@Nonnull})
     private final Map<SidedConsumer, ConnectorClientInfo> connectors = new HashMap<>();
 
     public static class Serializer implements ISerializer<ChannelClientInfo> {
@@ -101,27 +107,4 @@ public class ChannelClientInfo {
         }
     }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    @Nonnull
-    public String getChannelName() {
-        return channelName;
-    }
-
-    @Nonnull
-    public IChannelType getType() {
-        return type;
-    }
-
-    @Nonnull
-    public IChannelSettings getChannelSettings() {
-        return channelSettings;
-    }
-
-    @Nonnull
-    public Map<SidedConsumer, ConnectorClientInfo> getConnectors() {
-        return connectors;
-    }
 }

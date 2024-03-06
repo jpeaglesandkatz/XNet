@@ -17,14 +17,22 @@ import mcjty.xnet.client.ControllerChannelClientInfo;
 import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.setup.XNetMessages;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
 
-import static mcjty.lib.gui.widgets.Widgets.*;
-import static mcjty.xnet.modules.router.blocks.TileEntityRouter.*;
+import static mcjty.lib.gui.widgets.Widgets.horizontal;
+import static mcjty.lib.gui.widgets.Widgets.label;
+import static mcjty.lib.gui.widgets.Widgets.positional;
+import static mcjty.xnet.apiimpl.Constants.WIDGET_LOCAL_CHANNELS;
+import static mcjty.xnet.apiimpl.Constants.WIDGET_REMOTE_CHANNELS;
+import static mcjty.xnet.modules.router.blocks.TileEntityRouter.CMD_GETCHANNELS;
+import static mcjty.xnet.modules.router.blocks.TileEntityRouter.CMD_GETREMOTECHANNELS;
+import static mcjty.xnet.modules.router.blocks.TileEntityRouter.PARAM_CHANNEL;
+import static mcjty.xnet.modules.router.blocks.TileEntityRouter.PARAM_NAME;
+import static mcjty.xnet.modules.router.blocks.TileEntityRouter.PARAM_POS;
 
 public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericContainer> {
 
@@ -48,8 +56,8 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         window = new Window(this, tileEntity, XNetMessages.INSTANCE, new ResourceLocation(XNet.MODID, "gui/router.gui"));
         super.init();
 
-        localChannelList = window.findChild("localchannels");
-        remoteChannelList = window.findChild("remotechannels");
+        localChannelList = window.findChild(WIDGET_LOCAL_CHANNELS);
+        remoteChannelList = window.findChild(WIDGET_REMOTE_CHANNELS);
 
         refresh();
         listDirty = 0;

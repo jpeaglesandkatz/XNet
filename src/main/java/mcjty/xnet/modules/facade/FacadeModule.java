@@ -7,7 +7,6 @@ import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.modules.facade.blocks.FacadeBlock;
 import mcjty.xnet.modules.facade.blocks.FacadeBlockItem;
 import mcjty.xnet.modules.facade.blocks.FacadeTileEntity;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -18,13 +17,16 @@ import net.minecraftforge.registries.RegistryObject;
 
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.xnet.XNet.tab;
-import static mcjty.xnet.setup.Registration.*;
+import static mcjty.xnet.apiimpl.Constants.ITEM_FACADE;
+import static mcjty.xnet.setup.Registration.BLOCKS;
+import static mcjty.xnet.setup.Registration.ITEMS;
+import static mcjty.xnet.setup.Registration.TILES;
 
 public class FacadeModule implements IModule {
 
-    public static final RegistryObject<FacadeBlock> FACADE = BLOCKS.register("facade", () -> new FacadeBlock(GenericCableBlock.CableBlockType.FACADE)); // @todo 1.14
-    public static final RegistryObject<Item> FACADE_ITEM = ITEMS.register("facade", tab(() -> new FacadeBlockItem(FACADE.get())));
-    public static final RegistryObject<BlockEntityType<?>> TYPE_FACADE = TILES.register("facade", () -> BlockEntityType.Builder.of(FacadeTileEntity::new, FACADE.get()).build(null));
+    public static final RegistryObject<FacadeBlock> FACADE = BLOCKS.register(ITEM_FACADE, () -> new FacadeBlock(GenericCableBlock.CableBlockType.FACADE)); // @todo 1.14
+    public static final RegistryObject<Item> FACADE_ITEM = ITEMS.register(ITEM_FACADE, tab(() -> new FacadeBlockItem(FACADE.get())));
+    public static final RegistryObject<BlockEntityType<?>> TYPE_FACADE = TILES.register(ITEM_FACADE, () -> BlockEntityType.Builder.of(FacadeTileEntity::new, FACADE.get()).build(null));
 
     @Override
     public void init(FMLCommonSetupEvent event) {

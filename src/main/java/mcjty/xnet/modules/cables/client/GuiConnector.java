@@ -12,13 +12,18 @@ import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.XNetMessages;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
 
-import static mcjty.lib.gui.widgets.Widgets.*;
-import static mcjty.xnet.modules.cables.blocks.ConnectorTileEntity.*;
+import static mcjty.lib.gui.widgets.Widgets.horizontal;
+import static mcjty.lib.gui.widgets.Widgets.label;
+import static mcjty.lib.gui.widgets.Widgets.vertical;
+import static mcjty.xnet.apiimpl.Constants.TAG_NAME;
+import static mcjty.xnet.modules.cables.blocks.ConnectorTileEntity.CMD_ENABLE;
+import static mcjty.xnet.modules.cables.blocks.ConnectorTileEntity.PARAM_ENABLED;
+import static mcjty.xnet.modules.cables.blocks.ConnectorTileEntity.PARAM_FACING;
 
 public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, GenericContainer> {
 
@@ -48,7 +53,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
 
         Panel toplevel = vertical().filledRectThickness(2);
 
-        TextField nameField = new TextField().name("name").tooltips("Set the name of this connector");
+        TextField nameField = new TextField().name(TAG_NAME).tooltips("Set the name of this connector");
 
         Panel namePanel = horizontal().children(label("Name:"), nameField);
         toplevel.children(namePanel);
@@ -72,7 +77,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
         toplevel.bounds(leftPos, topPos, WIDTH, HEIGHT);
         window = new Window(this, toplevel);
 
-        window.bind(XNetMessages.INSTANCE, "name", tileEntity, "name");
+        window.bind(XNetMessages.INSTANCE, TAG_NAME, tileEntity, TAG_NAME);
     }
 
     @Override

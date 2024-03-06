@@ -1,5 +1,6 @@
 package mcjty.xnet.modules.router.blocks;
 
+import lombok.Getter;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ListCommand;
@@ -48,12 +49,24 @@ import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.empty;
 import static mcjty.lib.builder.TooltipBuilder.header;
 import static mcjty.lib.builder.TooltipBuilder.key;
+import static mcjty.xnet.apiimpl.Constants.TAG_CHANCNT;
+import static mcjty.xnet.apiimpl.Constants.TAG_CHANNEL;
+import static mcjty.xnet.apiimpl.Constants.TAG_INDEX;
+import static mcjty.xnet.apiimpl.Constants.TAG_NAME;
+import static mcjty.xnet.apiimpl.Constants.TAG_POS;
+import static mcjty.xnet.apiimpl.Constants.TAG_PUBLISHED;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.modules.controller.blocks.TileEntityController.ERROR;
 import static mcjty.xnet.modules.router.RouterModule.TYPE_ROUTER;
@@ -61,6 +74,7 @@ import static mcjty.xnet.modules.router.RouterModule.TYPE_ROUTER;
 public final class TileEntityRouter extends GenericTileEntity {
 
     private final Map<LocalChannelId, String> publishedChannels = new HashMap<>();
+    @Getter
     private int channelCount = 0;
 
     public List<ControllerChannelClientInfo> clientLocalChannels = null;
@@ -107,10 +121,6 @@ public final class TileEntityRouter extends GenericTileEntity {
         return channelCount > Config.maxPublishedChannels.get();
     }
 
-    public int getChannelCount() {
-        return channelCount;
-    }
-
     public void setChannelCount(int cnt) {
         if (channelCount == cnt) {
             return;
@@ -133,28 +143,28 @@ public final class TileEntityRouter extends GenericTileEntity {
     public void saveInfo(CompoundTag tagCompound) {
         super.saveInfo(tagCompound);
         CompoundTag info = getOrCreateInfo(tagCompound);
-        info.putInt("chancnt", channelCount);
+        info.putInt(TAG_CHANCNT, channelCount);
         ListTag published = new ListTag();
         for (Map.Entry<LocalChannelId, String> entry : publishedChannels.entrySet()) {
             CompoundTag tc = new CompoundTag();
-            BlockPosTools.write(tc, "pos", entry.getKey().controllerPos());
-            tc.putInt("index", entry.getKey().index());
-            tc.putString("name", entry.getValue());
+            BlockPosTools.write(tc, TAG_POS, entry.getKey().controllerPos());
+            tc.putInt(TAG_INDEX, entry.getKey().index());
+            tc.putString(TAG_NAME, entry.getValue());
             published.add(tc);
         }
-        info.put("published", published);
+        info.put(TAG_PUBLISHED, published);
     }
 
     @Override
     public void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
         CompoundTag info = tagCompound.getCompound("Info");
-        channelCount = info.getInt("chancnt");
-        ListTag published = info.getList("published", Tag.TAG_COMPOUND);
+        channelCount = info.getInt(TAG_CHANCNT);
+        ListTag published = info.getList(TAG_PUBLISHED, Tag.TAG_COMPOUND);
         for (int i = 0; i < published.size(); i++) {
             CompoundTag tc = published.getCompound(i);
-            LocalChannelId id = new LocalChannelId(BlockPosTools.read(tc, "pos"), tc.getInt("index"));
-            String name = tc.getString("name");
+            LocalChannelId id = new LocalChannelId(BlockPosTools.read(tc, TAG_POS), tc.getInt(TAG_INDEX));
+            String name = tc.getString(TAG_NAME);
             publishedChannels.put(id, name);
         }
     }
@@ -310,9 +320,9 @@ public final class TileEntityRouter extends GenericTileEntity {
         markDirtyQuick();
     }
 
-    public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
-    public static final Key<Integer> PARAM_CHANNEL = new Key<>("channel", Type.INTEGER);
-    public static final Key<String> PARAM_NAME = new Key<>("name", Type.STRING);
+    public static final Key<BlockPos> PARAM_POS = new Key<>(TAG_POS, Type.BLOCKPOS);
+    public static final Key<Integer> PARAM_CHANNEL = new Key<>(TAG_CHANNEL, Type.INTEGER);
+    public static final Key<String> PARAM_NAME = new Key<>(TAG_NAME, Type.STRING);
     @ServerCommand
     public static final Command<?> CMD_UPDATENAME = Command.<TileEntityRouter>create("router.updateName",
         (te, player, params) -> te.updatePublishName(params.get(PARAM_POS), params.get(PARAM_CHANNEL), params.get(PARAM_NAME)));

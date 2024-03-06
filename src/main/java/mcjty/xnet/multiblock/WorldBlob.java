@@ -1,24 +1,36 @@
 package mcjty.xnet.multiblock;
 
+import lombok.Getter;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.rftoolsbase.api.xnet.net.IWorldBlob;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static mcjty.xnet.apiimpl.Constants.TAG_CHUNKS;
+import static mcjty.xnet.apiimpl.Constants.TAG_CHUNK_X;
+import static mcjty.xnet.apiimpl.Constants.TAG_CHUNK_Z;
+import static mcjty.xnet.apiimpl.Constants.TAG_LAST_CONSUMER;
+import static mcjty.xnet.apiimpl.Constants.TAG_LAST_NETWORK;
 
 public class WorldBlob implements IWorldBlob {
 
+    @Getter
     private final ResourceKey<Level> dimensionType;
     private final Map<Long, ChunkBlob> chunkBlobMap = new HashMap<>();
     private int lastNetworkId = 0;              // Network ID
@@ -41,10 +53,6 @@ public class WorldBlob implements IWorldBlob {
 
     public WorldBlob(ResourceKey<Level> dimensionType) {
         this.dimensionType = dimensionType;
-    }
-
-    public ResourceKey<Level> getDimensionType() {
-        return dimensionType;
     }
 
     @Nonnull
@@ -349,14 +357,14 @@ public class WorldBlob implements IWorldBlob {
 
     public void readFromNBT(CompoundTag compound) {
         chunkBlobMap.clear();
-        lastNetworkId = compound.getInt("lastNetwork");
-        lastConsumerId = compound.getInt("lastConsumer");
-        if (compound.contains("chunks")) {
-            ListTag chunks = (ListTag) compound.get("chunks");
+        lastNetworkId = compound.getInt(TAG_LAST_NETWORK);
+        lastConsumerId = compound.getInt(TAG_LAST_CONSUMER);
+        if (compound.contains(TAG_CHUNKS)) {
+            ListTag chunks = (ListTag) compound.get(TAG_CHUNKS);
             for (net.minecraft.nbt.Tag chunk : chunks) {
                 CompoundTag tc = (CompoundTag) chunk;
-                int chunkX = tc.getInt("chunkX");
-                int chunkZ = tc.getInt("chunkZ");
+                int chunkX = tc.getInt(TAG_CHUNK_X);
+                int chunkZ = tc.getInt(TAG_CHUNK_Z);
                 ChunkBlob blob = new ChunkBlob(new ChunkPos(chunkX, chunkZ));
                 blob.readFromNBT(tc);
                 chunkBlobMap.put(blob.getChunkNum(), blob);
@@ -365,18 +373,18 @@ public class WorldBlob implements IWorldBlob {
     }
 
     public CompoundTag writeToNBT(CompoundTag compound) {
-        compound.putInt("lastNetwork", lastNetworkId);
-        compound.putInt("lastConsumer", lastConsumerId);
+        compound.putInt(TAG_LAST_NETWORK, lastNetworkId);
+        compound.putInt(TAG_LAST_CONSUMER, lastConsumerId);
         ListTag list = new ListTag();
         for (Map.Entry<Long, ChunkBlob> entry : chunkBlobMap.entrySet()) {
             ChunkBlob blob = entry.getValue();
             CompoundTag tc = new CompoundTag();
-            tc.putInt("chunkX", blob.getChunkPos().x);
-            tc.putInt("chunkZ", blob.getChunkPos().z);
+            tc.putInt(TAG_CHUNK_X, blob.getChunkPos().x);
+            tc.putInt(TAG_CHUNK_Z, blob.getChunkPos().z);
             blob.writeToNBT(tc);
             list.add(tc);
         }
-        compound.put("chunks", list);
+        compound.put(TAG_CHUNKS, list);
 
         return compound;
     }

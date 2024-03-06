@@ -3,6 +3,7 @@ package mcjty.xnet.apiimpl.items;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import lombok.Getter;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.lib.varia.JSonTools;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
@@ -10,7 +11,9 @@ import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.XNet;
+import mcjty.xnet.apiimpl.Constants;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
+import mcjty.xnet.utils.TagUtils;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
@@ -22,23 +25,31 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import static mcjty.xnet.apiimpl.Constants.TAG_ADVANCED_NEEDED;
+import static mcjty.xnet.apiimpl.Constants.TAG_BLACKLIST;
+import static mcjty.xnet.apiimpl.Constants.TAG_COUNT;
+import static mcjty.xnet.apiimpl.Constants.TAG_EXTRACT;
+import static mcjty.xnet.apiimpl.Constants.TAG_EXTRACT_AMOUNT;
+import static mcjty.xnet.apiimpl.Constants.TAG_EXTRACT_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_FILTER_INDEX;
+import static mcjty.xnet.apiimpl.Constants.TAG_FLT;
+import static mcjty.xnet.apiimpl.Constants.TAG_FILTER_IDX;
+import static mcjty.xnet.apiimpl.Constants.TAG_ITEM_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_META;
+import static mcjty.xnet.apiimpl.Constants.TAG_META_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_NBT;
+import static mcjty.xnet.apiimpl.Constants.TAG_NBT_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_PRIORITY;
+import static mcjty.xnet.apiimpl.Constants.TAG_SPEED;
+import static mcjty.xnet.apiimpl.Constants.TAG_STACK;
+import static mcjty.xnet.apiimpl.Constants.TAG_STACK_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_TAGS;
+import static mcjty.xnet.apiimpl.Constants.TAG_TAGS_MODE;
+
 public class ItemConnectorSettings extends AbstractConnectorSettings {
 
     public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
-
-    public static final String TAG_MODE = "mode";
-    public static final String TAG_STACK = "stack";
-    public static final String TAG_EXTRACT_AMOUNT = "extract_amount";
-    public static final String TAG_SPEED = "speed";
-    public static final String TAG_EXTRACT = "extract";
-    public static final String TAG_TAGS = "od";
-    public static final String TAG_NBT = "nbt";
-    public static final String TAG_META = "meta";
-    public static final String TAG_PRIORITY = "priority";
-    public static final String TAG_COUNT = "count";
-    public static final String TAG_FILTER = "flt";
-    public static final String TAG_FILTER_IDX = "fltIdx";
-    public static final String TAG_BLACKLIST = "blacklist";
 
     public static final int FILTER_SIZE = 18;
 
@@ -59,9 +70,13 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         ORDER
     }
 
+    @Getter
     private ItemMode itemMode = ItemMode.INS;
+    @Getter
     private ExtractMode extractMode = ExtractMode.FIRST;
+    @Getter
     private int speed = 2;
+    @Getter
     private StackMode stackMode = StackMode.SINGLE;
     private boolean tagsMode = false;
     private boolean metaMode = false;
@@ -72,14 +87,11 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     @Nullable private Integer extractAmount = null;
 
     private final ItemStackList filters = ItemStackList.create(FILTER_SIZE);
+    @Getter
     private int filterIndex = -1;
 
     // Cached matcher for items
     private Predicate<ItemStack> matcher = null;
-
-    public ItemMode getItemMode() {
-        return itemMode;
-    }
 
     public ItemConnectorSettings(@Nonnull Direction side) {
         super(side);
@@ -103,12 +115,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void createGui(IEditorGui gui) {
         advanced = gui.isAdvanced();
-        String[] speeds;
-        if (advanced) {
-            speeds = new String[] { "5", "10", "20", "60", "100", "200" };
-        } else {
-            speeds = new String[] { "10", "20", "60", "100", "200" };
-        }
+        String[] speeds = advanced ? Constants.ADVANCED_SPEEDS : Constants.SPEEDS;
 
         sideGui(gui);
         colorsGui(gui);
@@ -149,7 +156,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
                 .choices(TAG_FILTER_IDX, "Filter Index", getFilterIndexString(), "<Off>", "1", "2", "3", "4")
                 .nl();
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
-            gui.ghostSlot(TAG_FILTER + i, filters.get(i));
+            gui.ghostSlot(TAG_FLT + i, filters.get(i));
         }
     }
 
@@ -196,14 +203,6 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         return s -> context.getIndexedFilter(filterIndex-1).test(s);
     }
 
-    public StackMode getStackMode() {
-        return stackMode;
-    }
-
-
-    public ExtractMode getExtractMode() {
-        return extractMode;
-    }
 
     @Nonnull
     public Integer getPriority() {
@@ -219,20 +218,12 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         return extractAmount == null ? 1 : extractAmount;
     }
 
-    public int getSpeed() {
-        return speed;
-    }
-
-    public int getFilterIndex() {
-        return filterIndex;
-    }
-
     private static final Set<String> INSERT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_COUNT, TAG_PRIORITY, TAG_TAGS, TAG_META, TAG_NBT, TAG_BLACKLIST);
     private static final Set<String> EXTRACT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_COUNT, TAG_TAGS, TAG_META, TAG_NBT, TAG_BLACKLIST, TAG_STACK, TAG_SPEED, TAG_EXTRACT, TAG_EXTRACT_AMOUNT);
 
     @Override
     public boolean isEnabled(String tag) {
-        if (tag.startsWith(TAG_FILTER)) {
+        if (tag.startsWith(TAG_FLT)) {
             return true;
         }
         if (tag.equals(TAG_FACING)) {
@@ -243,6 +234,10 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         } else {
             return EXTRACT_TAGS.contains(tag);
         }
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed != 0 ? speed : 4;
     }
 
     @Override
@@ -256,10 +251,8 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
             extractMode = ExtractMode.valueOf(((String) emode).toUpperCase());
         }
         stackMode = StackMode.valueOf(((String)data.get(TAG_STACK)).toUpperCase());
-        speed = Integer.parseInt((String) data.get(TAG_SPEED)) / 5;
-        if (speed == 0) {
-            speed = 4;
-        }
+        setSpeed(Integer.parseInt((String) data.get(TAG_SPEED)) / 5);
+
         String idx = (String) data.get(TAG_FILTER_IDX);
         this.filterIndex = "<Off>".equalsIgnoreCase(idx) ? -1 : Integer.parseInt(idx);
         tagsMode = Boolean.TRUE.equals(data.get(TAG_TAGS));
@@ -271,7 +264,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         count = (Integer) data.get(TAG_COUNT);
         extractAmount = (Integer) data.get(TAG_EXTRACT_AMOUNT);
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
-            filters.set(i, (ItemStack) data.get(TAG_FILTER+i));
+            filters.set(i, (ItemStack) data.get(TAG_FLT+i));
         }
         matcher = null;
     }
@@ -280,25 +273,25 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     public JsonObject writeToJson() {
         JsonObject object = new JsonObject();
         super.writeToJsonInternal(object);
-        setEnumSafe(object, "itemmode", itemMode);
-        setEnumSafe(object, "extractmode", extractMode);
-        setEnumSafe(object, "stackmode", stackMode);
-        object.add("tagsmode", new JsonPrimitive(tagsMode));
-        object.add("metamode", new JsonPrimitive(metaMode));
-        object.add("nbtmode", new JsonPrimitive(nbtMode));
-        object.add("blacklist", new JsonPrimitive(blacklist));
-        setIntegerSafe(object, "priority", priority);
-        setIntegerSafe(object, "extractamount", extractAmount);
-        setIntegerSafe(object, "count", count);
-        setIntegerSafe(object, "speed", speed);
-        setIntegerSafe(object, "filterindex", filterIndex);
+        setEnumSafe(object, TAG_ITEM_MODE, itemMode);
+        setEnumSafe(object, TAG_EXTRACT_MODE, extractMode);
+        setEnumSafe(object, TAG_STACK_MODE, stackMode);
+        object.add(TAG_TAGS_MODE, new JsonPrimitive(tagsMode));
+        object.add(TAG_META_MODE, new JsonPrimitive(metaMode));
+        object.add(TAG_NBT_MODE, new JsonPrimitive(nbtMode));
+        object.add(TAG_PRIORITY, new JsonPrimitive(blacklist));
+        setIntegerSafe(object, TAG_PRIORITY, priority);
+        setIntegerSafe(object, TAG_EXTRACT_AMOUNT, extractAmount);
+        setIntegerSafe(object, TAG_COUNT, count);
+        setIntegerSafe(object, TAG_SPEED, speed);
+        setIntegerSafe(object, TAG_FILTER_INDEX, filterIndex);
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             if (!filters.get(i).isEmpty()) {
-                object.add("filter" + i, JSonTools.itemStackToJson(filters.get(i)));
+                object.add(TAG_FLT + i, JSonTools.itemStackToJson(filters.get(i)));
             }
         }
         if (speed == 1) {
-            object.add("advancedneeded", new JsonPrimitive(true));
+            object.add(TAG_ADVANCED_NEEDED, new JsonPrimitive(true));
         }
 
         return object;
@@ -307,25 +300,25 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void readFromJson(JsonObject object) {
         super.readFromJsonInternal(object);
-        itemMode = getEnumSafe(object, "itemmode", EnumStringTranslators::getItemMode);
-        extractMode = getEnumSafe(object, "extractmode", EnumStringTranslators::getExtractMode);
-        stackMode = getEnumSafe(object, "stackmode", EnumStringTranslators::getStackMode);
-        tagsMode = getBoolSafe(object, "tagsmode");
-        metaMode = getBoolSafe(object, "metamode");
-        nbtMode = getBoolSafe(object, "nbtmode");
-        blacklist = getBoolSafe(object, "blacklist");
-        priority = getIntegerSafe(object, "priority");
-        extractAmount = getIntegerSafe(object, "extractamount");
-        count = getIntegerSafe(object, "count");
-        speed = getIntegerNotNull(object, "speed");
-        if (object.has("filterindex")) {
-            filterIndex = getIntegerNotNull(object, "filterindex");
+        itemMode = getEnumSafe(object, TAG_ITEM_MODE, EnumStringTranslators::getItemMode);
+        extractMode = getEnumSafe(object, TAG_EXTRACT_MODE, EnumStringTranslators::getExtractMode);
+        stackMode = getEnumSafe(object, TAG_STACK_MODE, EnumStringTranslators::getStackMode);
+        tagsMode = getBoolSafe(object, TAG_TAGS_MODE);
+        metaMode = getBoolSafe(object, TAG_META_MODE);
+        nbtMode = getBoolSafe(object, TAG_NBT_MODE);
+        blacklist = getBoolSafe(object, TAG_PRIORITY);
+        priority = getIntegerSafe(object, TAG_PRIORITY);
+        extractAmount = getIntegerSafe(object, TAG_EXTRACT_AMOUNT);
+        count = getIntegerSafe(object, TAG_COUNT);
+        speed = getIntegerNotNull(object, TAG_SPEED);
+        if (object.has(TAG_FILTER_INDEX)) {
+            filterIndex = getIntegerNotNull(object, TAG_FILTER_INDEX);
         } else {
             filterIndex = -1;
         }
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
-            if (object.has("filter" + i)) {
-                filters.set(i, JSonTools.jsonToItemStack(object.get("filter" + i).getAsJsonObject()));
+            if (object.has(TAG_FLT + i)) {
+                filters.set(i, JSonTools.jsonToItemStack(object.get(TAG_FLT + i).getAsJsonObject()));
             } else {
                 filters.set(i, ItemStack.EMPTY);
             }
@@ -335,47 +328,29 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
-        itemMode = ItemMode.values()[tag.getByte("itemMode")];
-        extractMode = ExtractMode.values()[tag.getByte("extractMode")];
-        stackMode = StackMode.values()[tag.getByte("stackMode")];
-        if (tag.contains("spd")) {
-            // New tag
-            speed = tag.getInt("spd");
+        itemMode = ItemMode.values()[tag.getByte(TAG_ITEM_MODE)];
+        extractMode = ExtractMode.values()[tag.getByte(TAG_EXTRACT_MODE)];
+        stackMode = StackMode.values()[tag.getByte(TAG_STACK_MODE)];
+        if (tag.contains(TAG_SPEED)) { // Reverse old|new speed tag. Now actual tag is "speed" to unification between types
+            setSpeed(tag.getInt(TAG_SPEED));
         } else {
-            // Old tag for compatibility
-            speed = tag.getInt("speed");
-            if (speed == 0) {
-                speed = 2;
-            }
-            speed *= 2;
+            setSpeed(tag.getInt("spd")); // TODO: 06.03.2024 backward compatibility. DELETE THIS after 1.20.4_neo branch
         }
-        if (tag.contains("filterindex")) {
-            filterIndex = tag.getInt("filterindex");
+        if (tag.contains(TAG_FILTER_INDEX)) {
+            filterIndex = tag.getInt(TAG_FILTER_INDEX);
         } else {
             filterIndex = -1;
         }
-        tagsMode = tag.getBoolean("tagsMode");
-        metaMode = tag.getBoolean("metaMode");
-        nbtMode = tag.getBoolean("nbtMode");
-        blacklist = tag.getBoolean("blacklist");
-        if (tag.contains("priority")) {
-            priority = tag.getInt("priority");
-        } else {
-            priority = null;
-        }
-        if (tag.contains("extractAmount")) {
-            extractAmount = tag.getInt("extractAmount");
-        } else {
-            extractAmount = null;
-        }
-        if (tag.contains("count")) {
-            count = tag.getInt("count");
-        } else {
-            count = null;
-        }
+        tagsMode = tag.getBoolean(TAG_TAGS_MODE);
+        metaMode = tag.getBoolean(TAG_META_MODE);
+        nbtMode = tag.getBoolean(TAG_NBT_MODE);
+        blacklist = tag.getBoolean(TAG_PRIORITY);
+        priority = TagUtils.getIntOrNull(tag, TAG_PRIORITY);
+        extractAmount = TagUtils.getIntOrNull(tag, TAG_EXTRACT_AMOUNT);
+        count = TagUtils.getIntOrNull(tag, TAG_COUNT);
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
-            if (tag.contains("filter" + i)) {
-                CompoundTag itemTag = tag.getCompound("filter" + i);
+            if (tag.contains(TAG_FLT + i)) {
+                CompoundTag itemTag = tag.getCompound(TAG_FLT + i);
                 filters.set(i, ItemStack.of(itemTag));
             } else {
                 filters.set(i, ItemStack.EMPTY);
@@ -387,29 +362,23 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void writeToNBT(CompoundTag tag) {
         super.writeToNBT(tag);
-        tag.putByte("itemMode", (byte) itemMode.ordinal());
-        tag.putByte("extractMode", (byte) extractMode.ordinal());
-        tag.putByte("stackMode", (byte) stackMode.ordinal());
-        tag.putInt("spd", speed);
-        tag.putInt("filterindex", filterIndex);
-        tag.putBoolean("tagsMode", tagsMode);
-        tag.putBoolean("metaMode", metaMode);
-        tag.putBoolean("nbtMode", nbtMode);
-        tag.putBoolean("blacklist", blacklist);
-        if (priority != null) {
-            tag.putInt("priority", priority);
-        }
-        if (extractAmount != null) {
-            tag.putInt("extractAmount", extractAmount);
-        }
-        if (count != null) {
-            tag.putInt("count", count);
-        }
+        tag.putByte(TAG_ITEM_MODE, (byte) itemMode.ordinal());
+        tag.putByte(TAG_EXTRACT_MODE, (byte) extractMode.ordinal());
+        tag.putByte(TAG_STACK_MODE, (byte) stackMode.ordinal());
+        tag.putInt(TAG_SPEED, speed);
+        tag.putInt(TAG_FILTER_INDEX, filterIndex);
+        tag.putBoolean(TAG_TAGS_MODE, tagsMode);
+        tag.putBoolean(TAG_META_MODE, metaMode);
+        tag.putBoolean(TAG_NBT_MODE, nbtMode);
+        tag.putBoolean(TAG_PRIORITY, blacklist);
+        TagUtils.putIntIfNotNull(tag, TAG_PRIORITY, priority);
+        TagUtils.putIntIfNotNull(tag, TAG_EXTRACT_AMOUNT, extractAmount);
+        TagUtils.putIntIfNotNull(tag, TAG_COUNT, count);
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             if (!filters.get(i).isEmpty()) {
                 CompoundTag itemTag = new CompoundTag();
                 filters.get(i).save(itemTag);
-                tag.put("filter" + i, itemTag);
+                tag.put(TAG_FLT + i, itemTag);
             }
         }
     }

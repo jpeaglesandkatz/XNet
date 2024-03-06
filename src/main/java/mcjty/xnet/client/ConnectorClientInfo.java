@@ -1,5 +1,6 @@
 package mcjty.xnet.client;
 
+import lombok.Getter;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
@@ -14,12 +15,16 @@ import javax.annotation.Nonnull;
 public class ConnectorClientInfo {
 
     /// The position of the block we are connecting too
-    @Nonnull private final SidedPos pos;
+    @Getter(onMethod_ = {@Nonnull})
+    private final SidedPos pos;
 
-    @Nonnull private final ConsumerId consumerId;
+    @Getter(onMethod_ = {@Nonnull})
+    private final ConsumerId consumerId;
 
-    @Nonnull private final IChannelType channelType;
-    @Nonnull private final IConnectorSettings connectorSettings;
+    @Nonnull
+    private final IChannelType channelType;
+    @Getter(onMethod_ = {@Nonnull})
+    private final IConnectorSettings connectorSettings;
 
     public ConnectorClientInfo(@Nonnull SidedPos pos, @Nonnull ConsumerId consumerId,
                                @Nonnull IChannelType channelType,
@@ -53,18 +58,4 @@ public class ConnectorClientInfo {
         buf.writeNbt(tag);
     }
 
-    @Nonnull
-    public SidedPos getPos() {
-        return pos;
-    }
-
-    @Nonnull
-    public ConsumerId getConsumerId() {
-        return consumerId;
-    }
-
-    @Nonnull
-    public IConnectorSettings getConnectorSettings() {
-        return connectorSettings;
-    }
 }
