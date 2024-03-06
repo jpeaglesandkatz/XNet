@@ -6,7 +6,8 @@ import mcjty.xnet.apiimpl.fluids.FluidConnectorSettings;
 import mcjty.xnet.apiimpl.items.ItemChannelSettings;
 import mcjty.xnet.apiimpl.items.ItemConnectorSettings;
 import mcjty.xnet.apiimpl.logic.LogicConnectorSettings;
-import mcjty.xnet.apiimpl.logic.Sensor;
+import mcjty.xnet.apiimpl.logic.RSSensor;
+import mcjty.xnet.apiimpl.logic.enums.LogicFilter;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -22,14 +23,15 @@ public class EnumStringTranslators {
     private static Map<String, FluidConnectorSettings.FluidMode> fluidModeMap;
     private static Map<String, EnergyConnectorSettings.EnergyMode> energyModeMap;
     private static Map<String, LogicConnectorSettings.LogicMode> logicModeMap;
-    private static Map<String, Sensor.SensorMode> sensorModeMap;
-    private static Map<String, Sensor.Operator> operatorMap;
+    private static Map<String, RSSensor.SensorMode> sensorModeMap;
+    private static Map<String, RSSensor.Operator> operatorMap;
+    private static Map<String, LogicFilter> logicFilterMap;
 
     @Nullable
-    public static Sensor.Operator getOperator(String mode) {
+    public static RSSensor.Operator getOperator(String mode) {
         if (operatorMap == null) {
             operatorMap = new HashMap<>();
-            for (Sensor.Operator value : Sensor.Operator.values()) {
+            for (RSSensor.Operator value : RSSensor.Operator.values()) {
                 operatorMap.put(value.name(), value);
             }
         }
@@ -37,10 +39,21 @@ public class EnumStringTranslators {
     }
 
     @Nullable
-    public static Sensor.SensorMode getSensorMode(String mode) {
+    public static LogicFilter getLogicFilter(String filter) {
+        if (logicFilterMap == null) {
+            logicFilterMap = new HashMap<>();
+            for (LogicFilter value : LogicFilter.values()) {
+                logicFilterMap.put(value.name(), value);
+            }
+        }
+        return logicFilterMap.get(filter);
+    }
+
+    @Nullable
+    public static RSSensor.SensorMode getSensorMode(String mode) {
         if (sensorModeMap == null) {
             sensorModeMap = new HashMap<>();
-            for (Sensor.SensorMode value : Sensor.SensorMode.values()) {
+            for (RSSensor.SensorMode value : RSSensor.SensorMode.values()) {
                 sensorModeMap.put(value.name(), value);
             }
         }

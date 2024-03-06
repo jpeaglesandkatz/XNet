@@ -2,7 +2,9 @@ package mcjty.xnet.logic;
 
 import mcjty.lib.varia.LevelTools;
 import mcjty.lib.varia.OrientationTools;
+import mcjty.rftoolsbase.api.xnet.channels.Color;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
+import mcjty.xnet.apiimpl.logic.enums.LogicFilter;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
@@ -23,6 +25,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import static mcjty.rftoolsbase.api.xnet.channels.Color.OFF;
 
 public class LogicTools {
 
@@ -135,5 +139,41 @@ public class LogicTools {
                 }
             }
         }
+    }
+
+    public static Color safeColor(Object o) {
+        if (o != null) {
+            return Color.colorByValue((Integer) o);
+        } else {
+            return OFF;
+        }
+    }
+
+    public static LogicFilter safeLogicFilter(Object o) {
+        if (o != null) {
+            return LogicFilter.valueOf(((String) o).toUpperCase());
+        } else {
+            return LogicFilter.OFF;
+        }
+    }
+
+    public static int safeInt(Object o) {
+        return safeIntOrValue(o, 0);
+    }
+
+    public static int safeIntOrValue(Object o, int value) {
+        if (o instanceof Integer) {
+            return (Integer) o;
+        } else {
+            return value;
+        }
+    }
+
+    public static boolean[] intToBinary(int value) {
+        boolean[] bits = new boolean[16];
+        for (int i = 15; i >= 0; i--) {
+            bits[i] = (value & (1 << i)) != 0;
+        }
+        return bits;
     }
 }

@@ -5,6 +5,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import lombok.Getter;
+import lombok.Setter;
 import mcjty.lib.varia.JSonTools;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
@@ -12,6 +14,8 @@ import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.helper.BaseStringTranslators;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
+import mcjty.xnet.apiimpl.logic.enums.LogicFilter;
+import mcjty.xnet.modules.controller.client.ConnectorEditorPanel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
@@ -24,12 +28,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@Getter
+@Setter
 public class LogicConnectorSettings extends AbstractConnectorSettings {
 
     public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
 
     public static final String TAG_MODE = "mode";
-    public static final String TAG_SPEED = "speed";
     public static final String TAG_REDSTONE_OUT = "rsout";
 
     public enum LogicMode {
@@ -40,34 +45,20 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     public static final int SENSORS = 4;
 
     private LogicMode logicMode = LogicMode.SENSOR;
-    private List<Sensor> sensors = null;
+    @Getter
+    private List<RSSensor> sensors = null;
+    @Getter
+    private RSOutput output = null;
 
-    private int colors;         // Current colormask
-    private int speed = 2;
-    private Integer redstoneOut;    // Redstone output value
+    private int colorMask;         // Current colormask
 
     public LogicConnectorSettings(@Nonnull Direction side) {
         super(side);
         sensors = new ArrayList<>(SENSORS);
         for (int i = 0 ; i < SENSORS ; i++) {
-            sensors.add(new Sensor(i));
+            sensors.add(new RSSensor(i));
         }
-    }
-
-    public List<Sensor> getSensors() {
-        return sensors;
-    }
-
-    public void setColorMask(int colors) {
-        this.colors = colors;
-    }
-
-    public int getColorMask() {
-        return colors;
-    }
-
-    public Integer getRedstoneOut() {
-        return redstoneOut;
+        output = new RSOutput(this.advanced);
     }
 
     @Nullable
@@ -94,51 +85,34 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
         if (tag.equals(TAG_FACING)) {
             return advanced && logicMode != LogicMode.OUTPUT;
         }
-        if (tag.equals(TAG_SPEED)) {
-            return true;
-        }
-        for (Sensor sensor : sensors) {
+        for (RSSensor sensor : sensors) {
             if (sensor.isEnabled(tag)) {
                 return true;
             }
         }
 
+        if (output.isEnabled(tag)) {
+            return true;
+        }
+
         return TAGS.contains(tag);
     }
-
-    public int getSpeed() {
-        return speed;
-    }
-
-    public LogicMode getLogicMode() {
-        return logicMode;
-    }
-
 
     @Override
     public void createGui(IEditorGui gui) {
         advanced = gui.isAdvanced();
-        String[] speeds;
-        if (advanced) {
-            speeds = new String[] { "5", "10", "20", "60", "100", "200" };
-        } else {
-            speeds = new String[] { "10", "20", "60", "100", "200" };
-        }
         sideGui(gui);
         colorsGui(gui);
         redstoneGui(gui);
         gui.nl()
                 .choices(TAG_MODE, "Sensor or Output mode", logicMode, LogicMode.values())
-                .choices(TAG_SPEED, (logicMode == LogicMode.SENSOR ? "Number of ticks for each check" : "Number of ticks for each operation"), Integer.toString(speed * 5), speeds)
                 .nl();
         if (logicMode == LogicMode.SENSOR) {
-            for (Sensor sensor : sensors) {
+            for (RSSensor sensor : sensors) {
                 sensor.createGui(gui);
             }
         } else {
-            gui.label("Redstone:")
-                    .integer(TAG_REDSTONE_OUT, "Redstone output value", redstoneOut, 40, 16)
-                    .nl();
+            output.createGui((ConnectorEditorPanel) gui); // TODO: 06.03.2024 remove ConnectorEditorPanel cast after rftoolbase update
         }
     }
 
@@ -146,19 +120,13 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     public void update(Map<String, Object> data) {
         super.update(data);
         logicMode = LogicMode.valueOf(((String)data.get(TAG_MODE)).toUpperCase());
-        String facing = (String) data.get(TAG_FACING);
-        // @todo suspicious
 
-        speed = Integer.parseInt((String) data.get(TAG_SPEED)) / 5;
-        if (speed == 0) {
-            speed = 2;
-        }
         if (logicMode == LogicMode.SENSOR) {
-            for (Sensor sensor : sensors) {
+            for (RSSensor sensor : sensors) {
                 sensor.update(data);
             }
         } else {
-            redstoneOut = (Integer) data.get(TAG_REDSTONE_OUT);
+            output.update(data);
         }
     }
 
@@ -167,9 +135,8 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
         JsonObject object = new JsonObject();
         super.writeToJsonInternal(object);
         setEnumSafe(object, "logicmode", logicMode);
-        setIntegerSafe(object, "speed", speed);
         JsonArray sensorArray = new JsonArray();
-        for (Sensor sensor : sensors) {
+        for (RSSensor sensor : sensors) {
             JsonObject o = new JsonObject();
             setEnumSafe(o, "sensormode", sensor.getSensorMode());
             setEnumSafe(o, "outputcolor", sensor.getOutputColor());
@@ -180,10 +147,18 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
             }
             sensorArray.add(o);
         }
-        object.add("sensors", sensorArray);
-        if (speed == 1) {
+        if (!output.getLogicFilter().equals(LogicFilter.OFF)) {
             object.add("advancedneeded", new JsonPrimitive(true));
         }
+        JsonObject outputJSON = new JsonObject();
+        setEnumSafe(outputJSON, "logicFilter", output.getLogicFilter());
+        setEnumSafe(outputJSON, "inputChannel1", output.getInputChannel1());
+        setEnumSafe(outputJSON, "inputChannel2", output.getInputChannel2());
+        outputJSON.addProperty("countingHolder", output.getCountingHolder());
+        outputJSON.addProperty("ticksHolder", output.getTicksHolder());
+        outputJSON.addProperty("redstoneOutput", output.getRedstoneOut());
+        object.add("output", outputJSON);
+
         return object;
     }
 
@@ -191,12 +166,11 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     public void readFromJson(JsonObject object) {
         super.readFromJsonInternal(object);
         logicMode = getEnumSafe(object, "logicmode", EnumStringTranslators::getLogicMode);
-        speed = getIntegerNotNull(object, "speed");
         JsonArray sensorArray = object.get("sensors").getAsJsonArray();
         sensors.clear();
         for (JsonElement oe : sensorArray) {
             JsonObject o = oe.getAsJsonObject();
-            Sensor sensor = new Sensor(sensors.size());
+            RSSensor sensor = new RSSensor(sensors.size());
             sensor.setAmount(getIntegerNotNull(o, "amount"));
             sensor.setOperator(getEnumSafe(o, "operator", EnumStringTranslators::getOperator));
             sensor.setOutputColor(getEnumSafe(o, "outputcolor", BaseStringTranslators::getColor));
@@ -208,35 +182,36 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
             }
             sensors.add(sensor);
         }
+        JsonObject outputJSON = object.getAsJsonObject("output");
+        output = new RSOutput(advanced);
+        output.setLogicFilter(getEnumSafe(outputJSON, "logicFilter", EnumStringTranslators::getLogicFilter));
+        output.setInputChannel1(getEnumSafe(outputJSON, "inputChannel1", BaseStringTranslators::getColor));
+        output.setInputChannel2(getEnumSafe(outputJSON, "inputChannel2", BaseStringTranslators::getColor));
+        output.setCountingHolder(getIntegerNotNull(outputJSON, "countingHolder"));
+        output.setTicksHolder(getIntegerNotNull(outputJSON, "ticksHolder"));
+        output.setRedstoneOut(getIntegerNotNull(outputJSON, "redstoneOutput"));
     }
 
     @Override
     public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
         logicMode = LogicMode.values()[tag.getByte("logicMode")];
-        speed = tag.getInt("speed");
-        if (speed == 0) {
-            speed = 2;
-        }
-        colors = tag.getInt("colors");
-        for (Sensor sensor : sensors) {
+        colorMask = tag.getInt("colors");
+        for (RSSensor sensor : sensors) {
             sensor.readFromNBT(tag);
         }
-        redstoneOut = tag.getInt("rsout");
+        output.readFromNBT(tag);
     }
 
     @Override
     public void writeToNBT(CompoundTag tag) {
         super.writeToNBT(tag);
         tag.putByte("logicMode", (byte) logicMode.ordinal());
-        tag.putInt("speed", speed);
-        tag.putInt("colors", colors);
-        for (Sensor sensor : sensors) {
+        tag.putInt("colors", colorMask);
+        for (RSSensor sensor : sensors) {
             sensor.writeToNBT(tag);
         }
-        if (redstoneOut != null) {
-            tag.putInt("rsout", redstoneOut);
-        }
+        output.writeToNBT(tag);
     }
 
 }

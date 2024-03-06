@@ -1,5 +1,7 @@
 package mcjty.xnet.apiimpl.logic;
 
+import lombok.Getter;
+import lombok.Setter;
 import mcjty.lib.varia.FluidTools;
 import mcjty.rftoolsbase.api.xnet.channels.Color;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
@@ -7,6 +9,7 @@ import mcjty.xnet.apiimpl.energy.EnergyChannelSettings;
 import mcjty.xnet.apiimpl.fluids.FluidChannelSettings;
 import mcjty.xnet.apiimpl.items.ItemChannelSettings;
 import mcjty.xnet.compat.RFToolsSupport;
+import mcjty.xnet.logic.LogicTools;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -25,7 +28,9 @@ import java.util.function.BiPredicate;
 import static mcjty.rftoolsbase.api.xnet.channels.Color.COLORS;
 import static mcjty.rftoolsbase.api.xnet.channels.Color.OFF;
 
-public class Sensor {
+@Setter
+@Getter
+public class RSSensor {
 
     public static final String TAG_MODE = "mode";
     public static final String TAG_OPERATOR = "op";
@@ -92,48 +97,8 @@ public class Sensor {
     private Color outputColor = OFF;
     private ItemStack filter = ItemStack.EMPTY;
 
-    public Sensor(int index) {
+    public RSSensor(int index) {
         this.index = index;
-    }
-
-    public SensorMode getSensorMode() {
-        return sensorMode;
-    }
-
-    public void setSensorMode(SensorMode sensorMode) {
-        this.sensorMode = sensorMode;
-    }
-
-    public Operator getOperator() {
-        return operator;
-    }
-
-    public void setOperator(Operator operator) {
-        this.operator = operator;
-    }
-
-    public ItemStack getFilter() {
-        return filter;
-    }
-
-    public void setFilter(ItemStack filter) {
-        this.filter = filter;
-    }
-
-    public int getAmount() {
-        return amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
-
-    public Color getOutputColor() {
-        return outputColor;
-    }
-
-    public void setOutputColor(Color outputColor) {
-        this.outputColor = outputColor;
     }
 
     public boolean isEnabled(String tag) {
@@ -201,14 +166,6 @@ public class Sensor {
         return false;
     }
 
-    private int safeInt(Object o) {
-        if (o instanceof Integer) {
-            return (Integer) o;
-        } else {
-            return 0;
-        }
-    }
-
     public void update(Map<String, Object> data) {
         Object sm = data.get(TAG_MODE + index);
         if (sm != null) {
@@ -222,7 +179,7 @@ public class Sensor {
         } else {
             operator = Operator.EQUAL;
         }
-        amount = safeInt(data.get(TAG_AMOUNT + index));
+        amount = LogicTools.safeInt(data.get(TAG_AMOUNT + index));
         Object co = data.get(TAG_COLOR + index);
         if (co != null) {
             outputColor = Color.colorByValue((Integer) co);
