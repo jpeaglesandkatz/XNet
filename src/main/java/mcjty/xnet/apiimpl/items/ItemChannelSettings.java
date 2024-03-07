@@ -2,7 +2,6 @@ package mcjty.xnet.apiimpl.items;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import lombok.Getter;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
@@ -58,11 +57,14 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         ROUNDROBIN
     }
 
-    @Getter
     private ChannelMode channelMode = ChannelMode.PRIORITY;
     private int delay = 0;
     private int roundRobinOffset = 0;
     private final Map<ConsumerId, Integer> extractIndices = new HashMap<>();
+
+    public ChannelMode getChannelMode() {
+        return channelMode;
+    }
 
     @Override
     public int getColors() {

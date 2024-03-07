@@ -623,7 +623,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             SidedPos sidedPos = connectedBlock.getPos();
             BlockPos coordinate = sidedPos.pos();
             String name = connectedBlock.getName();
-            String blockUnlocName = connectedBlock.getBlockName();
+            String blockUnlocName = connectedBlock.getBlockUnlocName();
             String blockName = I18n.get(blockUnlocName).trim();
 
             int color = StyleConfig.colorTextInListNormal;

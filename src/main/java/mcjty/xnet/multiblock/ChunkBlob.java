@@ -1,6 +1,5 @@
 package mcjty.xnet.multiblock;
 
-import lombok.Getter;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
@@ -39,9 +38,7 @@ import static mcjty.xnet.multiblock.IntPos.CURRENT_VERSION;
  */
 public class ChunkBlob {
 
-    @Getter
     private final ChunkPos chunkPos;
-    @Getter
     private final long chunkNum;
     private int lastBlobId = 0;             // Local chunk blob ID
 
@@ -54,11 +51,9 @@ public class ChunkBlob {
     private final Map<IntPos, BlobId> blobAllocations = new HashMap<>();
 
     // These positions represent network ID providers
-    @Getter
     private final Map<IntPos, NetworkId> networkProviders = new HashMap<>();
 
     // These positions represent consumers
-    @Getter
     private final Map<IntPos, ConsumerId> networkConsumers = new HashMap<>();
     private final Map<ConsumerId, IntPos> consumerPositions = new HashMap<>();
 
@@ -80,6 +75,14 @@ public class ChunkBlob {
     public ChunkBlob(ChunkPos chunkPos) {
         this.chunkPos = chunkPos;
         this.chunkNum = ChunkPos.asLong(chunkPos.x, chunkPos.z);
+    }
+
+    public long getChunkNum() {
+        return chunkNum;
+    }
+
+    public ChunkPos getChunkPos() {
+        return chunkPos;
     }
 
     public BlockPos getPosition(IntPos pos) {
@@ -204,12 +207,20 @@ public class ChunkBlob {
         cachedNetworks = null;
     }
 
+    public Map<IntPos, NetworkId> getNetworkProviders() {
+        return networkProviders;
+    }
+
     public void createNetworkProvider(BlockPos pos, ColorId color, NetworkId networkId) {
         IntPos posId = new IntPos(pos);
         networkProviders.put(posId, networkId);
         cachedProviders = null;
         createCableSegment(pos, color);
         getMappings(blobAllocations.get(posId)).add(networkId);
+    }
+
+    public Map<IntPos, ConsumerId> getNetworkConsumers() {
+        return networkConsumers;
     }
 
     public IntPos getConsumerPosition(ConsumerId consumerId) {

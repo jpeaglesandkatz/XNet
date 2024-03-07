@@ -3,7 +3,6 @@ package mcjty.xnet.apiimpl.energy;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import lombok.Getter;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
@@ -36,7 +35,6 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
         EXT
     }
 
-    @Getter
     private EnergyMode energyMode = EnergyMode.INS;
 
     @Nullable private Integer priority = 0;

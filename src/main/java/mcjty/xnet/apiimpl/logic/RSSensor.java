@@ -1,7 +1,5 @@
 package mcjty.xnet.apiimpl.logic;
 
-import lombok.Getter;
-import lombok.Setter;
 import mcjty.lib.varia.FluidTools;
 import mcjty.rftoolsbase.api.xnet.channels.Color;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
@@ -36,8 +34,6 @@ import static mcjty.xnet.apiimpl.Constants.TAG_OPERATOR;
 import static mcjty.xnet.apiimpl.Constants.TAG_SENSOR_MODE;
 import static mcjty.xnet.apiimpl.Constants.TAG_STACK;
 
-@Setter
-@Getter
 public class RSSensor {
 
 
@@ -103,6 +99,46 @@ public class RSSensor {
 
     public RSSensor(int index) {
         this.index = index;
+    }
+
+    public SensorMode getSensorMode() {
+        return sensorMode;
+    }
+
+    public void setSensorMode(SensorMode sensorMode) {
+        this.sensorMode = sensorMode;
+    }
+
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public void setOperator(Operator operator) {
+        this.operator = operator;
+    }
+
+    public ItemStack getFilter() {
+        return filter;
+    }
+
+    public void setFilter(ItemStack filter) {
+        this.filter = filter;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public Color getOutputColor() {
+        return outputColor;
+    }
+
+    public void setOutputColor(Color outputColor) {
+        this.outputColor = outputColor;
     }
 
     public boolean isEnabled(String tag) {

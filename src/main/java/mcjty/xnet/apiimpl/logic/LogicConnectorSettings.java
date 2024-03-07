@@ -5,8 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import lombok.Getter;
-import lombok.Setter;
 import mcjty.lib.varia.JSonTools;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
@@ -46,8 +44,6 @@ import static mcjty.xnet.apiimpl.Constants.TAG_RS_TICKS_HOLDER;
 import static mcjty.xnet.apiimpl.Constants.TAG_SENSORS;
 import static mcjty.xnet.apiimpl.Constants.TAG_SENSOR_MODE;
 
-@Getter
-@Setter
 public class LogicConnectorSettings extends AbstractConnectorSettings {
 
     public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
@@ -60,9 +56,8 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     public static final int SENSORS = 4;
 
     private LogicMode logicMode = LogicMode.SENSOR;
-    @Getter
     private List<RSSensor> sensors = null;
-    @Getter
+
     private RSOutput output = null;
 
     private int colorMask;         // Current colormask
@@ -74,6 +69,26 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
             sensors.add(new RSSensor(i));
         }
         output = new RSOutput(this.advanced);
+    }
+
+    public List<RSSensor> getSensors() {
+        return sensors;
+    }
+
+    public RSOutput getOutput() {
+        return output;
+    }
+
+    public void setColorMask(int colorMask) {
+        this.colorMask = colorMask;
+    }
+
+    public int getColorMask() {
+        return colorMask;
+    }
+
+    public LogicMode getLogicMode() {
+        return logicMode;
     }
 
     @Nullable

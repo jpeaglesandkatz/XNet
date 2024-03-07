@@ -2,7 +2,6 @@ package mcjty.xnet.apiimpl.fluids;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import lombok.Getter;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
@@ -46,7 +45,6 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
         DISTRIBUTE
     }
 
-    @Getter
     private ChannelMode channelMode = ChannelMode.DISTRIBUTE;
     private int delay = 0;
     private int roundRobinOffset = 0;

@@ -1,7 +1,5 @@
 package mcjty.xnet.multiblock;
 
-import lombok.Getter;
-import lombok.Setter;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.LevelTools;
 import mcjty.lib.worlddata.AbstractWorldData;
@@ -60,7 +58,6 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         }
     }
 
-    @Getter
     private int globalChannelVersion = 1;
 
     public void transmitChannel(String channel, @Nonnull IChannelType channelType, @Nullable UUID ownerUUID, ResourceKey<Level> dimension, BlockPos wirelessRouterPos, NetworkId network) {
@@ -98,6 +95,10 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
     public void updateGlobalChannelVersion() {
         globalChannelVersion++;
+    }
+
+    public int getGlobalChannelVersion() {
+        return globalChannelVersion;
     }
 
     private void dump() {
@@ -229,7 +230,6 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         return tagList;
     }
 
-    @Getter
     public static class WirelessChannelInfo {
         private final Map<GlobalPos, WirelessRouterInfo> routers = new HashMap<>();
 
@@ -245,13 +245,13 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             return routers.get(pos);
         }
 
+        public Map<GlobalPos, WirelessRouterInfo> getRouters() {
+            return routers;
+        }
     }
 
-    @Getter
     public static class WirelessRouterInfo {
-        @Setter
         private int age;
-        @Setter
         private NetworkId networkId;
         private final GlobalPos coordinate;
 
@@ -260,5 +260,24 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             this.coordinate = coordinate;
         }
 
+        public NetworkId getNetworkId() {
+            return networkId;
+        }
+
+        public void setNetworkId(NetworkId networkId) {
+            this.networkId = networkId;
+        }
+
+        public int getAge() {
+            return age;
+        }
+
+        public void setAge(int age) {
+            this.age = age;
+        }
+
+        public GlobalPos getCoordinate() {
+            return coordinate;
+        }
     }
 }

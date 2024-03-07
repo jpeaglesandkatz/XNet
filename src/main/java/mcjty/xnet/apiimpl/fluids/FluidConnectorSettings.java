@@ -3,7 +3,6 @@ package mcjty.xnet.apiimpl.fluids;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import lombok.Getter;
 import mcjty.lib.varia.FluidTools;
 import mcjty.lib.varia.JSonTools;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
@@ -43,7 +42,6 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         EXT
     }
 
-    @Getter
     private FluidMode fluidMode = FluidMode.INS;
 
     @Nullable private Integer priority = 0;

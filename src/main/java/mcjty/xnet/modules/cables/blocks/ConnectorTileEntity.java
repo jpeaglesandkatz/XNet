@@ -1,6 +1,5 @@
 package mcjty.xnet.modules.cables.blocks;
 
-import lombok.Getter;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.blockcommands.Command;
@@ -47,7 +46,6 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     private final MimicBlockSupport mimicBlockSupport = new MimicBlockSupport();
 
-    @Getter
     private int energy = 0;
     private int[] inputFromSide = new int[] { 0, 0, 0, 0, 0, 0 };
 
@@ -235,6 +233,10 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     public String getConnectorName() {
         return name;
+    }
+
+    public int getEnergy() {
+        return energy;
     }
 
     public void setEnergy(int energy) {

@@ -1,7 +1,6 @@
 package mcjty.xnet.compat;
 
 
-import lombok.Getter;
 import mcjty.lib.varia.Tools;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
@@ -22,15 +21,17 @@ public final class ForestrySupport {
     	AGE("Age", 64);			// Butterflies
 
     	private final String name;
-    	@Getter
-		private final int flag;
+    	private final int flag;
 	
     	Tag(String name, int flag) {
     		this.name = name;
     		this.flag = flag;
     	}
 
-	}
+    	public int getFlag() {
+    		return flag;
+    	}
+    }
 
     private static final String ID = "forestry";
 

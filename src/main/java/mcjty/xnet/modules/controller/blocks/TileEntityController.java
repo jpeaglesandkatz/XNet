@@ -8,7 +8,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
-import lombok.Getter;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ListCommand;
@@ -146,9 +145,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     private NetworkId networkId;
     private int wirelessVersion = -1;   // To invalidate wireless channels if needed
 
-    @Getter
     private final ChannelInfo[] channels = new ChannelInfo[MAX_CHANNELS];
-    @Getter
     private int colors = 0;
 
     // Cached/transient data
@@ -171,7 +168,6 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             .energyHandler(() -> energyStorage)
             .setupSync(this));
 
-    @Getter
     private final Cached<NetworkChecker> networkChecker = Cached.of(this::createNetworkChecker);
 
     public TileEntityController(BlockPos pos, BlockState state) {
@@ -259,6 +255,14 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         markDirtyQuick();
     }
 
+    public ChannelInfo[] getChannels() {
+        return channels;
+    }
+
+    public Cached<NetworkChecker> getNetworkChecker() {
+        return networkChecker;
+    }
+
     private void checkNetwork(WorldBlob worldBlob) {
         if (networkId != null && networkChecker.get().isDirtyAndMarkClean(worldBlob)) {
             cleanCaches();
@@ -285,6 +289,10 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     @Override
     public boolean matchColor(int colorMask) {
         return (colors & colorMask) == colorMask;
+    }
+
+    public int getColors() {
+        return colors;
     }
 
     @Override
@@ -503,7 +511,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             }
         });
         List<ConnectedBlockClientInfo> list = new ArrayList<>(set);
-        list.sort(Comparator.comparing(ConnectedBlockClientInfo::getBlockName)
+        list.sort(Comparator.comparing(ConnectedBlockClientInfo::getBlockUnlocName)
                 .thenComparing(ConnectedBlockClientInfo::getPos));
         return list;
     }
@@ -728,7 +736,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                         boolean advanced = ConnectorBlock.isAdvancedConnector(level, sidedPos.pos().relative(sidedPos.side()));
                         connectorObject.add(JSON_ADVANCED, new JsonPrimitive(advanced));
                         if (!connectedBlock.isAir()) {
-                            BlockState state = connectedBlock.getState();
+                            BlockState state = connectedBlock.getConnectedState();
                             connectorObject.add(JSON_BLOCK, new JsonPrimitive(Tools.getId(state).toString()));
                         }
 
@@ -766,7 +774,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             score -= 1000;
         }
 
-        ResourceLocation infoBlock = Tools.getId(info.getState());
+        ResourceLocation infoBlock = Tools.getId(info.getConnectedState());
 
         // If the side doesn't match we give a bad penalty
         if (!KnownUnsidedBlocks.isUnsided(infoBlock) && !facingOverride.equals(facing)) {
@@ -962,7 +970,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
                 // Actually create the connector and paste the connector settings
                 ResourceLocation block = connector.has(JSON_BLOCK) ? new ResourceLocation(connector.get(JSON_BLOCK).getAsString()) : null;
-                System.out.println("Pasting " + info.getName() + " (" + block.toString() + " into " + Tools.getId(info.getState()).toString() + ") with score = " + pair.sortedMatches.get(0).getRight());
+                System.out.println("Pasting " + info.getName() + " (" + block.toString() + " into " + Tools.getId(info.getConnectedState()).toString() + ") with score = " + pair.sortedMatches.get(0).getRight());
                 ConnectorInfo connectorInfo = createConnector(channel, info.getPos());
                 connectorInfo.getConnectorSettings().readFromJson(connectorSettings);
 

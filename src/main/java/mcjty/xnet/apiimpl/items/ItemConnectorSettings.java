@@ -3,7 +3,6 @@ package mcjty.xnet.apiimpl.items;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import lombok.Getter;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.lib.varia.JSonTools;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
@@ -70,13 +69,9 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         ORDER
     }
 
-    @Getter
     private ItemMode itemMode = ItemMode.INS;
-    @Getter
     private ExtractMode extractMode = ExtractMode.FIRST;
-    @Getter
     private int speed = 2;
-    @Getter
     private StackMode stackMode = StackMode.SINGLE;
     private boolean tagsMode = false;
     private boolean metaMode = false;
@@ -87,11 +82,14 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     @Nullable private Integer extractAmount = null;
 
     private final ItemStackList filters = ItemStackList.create(FILTER_SIZE);
-    @Getter
     private int filterIndex = -1;
 
     // Cached matcher for items
     private Predicate<ItemStack> matcher = null;
+
+    public ItemMode getItemMode() {
+        return itemMode;
+    }
 
     public ItemConnectorSettings(@Nonnull Direction side) {
         super(side);
@@ -203,6 +201,14 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         return s -> context.getIndexedFilter(filterIndex-1).test(s);
     }
 
+    public StackMode getStackMode() {
+        return stackMode;
+    }
+
+
+    public ExtractMode getExtractMode() {
+        return extractMode;
+    }
 
     @Nonnull
     public Integer getPriority() {
@@ -216,6 +222,14 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
 
     public int getExtractAmount() {
         return extractAmount == null ? 1 : extractAmount;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public int getFilterIndex() {
+        return filterIndex;
     }
 
     private static final Set<String> INSERT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_COUNT, TAG_PRIORITY, TAG_TAGS, TAG_META, TAG_NBT, TAG_BLACKLIST);

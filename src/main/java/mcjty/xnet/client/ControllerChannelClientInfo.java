@@ -1,8 +1,5 @@
 package mcjty.xnet.client;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.experimental.FieldDefaults;
 import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
@@ -14,16 +11,13 @@ import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-@Getter(onMethod_ = {@Nonnull})
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ControllerChannelClientInfo {
-
-    String channelName;
-    String publishedName;
-    BlockPos pos;
-    IChannelType channelType;
-    boolean remote;      // If this channel was made available through a wireless router
-    int index;        // Index of the channel within that controller (0 through 7)
+    @Nonnull private final String channelName;
+    @Nonnull private final String publishedName;
+    @Nonnull private final BlockPos pos;
+    @Nonnull private final IChannelType channelType;
+    private final boolean remote;      // If this channel was made available through a wireless router
+    private final int index;        // Index of the channel within that controller (0 through 7)
 
     public static class Serializer implements ISerializer<ControllerChannelClientInfo> {
         @Override
@@ -80,5 +74,33 @@ public class ControllerChannelClientInfo {
         buf.writeBlockPos(pos);
         buf.writeBoolean(remote);
         buf.writeInt(index);
+    }
+
+    @Nonnull
+    public String getChannelName() {
+        return channelName;
+    }
+
+    @Nonnull
+    public String getPublishedName() {
+        return publishedName;
+    }
+
+    @Nonnull
+    public BlockPos getPos() {
+        return pos;
+    }
+
+    @Nonnull
+    public IChannelType getChannelType() {
+        return channelType;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public boolean isRemote() {
+        return remote;
     }
 }

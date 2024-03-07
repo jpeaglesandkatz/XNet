@@ -1,9 +1,5 @@
 package mcjty.xnet.apiimpl.logic;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import mcjty.rftoolsbase.api.xnet.channels.Color;
 import mcjty.xnet.apiimpl.logic.enums.LogicFilter;
 import mcjty.xnet.logic.LogicTools;
@@ -23,10 +19,6 @@ import static mcjty.xnet.apiimpl.Constants.TAG_RS_FILTER;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_TICKS_HOLDER;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_TIMER;
 
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
 public class RSOutput {
     
     private boolean isAdvanced;
@@ -47,6 +39,71 @@ public class RSOutput {
     public RSOutput(boolean isAdvanced) {
         this.isAdvanced = isAdvanced;
     }
+
+    public LogicFilter getLogicFilter() {
+        return logicFilter;
+    }
+
+    public Color getInputChannel1() {
+        return inputChannel1;
+    }
+
+    public Color getInputChannel2() {
+        return inputChannel2;
+    }
+
+    public int getRedstoneOut() {
+        return redstoneOut;
+    }
+
+    public int getCountingHolder() {
+        return countingHolder;
+    }
+
+    public int getTicksHolder() {
+        return ticksHolder;
+    }
+
+    public boolean isAdvanced() {
+        return isAdvanced;
+    }
+
+    public boolean isFlipFlapState() {
+        return flipFlapState;
+    }
+
+    public boolean isLastInputTrue() {
+        return lastInputTrue;
+    }
+
+    public int getCountingCurrent() {
+        return countingCurrent;
+    }
+
+    public int getTicksCurrent() {
+        return ticksCurrent;
+    }
+
+    protected void setAdvanced(boolean advanced) {
+        isAdvanced = advanced;
+    }
+
+    public void setFlipFlapState(boolean flipFlapState) {
+        this.flipFlapState = flipFlapState;
+    }
+
+    public void setLastInputTrue(boolean lastInputTrue) {
+        this.lastInputTrue = lastInputTrue;
+    }
+
+    public void setCountingCurrent(int countingCurrent) {
+        this.countingCurrent = countingCurrent;
+    }
+
+    public void setTicksCurrent(int ticksCurrent) {
+        this.ticksCurrent = ticksCurrent;
+    }
+
     public void setCountingHolder(int countingHolder) {
         this.countingHolder = countingHolder;
         this.countingCurrent = countingHolder;
@@ -55,6 +112,22 @@ public class RSOutput {
     public void setTicksHolder(int ticksHolder) {
         this.ticksHolder = ticksHolder;
         this.ticksCurrent = ticksHolder;
+    }
+
+    public void setLogicFilter(LogicFilter logicFilter) {
+        this.logicFilter = logicFilter;
+    }
+
+    public void setInputChannel1(Color inputChannel1) {
+        this.inputChannel1 = inputChannel1;
+    }
+
+    public void setInputChannel2(Color inputChannel2) {
+        this.inputChannel2 = inputChannel2;
+    }
+
+    public void setRedstoneOut(int redstoneOut) {
+        this.redstoneOut = redstoneOut;
     }
 
     public void createGui(ConnectorEditorPanel gui) {

@@ -1,6 +1,5 @@
 package mcjty.xnet.multiblock;
 
-import lombok.Getter;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
@@ -30,7 +29,6 @@ import static mcjty.xnet.apiimpl.Constants.TAG_LAST_NETWORK;
 
 public class WorldBlob implements IWorldBlob {
 
-    @Getter
     private final ResourceKey<Level> dimensionType;
     private final Map<Long, ChunkBlob> chunkBlobMap = new HashMap<>();
     private int lastNetworkId = 0;              // Network ID
@@ -53,6 +51,10 @@ public class WorldBlob implements IWorldBlob {
 
     public WorldBlob(ResourceKey<Level> dimensionType) {
         this.dimensionType = dimensionType;
+    }
+
+    public ResourceKey<Level> getDimensionType() {
+        return dimensionType;
     }
 
     @Nonnull

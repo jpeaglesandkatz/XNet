@@ -1,6 +1,5 @@
 package mcjty.xnet.client;
 
-import lombok.Getter;
 import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.network.NetworkTools;
 import mcjty.lib.varia.OrientationTools;
@@ -13,23 +12,19 @@ import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-
 public class ConnectedBlockClientInfo {
 
     /// The position of the block we are connecting too
-    @Getter(onMethod_ = {@Nonnull})
+    @Nonnull
     private final SidedPos pos;
     /// The itemstack representing the block
-    @Getter(onMethod_ = {@Nonnull})
-    private final ItemStack connectedBlock;
+    @Nonnull private final ItemStack connectedBlock;
 
     /// The name of the connector
-    @Getter(onMethod_ = {@Nonnull})
-    private final String name;
+    @Nonnull private final String name;
 
     /// The name of the block
-    @Getter(onMethod_ = {@Nonnull})
-    private final String blockName;
+    @Nonnull private final String blockName;
 
     public static class Serializer implements ISerializer<ConnectedBlockClientInfo> {
         @Override
@@ -76,6 +71,26 @@ public class ConnectedBlockClientInfo {
         buf.writeItem(connectedBlock);
         NetworkTools.writeStringUTF8(buf, name);
         NetworkTools.writeStringUTF8(buf, blockName);
+    }
+
+    @Nonnull
+    public String getName() {
+        return name;
+    }
+
+    @Nonnull
+    public String getBlockUnlocName() {
+        return blockName;
+    }
+
+    @Nonnull
+    public SidedPos getPos() {
+        return pos;
+    }
+
+    @Nonnull
+    public ItemStack getConnectedBlock() {
+        return connectedBlock;
     }
 
     @Override

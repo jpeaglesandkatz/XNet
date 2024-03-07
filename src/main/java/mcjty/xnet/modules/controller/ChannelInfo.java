@@ -1,7 +1,5 @@
 package mcjty.xnet.modules.controller;
 
-import lombok.Getter;
-import lombok.Setter;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
@@ -31,17 +29,11 @@ public class ChannelInfo {
 
     public static final int MAX_CHANNELS = 8;
 
-    @Getter
     private final IChannelType type;
-    @Getter
     private final IChannelSettings channelSettings;
-    @Setter
     private String channelName;
-    @Setter
-    @Getter
     private boolean enabled = true;
 
-    @Getter
     private final Map<SidedConsumer, ConnectorInfo> connectors = new HashMap<>();
 
     public ChannelInfo(IChannelType type) {
@@ -52,6 +44,30 @@ public class ChannelInfo {
     @Nonnull
     public String getChannelName() {
         return channelName == null ? "" : channelName;
+    }
+
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public IChannelType getType() {
+        return type;
+    }
+
+    public IChannelSettings getChannelSettings() {
+        return channelSettings;
+    }
+
+    public Map<SidedConsumer, ConnectorInfo> getConnectors() {
+        return connectors;
     }
 
     public ConnectorInfo createConnector(SidedConsumer id, boolean advanced) {

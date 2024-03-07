@@ -1,6 +1,5 @@
 package mcjty.xnet.modules.router.blocks;
 
-import lombok.Getter;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ListCommand;
@@ -74,7 +73,6 @@ import static mcjty.xnet.modules.router.RouterModule.TYPE_ROUTER;
 public final class TileEntityRouter extends GenericTileEntity {
 
     private final Map<LocalChannelId, String> publishedChannels = new HashMap<>();
-    @Getter
     private int channelCount = 0;
 
     public List<ControllerChannelClientInfo> clientLocalChannels = null;
@@ -119,6 +117,10 @@ public final class TileEntityRouter extends GenericTileEntity {
 
     public boolean inError() {
         return channelCount > Config.maxPublishedChannels.get();
+    }
+
+    public int getChannelCount() {
+        return channelCount;
     }
 
     public void setChannelCount(int cnt) {
