@@ -47,7 +47,6 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     @Nullable private Integer priority = 0;
     @Nullable private Integer rate = null;
     @Nullable private Integer minmax = null;
-    @Getter
     private int speed = 2;
 
     private ItemStack filter = ItemStack.EMPTY;
