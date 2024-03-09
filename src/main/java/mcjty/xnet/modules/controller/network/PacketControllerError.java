@@ -1,8 +1,6 @@
 package mcjty.xnet.modules.controller.network;
 
-import mcjty.lib.network.CustomPacketPayload;
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.network.PlayPayloadContext;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.controller.client.GuiController;
 import net.minecraft.network.FriendlyByteBuf;

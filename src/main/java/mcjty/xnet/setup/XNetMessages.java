@@ -1,6 +1,5 @@
 package mcjty.xnet.setup;
 
-import mcjty.lib.network.IPayloadRegistrar;
 import mcjty.lib.network.Networking;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.controller.network.PacketControllerError;
