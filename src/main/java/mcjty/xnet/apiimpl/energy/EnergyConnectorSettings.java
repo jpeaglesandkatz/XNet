@@ -60,6 +60,10 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
         return null;
     }
 
+    public EnergyMode getEnergyMode() {
+        return energyMode;
+    }
+
     @Override
     public void createGui(IEditorGui gui) {
         advanced = gui.isAdvanced();

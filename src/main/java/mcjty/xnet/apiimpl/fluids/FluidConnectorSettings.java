@@ -89,6 +89,10 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         return null;
     }
 
+    public FluidMode getFluidMode() {
+        return fluidMode;
+    }
+
     @Override
     public void createGui(IEditorGui gui) {
         advanced = gui.isAdvanced();
