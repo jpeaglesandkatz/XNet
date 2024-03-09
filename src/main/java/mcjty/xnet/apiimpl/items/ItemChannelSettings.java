@@ -15,29 +15,37 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.compat.RFToolsSupport;
 import mcjty.xnet.setup.Config;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.LazyOptional;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.function.Predicate;
+
+import static mcjty.xnet.apiimpl.Constants.TAG_DELAY;
+import static mcjty.xnet.apiimpl.Constants.TAG_EXTIDX;
+import static mcjty.xnet.apiimpl.Constants.TAG_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_OFFSET;
 
 public class ItemChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
     public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
 
-    public static final String TAG_MODE = "mode";
 
     // Cache data
     private Map<SidedConsumer, ItemConnectorSettings> itemExtractors = null;
@@ -66,22 +74,22 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     @Override
     public JsonObject writeToJson() {
         JsonObject object = new JsonObject();
-        object.add("mode", new JsonPrimitive(channelMode.name()));
+        object.add(TAG_MODE, new JsonPrimitive(channelMode.name()));
         return object;
     }
 
     @Override
     public void readFromJson(JsonObject data) {
-        channelMode = EnumStringTranslators.getItemChannelMode(data.get("mode").getAsString());
+        channelMode = EnumStringTranslators.getItemChannelMode(data.get(TAG_MODE).getAsString());
     }
 
 
     @Override
     public void readFromNBT(CompoundTag tag) {
-        channelMode = ChannelMode.values()[tag.getByte("mode")];
-        delay = tag.getInt("delay");
-        roundRobinOffset = tag.getInt("offset");
-        int[] cons = tag.getIntArray("extidx");
+        channelMode = ChannelMode.values()[tag.getByte(TAG_MODE)];
+        delay = tag.getInt(TAG_DELAY);
+        roundRobinOffset = tag.getInt(TAG_OFFSET);
+        int[] cons = tag.getIntArray(TAG_EXTIDX);
         for (int idx = 0; idx < cons.length; idx += 2) {
             extractIndices.put(new ConsumerId(cons[idx]), cons[idx + 1]);
         }
@@ -89,9 +97,9 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
     @Override
     public void writeToNBT(CompoundTag tag) {
-        tag.putByte("mode", (byte) channelMode.ordinal());
-        tag.putInt("delay", delay);
-        tag.putInt("offset", roundRobinOffset);
+        tag.putByte(TAG_MODE, (byte) channelMode.ordinal());
+        tag.putInt(TAG_DELAY, delay);
+        tag.putInt(TAG_OFFSET, roundRobinOffset);
 
         if (!extractIndices.isEmpty()) {
             int[] cons = new int[extractIndices.size() * 2];
@@ -100,7 +108,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 cons[idx++] = entry.getKey().id();
                 cons[idx++] = entry.getValue();
             }
-            tag.putIntArray("extidx", cons);
+            tag.putIntArray(TAG_EXTIDX, cons);
         }
     }
 

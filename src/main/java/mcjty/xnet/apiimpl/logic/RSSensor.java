@@ -7,6 +7,7 @@ import mcjty.xnet.apiimpl.energy.EnergyChannelSettings;
 import mcjty.xnet.apiimpl.fluids.FluidChannelSettings;
 import mcjty.xnet.apiimpl.items.ItemChannelSettings;
 import mcjty.xnet.compat.RFToolsSupport;
+import mcjty.xnet.logic.LogicTools;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -24,14 +25,18 @@ import java.util.function.BiPredicate;
 
 import static mcjty.rftoolsbase.api.xnet.channels.Color.COLORS;
 import static mcjty.rftoolsbase.api.xnet.channels.Color.OFF;
+import static mcjty.xnet.apiimpl.Constants.TAG_AMOUNT;
+import static mcjty.xnet.apiimpl.Constants.TAG_COLOR;
+import static mcjty.xnet.apiimpl.Constants.TAG_FILTER;
+import static mcjty.xnet.apiimpl.Constants.TAG_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_OP;
+import static mcjty.xnet.apiimpl.Constants.TAG_OPERATOR;
+import static mcjty.xnet.apiimpl.Constants.TAG_SENSOR_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_STACK;
 
-public class Sensor {
+public class RSSensor {
 
-    public static final String TAG_MODE = "mode";
-    public static final String TAG_OPERATOR = "op";
-    public static final String TAG_AMOUNT = "amount";
-    public static final String TAG_COLOR = "scolor";
-    public static final String TAG_STACK = "stack";
+
 
 
     public enum SensorMode {
@@ -92,7 +97,7 @@ public class Sensor {
     private Color outputColor = OFF;
     private ItemStack filter = ItemStack.EMPTY;
 
-    public Sensor(int index) {
+    public RSSensor(int index) {
         this.index = index;
     }
 
@@ -140,7 +145,7 @@ public class Sensor {
         if ((TAG_MODE + index).equals(tag)) {
             return true;
         }
-        if ((TAG_OPERATOR + index).equals(tag)) {
+        if ((TAG_OP + index).equals(tag)) {
             return true;
         }
         if ((TAG_AMOUNT + index).equals(tag)) {
@@ -158,7 +163,7 @@ public class Sensor {
     public void createGui(IEditorGui gui) {
         gui
                 .choices(TAG_MODE + index, "Sensor mode", sensorMode, SensorMode.values())
-                .choices(TAG_OPERATOR + index, "Operator", operator, Operator.values())
+                .choices(TAG_OP + index, "Operator", operator, Operator.values())
                 .integer(TAG_AMOUNT + index, "Amount to compare with", amount, 46)
                 .colors(TAG_COLOR + index, "Output color", outputColor.getColor(), COLORS)
                 .ghostSlot(TAG_STACK + index, filter)
@@ -201,14 +206,6 @@ public class Sensor {
         return false;
     }
 
-    private int safeInt(Object o) {
-        if (o instanceof Integer) {
-            return (Integer) o;
-        } else {
-            return 0;
-        }
-    }
-
     public void update(Map<String, Object> data) {
         Object sm = data.get(TAG_MODE + index);
         if (sm != null) {
@@ -216,13 +213,13 @@ public class Sensor {
         } else {
             sensorMode = SensorMode.OFF;
         }
-        Object op = data.get(TAG_OPERATOR + index);
+        Object op = data.get(TAG_OP + index);
         if (op != null) {
             operator = Operator.valueOfCode(((String) op).toUpperCase());
         } else {
             operator = Operator.EQUAL;
         }
-        amount = safeInt(data.get(TAG_AMOUNT + index));
+        amount = LogicTools.safeInt(data.get(TAG_AMOUNT + index));
         Object co = data.get(TAG_COLOR + index);
         if (co != null) {
             outputColor = Color.colorByValue((Integer) co);
@@ -236,12 +233,12 @@ public class Sensor {
     }
 
     public void readFromNBT(CompoundTag tag) {
-        sensorMode = SensorMode.values()[tag.getByte("sensorMode" + index)];
-        operator = Operator.values()[tag.getByte("operator" + index)];
-        amount = tag.getInt("amount" + index);
-        outputColor = Color.values()[tag.getByte("scolor" + index)];
-        if (tag.contains("filter" + index)) {
-            CompoundTag itemTag = tag.getCompound("filter" + index);
+        sensorMode = SensorMode.values()[tag.getByte(TAG_SENSOR_MODE + index)];
+        operator = Operator.values()[tag.getByte(TAG_OPERATOR + index)];
+        amount = tag.getInt(TAG_AMOUNT + index);
+        outputColor = Color.values()[tag.getByte(TAG_COLOR + index)];
+        if (tag.contains(TAG_FILTER + index)) {
+            CompoundTag itemTag = tag.getCompound(TAG_FILTER + index);
             filter = ItemStack.of(itemTag);
         } else {
             filter = ItemStack.EMPTY;
@@ -249,14 +246,14 @@ public class Sensor {
     }
 
     public void writeToNBT(CompoundTag tag) {
-        tag.putByte("sensorMode" + index, (byte) sensorMode.ordinal());
-        tag.putByte("operator" + index, (byte) operator.ordinal());
-        tag.putInt("amount" + index, amount);
-        tag.putByte("scolor" + index, (byte) outputColor.ordinal());
+        tag.putByte(TAG_SENSOR_MODE + index, (byte) sensorMode.ordinal());
+        tag.putByte(TAG_OPERATOR + index, (byte) operator.ordinal());
+        tag.putInt(TAG_AMOUNT + index, amount);
+        tag.putByte(TAG_COLOR + index, (byte) outputColor.ordinal());
         if (!filter.isEmpty()) {
             CompoundTag itemTag = new CompoundTag();
             filter.save(itemTag);
-            tag.put("filter" + index, itemTag);
+            tag.put(TAG_FILTER + index, itemTag);
         }
     }
 

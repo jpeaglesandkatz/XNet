@@ -9,6 +9,7 @@ import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.setup.Config;
+import mcjty.xnet.utils.TagUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -18,14 +19,16 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
+import static mcjty.xnet.apiimpl.Constants.TAG_ADVANCED_NEEDED;
+import static mcjty.xnet.apiimpl.Constants.TAG_ENERGY_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_MINMAX;
+import static mcjty.xnet.apiimpl.Constants.TAG_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_PRIORITY;
+import static mcjty.xnet.apiimpl.Constants.TAG_RATE;
+
 public class EnergyConnectorSettings extends AbstractConnectorSettings {
 
     public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
-
-    public static final String TAG_MODE = "mode";
-    public static final String TAG_RATE = "rate";
-    public static final String TAG_MINMAX = "minmax";
-    public static final String TAG_PRIORITY = "priority";
 
     public enum EnergyMode {
         INS,
@@ -42,10 +45,6 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
         super(side);
     }
 
-    public EnergyMode getEnergyMode() {
-        return energyMode;
-    }
-
     @Nullable
     @Override
     public IndicatorIcon getIndicatorIcon() {
@@ -59,6 +58,10 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     @Nullable
     public String getIndicator() {
         return null;
+    }
+
+    public EnergyMode getEnergyMode() {
+        return energyMode;
     }
 
     @Override
@@ -128,12 +131,12 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     public JsonObject writeToJson() {
         JsonObject object = new JsonObject();
         super.writeToJsonInternal(object);
-        setEnumSafe(object, "energymode", energyMode);
-        setIntegerSafe(object, "priority", priority);
-        setIntegerSafe(object, "rate", rate);
-        setIntegerSafe(object, "minmax", minmax);
+        setEnumSafe(object, TAG_ENERGY_MODE, energyMode);
+        setIntegerSafe(object, TAG_PRIORITY, priority);
+        setIntegerSafe(object, TAG_RATE, rate);
+        setIntegerSafe(object, TAG_MINMAX, minmax);
         if (rate != null && rate > Config.maxRfRateNormal.get()) {
-            object.add("advancedneeded", new JsonPrimitive(true));
+            object.add(TAG_ADVANCED_NEEDED, new JsonPrimitive(true));
         }
         return object;
     }
@@ -141,45 +144,30 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void readFromJson(JsonObject object) {
         super.readFromJsonInternal(object);
-        energyMode = getEnumSafe(object, "energymode", EnumStringTranslators::getEnergyMode);
-        priority = getIntegerSafe(object, "priority");
-        rate = getIntegerSafe(object, "rate");
-        minmax = getIntegerSafe(object, "minmax");
+        energyMode = getEnumSafe(object, TAG_ENERGY_MODE, EnumStringTranslators::getEnergyMode);
+        priority = getIntegerSafe(object, TAG_PRIORITY);
+        rate = getIntegerSafe(object, TAG_RATE);
+        minmax = getIntegerSafe(object, TAG_MINMAX);
     }
 
     @Override
     public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
-        energyMode = EnergyMode.values()[tag.getByte("itemMode")];
-        if (tag.contains("priority")) {
-            priority = tag.getInt("priority");
-        } else {
-            priority = null;
-        }
-        if (tag.contains("rate")) {
-            rate = tag.getInt("rate");
-        } else {
-            rate = null;
-        }
-        if (tag.contains("minmax")) {
-            minmax = tag.getInt("minmax");
-        } else {
-            minmax = null;
-        }
+        byte energyModeByte = tag.contains(TAG_ENERGY_MODE) 
+                                      ? tag.getByte(TAG_ENERGY_MODE) 
+                                      : tag.getByte("itemMode"); // TODO: 06.03.2024 backward compatibility. DELETE THIS after 1.20.4_neo branch
+        energyMode = EnergyMode.values()[energyModeByte];
+        priority = TagUtils.getIntOrNull(tag, TAG_PRIORITY);
+        rate = TagUtils.getIntOrNull(tag, TAG_RATE);
+        minmax = TagUtils.getIntOrNull(tag, TAG_MINMAX);
     }
 
     @Override
     public void writeToNBT(CompoundTag tag) {
         super.writeToNBT(tag);
-        tag.putByte("itemMode", (byte) energyMode.ordinal());
-        if (priority != null) {
-            tag.putInt("priority", priority);
-        }
-        if (rate != null) {
-            tag.putInt("rate", rate);
-        }
-        if (minmax != null) {
-            tag.putInt("minmax", minmax);
-        }
+        tag.putByte(TAG_ENERGY_MODE, (byte) energyMode.ordinal());
+        TagUtils.putIntIfNotNull(tag, TAG_PRIORITY, priority);
+        TagUtils.putIntIfNotNull(tag, TAG_RATE, rate);
+        TagUtils.putIntIfNotNull(tag, TAG_RATE, minmax);
     }
 }

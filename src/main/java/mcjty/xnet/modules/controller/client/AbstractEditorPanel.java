@@ -2,7 +2,16 @@ package mcjty.xnet.modules.controller.client;
 
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.gui.events.BlockRenderEvent;
-import mcjty.lib.gui.widgets.*;
+import mcjty.lib.gui.widgets.BlockRender;
+import mcjty.lib.gui.widgets.ChoiceLabel;
+import mcjty.lib.gui.widgets.ColorChoiceLabel;
+import mcjty.lib.gui.widgets.ImageChoiceLabel;
+import mcjty.lib.gui.widgets.Label;
+import mcjty.lib.gui.widgets.Panel;
+import mcjty.lib.gui.widgets.TextField;
+import mcjty.lib.gui.widgets.ToggleButton;
+import mcjty.lib.gui.widgets.Widget;
+import mcjty.lib.gui.widgets.Widgets;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
@@ -119,41 +128,54 @@ public abstract class AbstractEditorPanel implements IEditorGui {
                 .tooltips(parseTooltips(tooltip));
         data.put(tag, value);
         text.addTextEnterEvent((newText) -> update(tag, newText));
-        text.event((newText) -> update(tag, newText));
+        gui.getWindow().addFocusEvent((textFocus) -> {
+            if (textFocus == null) {update(tag, text.getText());}
+        });
         panel.children(text);
         components.put(tag, text);
         x += width;
         return this;
     }
 
-    private Integer parseInt(String i, Integer maximum) {
+    private Integer validate(String i, Integer maximum, Integer minimum) {
         if (i == null || i.isEmpty()) {
-            return null;
+            return minimum;
         }
         try {
             int v = Integer.parseInt(i);
             if (maximum != null && v > maximum) {
                 v = maximum;
+            } else if (minimum != null && v < minimum) {
+                v = minimum;
             }
             return v;
         } catch (NumberFormatException e) {
-            return null;
+            return minimum;
         }
     }
 
     @Override
     public IEditorGui integer(String tag, String tooltip, Integer value, int width) {
-        return integer(tag, tooltip, value, width, null);
+        return integer(tag, tooltip, value, width, Integer.MAX_VALUE, 0);
     }
 
     @Override
     public IEditorGui integer(String tag, String tooltip, Integer value, int width, Integer maximum) {
+        return integer(tag, tooltip, value, width, maximum, 0);
+    }
+
+    // TODO: 06.03.2024 override IEditorGUI after rftoolbase update
+    public IEditorGui integer(String tag, String tooltip, Integer value, int width, int maximum, int minimum) {
         fitWidth(width);
-        TextField text = textfield(x, y, width, 14).text(value == null ? "" : value.toString())
+        TextField text = textfield(x, y, width, 14).text(value == null ? String.valueOf(minimum) : value.toString())
                 .tooltips(parseTooltips(tooltip));
         data.put(tag, value);
-        text.addTextEnterEvent((newText) -> update(tag, parseInt(newText, maximum)));
-        text.event((newText) -> update(tag, parseInt(newText, maximum)));
+        text.addTextEnterEvent((newInt) -> update(tag, validate(newInt, maximum, minimum)));
+        gui.getWindow().addFocusEvent((textFocus) -> {
+            if (textFocus == null) {
+                update(tag, validate(text.getText(), maximum, minimum));
+            }
+        });
         panel.children(text);
         components.put(tag, text);
         x += width;

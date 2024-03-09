@@ -12,7 +12,15 @@ import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.ButtonEvent;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
-import mcjty.lib.gui.widgets.*;
+import mcjty.lib.gui.widgets.BlockRender;
+import mcjty.lib.gui.widgets.Button;
+import mcjty.lib.gui.widgets.ChoiceLabel;
+import mcjty.lib.gui.widgets.EnergyBar;
+import mcjty.lib.gui.widgets.Panel;
+import mcjty.lib.gui.widgets.TextField;
+import mcjty.lib.gui.widgets.ToggleButton;
+import mcjty.lib.gui.widgets.Widget;
+import mcjty.lib.gui.widgets.WidgetList;
 import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.lib.network.PacketServerCommandTyped;
 import mcjty.lib.typed.TypedMap;
@@ -53,14 +61,33 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static mcjty.lib.gui.widgets.Widgets.*;
+import static mcjty.lib.gui.widgets.Widgets.button;
+import static mcjty.lib.gui.widgets.Widgets.horizontal;
+import static mcjty.lib.gui.widgets.Widgets.label;
+import static mcjty.lib.gui.widgets.Widgets.vertical;
+import static mcjty.xnet.apiimpl.Constants.TAG_CHANNEL;
+import static mcjty.xnet.apiimpl.Constants.TAG_CONNECTORS;
+import static mcjty.xnet.apiimpl.Constants.TAG_ENABLED;
+import static mcjty.xnet.apiimpl.Constants.TAG_NAME;
+import static mcjty.xnet.apiimpl.Constants.TAG_TYPE;
+import static mcjty.xnet.apiimpl.Constants.WIDGET_CHANNEL_EDIT_PANEL;
+import static mcjty.xnet.apiimpl.Constants.WIDGET_CONNECTOR_EDIT_PANEL;
+import static mcjty.xnet.apiimpl.Constants.WIDGET_ENERGY_BAR;
+import static mcjty.xnet.apiimpl.Constants.WIDGET_SEARCH_BAR;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
-import static mcjty.xnet.modules.controller.blocks.TileEntityController.*;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.CMD_GETCHANNELS;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.CMD_GETCONNECTEDBLOCKS;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.CMD_PASTECHANNEL;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.CMD_PASTECONNECTOR;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.PARAM_CHANNEL;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.PARAM_INDEX;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.PARAM_JSON;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.PARAM_POS;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.PARAM_SIDE;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.PARAM_TYPE;
+
 
 public class GuiController extends GenericGuiContainer<TileEntityController, GenericContainer> {
-
-    public static final String TAG_ENABLED = "enabled";
-    public static final String TAG_NAME = "name";
 
     private WidgetList connectorList;
     private final List<SidedPos> connectorPositions = new ArrayList<>();
@@ -120,20 +147,20 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private void setupEvents() {
-        window.event("searchbar", (source, params) -> needsRefresh = true);
+        window.event(WIDGET_SEARCH_BAR, (source, params) -> needsRefresh = true);
         for (int i = 0 ; i < MAX_CHANNELS ; i++) {
-            String channel = "channel" + (i+1);
+            String channel = TAG_CHANNEL + (i+1);
             int finalI = i;
             window.event(channel, (source, params) -> selectChannelEditor(finalI));
         }
     }
 
     private void initializeFields() {
-        channelEditPanel = window.findChild("channeleditpanel");
-        connectorEditPanel = window.findChild("connectoreditpanel");
+        channelEditPanel = window.findChild(WIDGET_CHANNEL_EDIT_PANEL);
+        connectorEditPanel = window.findChild(WIDGET_CONNECTOR_EDIT_PANEL);
 
-        searchBar = window.findChild("searchbar");
-        connectorList = window.findChild("connectors");
+        searchBar = window.findChild(WIDGET_SEARCH_BAR);
+        connectorList = window.findChild(TAG_CONNECTORS);
 
         connectorList.event(new DefaultSelectionEvent() {
             @Override
@@ -143,11 +170,11 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         });
 
         for (int i = 0 ; i < MAX_CHANNELS ; i++) {
-            String name = "channel" + (i+1);
+            String name = TAG_CHANNEL + (i+1);
             channelButtons[i] = window.findChild(name);
         }
 
-        energyBar = window.findChild("energybar");
+        energyBar = window.findChild(WIDGET_ENERGY_BAR);
     }
 
     private void updateFields() {
@@ -434,7 +461,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             }
             JsonParser parser = new JsonParser();
             JsonObject root = parser.parse(json).getAsJsonObject();
-            String type = root.get("type").getAsString();
+            String type = root.get(TAG_TYPE).getAsString();
             IChannelType channelType = XNet.xNetApi.findType(type);
             if (channelType == null) {
                 showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Unsupported channel type: " + type + "!");
@@ -468,9 +495,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Clipboard too large!");
                 return;
             }
-            JsonParser parser = new JsonParser();
-            JsonObject root = parser.parse(json).getAsJsonObject();
-            String type = root.get("type").getAsString();
+            JsonObject root = JsonParser.parseString(json).getAsJsonObject();
+            String type = root.get(TAG_TYPE).getAsString();
             IChannelType channelType = XNet.xNetApi.findType(type);
             if (channelType == null) {
                 showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Unsupported channel type: " + type + "!");

@@ -9,8 +9,10 @@ import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.XNet;
+import mcjty.xnet.apiimpl.Constants;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.setup.Config;
+import mcjty.xnet.utils.TagUtils;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
@@ -22,17 +24,18 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
+import static mcjty.xnet.apiimpl.Constants.TAG_ADVANCED_NEEDED;
+import static mcjty.xnet.apiimpl.Constants.TAG_FLT;
+import static mcjty.xnet.apiimpl.Constants.TAG_FLUID_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_PRIORITY;
+import static mcjty.xnet.apiimpl.Constants.TAG_SPEED;
+import static mcjty.xnet.apiimpl.Constants.TAG_RATE;
+import static mcjty.xnet.apiimpl.Constants.TAG_MINMAX;
+
 public class FluidConnectorSettings extends AbstractConnectorSettings {
 
     public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
-
-    public static final String TAG_MODE = "mode";
-    public static final String TAG_RATE = "rate";
-    public static final String TAG_MINMAX = "minmax";
-    public static final String TAG_PRIORITY = "priority";
-    public static final String TAG_FILTER = "flt";
-    public static final String TAG_SPEED = "speed";
-
 
     public enum FluidMode {
         INS,
@@ -50,10 +53,6 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
 
     public FluidConnectorSettings(@Nonnull Direction side) {
         super(side);
-    }
-
-    public FluidMode getFluidMode() {
-        return fluidMode;
     }
 
     public int getSpeed() {
@@ -90,16 +89,18 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         return null;
     }
 
+    public FluidMode getFluidMode() {
+        return fluidMode;
+    }
+
     @Override
     public void createGui(IEditorGui gui) {
         advanced = gui.isAdvanced();
-        String[] speeds;
+        String[] speeds = advanced ? Constants.ADVANCED_SPEEDS : Constants.SPEEDS;
         int maxrate;
         if (advanced) {
-            speeds = new String[] { "10", "20", "60", "100", "200" };
             maxrate = Config.maxFluidRateAdvanced.get();
         } else {
-            speeds = new String[] { "20", "60", "100", "200" };
             maxrate = Config.maxFluidRateNormal.get();
         }
 
@@ -120,11 +121,11 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
                 .integer(TAG_MINMAX, fluidMode == FluidMode.EXT ? "Keep this amount of|fluid in tank" : "Disable insertion if|fluid level is too high", minmax, 36)
                 .nl()
                 .label("Filter")
-                .ghostSlot(TAG_FILTER, filter);
+                .ghostSlot(TAG_FLT, filter);
     }
 
-    private static final Set<String> INSERT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_RATE, TAG_MINMAX, TAG_PRIORITY, TAG_FILTER);
-    private static final Set<String> EXTRACT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_RATE, TAG_MINMAX, TAG_PRIORITY, TAG_FILTER, TAG_SPEED);
+    private static final Set<String> INSERT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_RATE, TAG_MINMAX, TAG_PRIORITY, TAG_FLT);
+    private static final Set<String> EXTRACT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_RATE, TAG_MINMAX, TAG_PRIORITY, TAG_FLT, TAG_SPEED);
 
     @Override
     public boolean isEnabled(String tag) {
@@ -151,6 +152,10 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         }
     }
 
+    public void setSpeed(int speed) {
+        this.speed = speed != 0 ? speed : 2;
+    }
+
 
     @Override
     public void update(Map<String, Object> data) {
@@ -159,11 +164,8 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         rate = (Integer) data.get(TAG_RATE);
         minmax = (Integer) data.get(TAG_MINMAX);
         priority = (Integer) data.get(TAG_PRIORITY);
-        speed = Integer.parseInt((String) data.get(TAG_SPEED)) / 10;
-        if (speed == 0) {
-            speed = 2;
-        }
-        filter = (ItemStack) data.get(TAG_FILTER);
+        setSpeed(Integer.parseInt((String) data.get(TAG_SPEED)) / 10);
+        filter = (ItemStack) data.get(TAG_FLT);
         if (filter == null) {
             filter = ItemStack.EMPTY;
         }
@@ -173,19 +175,19 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     public JsonObject writeToJson() {
         JsonObject object = new JsonObject();
         super.writeToJsonInternal(object);
-        setEnumSafe(object, "fluidmode", fluidMode);
-        setIntegerSafe(object, "priority", priority);
-        setIntegerSafe(object, "rate", rate);
-        setIntegerSafe(object, "minmax", minmax);
-        setIntegerSafe(object, "speed", speed);
+        setEnumSafe(object, TAG_FLUID_MODE, fluidMode);
+        setIntegerSafe(object, TAG_PRIORITY, priority);
+        setIntegerSafe(object, TAG_RATE, rate);
+        setIntegerSafe(object, TAG_RATE, minmax);
+        setIntegerSafe(object, TAG_SPEED, speed);
         if (!filter.isEmpty()) {
-            object.add("filter", JSonTools.itemStackToJson(filter));
+            object.add(TAG_FLT, JSonTools.itemStackToJson(filter));
         }
         if (rate != null && rate > Config.maxFluidRateNormal.get()) {
-            object.add("advancedneeded", new JsonPrimitive(true));
+            object.add(TAG_ADVANCED_NEEDED, new JsonPrimitive(true));
         }
         if (speed == 1) {
-            object.add("advancedneeded", new JsonPrimitive(true));
+            object.add(TAG_ADVANCED_NEEDED, new JsonPrimitive(true));
         }
         return object;
     }
@@ -193,13 +195,13 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void readFromJson(JsonObject object) {
         super.readFromJsonInternal(object);
-        fluidMode = getEnumSafe(object, "fluidmode", EnumStringTranslators::getFluidMode);
-        priority = getIntegerSafe(object, "priority");
-        rate = getIntegerSafe(object, "rate");
-        minmax = getIntegerSafe(object, "minmax");
-        speed = getIntegerNotNull(object, "speed");
-        if (object.has("filter")) {
-            filter = JSonTools.jsonToItemStack(object.get("filter").getAsJsonObject());
+        fluidMode = getEnumSafe(object, TAG_FLUID_MODE, EnumStringTranslators::getFluidMode);
+        priority = getIntegerSafe(object, TAG_PRIORITY);
+        rate = getIntegerSafe(object, TAG_RATE);
+        minmax = getIntegerSafe(object, TAG_RATE);
+        speed = getIntegerNotNull(object, TAG_SPEED);
+        if (object.has(TAG_FLT)) {
+            filter = JSonTools.jsonToItemStack(object.get(TAG_FLT).getAsJsonObject());
         } else {
             filter = ItemStack.EMPTY;
         }
@@ -209,28 +211,13 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
-        fluidMode = FluidMode.values()[tag.getByte("fluidMode")];
-        if (tag.contains("priority")) {
-            priority = tag.getInt("priority");
-        } else {
-            priority = null;
-        }
-        if (tag.contains("rate")) {
-            rate = tag.getInt("rate");
-        } else {
-            rate = null;
-        }
-        if (tag.contains("minmax")) {
-            minmax = tag.getInt("minmax");
-        } else {
-            minmax = null;
-        }
-        speed = tag.getInt("speed");
-        if (speed == 0) {
-            speed = 2;
-        }
-        if (tag.contains("filter")) {
-            CompoundTag itemTag = tag.getCompound("filter");
+        fluidMode = FluidMode.values()[tag.getByte(TAG_FLUID_MODE)];
+        priority = TagUtils.getIntOrNull(tag, TAG_PRIORITY);
+        rate = TagUtils.getIntOrNull(tag, TAG_RATE);
+        minmax = TagUtils.getIntOrNull(tag, TAG_MINMAX);
+        setSpeed(TagUtils.getIntOrNull(tag, TAG_SPEED));
+        if (tag.contains(TAG_FLT)) {
+            CompoundTag itemTag = tag.getCompound(TAG_FLT);
             filter = ItemStack.of(itemTag);
         } else {
             filter = ItemStack.EMPTY;
@@ -240,21 +227,15 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void writeToNBT(CompoundTag tag) {
         super.writeToNBT(tag);
-        tag.putByte("fluidMode", (byte) fluidMode.ordinal());
-        if (priority != null) {
-            tag.putInt("priority", priority);
-        }
-        if (rate != null) {
-            tag.putInt("rate", rate);
-        }
-        if (minmax != null) {
-            tag.putInt("minmax", minmax);
-        }
-        tag.putInt("speed", speed);
+        tag.putByte(TAG_FLUID_MODE, (byte) fluidMode.ordinal());
+        TagUtils.putIntIfNotNull(tag, TAG_PRIORITY, priority);
+        TagUtils.putIntIfNotNull(tag, TAG_RATE, rate);
+        TagUtils.putIntIfNotNull(tag, TAG_MINMAX, minmax);
+        tag.putInt(TAG_SPEED, speed);
         if (!filter.isEmpty()) {
             CompoundTag itemTag = new CompoundTag();
             filter.save(itemTag);
-            tag.put("filter", itemTag);
+            tag.put(TAG_FLT, itemTag);
         }
     }
 }

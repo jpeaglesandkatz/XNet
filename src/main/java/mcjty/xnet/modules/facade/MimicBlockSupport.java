@@ -7,6 +7,8 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
+import static mcjty.xnet.apiimpl.Constants.TAG_MIMIC;
+
 public class MimicBlockSupport {
 
     @Nullable
@@ -23,8 +25,8 @@ public class MimicBlockSupport {
 
 
     public void readFromNBT(CompoundTag tagCompound) {
-        if (tagCompound != null && tagCompound.contains("mimic")) {
-            mimicBlock = NBTTools.readBlockState(tagCompound.getCompound("mimic"));
+        if (tagCompound != null && tagCompound.contains(TAG_MIMIC)) {
+            mimicBlock = NBTTools.readBlockState(tagCompound.getCompound(TAG_MIMIC));
         } else {
             mimicBlock = null;
         }
@@ -33,7 +35,7 @@ public class MimicBlockSupport {
     public void writeToNBT(CompoundTag tagCompound) {
         if (mimicBlock != null) {
             CompoundTag tag = NbtUtils.writeBlockState(mimicBlock);
-            tagCompound.put("mimic", tag);
+            tagCompound.put(TAG_MIMIC, tag);
         }
     }
 }

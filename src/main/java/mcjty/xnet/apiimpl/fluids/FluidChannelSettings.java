@@ -32,11 +32,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static mcjty.xnet.apiimpl.Constants.TAG_DELAY;
+import static mcjty.xnet.apiimpl.Constants.TAG_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_OFFSET;
+
 public class FluidChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
     public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
-
-    public static final String TAG_MODE = "mode";
 
     public enum ChannelMode {
         PRIORITY,
@@ -51,35 +53,31 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
     private Map<SidedConsumer, FluidConnectorSettings> fluidExtractors = null;
     private List<Pair<SidedConsumer, FluidConnectorSettings>> fluidConsumers = null;
 
-    public ChannelMode getChannelMode() {
-        return channelMode;
-    }
-
     @Override
     public JsonObject writeToJson() {
         JsonObject object = new JsonObject();
-        object.add("mode", new JsonPrimitive(channelMode.name()));
+        object.add(TAG_MODE, new JsonPrimitive(channelMode.name()));
         return object;
     }
 
     @Override
     public void readFromJson(JsonObject data) {
-        channelMode = EnumStringTranslators.getFluidChannelMode(data.get("mode").getAsString());
+        channelMode = EnumStringTranslators.getFluidChannelMode(data.get(TAG_MODE).getAsString());
     }
 
 
     @Override
     public void readFromNBT(CompoundTag tag) {
-        channelMode = ChannelMode.values()[tag.getByte("mode")];
-        delay = tag.getInt("delay");
-        roundRobinOffset = tag.getInt("offset");
+        channelMode = ChannelMode.values()[tag.getByte(TAG_MODE)];
+        delay = tag.getInt(TAG_DELAY);
+        roundRobinOffset = tag.getInt(TAG_OFFSET);
     }
 
     @Override
     public void writeToNBT(CompoundTag tag) {
-        tag.putByte("mode", (byte) channelMode.ordinal());
-        tag.putInt("delay", delay);
-        tag.putInt("offset", roundRobinOffset);
+        tag.putByte(TAG_MODE, (byte) channelMode.ordinal());
+        tag.putInt(TAG_DELAY, delay);
+        tag.putInt(TAG_OFFSET, roundRobinOffset);
     }
 
     @Override
