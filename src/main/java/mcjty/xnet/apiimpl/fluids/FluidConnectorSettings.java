@@ -55,6 +55,10 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         super(side);
     }
 
+    public int getSpeed() {
+        return speed;
+    }
+
     @Nonnull
     public Integer getPriority() {
         return priority == null ? 0 : priority;
