@@ -3,8 +3,6 @@ package mcjty.xnet.modules.various;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
-import mcjty.lib.setup.DeferredBlock;
-import mcjty.lib.setup.DeferredItem;
 import mcjty.xnet.modules.various.blocks.RedstoneProxyBlock;
 import mcjty.xnet.modules.various.blocks.RedstoneProxyUBlock;
 import mcjty.xnet.modules.various.items.ConnectorUpgradeItem;
@@ -13,7 +11,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import static mcjty.lib.datagen.DataGen.has;

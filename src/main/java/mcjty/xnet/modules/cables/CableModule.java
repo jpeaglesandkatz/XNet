@@ -4,8 +4,6 @@ import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
-import mcjty.lib.setup.DeferredBlock;
-import mcjty.lib.setup.DeferredItem;
 import mcjty.lib.varia.TagTools;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.blocks.*;
@@ -23,7 +21,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.neoforged.neoforge.api.distmarker.Dist;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.List;
