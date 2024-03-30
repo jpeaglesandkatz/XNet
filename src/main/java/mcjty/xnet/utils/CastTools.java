@@ -37,6 +37,13 @@ public class CastTools {
     public static int safeIntOrValue(Object o, int value) {
         if (o instanceof Integer) {
             return (Integer) o;
+        } else if (o instanceof String) {
+            try {
+                return Integer.parseInt((String)o);
+            } catch (Exception ignored) {
+                return value;
+            }
+
         } else {
             return value;
         }

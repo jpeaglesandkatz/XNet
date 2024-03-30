@@ -274,7 +274,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         setSpeed(Integer.parseInt((String) data.get(TAG_SPEED)) / 5);
 
         String idx = (String) data.get(TAG_FILTER_IDX);
-        this.filterIndex = ITEM_FILTER_OFF.i18n().equalsIgnoreCase(idx) ? -1 : Integer.parseInt(idx);
+        filterIndex = CastTools.safeIntOrValue(idx, -1);
         tagsMode = Boolean.TRUE.equals(data.get(TAG_TAGS));
         metaMode = Boolean.TRUE.equals(data.get(TAG_META));
         nbtMode = Boolean.TRUE.equals(data.get(TAG_NBT));
