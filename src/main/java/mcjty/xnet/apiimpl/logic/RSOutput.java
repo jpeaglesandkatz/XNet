@@ -1,8 +1,8 @@
 package mcjty.xnet.apiimpl.logic;
 
 import mcjty.rftoolsbase.api.xnet.channels.Color;
+import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.xnet.apiimpl.logic.enums.LogicFilter;
-import mcjty.xnet.modules.controller.client.ConnectorEditorPanel;
 import mcjty.xnet.utils.CastTools;
 import net.minecraft.nbt.CompoundTag;
 
@@ -135,7 +135,7 @@ public class RSOutput {
         this.redstoneOut = redstoneOut;
     }
 
-    public void createGui(ConnectorEditorPanel gui) {// TODO: 09.03.2024 remove ConnectorEditorPanel cast after rftoolbase update 
+    public void createGui(IEditorGui gui) {
         if (gui.isAdvanced()) {
             gui.translatableChoices(TAG_RS_FILTER, logicFilter, LogicFilter.values());
             switch (logicFilter) {

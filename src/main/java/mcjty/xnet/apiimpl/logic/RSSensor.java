@@ -112,7 +112,7 @@ public class RSSensor {
     }
 
     public void createGui(IEditorGui gui) {
-        ((AbstractEditorPanel)gui).translatableChoices(TAG_MODE + index, sensorMode, SensorMode.values());
+        gui.translatableChoices(TAG_MODE + index, sensorMode, SensorMode.values());
         gui
                 .choices(TAG_OP + index, LOGIC_SENSOR_OPERATOR_TOOLTIP.i18n(), operator, Operator.values())
                 .integer(TAG_AMOUNT + index, LOGIC_SENSOR_AMOUNT_TOOLTIP.i18n(), amount, 46)
