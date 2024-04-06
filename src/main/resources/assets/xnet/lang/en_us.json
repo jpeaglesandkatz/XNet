@@ -211,5 +211,8 @@
     "xnet.connector.upgrade": "Sneak right click this on a|normal connector to upgrade it|to an advanced connector",
     "xnet.connector.was.upgraded": "Connector was upgraded",
     "xnet.connector.already.advanced": "This connector is already advanced!",
-    "xnet.connector.use.it.to.upgrade": "Use this item on a connector to upgrade it!"
+    "xnet.connector.use.it.to.upgrade": "Use this item on a connector to upgrade it!",
+
+    "xnet.channel.edit.tooltip.exist": "Edit channel %d|Type: %s",
+    "xnet.channel.edit.tooltip.notexist": "Edit channel %d"
 }
