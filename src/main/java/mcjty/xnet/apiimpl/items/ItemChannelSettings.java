@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Predicate;
 
@@ -160,7 +161,8 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         updateCache(channel, context);
         Level world = context.getControllerWorld();
         consumerFull = new boolean[itemConsumers.size()];
-        for (ConnectedBlock<ItemConnectorSettings> extractor : itemExtractors) {
+        for (int i = 0; i < itemExtractors.size(); i++) {
+            ConnectedBlock<ItemConnectorSettings> extractor = itemExtractors.get(i);
             ItemConnectorSettings settings = extractor.settings();
             if (d % settings.getSpeed() != 0) {
                 continue;
@@ -190,13 +192,15 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             if (RFToolsSupport.isStorageScanner(te)) {
                 RFToolsSupport.tickStorageScanner(context, settings, te, this, world);
             } else {
-                getItemHandlerAt(te, settings.getFacing()).ifPresent(handler -> {
+                Optional<IItemHandler> lazyHandler = getItemHandlerAt(te, settings.getFacing()).resolve();
+                if (lazyHandler.isPresent()) {
+                    IItemHandler handler = lazyHandler.get();
                     int idx = getStartExtractIndex(settings, consumerId, handler);
-                    idx = tickItemHandler(context, settings, handler, world, idx);
+                    idx = tickItemHandler(context, settings, handler, world, idx, i);
                     if (handler.getSlots() > 0) {
                         rememberExtractIndex(consumerId, (idx + 1) % handler.getSlots());
                     }
-                });
+                }
             }
         }
     }
@@ -236,7 +240,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
 
     private int tickItemHandler(@Nonnull IControllerContext context, @Nonnull ItemConnectorSettings settings,
-                                @Nonnull IItemHandler handler, @Nonnull Level world, int startIdx) {
+                                @Nonnull IItemHandler handler, @Nonnull Level world, int startIdx, int extractorIdx) {
         Predicate<ItemStack> extractMatcher = settings.getMatcher(context);
 
         Integer count = settings.getCount();
@@ -273,7 +277,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             }
 
             if (context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
-                int remaining = insertStackNew(context, stack, world);
+                int remaining = insertStack(context, stack, world, extractorIdx);
                 if (remaining != toextract) {
                     fetchItem(handler, false, extractMatcher, settings.getStackMode(),
                             settings.getExtractAmount(), toextract - remaining, index, startIdx);
@@ -289,7 +293,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         return index.getSafe(handler.getSlots());
     }
 
-    public int insertStackNew(@Nonnull IControllerContext context, @Nonnull ItemStack source, @Nonnull Level world) {
+    public int insertStack(@Nonnull IControllerContext context, @Nonnull ItemStack source, @Nonnull Level world, int extractorIdx) {
         if (channelMode == ChannelMode.PRIORITY) {
             roundRobinOffset = 0;       // Always start at 0
         }
@@ -354,7 +358,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 if (total <= 0) {
                     return 0;
                 }
-            } else if (extractorsSize > 1 && (j == 0 || j == consumersSize / 2 - 1)) {
+            } else if (extractorsSize > 2 && (extractorIdx == 0 || extractorIdx == extractorsSize / 2 - 1)) {
                 // If we have more than 1 extractor it would be useful to cache full consumer inventories
                 // to avoid useless processing.
                 // It will be enough to do it twice: at the beginning and in the middle of processing
