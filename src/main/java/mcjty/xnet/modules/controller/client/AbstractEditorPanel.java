@@ -1,10 +1,12 @@
 package mcjty.xnet.modules.controller.client;
 
 import mcjty.lib.blockcommands.Command;
+import mcjty.lib.gui.ITranslatableEnum;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.widgets.BlockRender;
 import mcjty.lib.gui.widgets.ChoiceLabel;
 import mcjty.lib.gui.widgets.ColorChoiceLabel;
+import mcjty.lib.gui.widgets.EnumChoiceLabel;
 import mcjty.lib.gui.widgets.ImageChoiceLabel;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
@@ -19,8 +21,6 @@ import mcjty.rftoolsbase.api.xnet.channels.RSMode;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.xnet.XNet;
 import mcjty.xnet.setup.XNetMessages;
-import mcjty.xnet.utils.EnumChoiceLabel;
-import mcjty.xnet.utils.ITranslatableEnum;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -162,7 +162,20 @@ public abstract class AbstractEditorPanel implements IEditorGui {
 
     @Override
     public IEditorGui integer(String tag, String tooltip, Integer value, int width) {
-        return integer(tag, tooltip, value, width, Integer.MAX_VALUE, 0);
+        fitWidth(width);
+        TextField text = textfield(x, y, width, 14).text(value == null ? "" : value.toString())
+                                 .tooltips(parseTooltips(tooltip));
+        data.put(tag, value);
+        text.addTextEnterEvent((newText) -> update(tag, validate(newText, null, null)));
+        gui.getWindow().addFocusEvent((textFocus) -> {
+            if (textFocus == null) {
+                update(tag, validate(text.getText(), null, null));
+            }
+        });
+        panel.children(text);
+        components.put(tag, text);
+        x += width;
+        return this;
     }
 
     @Override
@@ -170,7 +183,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
         return integer(tag, tooltip, value, width, maximum, 0);
     }
 
-    // TODO: 06.03.2024 override IEditorGUI after rftoolbase update
+    @Override
     public IEditorGui integer(String tag, String tooltip, Integer value, int width, int maximum, int minimum) {
         fitWidth(width);
         TextField text = textfield(x, y, width, 14).text(value == null ? String.valueOf(minimum) : value.toString())
@@ -288,15 +301,15 @@ public abstract class AbstractEditorPanel implements IEditorGui {
         return choices(tag, tooltip, StringUtils.capitalize(current.toString().toLowerCase()), strings);
     }
 
-    public IEditorGui translatableChoices(String tag, ITranslatableEnum<?> current, ITranslatableEnum<?>... values) {// TODO: 09.03.2024 move to rftoolsbase
+    @Override
+    public IEditorGui translatableChoices(String tag, ITranslatableEnum<?> current, ITranslatableEnum<?>... values) {
         int w = 10;
         for (ITranslatableEnum<?> s : values) {
             w = Math.max(w, mc.font.width(s.getI18n()) + 14);
         }
 
         fitWidth(w);
-        EnumChoiceLabel choice = new EnumChoiceLabel().choices(values).choice(current)
-                                     .hint(x, y, w, 14);
+        EnumChoiceLabel choice = new EnumChoiceLabel().choices(values).choice(current).hint(x, y, w, 14);
         data.put(tag, current.ordinal());
         choice.event((newChoice) -> update(tag, newChoice.ordinal()));
         panel.children(choice);

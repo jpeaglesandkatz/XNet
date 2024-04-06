@@ -105,10 +105,6 @@ public enum I18nConstants {
 
     I18nConstants(String langKey) {this.langKey = langKey;}
 
-//    public String i18n() {
-//
-//    }
-
     public String i18n(Object... formatArgs) {
         if (formatArgs == null) {
             return ComponentFactory.translatable(this.langKey).getString();

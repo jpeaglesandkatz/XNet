@@ -4,7 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.gui.GuiParser;
+import mcjty.lib.gui.ITranslatableEnum;
 import mcjty.lib.gui.Window;
+import mcjty.lib.gui.events.ChoiceEvent;
 import mcjty.lib.gui.widgets.AbstractLabel;
 import mcjty.lib.gui.widgets.Widget;
 import mcjty.lib.typed.Key;
@@ -26,7 +28,7 @@ import java.util.stream.Collectors;
 
 public class ChannelChoiceLabel extends AbstractLabel<ChannelChoiceLabel> {
 
-    public static final String TYPE_ENUM_CHOICE_LABEL = "enumchoicelabel";
+    public static final String TYPE_CHANNEL_CHOICE_LABEL = "channelchoicelabel";
     public static final Key<String> PARAM_CHOICE = new Key<>("choice", Type.STRING);
     public static final Key<Integer> PARAM_CHOICE_IDX = new Key<>("choiceIdx", Type.INTEGER);
 
@@ -169,7 +171,6 @@ public class ChannelChoiceLabel extends AbstractLabel<ChannelChoiceLabel> {
 
     @Override
     public void readFromGuiCommand(GuiParser.GuiCommand command) {
-        System.out.println("readFromGuiCommand");
         super.readFromGuiCommand(command);
         command.findCommand("choices").ifPresent(cmd -> {
             cmd.commands().forEach(choiceCmd -> {
@@ -186,7 +187,6 @@ public class ChannelChoiceLabel extends AbstractLabel<ChannelChoiceLabel> {
 
     @Override
     public void fillGuiCommand(GuiParser.GuiCommand command) {
-        System.out.println("fillGuiCommand");
         super.fillGuiCommand(command);
         command.removeParameter(1); // We don't need the name as set by the label
         GuiParser.GuiCommand choicesCmd = new GuiParser.GuiCommand("choices");
@@ -207,6 +207,6 @@ public class ChannelChoiceLabel extends AbstractLabel<ChannelChoiceLabel> {
 
     @Override
     public GuiParser.GuiCommand createGuiCommand() {
-        return new GuiParser.GuiCommand(TYPE_ENUM_CHOICE_LABEL);
+        return new GuiParser.GuiCommand(TYPE_CHANNEL_CHOICE_LABEL);
     }
 }

@@ -1,8 +1,8 @@
 package mcjty.xnet.apiimpl.enums;
 
 import mcjty.lib.varia.ComponentFactory;
+import mcjty.lib.gui.ITranslatableEnum;
 import mcjty.xnet.utils.I18nUtils;
-import mcjty.xnet.utils.ITranslatableEnum;
 
 public enum ChannelMode implements ITranslatableEnum<ChannelMode> {
     PRIORITY("xnet.enum.channelmode.priority"),
