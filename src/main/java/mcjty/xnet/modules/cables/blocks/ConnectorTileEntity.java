@@ -3,6 +3,7 @@ package mcjty.xnet.modules.cables.blocks;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ResultCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.Cap;
@@ -10,6 +11,7 @@ import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
+import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.tiles.IConnectorTile;
 import mcjty.xnet.modules.cables.CableModule;
@@ -303,6 +305,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     public static final Key<Integer> PARAM_FACING = new Key<>(TAG_FACING, Type.INTEGER);
     public static final Key<Boolean> PARAM_ENABLED = new Key<>(TAG_ENABLED, Type.BOOLEAN);
+    public static final Key<String> PARAM_NAME = new Key<>(TAG_NAME, Type.STRING);
+
     @ServerCommand
     public static final Command<?> CMD_ENABLE = Command.<ConnectorTileEntity>create("connector.enable",
             (te, playerEntity, params) -> {
@@ -310,6 +314,10 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
                 boolean e = params.get(PARAM_ENABLED);
                 te.setEnabled(OrientationTools.DIRECTION_VALUES[f], e);
             });
+    @ServerCommand
+    public static final ResultCommand<?> CMD_GET_NAME = ResultCommand.<ConnectorTileEntity>create("xnet.connector.name",
+            (te, player, params) -> TypedMap.builder().put(PARAM_NAME, te.getConnectorName()).build(),
+            (te, player, params) -> te.setConnectorName(params.get(PARAM_NAME)));
 
     @Nonnull
     @Override
