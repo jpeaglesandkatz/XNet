@@ -98,16 +98,15 @@ public enum I18nConstants {
     ERROR_COPY("xnet.error.copy"),
     ERROR_READ_COPY("xnet.error.read.copy"),
     ERROR_LARGE_COPY("xnet.error.large.copy"),
-    ERROR_UNS_CH_FORMATTED("xnet.uns.ch.formatted");
+    ERROR_UNS_CH_FORMATTED("xnet.uns.ch.formatted"),
+
+    EDIT_CHANNEL_TOOLTIP_EXIST_FORMATTED("xnet.channel.edit.tooltip.exist"),
+    EDIT_CHANNEL_TOOLTIP_NOT_EXIST_FORMATTED("xnet.channel.edit.tooltip.notexist");
 
 
     private final String langKey;
 
     I18nConstants(String langKey) {this.langKey = langKey;}
-
-//    public String i18n() {
-//
-//    }
 
     public String i18n(Object... formatArgs) {
         if (formatArgs == null) {

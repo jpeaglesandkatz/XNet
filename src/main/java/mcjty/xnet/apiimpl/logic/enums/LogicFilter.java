@@ -1,7 +1,7 @@
 package mcjty.xnet.apiimpl.logic.enums;
 
+import mcjty.lib.gui.ITranslatableEnum;
 import mcjty.xnet.utils.I18nUtils;
-import mcjty.xnet.utils.ITranslatableEnum;
 import org.apache.commons.lang3.StringUtils;
 
 public enum LogicFilter implements ITranslatableEnum<LogicFilter> {

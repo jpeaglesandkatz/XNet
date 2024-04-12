@@ -77,7 +77,7 @@
   "message.xnet.redstone_proxy_upd.gold": "Эта версия обновляет блок!",
 
   "xnet.channel.energy": "Энергия",
-  "xnet.channel.fluid": "Жидкость",
+  "xnet.channel.fluid": "Жидкости",
   "xnet.channel.item": "Предметы",
   "xnet.channel.logic": "Редстоун",
   "xnet.min": "Мин",
@@ -144,9 +144,9 @@
   "xnet.index.label": "Индекс",
   "xnet.double.click.highlight": "(двойной клик для выделения)",
   "xnet.enum.channelmode.priority": "Приоритет",
-  "xnet.enum.channelmode.priority.tooltip": "Режим распределения предметов|По приоритету(выше-раньше)",
-  "xnet.enum.channelmode.roundrobin": "Круговой",
-  "xnet.enum.channelmode.roundrobin.tooltip": "Режим распределения предметов|Круговое распределение",
+  "xnet.enum.channelmode.priority.tooltip": "Режим распределения предметов|По приоритету (выше-раньше)",
+  "xnet.enum.channelmode.roundrobin": "Равномерно",
+  "xnet.enum.channelmode.roundrobin.tooltip": "Режим распределения предметов|Равномерное распределение",
   "xnet.enum.insextmode.ins": "Помещать",
   "xnet.enum.insextmode.ins.tooltip": "Помещать в подключенный блок",
   "xnet.enum.insextmode.ext": "Извлекать",
@@ -199,5 +199,7 @@
   "xnet.connector.upgrade": "ПКМ сидя по коннектору|чтобы улучшить его|до продвинутого",
   "xnet.connector.was.upgraded": "Коннектор улучшен",
   "xnet.connector.already.advanced": "Коннектор уже улучшен!",
-  "xnet.connector.use.it.to.upgrade": "Используйте этот предмет, чтобы улучшить коннектор!"
+  "xnet.connector.use.it.to.upgrade": "Используйте этот предмет, чтобы улучшить коннектор!",
+  "xnet.channel.edit.tooltip.exist": "Настроить канал %d|Тип: %s",
+  "xnet.channel.edit.tooltip.notexist": "Настроить канал %d"
 }

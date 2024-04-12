@@ -12,6 +12,14 @@ public class TagUtils {
         }
     }
 
+    public static Integer getIntOrValue(CompoundTag tag, String key, int value) {
+        if (key == null || key.isEmpty() || !tag.contains(key)) {
+            return value;
+        } else {
+            return tag.getInt(key);
+        }
+    }
+
     public static String getStringOrNull(CompoundTag tag, String key) {
         if (key == null || key.isEmpty() || !tag.contains(key)) {
             return null;

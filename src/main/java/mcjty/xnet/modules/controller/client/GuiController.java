@@ -35,6 +35,7 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.client.ChannelClientInfo;
 import mcjty.xnet.client.ConnectedBlockClientInfo;
 import mcjty.xnet.client.ConnectorClientInfo;
+import mcjty.xnet.modules.controller.ChannelInfo;
 import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.setup.Config;
@@ -101,6 +102,8 @@ import static mcjty.xnet.utils.I18nConstants.CONNECTOR_PASTE_TOOLTIP;
 import static mcjty.xnet.utils.I18nConstants.CONNECTOR_REMOVE_TOOLTIP;
 import static mcjty.xnet.utils.I18nConstants.CREATE_LABEL;
 import static mcjty.xnet.utils.I18nConstants.DOUBLE_CLICK_HIGHLIGHT;
+import static mcjty.xnet.utils.I18nConstants.EDIT_CHANNEL_TOOLTIP_EXIST_FORMATTED;
+import static mcjty.xnet.utils.I18nConstants.EDIT_CHANNEL_TOOLTIP_NOT_EXIST_FORMATTED;
 import static mcjty.xnet.utils.I18nConstants.ERROR_COPY;
 import static mcjty.xnet.utils.I18nConstants.ERROR_LARGE_COPY;
 import static mcjty.xnet.utils.I18nConstants.ERROR_NOTHING_SELECTED;
@@ -195,9 +198,18 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             }
         });
 
+        ChannelInfo[] channels =  tileEntity.getChannels();
         for (int i = 0 ; i < MAX_CHANNELS ; i++) {
             String name = TAG_CHANNEL + (i+1);
             channelButtons[i] = window.findChild(name);
+            if (channels[i] == null) {
+                channelButtons[i].tooltips(EDIT_CHANNEL_TOOLTIP_NOT_EXIST_FORMATTED.i18n(i + 1));
+            } else {
+                channelButtons[i]
+                        .tooltips(I18nUtils.getSplitedTooltip(
+                                EDIT_CHANNEL_TOOLTIP_EXIST_FORMATTED.i18n(i + 1, channels[i].getType().getName()))
+                        );
+            }
         }
 
         energyBar = window.findChild(WIDGET_ENERGY_BAR);
@@ -321,23 +333,40 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private void removeChannel() {
+        int selectedChannel = getSelectedChannel();
+        if (selectedChannel == -1) {
+            return;
+        }
         showMessage(minecraft, this, getWindowManager(), 50, 50,
-                ChatFormatting.RED + String.format(MESSAGE_CONFIRM_REMOVE_CHANNEL_FORMATTED.i18n(), (getSelectedChannel() + 1)),
+                ChatFormatting.RED + MESSAGE_CONFIRM_REMOVE_CHANNEL_FORMATTED.i18n((selectedChannel + 1)),
                 () -> {
             sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_REMOVECHANNEL,
                     TypedMap.builder()
-                            .put(PARAM_INDEX, getSelectedChannel())
+                            .put(PARAM_INDEX, selectedChannel)
                             .build());
+
+            channelButtons[selectedChannel].tooltips(EDIT_CHANNEL_TOOLTIP_NOT_EXIST_FORMATTED.i18n(selectedChannel + 1));
             refresh();
         });
     }
 
     private void createChannel(String typeId) {
+        int selectedChannel = getSelectedChannel();
+        if (selectedChannel == -1) {
+            return;
+        }
         sendServerCommandTyped(XNetMessages.INSTANCE, TileEntityController.CMD_CREATECHANNEL,
                 TypedMap.builder()
-                        .put(PARAM_INDEX, getSelectedChannel())
+                        .put(PARAM_INDEX, selectedChannel)
                         .put(PARAM_TYPE, typeId)
                         .build());
+        IChannelType type = XNet.xNetApi.findType(typeId);
+        if (type != null) {
+            channelButtons[selectedChannel].tooltips(I18nUtils.getSplitedTooltip(
+                            EDIT_CHANNEL_TOOLTIP_EXIST_FORMATTED.i18n((selectedChannel + 1), type.getName()))
+                    );
+        }
+
         refresh();
     }
 
@@ -370,7 +399,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 ChannelClientInfo info = tileEntity.clientChannels.get(editingChannel);
                 if (info != null) {
                     ChannelEditorPanel editor = new ChannelEditorPanel(channelEditPanel, minecraft, this, editingChannel);
-                    editor.label(String.format(CHANNEL_LABEL_FORMATTED.i18n(), (editingChannel + 1)))
+                    editor.label(CHANNEL_LABEL_FORMATTED.i18n(editingChannel + 1))
                             .shift(5)
                             .toggle(TAG_ENABLED, CHANNEL_ENABLE_TOOLTIP.i18n(), info.isEnabled())
                             .shift(5)
@@ -492,7 +521,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             String type = root.get(TAG_TYPE).getAsString();
             IChannelType channelType = XNet.xNetApi.findType(type);
             if (channelType == null) {
-                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + String.format(ERROR_UNS_CH_FORMATTED.i18n(), type));
+                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + ERROR_UNS_CH_FORMATTED.i18n(type));
                 return;
             }
 
@@ -527,7 +556,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             String type = root.get(TAG_TYPE).getAsString();
             IChannelType channelType = XNet.xNetApi.findType(type);
             if (channelType == null) {
-                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + String.format(ERROR_UNS_CH_FORMATTED.i18n(), type));
+                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + ERROR_UNS_CH_FORMATTED.i18n(type));
                 return;
             }
             PacketServerCommandTyped packet = new PacketServerCommandTyped(tileEntity.getBlockPos(), tileEntity.getDimension(), CMD_PASTECHANNEL.name(), TypedMap.builder()
@@ -736,6 +765,10 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 String channel = String.valueOf(i + 1);
                 ChannelClientInfo info = tileEntity.clientChannels.get(i);
                 if (info != null) {
+                    channelButtons[i]
+                            .tooltips(I18nUtils.getSplitedTooltip(
+                                    EDIT_CHANNEL_TOOLTIP_EXIST_FORMATTED.i18n((i + 1), info.getType().getName()))
+                            );
                     IndicatorIcon icon = info.getChannelSettings().getIndicatorIcon();
                     if (icon != null) {
                         channelButtons[i].image(icon.getImage(), icon.getU(), icon.getV(), icon.getIw(), icon.getIh());

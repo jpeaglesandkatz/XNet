@@ -131,15 +131,13 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
         sideGui(gui);
         colorsGui(gui);
         redstoneGui(gui);
-        gui.nl();
-        ((ConnectorEditorPanel)gui).translatableChoices(TAG_MODE, logicMode, LogicMode.values());// TODO: 09.03.2024 remove ConnectorEditorPanel cast after rftoolbase update
-        gui.nl();
+        gui.nl().translatableChoices(TAG_MODE, logicMode, LogicMode.values()).nl();
         if (logicMode == LogicMode.SENSOR) {
             for (RSSensor sensor : sensors) {
                 sensor.createGui(gui);
             }
         } else {
-            output.createGui((ConnectorEditorPanel) gui); // TODO: 06.03.2024 remove ConnectorEditorPanel cast after rftoolbase update
+            output.createGui(gui);
         }
     }
 

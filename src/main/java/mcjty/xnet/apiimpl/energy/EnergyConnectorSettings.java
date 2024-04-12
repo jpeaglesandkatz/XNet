@@ -94,7 +94,7 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
         colorsGui(gui);
         redstoneGui(gui);
         gui.nl();
-        ((ConnectorEditorPanel) gui).translatableChoices(TAG_MODE, energyMode, InsExtMode.values());// TODO: 09.03.2024 remove ConnectorEditorPanel cast after rftoolbase update
+        gui.translatableChoices(TAG_MODE, energyMode, InsExtMode.values());
         gui.nl()
                 .label(PRIORITY_LABEL.i18n()).integer(TAG_PRIORITY, PRIORITY_TOOLTIP.i18n(), priority, 30).nl()
 

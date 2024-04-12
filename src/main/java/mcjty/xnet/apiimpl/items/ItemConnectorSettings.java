@@ -15,7 +15,6 @@ import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.apiimpl.enums.InsExtMode;
 import mcjty.xnet.apiimpl.items.enums.ExtractMode;
 import mcjty.xnet.apiimpl.items.enums.StackMode;
-import mcjty.xnet.modules.controller.client.AbstractEditorPanel;
 import mcjty.xnet.utils.CastTools;
 import mcjty.xnet.utils.TagUtils;
 import net.minecraft.core.Direction;
@@ -133,26 +132,21 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         colorsGui(gui);
         redstoneGui(gui);
         gui.nl();
-        ((AbstractEditorPanel)gui).translatableChoices(TAG_MODE, itemMode, InsExtMode.values())// TODO: 09.03.2024 remove AbstractEditorPanel cast after rftoolbase update
-                .shift(5);
-        ((AbstractEditorPanel)gui).translatableChoices(TAG_STACK, stackMode, StackMode.values());// TODO: 09.03.2024 remove AbstractEditorPanel cast after rftoolbase update
+        gui.translatableChoices(TAG_MODE, itemMode, InsExtMode.values()).shift(5);
+        gui.translatableChoices(TAG_STACK, stackMode, StackMode.values());
 
         if (stackMode == StackMode.COUNT && itemMode == InsExtMode.EXT) {
             gui.integer(TAG_EXTRACT_AMOUNT, ITEM_EXT_COUNT_TOOLTIP.i18n(), extractAmount, 30, 64);
         }
 
-        gui
-                .shift(10)
-                .choices(TAG_SPEED, SPEED_TOOLTIP.i18n(), Integer.toString(speed * 5), speeds);
+        gui.shift(10).choices(TAG_SPEED, SPEED_TOOLTIP.i18n(), Integer.toString(speed * 5), speeds);
         gui.nl();
         gui
                 .label(PRIORITY_LABEL.i18n()).integer(TAG_PRIORITY, PRIORITY_TOOLTIP.i18n(), priority, 36).shift(5)
-                .label("#")
-                .integer(TAG_COUNT, getMinMaxTooltip(), count, 30);
+                .label("#").integer(TAG_COUNT, getMinMaxTooltip(), count, 30);
 
         if (itemMode == InsExtMode.EXT) {
-            gui.shift(5);
-            ((AbstractEditorPanel)gui).translatableChoices(TAG_EXTRACT, extractMode, ExtractMode.values());// TODO: 09.03.2024 remove AbstractEditorPanel cast after rftoolbase update
+            gui.shift(5).translatableChoices(TAG_EXTRACT, extractMode, ExtractMode.values());
         }
 
         gui.nl();

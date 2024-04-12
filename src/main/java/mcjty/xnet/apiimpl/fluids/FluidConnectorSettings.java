@@ -12,7 +12,6 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.Constants;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.apiimpl.enums.InsExtMode;
-import mcjty.xnet.modules.controller.client.AbstractEditorPanel;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.utils.CastTools;
 import mcjty.xnet.utils.TagUtils;
@@ -24,6 +23,7 @@ import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -120,14 +120,15 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void createGui(IEditorGui gui) {
         advanced = gui.isAdvanced();
-        String[] speeds = advanced ? Constants.ADVANCED_SPEEDS : Constants.SPEEDS;
+        String[] speeds = Arrays.stream(advanced ? Constants.ADVANCED_SPEEDS : Constants.SPEEDS)
+                                  .map(s -> String.valueOf(Integer.parseInt(s) * 2)).toArray(String[]::new);
         int maxrate = Config.getMaxFluidRate(advanced);
 
         sideGui(gui);
         colorsGui(gui);
         redstoneGui(gui);
         gui.nl();
-        ((AbstractEditorPanel)gui).translatableChoices(TAG_MODE, fluidMode, InsExtMode.values())// TODO: 09.03.2024 remove AbstractEditorPanel cast after rftoolbase update
+        gui.translatableChoices(TAG_MODE, fluidMode, InsExtMode.values())
                 .choices(TAG_SPEED, SPEED_TOOLTIP.i18n(), Integer.toString(speed * 10), speeds)
                 .nl()
 
@@ -226,7 +227,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         priority = TagUtils.getIntOrNull(tag, TAG_PRIORITY);
         rate = TagUtils.getIntOrNull(tag, TAG_RATE);
         minmax = TagUtils.getIntOrNull(tag, TAG_MINMAX);
-        setSpeed(TagUtils.getIntOrNull(tag, TAG_SPEED));
+        speed = TagUtils.getIntOrValue(tag, TAG_SPEED, 2);
         if (tag.contains(TAG_FLT)) {
             CompoundTag itemTag = tag.getCompound(TAG_FLT);
             filter = ItemStack.of(itemTag);

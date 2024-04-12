@@ -1,8 +1,8 @@
 package mcjty.xnet.apiimpl.items.enums;
 
 import mcjty.lib.varia.ComponentFactory;
+import mcjty.lib.gui.ITranslatableEnum;
 import mcjty.xnet.utils.I18nUtils;
-import mcjty.xnet.utils.ITranslatableEnum;
 
 public enum StackMode implements ITranslatableEnum<StackMode> {
     SINGLE("xnet.enum.items.stackmode.single"),

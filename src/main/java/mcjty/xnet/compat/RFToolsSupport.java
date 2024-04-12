@@ -2,16 +2,13 @@ package mcjty.xnet.compat;
 
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
-import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.apiimpl.items.ItemChannelSettings;
 import mcjty.xnet.apiimpl.items.ItemConnectorSettings;
 import mcjty.xnet.setup.Config;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Predicate;
 
 public class RFToolsSupport {
@@ -20,7 +17,8 @@ public class RFToolsSupport {
         return te instanceof IStorageScanner;
     }
 
-    public static void tickStorageScanner(IControllerContext context, ItemConnectorSettings settings, BlockEntity te, ItemChannelSettings channelSettings) {
+    public static void tickStorageScanner(IControllerContext context, ItemConnectorSettings settings, BlockEntity te,
+                                          ItemChannelSettings channelSettings, Level world) {
         IStorageScanner scanner = (IStorageScanner) te;
         Predicate<ItemStack> extractMatcher = settings.getMatcher(context);
 
@@ -38,31 +36,27 @@ public class RFToolsSupport {
             case COUNT -> settings.getExtractAmount();
         };
         ItemStack stack = scanner.requestItem(extractMatcher, true, cnt, true);
-        if (!stack.isEmpty()) {
-            // Now that we have a stack we first reduce the amount of the stack if we want to keep a certain
-            // number of items
-            int toextract = stack.getCount();
-            if (count != null) {
-                int canextract = amount-count;
-                if (canextract <= 0) {
-                    return;
-                }
-                if (canextract < toextract) {
-                    toextract = canextract;
-                    if (toextract <= 0) {
-                        stack.setCount(0);
-                    } else {
-                        stack.setCount(toextract);
-                    }
-                }
+        if (stack.isEmpty()) {
+            return;
+        }
+        // Now that we have a stack we first reduce the amount of the stack if we want to keep a certain
+        // number of items
+        int toextract = stack.getCount();
+        if (count != null) {
+            int canextract = amount-count;
+            if (canextract <= 0) {
+                return;
             }
+            if (canextract < toextract) {
+                toextract = canextract;
+                stack.setCount(toextract);
+            }
+        }
 
-            List<Pair<SidedConsumer, ItemConnectorSettings>> inserted = new ArrayList<>();
-            int remaining = channelSettings.insertStackSimulate(inserted, context, stack);
-            if (!inserted.isEmpty()) {
-                if (context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
-                    channelSettings.insertStackReal(context, inserted, scanner.requestItem(extractMatcher, false, toextract - remaining, true));
-                }
+        if (context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
+            int remaining = channelSettings.insertStackToStorageScanner(context, stack, world);
+            if (remaining != toextract) {
+                scanner.requestItem(extractMatcher, false, toextract - remaining, true);
             }
         }
     }

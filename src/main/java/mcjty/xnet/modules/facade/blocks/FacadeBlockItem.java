@@ -86,7 +86,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
         setMimicBlock(item, mimicBlock);
         if (world.isClientSide) {
             player.displayClientMessage(ComponentFactory.literal(
-                    String.format(FACADE_CURRENT_MIMIC_FORMATTED.i18n(), mimicBlock.getBlock().getDescriptionId())),
+                    FACADE_CURRENT_MIMIC_FORMATTED.i18n(mimicBlock.getBlock().getDescriptionId())),
                     false
             );
         }
