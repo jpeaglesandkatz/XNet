@@ -61,7 +61,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static mcjty.lib.builder.TooltipBuilder.*;
+import static mcjty.lib.builder.TooltipBuilder.gold;
+import static mcjty.lib.builder.TooltipBuilder.header;
+import static mcjty.lib.builder.TooltipBuilder.key;
+import static mcjty.lib.builder.TooltipBuilder.parameter;
+import static mcjty.xnet.apiimpl.Constants.TAG_CONSUMER_ID;
+import static mcjty.xnet.utils.I18nConstants.BLOCK_CONNECTOR;
 
 public class ConnectorBlock extends GenericCableBlock implements ITooltipSettings, EntityBlock {
 
@@ -97,7 +102,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
                     @Override
                     @Nonnull
                     public Component getDisplayName() {
-                        return ComponentFactory.literal("Connector");
+                        return ComponentFactory.literal(BLOCK_CONNECTOR.i18n());
                     }
 
                     @Nonnull
@@ -328,7 +333,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
             Vec3 pos = builder.getOptionalParameter(LootContextParams.ORIGIN);
             ConsumerId consumer = worldBlob.getConsumerAt(new BlockPos((int) pos.x, (int) pos.y, (int) pos.z));
             if (consumer != null) {
-                drop.getOrCreateTag().putInt("consumerId", consumer.id());
+                drop.getOrCreateTag().putInt(TAG_CONSUMER_ID, consumer.id());
             }
         }
         return drops;
@@ -343,8 +348,8 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     @Override
     public void createCableSegment(Level world, BlockPos pos, ItemStack stack) {
         ConsumerId consumer;
-        if (!stack.isEmpty() && stack.hasTag() && stack.getTag().contains("consumerId")) {
-            consumer = new ConsumerId(stack.getTag().getInt("consumerId"));
+        if (!stack.isEmpty() && stack.hasTag() && stack.getTag().contains(TAG_CONSUMER_ID)) {
+            consumer = new ConsumerId(stack.getTag().getInt(TAG_CONSUMER_ID));
         } else {
             XNetBlobData blobData = XNetBlobData.get(world);
             WorldBlob worldBlob = blobData.getWorldBlob(world);

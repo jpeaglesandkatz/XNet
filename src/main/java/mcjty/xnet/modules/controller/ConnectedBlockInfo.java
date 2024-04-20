@@ -50,9 +50,7 @@ public class ConnectedBlockInfo {
 
         ConnectedBlockInfo that = (ConnectedBlockInfo) o;
 
-        if (!pos.equals(that.pos)) return false;
-
-        return true;
+        return pos.equals(that.pos);
     }
 
     @Override

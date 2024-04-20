@@ -35,8 +35,18 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static mcjty.lib.builder.TooltipBuilder.*;
-import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.*;
+import static mcjty.lib.builder.TooltipBuilder.gold;
+import static mcjty.lib.builder.TooltipBuilder.header;
+import static mcjty.lib.builder.TooltipBuilder.parameter;
+import static mcjty.xnet.apiimpl.Constants.TAG_MIMIC;
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.COLOR;
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.DOWN;
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.EAST;
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.NORTH;
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.SOUTH;
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.UP;
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.WEST;
+import static mcjty.xnet.utils.I18nConstants.FACADE_CURRENT_MIMIC_FORMATTED;
 
 public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
@@ -47,13 +57,13 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
     private static boolean isMimicking(ItemStack stack) {
         CompoundTag tag = stack.getTag();
-        return tag != null && tag.contains("mimic");
+        return tag != null && tag.contains(TAG_MIMIC);
     }
 
     private static String getMimickingString(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag != null) {
-            CompoundTag mimic = tag.getCompound("mimic");
+            CompoundTag mimic = tag.getCompound(TAG_MIMIC);
             Block value = Tools.getBlock(new ResourceLocation(mimic.getString("Name")));
             if (value != null) {
                 ItemStack s = new ItemStack(value, 1);
@@ -74,23 +84,26 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
         Player player = context.getPlayer();
         setMimicBlock(item, mimicBlock);
         if (world.isClientSide) {
-            player.displayClientMessage(ComponentFactory.literal("Facade is now mimicking " + mimicBlock.getBlock().getDescriptionId()), false);
+            player.displayClientMessage(ComponentFactory.literal(
+                    FACADE_CURRENT_MIMIC_FORMATTED.i18n(mimicBlock.getBlock().getDescriptionId())),
+                    false
+            );
         }
     }
 
     public static void setMimicBlock(@Nonnull ItemStack item, BlockState mimicBlock) {
         CompoundTag tagCompound = new CompoundTag();
         CompoundTag nbt = NbtUtils.writeBlockState(mimicBlock);
-        tagCompound.put("mimic", nbt);
+        tagCompound.put(TAG_MIMIC, nbt);
         item.setTag(tagCompound);
     }
 
     public static BlockState getMimicBlock(Level level, @Nonnull ItemStack stack) {
         CompoundTag tagCompound = stack.getTag();
-        if (tagCompound == null || !tagCompound.contains("mimic")) {
+        if (tagCompound == null || !tagCompound.contains(TAG_MIMIC)) {
             return Blocks.COBBLESTONE.defaultBlockState();
         } else {
-            return NBTTools.readBlockState(level, tagCompound.getCompound("mimic"));
+            return NBTTools.readBlockState(level, tagCompound.getCompound(TAG_MIMIC));
         }
     }
 

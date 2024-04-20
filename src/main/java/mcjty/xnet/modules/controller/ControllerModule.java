@@ -30,14 +30,18 @@ import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.xnet.XNet.tab;
-import static mcjty.xnet.setup.Registration.*;
+import static mcjty.xnet.apiimpl.Constants.ITEM_CONTROLLER;
+import static mcjty.xnet.setup.Registration.BLOCKS;
+import static mcjty.xnet.setup.Registration.CONTAINERS;
+import static mcjty.xnet.setup.Registration.ITEMS;
+import static mcjty.xnet.setup.Registration.TILES;
 
 public class ControllerModule implements IModule {
 
-    public static final DeferredBlock<BaseBlock> CONTROLLER = BLOCKS.register("controller", TileEntityController::createBlock);
-    public static final DeferredItem<Item> CONTROLLER_ITEM = ITEMS.register("controller", tab(() -> new BlockItem(CONTROLLER.get(), Registration.createStandardProperties())));
-    public static final Supplier<BlockEntityType<?>> TYPE_CONTROLLER = TILES.register("controller", () -> BlockEntityType.Builder.of(TileEntityController::new, CONTROLLER.get()).build(null));
-    public static final Supplier<MenuType<GenericContainer>> CONTAINER_CONTROLLER = CONTAINERS.register("controller", GenericContainer::createContainerType);
+    public static final DeferredBlock<BaseBlock> CONTROLLER = BLOCKS.register(ITEM_CONTROLLER, TileEntityController::createBlock);
+    public static final DeferredItem<Item> CONTROLLER_ITEM = ITEMS.register(ITEM_CONTROLLER, tab(() -> new BlockItem(CONTROLLER.get(), Registration.createStandardProperties())));
+    public static final Supplier<BlockEntityType<?>> TYPE_CONTROLLER = TILES.register(ITEM_CONTROLLER, () -> BlockEntityType.Builder.of(TileEntityController::new, CONTROLLER.get()).build(null));
+    public static final Supplier<MenuType<GenericContainer>> CONTAINER_CONTROLLER = CONTAINERS.register(ITEM_CONTROLLER, GenericContainer::createContainerType);
 
     @Override
     public void init(FMLCommonSetupEvent event) {
@@ -64,7 +68,7 @@ public class ControllerModule implements IModule {
                         .parentedItem("block/controller")
                         .standardLoot(TYPE_CONTROLLER)
                         .blockState(p -> {
-                            ModelFile modelOk = p.frontBasedModel("controller", p.modLoc("block/machine_controller"));
+                            ModelFile modelOk = p.frontBasedModel(ITEM_CONTROLLER, p.modLoc("block/machine_controller"));
                             ModelFile modelError = p.frontBasedModel("controller_error", p.modLoc("block/machine_controller_error"));
                             VariantBlockStateBuilder builder = p.getVariantBuilder(ControllerModule.CONTROLLER.get());
                             for (Direction direction : OrientationTools.DIRECTION_VALUES) {

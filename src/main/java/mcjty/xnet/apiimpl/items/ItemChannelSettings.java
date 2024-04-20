@@ -12,9 +12,14 @@ import mcjty.rftoolsbase.api.xnet.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
+import mcjty.xnet.apiimpl.ConnectedBlock;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
+import mcjty.xnet.apiimpl.enums.ChannelMode;
+import mcjty.xnet.apiimpl.enums.InsExtMode;
+import mcjty.xnet.apiimpl.items.enums.StackMode;
 import mcjty.xnet.compat.RFToolsSupport;
 import mcjty.xnet.setup.Config;
+import mcjty.xnet.utils.CastTools;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -23,31 +28,34 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 import java.util.function.Predicate;
+
+import static mcjty.xnet.apiimpl.Constants.TAG_DELAY;
+import static mcjty.xnet.apiimpl.Constants.TAG_EXTIDX;
+import static mcjty.xnet.apiimpl.Constants.TAG_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_OFFSET;
 
 public class ItemChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
     public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
 
-    public static final String TAG_MODE = "mode";
 
     // Cache data
-    private Map<SidedConsumer, ItemConnectorSettings> itemExtractors = null;
-    private List<Pair<SidedConsumer, ItemConnectorSettings>> itemConsumers = null;
-
-
-    public enum ChannelMode {
-        PRIORITY,
-        ROUNDROBIN
-    }
-
+    private List<ConnectedBlock<ItemConnectorSettings>> itemExtractors = null;
+    private List<ConnectedBlock<ItemConnectorSettings>> itemConsumers = null;
+    private boolean[] consumerFull; // Àrray of filled consumers in which you don't have to try to insert
     private ChannelMode channelMode = ChannelMode.PRIORITY;
     private int delay = 0;
     private int roundRobinOffset = 0;
@@ -65,22 +73,22 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     @Override
     public JsonObject writeToJson() {
         JsonObject object = new JsonObject();
-        object.add("mode", new JsonPrimitive(channelMode.name()));
+        object.add(TAG_MODE, new JsonPrimitive(channelMode.name()));
         return object;
     }
 
     @Override
     public void readFromJson(JsonObject data) {
-        channelMode = EnumStringTranslators.getItemChannelMode(data.get("mode").getAsString());
+        channelMode = EnumStringTranslators.getItemChannelMode(data.get(TAG_MODE).getAsString());
     }
 
 
     @Override
     public void readFromNBT(CompoundTag tag) {
-        channelMode = ChannelMode.values()[tag.getByte("mode")];
-        delay = tag.getInt("delay");
-        roundRobinOffset = tag.getInt("offset");
-        int[] cons = tag.getIntArray("extidx");
+        channelMode = ChannelMode.values()[tag.getByte(TAG_MODE)];
+        delay = tag.getInt(TAG_DELAY);
+        roundRobinOffset = tag.getInt(TAG_OFFSET);
+        int[] cons = tag.getIntArray(TAG_EXTIDX);
         for (int idx = 0; idx < cons.length; idx += 2) {
             extractIndices.put(new ConsumerId(cons[idx]), cons[idx + 1]);
         }
@@ -88,9 +96,9 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
     @Override
     public void writeToNBT(CompoundTag tag) {
-        tag.putByte("mode", (byte) channelMode.ordinal());
-        tag.putInt("delay", delay);
-        tag.putInt("offset", roundRobinOffset);
+        tag.putByte(TAG_MODE, (byte) channelMode.ordinal());
+        tag.putInt(TAG_DELAY, delay);
+        tag.putInt(TAG_OFFSET, roundRobinOffset);
 
         if (!extractIndices.isEmpty()) {
             int[] cons = new int[extractIndices.size() * 2];
@@ -99,7 +107,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 cons[idx++] = entry.getKey().id();
                 cons[idx++] = entry.getValue();
             }
-            tag.putIntArray("extidx", cons);
+            tag.putIntArray(TAG_EXTIDX, cons);
         }
     }
 
@@ -152,40 +160,45 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
         updateCache(channel, context);
         Level world = context.getControllerWorld();
-        for (Map.Entry<SidedConsumer, ItemConnectorSettings> entry : itemExtractors.entrySet()) {
-            ItemConnectorSettings settings = entry.getValue();
+        consumerFull = new boolean[itemConsumers.size()];
+        for (int i = 0; i < itemExtractors.size(); i++) {
+            ConnectedBlock<ItemConnectorSettings> extractor = itemExtractors.get(i);
+            ItemConnectorSettings settings = extractor.settings();
             if (d % settings.getSpeed() != 0) {
                 continue;
             }
 
-            ConsumerId consumerId = entry.getKey().consumerId();
-            BlockPos extractorPos = context.findConsumerPosition(consumerId);
-            if (extractorPos != null) {
-                Direction side = entry.getKey().side();
-                BlockPos pos = extractorPos.relative(side);
-                if (!LevelTools.isLoaded(world, pos)) {
-                    continue;
-                }
+            ConsumerId consumerId = extractor.sidedConsumer().consumerId();
+            BlockPos extractorPos = extractor.connectorPos();
+            if (extractorPos == null) {
+                continue;
+            }
 
-                if (checkRedstone(world, settings, extractorPos)) {
-                    continue;
-                }
-                if (!context.matchColor(settings.getColorsMask())) {
-                    continue;
-                }
+            Direction side = extractor.sidedConsumer().side();
+            BlockPos pos = extractorPos.relative(side);
+            if (!LevelTools.isLoaded(world, pos)) {
+                continue;
+            }
 
-                BlockEntity te = world.getBlockEntity(pos);
+            if (checkRedstone(world, settings, extractorPos)) {
+                continue;
+            }
+            if (!context.matchColor(settings.getColorsMask())) {
+                continue;
+            }
 
-                if (RFToolsSupport.isStorageScanner(te)) {
-                    RFToolsSupport.tickStorageScanner(context, settings, te, this);
-                } else {
-                    IItemHandler handler = getItemHandlerAt(te, settings.getFacing());
-                    if (handler != null) {
-                        int idx = getStartExtractIndex(settings, consumerId, handler);
-                        idx = tickItemHandler(context, settings, handler, idx);
-                        if (handler.getSlots() > 0) {
-                            rememberExtractIndex(consumerId, (idx + 1) % handler.getSlots());
-                        }
+            BlockEntity te = world.getBlockEntity(pos);
+
+            if (RFToolsSupport.isStorageScanner(te)) {
+                RFToolsSupport.tickStorageScanner(context, settings, te, this, world);
+            } else {
+                Optional<IItemHandler> lazyHandler = getItemHandlerAt(te, settings.getFacing()).resolve();
+                if (lazyHandler.isPresent()) {
+                    IItemHandler handler = lazyHandler.get();
+                    int idx = getStartExtractIndex(settings, consumerId, handler);
+                    idx = tickItemHandler(context, settings, handler, world, idx, i);
+                    if (handler.getSlots() > 0) {
+                        rememberExtractIndex(consumerId, (idx + 1) % handler.getSlots());
                     }
                 }
             }
@@ -226,7 +239,8 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     }
 
 
-    private int tickItemHandler(IControllerContext context, ItemConnectorSettings settings, IItemHandler handler, int startIdx) {
+    private int tickItemHandler(@Nonnull IControllerContext context, @Nonnull ItemConnectorSettings settings,
+                                @Nonnull IItemHandler handler, @Nonnull Level world, int startIdx, int extractorIdx) {
         Predicate<ItemStack> extractMatcher = settings.getMatcher(context);
 
         Integer count = settings.getCount();
@@ -240,34 +254,38 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
         MInteger index = new MInteger(startIdx);
         while (true) {
-            ItemStack stack = fetchItem(handler, true, extractMatcher, settings.getStackMode(), settings.getExtractAmount(), 64, index, startIdx);
-            if (!stack.isEmpty()) {
-                // Now that we have a stack we first reduce the amount of the stack if we want to keep a certain
-                // number of items
-                int toextract = stack.getCount();
-                if (count != null) {
-                    int canextract = amount - count;
-                    if (canextract <= 0) {
-                        index.inc();
-                        continue;
-                    }
-                    if (canextract < toextract) {
-                        toextract = canextract;
-                        stack = stack.copy();
-                        stack.setCount(toextract);
-                    }
-                }
+            ItemStack stack = fetchItem(handler, true, extractMatcher, settings.getStackMode(),
+                    settings.getExtractAmount(), 64, index, startIdx);
+            if (stack.isEmpty()) {
+                break;
+            }
 
-                List<Pair<SidedConsumer, ItemConnectorSettings>> inserted = new ArrayList<>();
-                int remaining = insertStackSimulate(inserted, context, stack);
-                if (!inserted.isEmpty()) {
-                    if (context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
-                        insertStackReal(context, inserted, fetchItem(handler, false, extractMatcher, settings.getStackMode(), settings.getExtractAmount(), toextract - remaining, index, startIdx));
-                    }
+            // Now that we have a stack we first reduce the amount of the stack if we want to keep a certain
+            // number of items
+            int toextract = stack.getCount();
+            if (count != null) {
+                int canextract = amount - count;
+                if (canextract <= 0) {
+                    index.inc();
+                    continue;
+                }
+                if (canextract < toextract) {
+                    toextract = canextract;
+                    stack = stack.copy();
+                    stack.setCount(toextract);
+                }
+            }
+
+            if (context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
+                int remaining = insertStack(context, stack, world, extractorIdx);
+                if (remaining != toextract) {
+                    fetchItem(handler, false, extractMatcher, settings.getStackMode(),
+                            settings.getExtractAmount(), toextract - remaining, index, startIdx);
                     break;
                 } else {
                     index.inc();
                 }
+
             } else {
                 break;
             }
@@ -275,190 +293,170 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         return index.getSafe(handler.getSlots());
     }
 
-    // Returns what could not be inserted
-    public int insertStackSimulate(@Nonnull List<Pair<SidedConsumer, ItemConnectorSettings>> inserted, @Nonnull IControllerContext context, @Nonnull ItemStack stack) {
-        Level world = context.getControllerWorld();
+    public int insertStack(@Nonnull IControllerContext context, @Nonnull ItemStack source, @Nonnull Level world, int extractorIdx) {
         if (channelMode == ChannelMode.PRIORITY) {
             roundRobinOffset = 0;       // Always start at 0
         }
-        int total = stack.getCount();
-        for (int j = 0; j < itemConsumers.size(); j++) {
-            int i = (j + roundRobinOffset) % itemConsumers.size();
-            Pair<SidedConsumer, ItemConnectorSettings> entry = itemConsumers.get(i);
-            ItemConnectorSettings settings = entry.getValue();
+        int total = source.getCount();
+        int consumersSize = itemConsumers.size();
+        int extractorsSize = itemExtractors.size();
+        for (int j = 0; j < consumersSize; j++) {
+            int i = (j + roundRobinOffset) % consumersSize;
+            if (consumerFull[i]) {
+                continue;
+            }
+            ConnectedBlock<ItemConnectorSettings> consumer = itemConsumers.get(i);
+            ItemConnectorSettings settings = consumer.settings();
 
-            if (settings.getMatcher(context).test(stack)) {
-                BlockPos consumerPos = context.findConsumerPosition(entry.getKey().consumerId());
-                if (consumerPos != null) {
-                    if (!LevelTools.isLoaded(world, consumerPos)) {
-                        continue;
-                    }
+            BlockPos connectorPos = consumer.connectorPos();
+            Direction side = consumer.sidedConsumer().side();
+            BlockPos connectedBlockPos = connectorPos.relative(side);
+            if (!LevelTools.isLoaded(world, connectedBlockPos)) {
+                continue;
+            }
 
-                    if (checkRedstone(world, settings, consumerPos)) {
-                        continue;
-                    }
-                    if (!context.matchColor(settings.getColorsMask())) {
-                        continue;
-                    }
+            BlockEntity te = world.getBlockEntity(connectedBlockPos);
+            ItemStack remaining;
 
-                    Direction side = entry.getKey().side();
-                    BlockPos pos = consumerPos.relative(side);
-                    BlockEntity te = world.getBlockEntity(pos);
-                    int actuallyinserted;
-                    int toinsert = total;
-                    ItemStack remaining;
-                    Integer count = settings.getCount();
+            IItemHandler destination = getItemHandlerAt(te, settings.getFacing()).resolve().orElse(null);
+            if (destination == null) {
+                continue;
+            }
 
-                    if (RFToolsSupport.isStorageScanner(te)) {
-                        if (count != null) {
-                            int amount = RFToolsSupport.countItems(te, settings.getMatcher(context), count);
-                            int caninsert = count - amount;
-                            if (caninsert <= 0) {
-                                continue;
-                            }
-                            toinsert = Math.min(toinsert, caninsert);
-                            stack = stack.copy();
-                            stack.setCount(Math.max(toinsert, 0));
-                        }
-                        remaining = RFToolsSupport.insertItem(te, stack, true);
-                    } else {
-                        IItemHandler itemHandler = getItemHandlerAt(te, settings.getFacing());
-                        if (itemHandler != null) {
-                            if (count != null) {
-                                int amount = countItems(itemHandler, settings.getMatcher(context));
-                                int caninsert = count - amount;
-                                if (caninsert <= 0) {
-                                    continue;
-                                }
-                                toinsert = Math.min(toinsert, caninsert);
-                                stack = stack.copy();
-                                stack.setCount(Math.max(toinsert, 0));
-                            }
-                            ItemStack finalStack = stack;
-                            remaining = ItemHandlerHelper.insertItem(itemHandler, finalStack, true);
-                        } else {
-                            continue;
-                        }
-                    }
+            Predicate<ItemStack> matcher = settings.getMatcher(context);
+            if (!matcher.test(source) || checkRedstone(world, settings, connectorPos) || !context.matchColor(settings.getColorsMask())) {
+                continue;
+            }
 
-                    actuallyinserted = toinsert - remaining.getCount();
-                    if (count == null) {
-                        // If we are not using a count then we restore 'stack' here as that is what
-                        // we actually have to keep inserting until it is empty. If we are using a count
-                        // then we don't do this as we don't want to risk stack getting null (on 1.10.2)
-                        // from the insertItem() and then not being able to set stacksize a few lines
-                        // above this
-                        stack = remaining;
-                    }
-                    if (actuallyinserted > 0) {
-                        inserted.add(entry);
-                        total -= actuallyinserted;
-                        if (total <= 0) {
-                            return 0;
-                        }
-                    }
+            int toinsert = total;
+            Integer count = settings.getCount();
+            if (count != null) {
+                int amount = countItems(destination, matcher);
+                int caninsert = count - amount;
+                if (caninsert <= 0) {
+                    continue;
+                }
+                toinsert = Math.min(toinsert, caninsert);
+                source = source.copy();
+                source.setCount(toinsert);
+            }
+
+            remaining = ItemHandlerHelper.insertItem(destination, source, false);
+
+            int actuallyinserted = toinsert - remaining.getCount();
+            if (count == null) {
+                // If we are not using a count then we restore 'stack' here as that is what
+                // we actually have to keep inserting until it is empty. If we are using a count
+                // then we don't do this as we don't want to risk stack getting null (on 1.10.2)
+                // from the insertItem() and then not being able to set stacksize a few lines
+                // above this
+                source = remaining;
+            }
+            if (actuallyinserted > 0) {
+                roundRobinOffset = (roundRobinOffset + 1) % consumersSize;
+                total -= actuallyinserted;
+                if (total <= 0) {
+                    return 0;
+                }
+            } else if (extractorsSize > 2 && (extractorIdx == 0 || extractorIdx == extractorsSize / 2 - 1)) {
+                // If we have more than 1 extractor it would be useful to cache full consumer inventories
+                // to avoid useless processing.
+                // It will be enough to do it twice: at the beginning and in the middle of processing
+                if (isFull(destination)) {
+                    consumerFull[i] = true;// We will ignore this consumer for next extractor (if any)
                 }
             }
         }
         return total;
     }
 
-    public void insertStackReal(@Nonnull IControllerContext context, @Nonnull List<Pair<SidedConsumer, ItemConnectorSettings>> inserted, @Nonnull ItemStack stack) {
-        int total = stack.getCount();
-        for (Pair<SidedConsumer, ItemConnectorSettings> entry : inserted) {
-            BlockPos consumerPosition = context.findConsumerPosition(entry.getKey().consumerId());
-            Direction side = entry.getKey().side();
-            ItemConnectorSettings settings = entry.getValue();
-            BlockPos pos = consumerPosition.relative(side);
-            BlockEntity te = context.getControllerWorld().getBlockEntity(pos);
-            if (RFToolsSupport.isStorageScanner(te)) {
-                int toinsert = total;
-                Integer count = settings.getCount();
-                if (count != null) {
-                    int amount = RFToolsSupport.countItems(te, settings.getMatcher(context), count);
-                    int caninsert = count - amount;
-                    if (caninsert <= 0) {
-                        continue;
-                    }
-                    toinsert = Math.min(toinsert, caninsert);
-                    stack = stack.copy();
-                    stack.setCount(Math.max(toinsert, 0));
-                }
-                ItemStack remaining = RFToolsSupport.insertItem(te, stack, false);
-                int actuallyinserted = toinsert - remaining.getCount();
-                if (count == null) {
-                    // If we are not using a count then we restore 'stack' here as that is what
-                    // we actually have to keep inserting until it is empty. If we are using a count
-                    // then we don't do this as we don't want to risk stack getting null (on 1.10.2)
-                    // from the insertItem() and then not being able to set stacksize a few lines
-                    // above this
-                    stack = remaining;
-                }
 
-                if (actuallyinserted > 0) {
-                    roundRobinOffset = (roundRobinOffset + 1) % itemConsumers.size();
-                    total -= actuallyinserted;
-                    if (total <= 0) {
-                        return;
-                    }
-                }
+    public int insertStackToStorageScanner(@Nonnull IControllerContext context, @Nonnull ItemStack source, @Nonnull Level world) {
+        if (channelMode == ChannelMode.PRIORITY) {
+            roundRobinOffset = 0;       // Always start at 0
+        }
+        int total = source.getCount();
+        int consumersSize = itemConsumers.size();
+        for (int j = 0; j < consumersSize; j++) {
+            int i = (j + roundRobinOffset) % consumersSize;
+            ConnectedBlock<ItemConnectorSettings> consumer = itemConsumers.get(i);
+            ItemConnectorSettings settings = consumer.settings();
 
-            } else {
-                IItemHandler handler = getItemHandlerAt(te, settings.getFacing());
+            BlockPos connectorPos = consumer.connectorPos();
+            Direction side = consumer.sidedConsumer().side();
+            BlockPos connectedBlockPos = connectorPos.relative(side);
+            if (!LevelTools.isLoaded(world, connectedBlockPos)) {
+                continue;
+            }
 
-                int toinsert = total;
-                Integer count = settings.getCount();
-                if (count != null) {
-                    int amount = countItems(handler, settings.getMatcher(context));
-                    int caninsert = count - amount;
-                    if (caninsert <= 0) {
-                        continue;
-                    }
-                    toinsert = Math.min(toinsert, caninsert);
-                    stack = stack.copy();
-                    stack.setCount(Math.max(toinsert, 0));
-                }
-                ItemStack finalStack = stack;
-                ItemStack remaining = handler == null ? ItemStack.EMPTY : ItemHandlerHelper.insertItem(handler, finalStack, false);
-                int actuallyinserted = toinsert - remaining.getCount();
-                if (count == null) {
-                    // If we are not using a count then we restore 'stack' here as that is what
-                    // we actually have to keep inserting until it is empty. If we are using a count
-                    // then we don't do this as we don't want to risk stack getting null (on 1.10.2)
-                    // from the insertItem() and then not being able to set stacksize a few lines
-                    // above this
-                    stack = remaining;
-                }
+            BlockEntity te = world.getBlockEntity(connectedBlockPos);
+            ItemStack remaining;
 
-                if (actuallyinserted > 0) {
-                    roundRobinOffset = (roundRobinOffset + 1) % itemConsumers.size();
-                    total -= actuallyinserted;
-                    if (total <= 0) {
-                        return;
-                    }
+            Predicate<ItemStack> matcher = settings.getMatcher(context);
+            if (!matcher.test(source) || checkRedstone(world, settings, connectorPos) || !context.matchColor(settings.getColorsMask())) {
+                continue;
+            }
+
+            int toinsert = total;
+            Integer count = settings.getCount();
+            if (count != null) {
+                int amount = RFToolsSupport.countItems(te, matcher, count);
+                int caninsert = count - amount;
+                if (caninsert <= 0) {
+                    continue;
+                }
+                toinsert = Math.min(toinsert, caninsert);
+                source = source.copy();
+                source.setCount(toinsert);
+            }
+
+            remaining = RFToolsSupport.insertItem(te, source, false);
+
+            int actuallyinserted = toinsert - remaining.getCount();
+            if (count == null) {
+                // If we are not using a count then we restore 'stack' here as that is what
+                // we actually have to keep inserting until it is empty. If we are using a count
+                // then we don't do this as we don't want to risk stack getting null (on 1.10.2)
+                // from the insertItem() and then not being able to set stacksize a few lines
+                // above this
+                source = remaining;
+            }
+            if (actuallyinserted > 0) {
+                roundRobinOffset = (roundRobinOffset + 1) % consumersSize;
+                total -= actuallyinserted;
+                if (total <= 0) {
+                    return 0;
                 }
             }
         }
+        return total;
+    }
+
+    private boolean isFull(IItemHandler itemHandler) {
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            ItemStack stackInSlot = itemHandler.getStackInSlot(i);
+            if (stackInSlot.getCount() < itemHandler.getSlotLimit(i)
+                        && stackInSlot.getCount() < stackInSlot.getMaxStackSize()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private Integer countItems(IItemHandler h, Predicate<ItemStack> matcher) {
-        if (h != null) {
-            return 0;
-        }
         int cnt = 0;
         for (int i = 0; i < h.getSlots(); i++) {
             ItemStack s = h.getStackInSlot(i);
-            if (!s.isEmpty()) {
-                if (matcher.test(s)) {
-                    cnt += s.getCount();
-                }
+            if (!s.isEmpty() && matcher.test(s)) {
+                cnt += s.getCount();
             }
         }
         return cnt;
     }
 
 
-    private ItemStack fetchItem(IItemHandler handler, boolean simulate, Predicate<ItemStack> matcher, ItemConnectorSettings.StackMode stackMode, int extractAmount, int maxamount, MInteger index, int startIdx) {
+    private ItemStack fetchItem(IItemHandler handler, boolean simulate, Predicate<ItemStack> matcher,
+                                StackMode stackMode, int extractAmount, int maxamount, MInteger index, int startIdx) {
         if (handler.getSlots() <= 0) {
             return ItemStack.EMPTY;
         }
@@ -485,26 +483,28 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
     private void updateCache(int channel, IControllerContext context) {
         if (itemExtractors == null) {
-            itemExtractors = new HashMap<>();
+            itemExtractors = new ArrayList<>();
             itemConsumers = new ArrayList<>();
             Map<SidedConsumer, IConnectorSettings> connectors = context.getConnectors(channel);
             for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
                 ItemConnectorSettings con = (ItemConnectorSettings) entry.getValue();
-                if (con.getItemMode() == ItemConnectorSettings.ItemMode.EXT) {
-                    itemExtractors.put(entry.getKey(), con);
+                BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
+                if (con.getItemMode() == InsExtMode.EXT) {
+                    itemExtractors.add(new ConnectedBlock<>(entry.getKey(), con, connectorPos));
                 } else {
-                    itemConsumers.add(Pair.of(entry.getKey(), con));
+                    itemConsumers.add(new ConnectedBlock<>(entry.getKey(), con, connectorPos));
                 }
             }
             connectors = context.getRoutedConnectors(channel);
             for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
                 ItemConnectorSettings con = (ItemConnectorSettings) entry.getValue();
-                if (con.getItemMode() == ItemConnectorSettings.ItemMode.INS) {
-                    itemConsumers.add(Pair.of(entry.getKey(), con));
+                if (con.getItemMode() == InsExtMode.INS) {
+                    BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
+                    itemConsumers.add(new ConnectedBlock<>(entry.getKey(), con, connectorPos));
                 }
             }
 
-            itemConsumers.sort((o1, o2) -> o2.getRight().getPriority().compareTo(o1.getRight().getPriority()));
+            itemConsumers.sort((o1, o2) -> o2.settings().getPriority().compareTo(o1.settings().getPriority()));
         }
     }
 
@@ -533,21 +533,22 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
     @Override
     public void createGui(IEditorGui gui) {
-        gui.nl().choices(TAG_MODE, "Item distribution mode", channelMode, ChannelMode.values());
+        gui.nl();
+        gui.translatableChoices(TAG_MODE, channelMode, ChannelMode.values());
     }
 
     @Override
     public void update(Map<String, Object> data) {
-        channelMode = ChannelMode.valueOf(((String) data.get(TAG_MODE)).toUpperCase());
+        channelMode = CastTools.safeChannelMode(data.get(TAG_MODE));
         roundRobinOffset = 0;
     }
 
-    @Nullable
-    public static IItemHandler getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
+    @Nonnull
+    public static LazyOptional<IItemHandler> getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
-            return te.getCapability(ForgeCapabilities.ITEM_HANDLER, intSide).orElse(null);
+            return te.getCapability(ForgeCapabilities.ITEM_HANDLER, intSide);
         }
-        return null;
+        return LazyOptional.empty();
     }
 
 

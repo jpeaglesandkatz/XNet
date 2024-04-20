@@ -11,7 +11,14 @@ import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.ButtonEvent;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
-import mcjty.lib.gui.widgets.*;
+import mcjty.lib.gui.widgets.BlockRender;
+import mcjty.lib.gui.widgets.Button;
+import mcjty.lib.gui.widgets.EnergyBar;
+import mcjty.lib.gui.widgets.Panel;
+import mcjty.lib.gui.widgets.TextField;
+import mcjty.lib.gui.widgets.ToggleButton;
+import mcjty.lib.gui.widgets.Widget;
+import mcjty.lib.gui.widgets.WidgetList;
 import mcjty.lib.network.Networking;
 import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.lib.network.PacketServerCommandTyped;
@@ -28,9 +35,13 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.client.ChannelClientInfo;
 import mcjty.xnet.client.ConnectedBlockClientInfo;
 import mcjty.xnet.client.ConnectorClientInfo;
+import mcjty.xnet.modules.controller.ChannelInfo;
 import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.setup.Config;
+import mcjty.xnet.setup.XNetMessages;
+import mcjty.xnet.utils.ChannelChoiceLabel;
+import mcjty.xnet.utils.I18nUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -51,16 +62,62 @@ import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import static mcjty.lib.gui.widgets.Widgets.*;
+import static mcjty.lib.gui.widgets.Widgets.button;
+import static mcjty.lib.gui.widgets.Widgets.horizontal;
+import static mcjty.lib.gui.widgets.Widgets.label;
+import static mcjty.lib.gui.widgets.Widgets.vertical;
+import static mcjty.xnet.apiimpl.Constants.TAG_CHANNEL;
+import static mcjty.xnet.apiimpl.Constants.TAG_CONNECTORS;
+import static mcjty.xnet.apiimpl.Constants.TAG_ENABLED;
+import static mcjty.xnet.apiimpl.Constants.TAG_NAME;
+import static mcjty.xnet.apiimpl.Constants.TAG_TYPE;
+import static mcjty.xnet.apiimpl.Constants.WIDGET_CHANNEL_EDIT_PANEL;
+import static mcjty.xnet.apiimpl.Constants.WIDGET_CONNECTOR_EDIT_PANEL;
+import static mcjty.xnet.apiimpl.Constants.WIDGET_ENERGY_BAR;
+import static mcjty.xnet.apiimpl.Constants.WIDGET_SEARCH_BAR;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
-import static mcjty.xnet.modules.controller.blocks.TileEntityController.*;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.CMD_GETCHANNELS;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.CMD_GETCONNECTEDBLOCKS;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.CMD_PASTECHANNEL;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.CMD_PASTECONNECTOR;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.PARAM_CHANNEL;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.PARAM_INDEX;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.PARAM_JSON;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.PARAM_POS;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.PARAM_SIDE;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.PARAM_TYPE;
+import static mcjty.xnet.utils.I18nConstants.BLOCK_LABEL;
+import static mcjty.xnet.utils.I18nConstants.CANCEL_LABEL;
+import static mcjty.xnet.utils.I18nConstants.CHANNEL_COPY_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.CHANNEL_ENABLE_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.CHANNEL_LABEL_FORMATTED;
+import static mcjty.xnet.utils.I18nConstants.CHANNEL_NAME_LABEL;
+import static mcjty.xnet.utils.I18nConstants.CHANNEL_PASTE_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.CHANNEL_REMOVE_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.CONNECTOR_COPY_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.CONNECTOR_LABEL;
+import static mcjty.xnet.utils.I18nConstants.CONNECTOR_PASTE_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.CONNECTOR_REMOVE_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.CREATE_LABEL;
+import static mcjty.xnet.utils.I18nConstants.DOUBLE_CLICK_HIGHLIGHT;
+import static mcjty.xnet.utils.I18nConstants.EDIT_CHANNEL_TOOLTIP_EXIST_FORMATTED;
+import static mcjty.xnet.utils.I18nConstants.EDIT_CHANNEL_TOOLTIP_NOT_EXIST_FORMATTED;
+import static mcjty.xnet.utils.I18nConstants.ERROR_COPY;
+import static mcjty.xnet.utils.I18nConstants.ERROR_LARGE_COPY;
+import static mcjty.xnet.utils.I18nConstants.ERROR_NOTHING_SELECTED;
+import static mcjty.xnet.utils.I18nConstants.ERROR_READ_COPY;
+import static mcjty.xnet.utils.I18nConstants.ERROR_UNS_CH_FORMATTED;
+import static mcjty.xnet.utils.I18nConstants.MESSAGE_BLOCK_HIGHLIGHTED;
+import static mcjty.xnet.utils.I18nConstants.MESSAGE_CHANNEL_COPIED;
+import static mcjty.xnet.utils.I18nConstants.MESSAGE_CONFIRM_REMOVE_CHANNEL_FORMATTED;
+import static mcjty.xnet.utils.I18nConstants.PASTE_LABEL;
+import static mcjty.xnet.utils.I18nConstants.POSITON_LABEL;
+
 
 public class GuiController extends GenericGuiContainer<TileEntityController, GenericContainer> {
-
-    public static final String TAG_ENABLED = "enabled";
-    public static final String TAG_NAME = "name";
 
     private WidgetList connectorList;
     private final List<SidedPos> connectorPositions = new ArrayList<>();
@@ -120,20 +177,20 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private void setupEvents() {
-        window.event("searchbar", (source, params) -> needsRefresh = true);
+        window.event(WIDGET_SEARCH_BAR, (source, params) -> needsRefresh = true);
         for (int i = 0 ; i < MAX_CHANNELS ; i++) {
-            String channel = "channel" + (i+1);
+            String channel = TAG_CHANNEL + (i+1);
             int finalI = i;
             window.event(channel, (source, params) -> selectChannelEditor(finalI));
         }
     }
 
     private void initializeFields() {
-        channelEditPanel = window.findChild("channeleditpanel");
-        connectorEditPanel = window.findChild("connectoreditpanel");
+        channelEditPanel = window.findChild(WIDGET_CHANNEL_EDIT_PANEL);
+        connectorEditPanel = window.findChild(WIDGET_CONNECTOR_EDIT_PANEL);
 
-        searchBar = window.findChild("searchbar");
-        connectorList = window.findChild("connectors");
+        searchBar = window.findChild(WIDGET_SEARCH_BAR);
+        connectorList = window.findChild(TAG_CONNECTORS);
 
         connectorList.event(new DefaultSelectionEvent() {
             @Override
@@ -142,12 +199,21 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             }
         });
 
+        ChannelInfo[] channels =  tileEntity.getChannels();
         for (int i = 0 ; i < MAX_CHANNELS ; i++) {
-            String name = "channel" + (i+1);
+            String name = TAG_CHANNEL + (i+1);
             channelButtons[i] = window.findChild(name);
+            if (channels[i] == null) {
+                channelButtons[i].tooltips(EDIT_CHANNEL_TOOLTIP_NOT_EXIST_FORMATTED.i18n(i + 1));
+            } else {
+                channelButtons[i]
+                        .tooltips(I18nUtils.getSplitedTooltip(
+                                EDIT_CHANNEL_TOOLTIP_EXIST_FORMATTED.i18n(i + 1, channels[i].getType().getName()))
+                        );
+            }
         }
 
-        energyBar = window.findChild("energybar");
+        energyBar = window.findChild(WIDGET_ENERGY_BAR);
     }
 
     private void updateFields() {
@@ -161,7 +227,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         ConnectedBlockClientInfo c = tileEntity.clientConnectedBlocks.get(index);
         if (c != null) {
             RFToolsBase.instance.clientInfo.hilightBlock(c.getPos().pos(), System.currentTimeMillis() + 1000 * 5);
-            Logging.message(minecraft.player, "The block is now highlighted");
+            Logging.message(minecraft.player, MESSAGE_BLOCK_HIGHLIGHTED.i18n());
             minecraft.player.closeContainer();
         }
     }
@@ -221,14 +287,14 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 if (getSelectedChannel() != -1) {
                     copyConnector();
                 } else {
-                    showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Nothing selected!");
+                    showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + ERROR_NOTHING_SELECTED.i18n());
                 }
                 return true;
             } else if (keyCode == GLFW.GLFW_KEY_V) {
                 if (getSelectedChannel() != -1) {
                     pasteConnector();
                 } else {
-                    showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Nothing selected!");
+                    showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + ERROR_NOTHING_SELECTED.i18n());
                 }
                 return true;
             }
@@ -268,21 +334,40 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private void removeChannel() {
-        showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Really remove channel " + (getSelectedChannel() + 1) + "?", () -> {
+        int selectedChannel = getSelectedChannel();
+        if (selectedChannel == -1) {
+            return;
+        }
+        showMessage(minecraft, this, getWindowManager(), 50, 50,
+                ChatFormatting.RED + MESSAGE_CONFIRM_REMOVE_CHANNEL_FORMATTED.i18n((selectedChannel + 1)),
+                () -> {
             sendServerCommandTyped(TileEntityController.CMD_REMOVECHANNEL,
                     TypedMap.builder()
-                            .put(PARAM_INDEX, getSelectedChannel())
+                            .put(PARAM_INDEX, selectedChannel)
                             .build());
+
+            channelButtons[selectedChannel].tooltips(EDIT_CHANNEL_TOOLTIP_NOT_EXIST_FORMATTED.i18n(selectedChannel + 1));
             refresh();
         });
     }
 
     private void createChannel(String typeId) {
+        int selectedChannel = getSelectedChannel();
+        if (selectedChannel == -1) {
+            return;
+        }
         sendServerCommandTyped(TileEntityController.CMD_CREATECHANNEL,
                 TypedMap.builder()
-                        .put(PARAM_INDEX, getSelectedChannel())
+                        .put(PARAM_INDEX, selectedChannel)
                         .put(PARAM_TYPE, typeId)
                         .build());
+        IChannelType type = XNet.xNetApi.findType(typeId);
+        if (type != null) {
+            channelButtons[selectedChannel].tooltips(I18nUtils.getSplitedTooltip(
+                            EDIT_CHANNEL_TOOLTIP_EXIST_FORMATTED.i18n((selectedChannel + 1), type.getName()))
+                    );
+        }
+
         refresh();
     }
 
@@ -315,41 +400,41 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 ChannelClientInfo info = tileEntity.clientChannels.get(editingChannel);
                 if (info != null) {
                     ChannelEditorPanel editor = new ChannelEditorPanel(channelEditPanel, minecraft, this, editingChannel);
-                    editor.label("Channel " + (editingChannel + 1))
+                    editor.label(CHANNEL_LABEL_FORMATTED.i18n(editingChannel + 1))
                             .shift(5)
-                            .toggle(TAG_ENABLED, "Enable processing on this channel", info.isEnabled())
+                            .toggle(TAG_ENABLED, CHANNEL_ENABLE_TOOLTIP.i18n(), info.isEnabled())
                             .shift(5)
-                            .text(TAG_NAME, "Channel name", info.getChannelName(), 65);
+                            .text(TAG_NAME, CHANNEL_NAME_LABEL.i18n(), info.getChannelName(), 65);
                     info.getChannelSettings().createGui(editor);
 
                     Button remove = button(151, 1, 9, 10, "x")
                             .textOffset(0, -1)
-                            .tooltips("Remove this channel")
+                            .tooltips(CHANNEL_REMOVE_TOOLTIP.i18n())
                             .event(this::removeChannel);
                     channelEditPanel.children(remove);
                     editor.setState(info.getChannelSettings());
 
                     Button copyChannel = button(134, 19, 25, 14, "C")
-                            .tooltips("Copy this channel to", "the clipboard")
+                            .tooltips(I18nUtils.getSplitedTooltip(CHANNEL_COPY_TOOLTIP.i18n()))
                             .event(this::copyChannel);
                     channelEditPanel.children(copyChannel);
 
                     copyConnector = button(114, 19, 25, 14, "C")
-                            .tooltips("Copy this connector", "to the clipboard")
+                            .tooltips(I18nUtils.getSplitedTooltip(CONNECTOR_COPY_TOOLTIP.i18n()))
                             .event(this::copyConnector);
                     channelEditPanel.children(copyConnector);
 
                 } else {
-                    ChoiceLabel type = new ChoiceLabel()
+                    ChannelChoiceLabel type = new ChannelChoiceLabel()
                             .hint(5, 3, 95, 14);
-                    for (IChannelType channelType : XNet.xNetApi.getChannels().values()) {
-                        type.choices(channelType.getID());       // Show names?
-                    }
-                    Button create = button(100, 3, 53, 14, "Create")
+                    IChannelType[] channels = XNet.xNetApi.getChannels().values().toArray(new IChannelType[]{});
+                    System.out.println(Arrays.toString(channels));
+                    type.choices(channels);
+                    Button create = button(100, 3, 53, 14, CREATE_LABEL.i18n())
                             .event(() -> createChannel(type.getCurrentChoice()));
 
-                    Button paste = button(100, 17, 53, 14, "Paste")
-                            .tooltips("Create a new channel", "from the clipboard")
+                    Button paste = button(100, 17, 53, 14, PASTE_LABEL.i18n())
+                            .tooltips(I18nUtils.getSplitedTooltip(CHANNEL_PASTE_TOOLTIP.i18n()))
                             .event(this::pasteChannel);
 
                     channelEditPanel.children(type, create, paste);
@@ -374,7 +459,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         ask.children(label(title));
         Panel buttons = horizontal().desiredWidth(100).desiredHeight(18);
         if (okEvent != null) {
-            buttons.children(button("Cancel").event((() -> {
+            buttons.children(button(CANCEL_LABEL.i18n()).event((() -> {
                 windowManager.closeWindow(askWindow);
             })));
             buttons.children(button("OK").event(() -> {
@@ -402,7 +487,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
 
     private void copyChannel() {
-        showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.GREEN + "Copied channel");
+        showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.GREEN + MESSAGE_CHANNEL_COPIED.i18n());
         sendServerCommandTyped(TileEntityController.CMD_COPYCHANNEL,
                 TypedMap.builder()
                         .put(PARAM_INDEX, getSelectedChannel())
@@ -420,7 +505,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         try {
             Minecraft.getInstance().keyboardHandler.setClipboard(json);
         } catch (Exception e) {
-            showError("Error copying to clipboard!");
+            showError(ERROR_COPY.i18n());
         }
     }
 
@@ -429,15 +514,15 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             String json = Minecraft.getInstance().keyboardHandler.getClipboard();
             int max = Config.controllerMaxPaste.get();
             if (max >= 0 && json.length() > max) {
-                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Clipboard too large!");
+                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + ERROR_LARGE_COPY.i18n());
                 return;
             }
             JsonParser parser = new JsonParser();
             JsonObject root = parser.parse(json).getAsJsonObject();
-            String type = root.get("type").getAsString();
+            String type = root.get(TAG_TYPE).getAsString();
             IChannelType channelType = XNet.xNetApi.findType(type);
             if (channelType == null) {
-                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Unsupported channel type: " + type + "!");
+                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + ERROR_UNS_CH_FORMATTED.i18n(type));
                 return;
             }
 
@@ -456,7 +541,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             }
             refresh();
         } catch (Exception e) {
-            showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Error reading from clipboard!");
+            showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + ERROR_READ_COPY.i18n());
         }
     }
 
@@ -465,15 +550,14 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             String json = Minecraft.getInstance().keyboardHandler.getClipboard();
             int max = Config.controllerMaxPaste.get();
             if (max >= 0 && json.length() > max) {
-                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Clipboard too large!");
+                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + ERROR_LARGE_COPY.i18n());
                 return;
             }
-            JsonParser parser = new JsonParser();
-            JsonObject root = parser.parse(json).getAsJsonObject();
-            String type = root.get("type").getAsString();
+            JsonObject root = JsonParser.parseString(json).getAsJsonObject();
+            String type = root.get(TAG_TYPE).getAsString();
             IChannelType channelType = XNet.xNetApi.findType(type);
             if (channelType == null) {
-                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Unsupported channel type: " + type + "!");
+                showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + ERROR_UNS_CH_FORMATTED.i18n(type));
                 return;
             }
             PacketServerCommandTyped packet = PacketServerCommandTyped.create(tileEntity.getBlockPos(), tileEntity.getDimension(), CMD_PASTECHANNEL.name(), TypedMap.builder()
@@ -484,7 +568,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
             refresh();
         } catch (Exception e) {
-            showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Error reading from clipboard!");
+            showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + ERROR_READ_COPY.i18n());
         }
     }
 
@@ -526,7 +610,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
                     Button remove = button(151, 1, 9, 10, "x")
                             .textOffset(0, -1)
-                            .tooltips("Remove this connector")
+                            .tooltips(CONNECTOR_REMOVE_TOOLTIP.i18n())
                             .event(() -> removeConnector(editingConnector));
 
                     ConnectorEditorPanel editor = new ConnectorEditorPanel(connectorEditPanel, minecraft, this, editingChannel, editingConnector);
@@ -535,12 +619,12 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                     connectorEditPanel.children(remove);
                     editor.setState(connectorInfo.getConnectorSettings());
                 } else {
-                    Button create = button(85, 20, 60, 14, "Create")
+                    Button create = button(85, 20, 60, 14, CREATE_LABEL.i18n())
                             .event(() -> createConnector(editingConnector));
                     connectorEditPanel.children(create);
 
-                    Button paste = button(85, 40, 60, 14, "Paste")
-                            .tooltips("Create a new connector", "from the clipboard")
+                    Button paste = button(85, 40, 60, 14, PASTE_LABEL.i18n())
+                            .tooltips(I18nUtils.getSplitedTooltip(CONNECTOR_PASTE_TOOLTIP.i18n()))
                             .event(this::pasteConnector);
                     connectorEditPanel.children(paste);
                 }
@@ -618,14 +702,14 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             br.userObject("block");
             panel.children(br);
             if (!name.isEmpty()) {
-                br.tooltips(ChatFormatting.GREEN + "Connector: " + ChatFormatting.WHITE + name,
-                        ChatFormatting.GREEN + "Block: " + ChatFormatting.WHITE + blockName,
-                        ChatFormatting.GREEN + "Position: " + ChatFormatting.WHITE + BlockPosTools.toString(coordinate),
-                        ChatFormatting.WHITE + "(doubleclick to highlight)");
+                br.tooltips(ChatFormatting.GREEN + CONNECTOR_LABEL.i18n() + ChatFormatting.WHITE + name,
+                        ChatFormatting.GREEN + BLOCK_LABEL.i18n() + ChatFormatting.WHITE + blockName,
+                        ChatFormatting.GREEN + POSITON_LABEL.i18n() + ChatFormatting.WHITE + BlockPosTools.toString(coordinate),
+                        ChatFormatting.WHITE + DOUBLE_CLICK_HIGHLIGHT.i18n());
             } else {
-                br.tooltips(ChatFormatting.GREEN + "Block: " + ChatFormatting.WHITE + blockName,
-                        ChatFormatting.GREEN + "Position: " + ChatFormatting.WHITE + BlockPosTools.toString(coordinate),
-                        ChatFormatting.WHITE + "(doubleclick to highlight)");
+                br.tooltips(ChatFormatting.GREEN + BLOCK_LABEL.i18n() + ChatFormatting.WHITE + blockName,
+                        ChatFormatting.GREEN + POSITON_LABEL.i18n() + ChatFormatting.WHITE + BlockPosTools.toString(coordinate),
+                        ChatFormatting.WHITE + DOUBLE_CLICK_HIGHLIGHT.i18n());
             }
 
             panel.children(label(sidedPos.side().getSerializedName().substring(0, 1).toUpperCase()).color(color).desiredWidth(18));
@@ -682,6 +766,10 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 String channel = String.valueOf(i + 1);
                 ChannelClientInfo info = tileEntity.clientChannels.get(i);
                 if (info != null) {
+                    channelButtons[i]
+                            .tooltips(I18nUtils.getSplitedTooltip(
+                                    EDIT_CHANNEL_TOOLTIP_EXIST_FORMATTED.i18n((i + 1), info.getType().getName()))
+                            );
                     IndicatorIcon icon = info.getChannelSettings().getIndicatorIcon();
                     if (icon != null) {
                         channelButtons[i].image(icon.getImage(), icon.getU(), icon.getV(), icon.getIw(), icon.getIh());

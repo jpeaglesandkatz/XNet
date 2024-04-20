@@ -3,6 +3,7 @@ package mcjty.xnet.modules.cables.blocks;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ResultCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.Cap;
@@ -10,6 +11,7 @@ import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
+import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.tiles.IConnectorTile;
 import mcjty.xnet.modules.cables.CableModule;
@@ -37,7 +39,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.empty;
+import static mcjty.xnet.apiimpl.Constants.TAG_ENABLED;
+import static mcjty.xnet.apiimpl.Constants.TAG_FACING;
+import static mcjty.xnet.apiimpl.Constants.TAG_INFO;
+import static mcjty.xnet.apiimpl.Constants.TAG_NAME;
 import static mcjty.xnet.modules.cables.CableModule.TYPE_CONNECTOR;
+import static mcjty.xnet.utils.I18nConstants.BLOCK_CONNECTOR;
 
 public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSupport, IConnectorTile {
 
@@ -68,7 +75,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Cap(type = CapType.CONTAINER)
-    private LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Connector")
+    private LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>(BLOCK_CONNECTOR.i18n())
             .containerSupplier(empty(CableModule.CONTAINER_CONNECTOR, this)));
 
     public ConnectorTileEntity(BlockPos pos, BlockState state) {
@@ -183,10 +190,10 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     @Override
     public void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
-        CompoundTag info = tagCompound.getCompound("Info");
-        name = info.getString("name");
-        if (info.contains("enabled")) {
-            enabled = info.getByte("enabled");
+        CompoundTag info = tagCompound.getCompound(TAG_INFO);
+        name = info.getString(TAG_NAME);
+        if (info.contains(TAG_ENABLED)) {
+            enabled = info.getByte(TAG_ENABLED);
         } else {
             enabled = 0x3f;
         }
@@ -218,8 +225,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     public void saveInfo(CompoundTag tagCompound) {
         super.saveInfo(tagCompound);
         CompoundTag info = getOrCreateInfo(tagCompound);
-        info.putString("name", name);
-        info.putByte("enabled", enabled);
+        info.putString(TAG_NAME, name);
+        info.putByte(TAG_ENABLED, enabled);
     }
 
     public void setConnectorName(String n) {
@@ -296,8 +303,10 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
 
-    public static final Key<Integer> PARAM_FACING = new Key<>("facing", Type.INTEGER);
-    public static final Key<Boolean> PARAM_ENABLED = new Key<>("enabled", Type.BOOLEAN);
+    public static final Key<Integer> PARAM_FACING = new Key<>(TAG_FACING, Type.INTEGER);
+    public static final Key<Boolean> PARAM_ENABLED = new Key<>(TAG_ENABLED, Type.BOOLEAN);
+    public static final Key<String> PARAM_NAME = new Key<>(TAG_NAME, Type.STRING);
+
     @ServerCommand
     public static final Command<?> CMD_ENABLE = Command.<ConnectorTileEntity>create("connector.enable",
             (te, playerEntity, params) -> {
@@ -305,6 +314,10 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
                 boolean e = params.get(PARAM_ENABLED);
                 te.setEnabled(OrientationTools.DIRECTION_VALUES[f], e);
             });
+    @ServerCommand
+    public static final ResultCommand<?> CMD_GET_NAME = ResultCommand.<ConnectorTileEntity>create("xnet.connector.name",
+            (te, player, params) -> TypedMap.builder().put(PARAM_NAME, te.getConnectorName()).build(),
+            (te, player, params) -> te.setConnectorName(params.get(PARAM_NAME)));
 
     @Nonnull
     @Override

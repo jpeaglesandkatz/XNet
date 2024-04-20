@@ -7,6 +7,7 @@ import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.client.ConnectorInfo;
+import mcjty.xnet.utils.TagUtils;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -15,6 +16,14 @@ import net.minecraft.nbt.Tag;
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
+
+import static mcjty.xnet.apiimpl.Constants.TAG_ADVANCED;
+import static mcjty.xnet.apiimpl.Constants.TAG_CONNECTORS;
+import static mcjty.xnet.apiimpl.Constants.TAG_CONSUMER_ID;
+import static mcjty.xnet.apiimpl.Constants.TAG_ENABLED;
+import static mcjty.xnet.apiimpl.Constants.TAG_NAME;
+import static mcjty.xnet.apiimpl.Constants.TAG_SIDE;
+import static mcjty.xnet.apiimpl.Constants.TAG_TYPE;
 
 public class ChannelInfo {
 
@@ -69,36 +78,32 @@ public class ChannelInfo {
 
     public void writeToNBT(CompoundTag tag) {
         channelSettings.writeToNBT(tag);
-        tag.putBoolean("enabled", enabled);
+        tag.putBoolean(TAG_ENABLED, enabled);
         if (channelName != null && !channelName.isEmpty()) {
-            tag.putString("name", channelName);
+            tag.putString(TAG_NAME, channelName);
         }
         ListTag conlist = new ListTag();
         for (Map.Entry<SidedConsumer, ConnectorInfo> entry : connectors.entrySet()) {
             CompoundTag tc = new CompoundTag();
             ConnectorInfo connectorInfo = entry.getValue();
             connectorInfo.writeToNBT(tc);
-            tc.putInt("consumerId", entry.getKey().consumerId().id());
-            tc.putInt("side", entry.getKey().side().ordinal());
-            tc.putString("type", connectorInfo.getType().getID());
-            tc.putBoolean("advanced", connectorInfo.isAdvanced());
+            tc.putInt(TAG_CONSUMER_ID, entry.getKey().consumerId().id());
+            tc.putInt(TAG_SIDE, entry.getKey().side().ordinal());
+            tc.putString(TAG_TYPE, connectorInfo.getType().getID());
+            tc.putBoolean(TAG_ADVANCED, connectorInfo.isAdvanced());
             conlist.add(tc);
         }
-        tag.put("connectors", conlist);
+        tag.put(TAG_CONNECTORS, conlist);
     }
 
     public void readFromNBT(CompoundTag tag) {
         channelSettings.readFromNBT(tag);
-        enabled = tag.getBoolean("enabled");
-        if (tag.contains("name")) {
-            channelName = tag.getString("name");
-        } else {
-            channelName = null;
-        }
-        ListTag conlist = tag.getList("connectors", Tag.TAG_COMPOUND);
+        enabled = tag.getBoolean(TAG_ENABLED);
+        channelName = TagUtils.getStringOrNull(tag, TAG_NAME);
+        ListTag conlist = tag.getList(TAG_CONNECTORS, Tag.TAG_COMPOUND);
         for (int i = 0 ; i < conlist.size() ; i++) {
             CompoundTag tc = conlist.getCompound(i);
-            String id = tc.getString("type");
+            String id = tc.getString(TAG_TYPE);
             IChannelType type = XNet.xNetApi.findType(id);
             if (type == null) {
                 XNet.setup.getLogger().warn("Unsupported type " + id + "!");
@@ -108,10 +113,10 @@ public class ChannelInfo {
                 XNet.setup.getLogger().warn("Trying to load a connector with non-matching type " + type + "!");
                 continue;
             }
-            ConsumerId consumerId = new ConsumerId(tc.getInt("consumerId"));
-            Direction side = OrientationTools.DIRECTION_VALUES[tc.getInt("side")];
+            ConsumerId consumerId = new ConsumerId(tc.getInt(TAG_CONSUMER_ID));
+            Direction side = OrientationTools.DIRECTION_VALUES[tc.getInt(TAG_SIDE)];
             SidedConsumer key = new SidedConsumer(consumerId, side);
-            boolean advanced = tc.getBoolean("advanced");
+            boolean advanced = tc.getBoolean(TAG_ADVANCED);
             ConnectorInfo connectorInfo = new ConnectorInfo(type, key, advanced);
             connectorInfo.readFromNBT(tc);
             connectors.put(key, connectorInfo);
