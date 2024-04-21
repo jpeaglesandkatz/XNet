@@ -136,4 +136,12 @@ public class LogicTools {
             }
         }
     }
+
+    public static boolean[] intToBinary(int value) {
+        boolean[] bits = new boolean[16];
+        for (int i = 15; i >= 0; i--) {
+            bits[i] = (value & (1 << i)) != 0;
+        }
+        return bits;
+    }
 }

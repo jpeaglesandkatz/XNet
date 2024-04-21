@@ -17,14 +17,25 @@ import mcjty.xnet.client.ControllerChannelClientInfo;
 import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import net.minecraft.client.gui.GuiGraphics;
+import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
 
-import static mcjty.lib.gui.widgets.Widgets.*;
-import static mcjty.xnet.modules.router.blocks.TileEntityRouter.*;
+import static mcjty.lib.gui.widgets.Widgets.horizontal;
+import static mcjty.lib.gui.widgets.Widgets.label;
+import static mcjty.lib.gui.widgets.Widgets.positional;
+import static mcjty.xnet.apiimpl.Constants.WIDGET_LOCAL_CHANNELS;
+import static mcjty.xnet.apiimpl.Constants.WIDGET_REMOTE_CHANNELS;
+import static mcjty.xnet.modules.router.blocks.TileEntityRouter.CMD_GETCHANNELS;
+import static mcjty.xnet.modules.router.blocks.TileEntityRouter.CMD_GETREMOTECHANNELS;
+import static mcjty.xnet.modules.router.blocks.TileEntityRouter.PARAM_CHANNEL;
+import static mcjty.xnet.modules.router.blocks.TileEntityRouter.PARAM_NAME;
+import static mcjty.xnet.modules.router.blocks.TileEntityRouter.PARAM_POS;
+import static mcjty.xnet.utils.I18nConstants.INDEX_LABEL;
+import static mcjty.xnet.utils.I18nConstants.POS_LABEL;
 
 public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericContainer> {
 
@@ -48,8 +59,8 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         window = new Window(this, tileEntity, new ResourceLocation(XNet.MODID, "gui/router.gui"));
         super.init();
 
-        localChannelList = window.findChild("localchannels");
-        remoteChannelList = window.findChild("remotechannels");
+        localChannelList = window.findChild(WIDGET_LOCAL_CHANNELS);
+        remoteChannelList = window.findChild(WIDGET_REMOTE_CHANNELS);
 
         refresh();
         listDirty = 0;
@@ -138,12 +149,12 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
 
         Panel panel2 = horizontal(0, 0).hint(0, 13, 160, 13)
                 .children(
-                        label("Pos").color(labelColor),
+                        label(POS_LABEL.i18n()).color(labelColor),
                         label(BlockPosTools.toString(controllerPos)));
 
         Panel panel3 = horizontal(0, 0).hint(0, 26, 160, 13)
                 .children(
-                        label("Index").color(labelColor),
+                        label(INDEX_LABEL.i18n()).color(labelColor),
                         label(index + " (" + type.getName() + ")"));
 
         panel.children(panel1, panel2, panel3);

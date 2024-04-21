@@ -8,8 +8,13 @@ import mcjty.lib.setup.DeferredBlock;
 import mcjty.lib.setup.DeferredItem;
 import mcjty.lib.varia.TagTools;
 import mcjty.xnet.XNet;
-import mcjty.xnet.modules.cables.blocks.*;
+import mcjty.xnet.modules.cables.blocks.AdvancedConnectorBlock;
+import mcjty.xnet.modules.cables.blocks.AdvancedConnectorTileEntity;
+import mcjty.xnet.modules.cables.blocks.ColorBlockItem;
+import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
+import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
+import mcjty.xnet.modules.cables.blocks.NetCableBlock;
 import mcjty.xnet.modules.cables.client.ClientSetup;
 import mcjty.xnet.modules.cables.client.GuiConnector;
 import mcjty.xnet.setup.Registration;
@@ -31,7 +36,11 @@ import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.xnet.XNet.tab;
-import static mcjty.xnet.setup.Registration.*;
+import static mcjty.xnet.apiimpl.Constants.TAG_CONNECTORS;
+import static mcjty.xnet.setup.Registration.BLOCKS;
+import static mcjty.xnet.setup.Registration.CONTAINERS;
+import static mcjty.xnet.setup.Registration.ITEMS;
+import static mcjty.xnet.setup.Registration.TILES;
 
 public class CableModule implements IModule {
 
@@ -61,9 +70,9 @@ public class CableModule implements IModule {
 
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_CONNECTOR = CONTAINERS.register("connector", GenericContainer::createContainerType);
 
-    public static final TagKey<Item> TAG_CABLES = TagTools.createItemTagKey(new ResourceLocation(XNet.MODID, "cables"));
-    public static final TagKey<Item> TAG_CONNECTORS = TagTools.createItemTagKey(new ResourceLocation(XNet.MODID, "connectors"));
-    public static final TagKey<Item> TAG_ADVANCED_CONNECTORS = TagTools.createItemTagKey(new ResourceLocation(XNet.MODID, "advanced_connectors"));
+    public static final TagKey<Item> TAG_KEY_CABLES = TagTools.createItemTagKey(new ResourceLocation(XNet.MODID, "cables"));
+    public static final TagKey<Item> TAG_KEY_CONNECTORS = TagTools.createItemTagKey(new ResourceLocation(XNet.MODID, TAG_CONNECTORS));
+    public static final TagKey<Item> TAG_KEY_ADVANCED_CONNECTORS = TagTools.createItemTagKey(new ResourceLocation(XNet.MODID, "advanced_connectors"));
 
     public CableModule(IEventBus bus, Dist dist) {
         if (dist.isClient()) {
@@ -126,7 +135,7 @@ public class CableModule implements IModule {
                         .stonePickaxeTags(),
 
                 Dob.itemBuilder(NETCABLE_BLUE)
-                        .itemTags(List.of(TAG_CABLES))
+                        .itemTags(List.of(TAG_KEY_CABLES))
                         .shaped(builder -> builder
                                         .define('g', Tags.Items.NUGGETS_GOLD)
                                         .define('s', Items.STRING)
@@ -136,10 +145,10 @@ public class CableModule implements IModule {
                                 "s1s", "rgr", "srs")
                         .shapeless("netcable_blue_dye", builder -> builder
                                 .requires(Tags.Items.DYES_BLUE)
-                                .requires(CableModule.TAG_CABLES)
+                                .requires(CableModule.TAG_KEY_CABLES)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(NETCABLE_GREEN)
-                        .itemTags(List.of(TAG_CABLES))
+                        .itemTags(List.of(TAG_KEY_CABLES))
                         .shaped(builder -> builder
                                         .define('g', Tags.Items.NUGGETS_GOLD)
                                         .define('s', Items.STRING)
@@ -149,10 +158,10 @@ public class CableModule implements IModule {
                                 "s1s", "rgr", "srs")
                         .shapeless("netcable_green_dye", builder -> builder
                                 .requires(Tags.Items.DYES_GREEN)
-                                .requires(CableModule.TAG_CABLES)
+                                .requires(CableModule.TAG_KEY_CABLES)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(NETCABLE_RED)
-                        .itemTags(List.of(TAG_CABLES))
+                        .itemTags(List.of(TAG_KEY_CABLES))
                         .shaped(builder -> builder
                                         .define('g', Tags.Items.NUGGETS_GOLD)
                                         .define('s', Items.STRING)
@@ -162,10 +171,10 @@ public class CableModule implements IModule {
                                 "s1s", "rgr", "srs")
                         .shapeless("netcable_red_dye", builder -> builder
                                 .requires(Tags.Items.DYES_RED)
-                                .requires(CableModule.TAG_CABLES)
+                                .requires(CableModule.TAG_KEY_CABLES)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(NETCABLE_YELLOW)
-                        .itemTags(List.of(TAG_CABLES))
+                        .itemTags(List.of(TAG_KEY_CABLES))
                         .shaped(builder -> builder
                                         .define('g', Tags.Items.NUGGETS_GOLD)
                                         .define('s', Items.STRING)
@@ -175,10 +184,10 @@ public class CableModule implements IModule {
                                 "s1s", "rgr", "srs")
                         .shapeless("netcable_yellow_dye", builder -> builder
                                 .requires(Tags.Items.DYES_YELLOW)
-                                .requires(CableModule.TAG_CABLES)
+                                .requires(CableModule.TAG_KEY_CABLES)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(NETCABLE_ROUTING)
-                        .itemTags(List.of(TAG_CABLES))
+                        .itemTags(List.of(TAG_KEY_CABLES))
                         .shaped(builder -> builder
                                         .define('g', Tags.Items.NUGGETS_GOLD)
                                         .define('s', Items.STRING)
@@ -187,7 +196,7 @@ public class CableModule implements IModule {
                                 32,
                                 "s1s", "rgr", "srs"),
                 Dob.itemBuilder(CONNECTOR_BLUE)
-                        .itemTags(List.of(TAG_CONNECTORS))
+                        .itemTags(List.of(TAG_KEY_CONNECTORS))
                         .shaped(builder -> builder
                                         .define('g', Tags.Items.INGOTS_GOLD)
                                         .define('1', Tags.Items.DYES_BLUE)
@@ -196,10 +205,10 @@ public class CableModule implements IModule {
                                 "1C1", "rgr", "1r1")
                         .shapeless("connector_blue_dye", builder -> builder
                                 .requires(Tags.Items.DYES_BLUE)
-                                .requires(CableModule.TAG_CONNECTORS)
+                                .requires(CableModule.TAG_KEY_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(CONNECTOR_GREEN)
-                        .itemTags(List.of(TAG_CONNECTORS))
+                        .itemTags(List.of(TAG_KEY_CONNECTORS))
                         .shaped(builder -> builder
                                         .define('g', Tags.Items.INGOTS_GOLD)
                                         .define('1', Tags.Items.DYES_GREEN)
@@ -208,10 +217,10 @@ public class CableModule implements IModule {
                                 "1C1", "rgr", "1r1")
                         .shapeless("connector_green_dye", builder -> builder
                                 .requires(Tags.Items.DYES_GREEN)
-                                .requires(CableModule.TAG_CONNECTORS)
+                                .requires(CableModule.TAG_KEY_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(CONNECTOR_RED)
-                        .itemTags(List.of(TAG_CONNECTORS))
+                        .itemTags(List.of(TAG_KEY_CONNECTORS))
                         .shaped(builder -> builder
                                         .define('g', Tags.Items.INGOTS_GOLD)
                                         .define('1', Tags.Items.DYES_RED)
@@ -220,10 +229,10 @@ public class CableModule implements IModule {
                                 "1C1", "rgr", "1r1")
                         .shapeless("connector_red_dye", builder -> builder
                                 .requires(Tags.Items.DYES_RED)
-                                .requires(CableModule.TAG_CONNECTORS)
+                                .requires(CableModule.TAG_KEY_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(CONNECTOR_YELLOW)
-                        .itemTags(List.of(TAG_CONNECTORS))
+                        .itemTags(List.of(TAG_KEY_CONNECTORS))
                         .shaped(builder -> builder
                                         .define('g', Tags.Items.INGOTS_GOLD)
                                         .define('1', Tags.Items.DYES_YELLOW)
@@ -232,57 +241,57 @@ public class CableModule implements IModule {
                                 "1C1", "rgr", "1r1")
                         .shapeless("connector_yellow_dye", builder -> builder
                                 .requires(Tags.Items.DYES_YELLOW)
-                                .requires(CableModule.TAG_CONNECTORS)
+                                .requires(CableModule.TAG_KEY_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(CONNECTOR_ROUTING)
-                        .itemTags(List.of(TAG_CONNECTORS))
+                        .itemTags(List.of(TAG_KEY_CONNECTORS))
                         .shaped(builder -> builder
                                         .define('g', Tags.Items.NUGGETS_GOLD)
-                                        .define('C', TAG_CONNECTORS)
+                                        .define('C', TAG_KEY_CONNECTORS)
                                         .unlockedBy("chest", has(Items.CHEST)),
                                 "rrr", "gCg", "rrr"),
                 Dob.itemBuilder(ADVANCED_CONNECTOR_BLUE)
-                        .itemTags(List.of(TAG_ADVANCED_CONNECTORS))
+                        .itemTags(List.of(TAG_KEY_ADVANCED_CONNECTORS))
                         .shaped(builder -> builder
                                         .define('C', CONNECTOR_BLUE.get())
                                         .unlockedBy("chest", has(Items.CHEST)),
                                 "Co", "dr")
                         .shapeless("advanced_connector_blue_dye", builder -> builder
                                 .requires(Tags.Items.DYES_BLUE)
-                                .requires(CableModule.TAG_ADVANCED_CONNECTORS)
+                                .requires(CableModule.TAG_KEY_ADVANCED_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(ADVANCED_CONNECTOR_GREEN)
-                        .itemTags(List.of(TAG_ADVANCED_CONNECTORS))
+                        .itemTags(List.of(TAG_KEY_ADVANCED_CONNECTORS))
                         .shaped(builder -> builder
                                         .define('C', CONNECTOR_GREEN.get())
                                         .unlockedBy("chest", has(Items.CHEST)),
                                 "Co", "dr")
                         .shapeless("advanced_connector_green_dye", builder -> builder
                                 .requires(Tags.Items.DYES_GREEN)
-                                .requires(CableModule.TAG_ADVANCED_CONNECTORS)
+                                .requires(CableModule.TAG_KEY_ADVANCED_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(ADVANCED_CONNECTOR_RED)
-                        .itemTags(List.of(TAG_ADVANCED_CONNECTORS))
+                        .itemTags(List.of(TAG_KEY_ADVANCED_CONNECTORS))
                         .shaped(builder -> builder
                                         .define('C', CONNECTOR_RED.get())
                                         .unlockedBy("chest", has(Items.CHEST)),
                                 "Co", "dr")
                         .shapeless("advanced_connector_red_dye", builder -> builder
                                 .requires(Tags.Items.DYES_RED)
-                                .requires(CableModule.TAG_ADVANCED_CONNECTORS)
+                                .requires(CableModule.TAG_KEY_ADVANCED_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(ADVANCED_CONNECTOR_YELLOW)
-                        .itemTags(List.of(TAG_ADVANCED_CONNECTORS))
+                        .itemTags(List.of(TAG_KEY_ADVANCED_CONNECTORS))
                         .shaped(builder -> builder
                                         .define('C', CONNECTOR_YELLOW.get())
                                         .unlockedBy("chest", has(Items.CHEST)),
                                 "Co", "dr")
                         .shapeless("advanced_connector_yellow_dye", builder -> builder
                                 .requires(Tags.Items.DYES_YELLOW)
-                                .requires(CableModule.TAG_ADVANCED_CONNECTORS)
+                                .requires(CableModule.TAG_KEY_ADVANCED_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(ADVANCED_CONNECTOR_ROUTING)
-                        .itemTags(List.of(TAG_ADVANCED_CONNECTORS))
+                        .itemTags(List.of(TAG_KEY_ADVANCED_CONNECTORS))
                         .shaped(builder -> builder
                                         .define('C', CONNECTOR_ROUTING.get())
                                         .unlockedBy("chest", has(Items.CHEST)),

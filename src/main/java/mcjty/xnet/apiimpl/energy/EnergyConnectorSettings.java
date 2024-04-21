@@ -8,9 +8,13 @@ import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
+import mcjty.xnet.apiimpl.enums.InsExtMode;
+import mcjty.xnet.modules.controller.client.ConnectorEditorPanel;
 import mcjty.xnet.setup.Config;
-import net.minecraft.nbt.CompoundTag;
+import mcjty.xnet.utils.CastTools;
+import mcjty.xnet.utils.TagUtils;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
@@ -18,21 +22,29 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
+import static mcjty.xnet.apiimpl.Constants.TAG_ADVANCED_NEEDED;
+import static mcjty.xnet.apiimpl.Constants.TAG_ENERGY_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_MINMAX;
+import static mcjty.xnet.apiimpl.Constants.TAG_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_PRIORITY;
+import static mcjty.xnet.apiimpl.Constants.TAG_RATE;
+import static mcjty.xnet.utils.I18nConstants.ENERGY_MINMAX_TOOLTIP_FORMATTED;
+import static mcjty.xnet.utils.I18nConstants.ENERGY_RATE_TOOLTIP_FORMATTED;
+import static mcjty.xnet.utils.I18nConstants.EXT_ENDING;
+import static mcjty.xnet.utils.I18nConstants.HIGH_FORMAT;
+import static mcjty.xnet.utils.I18nConstants.INS_ENDING;
+import static mcjty.xnet.utils.I18nConstants.LOW_FORMAT;
+import static mcjty.xnet.utils.I18nConstants.MAX;
+import static mcjty.xnet.utils.I18nConstants.MIN;
+import static mcjty.xnet.utils.I18nConstants.PRIORITY_LABEL;
+import static mcjty.xnet.utils.I18nConstants.PRIORITY_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.RATE_LABEL;
+
 public class EnergyConnectorSettings extends AbstractConnectorSettings {
 
     public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
 
-    public static final String TAG_MODE = "mode";
-    public static final String TAG_RATE = "rate";
-    public static final String TAG_MINMAX = "minmax";
-    public static final String TAG_PRIORITY = "priority";
-
-    public enum EnergyMode {
-        INS,
-        EXT
-    }
-
-    private EnergyMode energyMode = EnergyMode.INS;
+    private InsExtMode energyMode = InsExtMode.INS;
 
     @Nullable private Integer priority = 0;
     @Nullable private Integer rate = null;
@@ -40,10 +52,6 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
 
     public EnergyConnectorSettings(@Nonnull Direction side) {
         super(side);
-    }
-
-    public EnergyMode getEnergyMode() {
-        return energyMode;
     }
 
     @Nullable
@@ -61,25 +69,38 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
         return null;
     }
 
+    public InsExtMode getEnergyMode() {
+        return energyMode;
+    }
+
+    private String getRateTooltip() {
+        return ENERGY_RATE_TOOLTIP_FORMATTED.i18n(
+                (energyMode == InsExtMode.EXT ? EXT_ENDING : INS_ENDING).i18n(),
+                Config.getMaxRfRate(advanced)
+        );
+    }
+
+    private String getMinMaxTooltip() {
+        return ENERGY_MINMAX_TOOLTIP_FORMATTED.i18n(
+                (energyMode == InsExtMode.EXT ? EXT_ENDING : INS_ENDING).i18n(),
+                (energyMode == InsExtMode.EXT ? LOW_FORMAT : HIGH_FORMAT).i18n()
+        );
+    }
+
     @Override
     public void createGui(IEditorGui gui) {
         advanced = gui.isAdvanced();
         sideGui(gui);
         colorsGui(gui);
         redstoneGui(gui);
+        gui.nl();
+        gui.translatableChoices(TAG_MODE, energyMode, InsExtMode.values());
         gui.nl()
-                .choices(TAG_MODE, "Insert or extract mode", energyMode, EnergyMode.values())
-                .nl()
+                .label(PRIORITY_LABEL.i18n()).integer(TAG_PRIORITY, PRIORITY_TOOLTIP.i18n(), priority, 30).nl()
 
-                .label("Pri").integer(TAG_PRIORITY, "Insertion priority", priority, 30).nl()
-
-                .label("Rate")
-                .integer(TAG_RATE,
-                        (energyMode == EnergyMode.EXT ? "Max energy extraction rate" : "Max energy insertion rate") +
-                        "|(limited to " + (advanced ? Config.maxRfRateAdvanced.get() : Config.maxRfRateNormal.get()) + " per tick)", rate, 40)
+                .label(RATE_LABEL.i18n()).integer(TAG_RATE, getRateTooltip(), rate, 40)
                 .shift(10)
-                .label(energyMode == EnergyMode.EXT ? "Min" : "Max")
-                .integer(TAG_MINMAX, energyMode == EnergyMode.EXT ? "Disable extraction if energy|is too low" : "Disable insertion if energy|is too high", minmax, 50);
+                .label((energyMode == InsExtMode.EXT ? MIN : MAX).i18n()).integer(TAG_MINMAX, getMinMaxTooltip(), minmax, 50);
     }
 
     private static final Set<String> INSERT_TAGS = ImmutableSet.of(TAG_MODE, TAG_RS, TAG_COLOR+"0", TAG_COLOR+"1", TAG_COLOR+"2", TAG_COLOR+"3", TAG_RATE, TAG_MINMAX, TAG_PRIORITY);
@@ -87,7 +108,7 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
 
     @Override
     public boolean isEnabled(String tag) {
-        if (energyMode == EnergyMode.INS) {
+        if (energyMode == InsExtMode.INS) {
             if (tag.equals(TAG_FACING)) {
                 return advanced;
             }
@@ -118,7 +139,7 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void update(Map<String, Object> data) {
         super.update(data);
-        energyMode = EnergyMode.valueOf(((String)data.get(TAG_MODE)).toUpperCase());
+        energyMode = CastTools.safeInsExtMode(data.get(TAG_MODE));
         rate = (Integer) data.get(TAG_RATE);
         minmax = (Integer) data.get(TAG_MINMAX);
         priority = (Integer) data.get(TAG_PRIORITY);
@@ -128,12 +149,12 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     public JsonObject writeToJson() {
         JsonObject object = new JsonObject();
         super.writeToJsonInternal(object);
-        setEnumSafe(object, "energymode", energyMode);
-        setIntegerSafe(object, "priority", priority);
-        setIntegerSafe(object, "rate", rate);
-        setIntegerSafe(object, "minmax", minmax);
+        setEnumSafe(object, TAG_ENERGY_MODE, energyMode);
+        setIntegerSafe(object, TAG_PRIORITY, priority);
+        setIntegerSafe(object, TAG_RATE, rate);
+        setIntegerSafe(object, TAG_MINMAX, minmax);
         if (rate != null && rate > Config.maxRfRateNormal.get()) {
-            object.add("advancedneeded", new JsonPrimitive(true));
+            object.add(TAG_ADVANCED_NEEDED, new JsonPrimitive(true));
         }
         return object;
     }
@@ -141,45 +162,30 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void readFromJson(JsonObject object) {
         super.readFromJsonInternal(object);
-        energyMode = getEnumSafe(object, "energymode", EnumStringTranslators::getEnergyMode);
-        priority = getIntegerSafe(object, "priority");
-        rate = getIntegerSafe(object, "rate");
-        minmax = getIntegerSafe(object, "minmax");
+        energyMode = getEnumSafe(object, TAG_ENERGY_MODE, EnumStringTranslators::getEnergyMode);
+        priority = getIntegerSafe(object, TAG_PRIORITY);
+        rate = getIntegerSafe(object, TAG_RATE);
+        minmax = getIntegerSafe(object, TAG_MINMAX);
     }
 
     @Override
     public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
-        energyMode = EnergyMode.values()[tag.getByte("itemMode")];
-        if (tag.contains("priority")) {
-            priority = tag.getInt("priority");
-        } else {
-            priority = null;
-        }
-        if (tag.contains("rate")) {
-            rate = tag.getInt("rate");
-        } else {
-            rate = null;
-        }
-        if (tag.contains("minmax")) {
-            minmax = tag.getInt("minmax");
-        } else {
-            minmax = null;
-        }
+        byte energyModeByte = tag.contains(TAG_ENERGY_MODE) 
+                                      ? tag.getByte(TAG_ENERGY_MODE) 
+                                      : tag.getByte("itemMode"); // TODO: 06.03.2024 backward compatibility. DELETE THIS after 1.20.4_neo branch
+        energyMode = InsExtMode.values()[energyModeByte];
+        priority = TagUtils.getIntOrNull(tag, TAG_PRIORITY);
+        rate = TagUtils.getIntOrNull(tag, TAG_RATE);
+        minmax = TagUtils.getIntOrNull(tag, TAG_MINMAX);
     }
 
     @Override
     public void writeToNBT(CompoundTag tag) {
         super.writeToNBT(tag);
-        tag.putByte("itemMode", (byte) energyMode.ordinal());
-        if (priority != null) {
-            tag.putInt("priority", priority);
-        }
-        if (rate != null) {
-            tag.putInt("rate", rate);
-        }
-        if (minmax != null) {
-            tag.putInt("minmax", minmax);
-        }
+        tag.putByte(TAG_ENERGY_MODE, (byte) energyMode.ordinal());
+        TagUtils.putIntIfNotNull(tag, TAG_PRIORITY, priority);
+        TagUtils.putIntIfNotNull(tag, TAG_RATE, rate);
+        TagUtils.putIntIfNotNull(tag, TAG_MINMAX, minmax);
     }
 }

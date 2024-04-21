@@ -30,7 +30,12 @@ import java.util.List;
 
 import static mcjty.xnet.modules.cables.ConnectorType.BLOCK;
 import static mcjty.xnet.modules.cables.ConnectorType.CABLE;
-import static mcjty.xnet.modules.cables.client.CablePatterns.SpriteIdx.*;
+import static mcjty.xnet.modules.cables.client.CablePatterns.SpriteIdx.SPRITE_CORNER;
+import static mcjty.xnet.modules.cables.client.CablePatterns.SpriteIdx.SPRITE_CROSS;
+import static mcjty.xnet.modules.cables.client.CablePatterns.SpriteIdx.SPRITE_END;
+import static mcjty.xnet.modules.cables.client.CablePatterns.SpriteIdx.SPRITE_NONE;
+import static mcjty.xnet.modules.cables.client.CablePatterns.SpriteIdx.SPRITE_STRAIGHT;
+import static mcjty.xnet.modules.cables.client.CablePatterns.SpriteIdx.SPRITE_THREE;
 
 public class GenericCableBakedModel extends AbstractDynamicBakedModel {
 
