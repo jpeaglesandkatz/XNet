@@ -10,6 +10,7 @@ import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.gui.widgets.ToggleButton;
+import mcjty.lib.network.Networking;
 import mcjty.lib.network.PacketRequestDataFromServer;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.OrientationTools;
@@ -60,7 +61,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
         if (level == null) {
             return;
         }
-        XNetMessages.INSTANCE.sendToServer(new PacketRequestDataFromServer(level.dimension(), tileEntity.getBlockPos(), CMD_GET_NAME.name(), TypedMap.EMPTY, false));
+        Networking.sendToServer(new PacketRequestDataFromServer(level.dimension(), tileEntity.getBlockPos(), CMD_GET_NAME.name(), TypedMap.EMPTY, false));
         imageWidth = WIDTH;
         imageHeight = HEIGHT;
     }

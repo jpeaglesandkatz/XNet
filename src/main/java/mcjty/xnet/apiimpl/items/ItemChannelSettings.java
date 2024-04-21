@@ -192,14 +192,14 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             if (RFToolsSupport.isStorageScanner(te)) {
                 RFToolsSupport.tickStorageScanner(context, settings, te, this, world);
             } else {
-                Optional<IItemHandler> lazyHandler = getItemHandlerAt(te, settings.getFacing()).resolve();
-                if (lazyHandler.isPresent()) {
-                    IItemHandler handler = lazyHandler.get();
-                    int idx = getStartExtractIndex(settings, consumerId, handler);
-                    idx = tickItemHandler(context, settings, handler, world, idx, i);
-                    if (handler.getSlots() > 0) {
-                        rememberExtractIndex(consumerId, (idx + 1) % handler.getSlots());
-                    }
+                IItemHandler handler = getItemHandlerAt(te, settings.getFacing());
+                if (handler == null) {
+                    continue;
+                }
+                int idx = getStartExtractIndex(settings, consumerId, handler);
+                idx = tickItemHandler(context, settings, handler, world, idx, i);
+                if (handler.getSlots() > 0) {
+                    rememberExtractIndex(consumerId, (idx + 1) % handler.getSlots());
                 }
             }
         }
@@ -318,7 +318,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             BlockEntity te = world.getBlockEntity(connectedBlockPos);
             ItemStack remaining;
 
-            IItemHandler destination = getItemHandlerAt(te, settings.getFacing()).resolve().orElse(null);
+            IItemHandler destination = getItemHandlerAt(te, settings.getFacing());
             if (destination == null) {
                 continue;
             }
@@ -543,12 +543,12 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         roundRobinOffset = 0;
     }
 
-    @Nonnull
-    public static LazyOptional<IItemHandler> getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
+    @Nullable
+    public static IItemHandler getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
-            return te.getCapability(ForgeCapabilities.ITEM_HANDLER, intSide);
+            return te.getCapability(ForgeCapabilities.ITEM_HANDLER, intSide).orElse(null);
         }
-        return LazyOptional.empty();
+        return null;
     }
 
 
