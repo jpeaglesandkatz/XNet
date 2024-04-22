@@ -1,5 +1,18 @@
 Upcoming:
 - Fixed shape calculation for connectors so that they are more accurate
+- Dertiende did some massive changes to XNet:
+    - More text labels can now be localized
+    - Add support of all logic operations from enderio
+    - Remove "speed" from logic channel
+    - Changes in input validation: the text is now validated when you lose focus and when you press enter or esc. Previously, every new character was validated
+    - Fixed bug with connector GUI. Connector name is now correctly displayed when reconnecting for other players as well
+    - Now in connector GUI you can see connected block for each direction (also info about block when hovered)
+    - Directional name toggle buttons now do not lose state after reopening the connector GUI
+    - (Speed up) Combining simulation and real insertion methods for item and fluid channels
+    - (Speed up) Cache connector position for all channels
+    - (Speed up) Skip processing of full inventories if there are many extractors for item channels
+    - (Speed up) Cache rate for energy channel
+    - (Speed up) Stop the iteration if we have obtained enough energy to fill all consumers for energy channel
 
 1.19-5.1.4:
 - Update to 1.19.4
