@@ -161,7 +161,7 @@
   "xnet.enum.items.stackmode.single.tooltip": "Предметов за операцию|Один предмет",
   "xnet.enum.items.stackmode.stack": "Стак",
   "xnet.enum.items.stackmode.stack.tooltip": "Предметов за операцию|Стак",
-  "xnet.enum.items.stackmode.count": "Кол-во",
+  "xnet.enum.items.stackmode.count": "Указ.",
   "xnet.enum.items.stackmode.count.tooltip": "Предметов за операцию|Указанное количество",
   "xnet.enum.logic.logicfilter.off.tooltip": "Генерировать выходной сигнал, если активен",
   "xnet.enum.logic.logicfilter.not.tooltip": "Применить к входному сигналу|Логическое NOT",
