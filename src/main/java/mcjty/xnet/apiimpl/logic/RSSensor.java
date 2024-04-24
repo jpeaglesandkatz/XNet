@@ -9,7 +9,6 @@ import mcjty.xnet.apiimpl.items.ItemChannelSettings;
 import mcjty.xnet.apiimpl.logic.enums.Operator;
 import mcjty.xnet.apiimpl.logic.enums.SensorMode;
 import mcjty.xnet.compat.RFToolsSupport;
-import mcjty.xnet.modules.controller.client.AbstractEditorPanel;
 import mcjty.xnet.utils.CastTools;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

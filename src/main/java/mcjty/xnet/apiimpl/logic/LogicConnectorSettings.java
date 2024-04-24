@@ -14,7 +14,6 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.apiimpl.logic.enums.LogicFilter;
 import mcjty.xnet.apiimpl.logic.enums.LogicMode;
-import mcjty.xnet.modules.controller.client.ConnectorEditorPanel;
 import mcjty.xnet.utils.CastTools;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;

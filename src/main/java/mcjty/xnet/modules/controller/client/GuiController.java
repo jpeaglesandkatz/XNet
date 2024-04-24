@@ -184,6 +184,14 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         }
     }
 
+    public TileEntityController getController() {
+        return tileEntity;
+    }
+
+    public Panel getConnectorEditPanel() {
+        return connectorEditPanel;
+    }
+
     private void initializeFields() {
         channelEditPanel = window.findChild(WIDGET_CHANNEL_EDIT_PANEL);
         connectorEditPanel = window.findChild(WIDGET_CONNECTOR_EDIT_PANEL);
@@ -427,7 +435,6 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                     ChannelChoiceLabel type = new ChannelChoiceLabel()
                             .hint(5, 3, 95, 14);
                     IChannelType[] channels = XNet.xNetApi.getChannels().values().toArray(new IChannelType[]{});
-                    System.out.println(Arrays.toString(channels));
                     type.choices(channels);
                     Button create = button(100, 3, 53, 14, CREATE_LABEL.i18n())
                             .event(() -> createChannel(type.getCurrentChoice()));
