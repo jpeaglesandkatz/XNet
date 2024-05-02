@@ -345,10 +345,6 @@ public abstract class AbstractEditorPanel implements IEditorGui {
 
     @Override
     public IEditorGui ghostSlot(String tag, ItemStack stack) {
-        if (tag.replace(TAG_FLT, "").equals("9")) {
-            x -= 16 * 9;
-            y += 16;
-        }
         int w = 16;
         fitWidth(w);
         BlockRender blockRender = new BlockRender()

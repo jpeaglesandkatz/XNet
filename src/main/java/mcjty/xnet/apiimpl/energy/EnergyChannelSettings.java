@@ -252,29 +252,28 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
 
     @Nullable
     private EnergyConnectedBlock getConnectedBlockInfo(
-            IControllerContext context, Map.Entry<SidedConsumer, IConnectorSettings> entry, Level world, EnergyConnectorSettings con
+            IControllerContext context, Map.Entry<SidedConsumer, IConnectorSettings> entry, @Nonnull Level world, @Nonnull EnergyConnectorSettings con
     ) {
         BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
         if (connectorPos == null) {
             return null;
         }
-        Optional<ConnectorTileEntity> optionalConnectorEntity = Optional.ofNullable(
-                (ConnectorTileEntity) world.getBlockEntity(connectorPos));
-        if (optionalConnectorEntity.isEmpty()) {
+        ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) world.getBlockEntity(connectorPos);
+        if (connectorTileEntity == null) {
             return null;
         }
-        ConnectorTileEntity connectorTileEntity = optionalConnectorEntity.get();
+
         BlockPos connectedBlockPos = connectorPos.relative(entry.getKey().side());
-        Optional<BlockEntity> connectedEntity = Optional.ofNullable(world.getBlockEntity(connectedBlockPos));
-        if (connectedEntity.isEmpty()) {
+        BlockEntity connectedEntity = world.getBlockEntity(connectedBlockPos);
+        if (connectedEntity == null) {
             return null;
         }
-        BlockEntity blockEntity = connectedEntity.get();
         Integer rate = getRateOrMax(con, connectorPos, world);
-        return new EnergyConnectedBlock(entry.getKey(), con, connectorPos, blockEntity, connectorTileEntity, rate);
+        return new EnergyConnectedBlock(entry.getKey(), con, connectorPos, connectedEntity, connectorTileEntity, rate);
     }
 
-    private static Integer getRateOrMax(EnergyConnectorSettings con, BlockPos connectorPos, Level world) {
+    private static Integer getRateOrMax(@Nonnull EnergyConnectorSettings con, @Nonnull BlockPos connectorPos,
+                                        @Nonnull Level world) {
         Integer rate = con.getRate();
         if (rate == null) {
             boolean advanced = ConnectorBlock.isAdvancedConnector(world, connectorPos);

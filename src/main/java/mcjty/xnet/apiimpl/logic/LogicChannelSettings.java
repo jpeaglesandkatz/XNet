@@ -22,6 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -157,7 +158,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
 
     @Nullable
     private ConnectedBlock<LogicConnectorSettings> getConnectedBlockInfo(
-            IControllerContext context, Map.Entry<SidedConsumer, IConnectorSettings> entry, Level world, LogicConnectorSettings con
+            IControllerContext context, Map.Entry<SidedConsumer, IConnectorSettings> entry, @Nonnull Level world, @Nonnull LogicConnectorSettings con
     ) {
         BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
         if (connectorPos == null) {

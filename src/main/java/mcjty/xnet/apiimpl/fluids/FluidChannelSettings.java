@@ -267,7 +267,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
     @Nullable
     private ConnectedInventory<FluidConnectorSettings, IFluidHandler> getConnectedInventoryInfo(
-            IControllerContext context, Map.Entry<SidedConsumer, IConnectorSettings> entry, Level world, FluidConnectorSettings con
+            IControllerContext context, Map.Entry<SidedConsumer, IConnectorSettings> entry, @Nonnull Level world, @Nonnull FluidConnectorSettings con
     ) {
         BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
         if (connectorPos == null) {
