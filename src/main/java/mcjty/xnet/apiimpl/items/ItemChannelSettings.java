@@ -13,11 +13,13 @@ import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.ConnectedBlock;
+import mcjty.xnet.apiimpl.ConnectedInventory;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.apiimpl.enums.ChannelMode;
 import mcjty.xnet.apiimpl.enums.InsExtMode;
 import mcjty.xnet.apiimpl.items.enums.StackMode;
 import mcjty.xnet.compat.RFToolsSupport;
+import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.utils.CastTools;
 import net.minecraft.core.BlockPos;
@@ -53,8 +55,8 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
 
     // Cache data
-    private List<ConnectedBlock<ItemConnectorSettings>> itemExtractors = null;
-    private List<ConnectedBlock<ItemConnectorSettings>> itemConsumers = null;
+    private List<ConnectedInventory<ItemConnectorSettings, IItemHandler>> itemExtractors = null;
+    private List<ConnectedInventory<ItemConnectorSettings, IItemHandler>> itemConsumers = null;
     private boolean[] consumerFull; // Àrray of filled consumers in which you don't have to try to insert
     private ChannelMode channelMode = ChannelMode.PRIORITY;
     private int delay = 0;
@@ -162,40 +164,29 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         Level world = context.getControllerWorld();
         consumerFull = new boolean[itemConsumers.size()];
         for (int i = 0; i < itemExtractors.size(); i++) {
-            ConnectedBlock<ItemConnectorSettings> extractor = itemExtractors.get(i);
+            ConnectedInventory<ItemConnectorSettings, IItemHandler> extractor = itemExtractors.get(i);
             ItemConnectorSettings settings = extractor.settings();
             if (d % settings.getSpeed() != 0) {
                 continue;
             }
 
             ConsumerId consumerId = extractor.sidedConsumer().consumerId();
-            BlockPos extractorPos = extractor.connectorPos();
-            if (extractorPos == null) {
+
+            if (!LevelTools.isLoaded(world, extractor.getConnectedEntity().getBlockPos())) {
                 continue;
             }
 
-            Direction side = extractor.sidedConsumer().side();
-            BlockPos pos = extractorPos.relative(side);
-            if (!LevelTools.isLoaded(world, pos)) {
-                continue;
-            }
-
-            if (checkRedstone(world, settings, extractorPos)) {
+            if (checkRedstone(world, settings, extractor.connectorPos())) {
                 continue;
             }
             if (!context.matchColor(settings.getColorsMask())) {
                 continue;
             }
 
-            BlockEntity te = world.getBlockEntity(pos);
-
-            if (RFToolsSupport.isStorageScanner(te)) {
-                RFToolsSupport.tickStorageScanner(context, settings, te, this, world);
+            if (RFToolsSupport.isStorageScanner(extractor.getConnectedEntity())) {
+                RFToolsSupport.tickStorageScanner(context, settings, extractor.getConnectedEntity(), this, world);
             } else {
-                IItemHandler handler = getItemHandlerAt(te, settings.getFacing());
-                if (handler == null) {
-                    continue;
-                }
+                IItemHandler handler = extractor.getHandler();
                 int idx = getStartExtractIndex(settings, consumerId, handler);
                 idx = tickItemHandler(context, settings, handler, world, idx, i);
                 if (handler.getSlots() > 0) {
@@ -305,26 +296,19 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             if (consumerFull[i]) {
                 continue;
             }
-            ConnectedBlock<ItemConnectorSettings> consumer = itemConsumers.get(i);
+            ConnectedInventory<ItemConnectorSettings, IItemHandler> consumer = itemConsumers.get(i);
             ItemConnectorSettings settings = consumer.settings();
 
-            BlockPos connectorPos = consumer.connectorPos();
-            Direction side = consumer.sidedConsumer().side();
-            BlockPos connectedBlockPos = connectorPos.relative(side);
-            if (!LevelTools.isLoaded(world, connectedBlockPos)) {
+            if (!LevelTools.isLoaded(world, consumer.getConnectedEntity().getBlockPos())) {
                 continue;
             }
 
-            BlockEntity te = world.getBlockEntity(connectedBlockPos);
             ItemStack remaining;
 
-            IItemHandler destination = getItemHandlerAt(te, settings.getFacing());
-            if (destination == null) {
-                continue;
-            }
+            IItemHandler destination = consumer.getHandler();
 
             Predicate<ItemStack> matcher = settings.getMatcher(context);
-            if (!matcher.test(source) || checkRedstone(world, settings, connectorPos) || !context.matchColor(settings.getColorsMask())) {
+            if (!matcher.test(source) || checkRedstone(world, settings, consumer.connectorPos()) || !context.matchColor(settings.getColorsMask())) {
                 continue;
             }
 
@@ -379,7 +363,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         int consumersSize = itemConsumers.size();
         for (int j = 0; j < consumersSize; j++) {
             int i = (j + roundRobinOffset) % consumersSize;
-            ConnectedBlock<ItemConnectorSettings> consumer = itemConsumers.get(i);
+            ConnectedInventory<ItemConnectorSettings, IItemHandler> consumer = itemConsumers.get(i);
             ItemConnectorSettings settings = consumer.settings();
 
             BlockPos connectorPos = consumer.connectorPos();
@@ -485,27 +469,58 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         if (itemExtractors == null) {
             itemExtractors = new ArrayList<>();
             itemConsumers = new ArrayList<>();
+            Level world = context.getControllerWorld();
             Map<SidedConsumer, IConnectorSettings> connectors = context.getConnectors(channel);
             for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
                 ItemConnectorSettings con = (ItemConnectorSettings) entry.getValue();
-                BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
-                if (con.getItemMode() == InsExtMode.EXT) {
-                    itemExtractors.add(new ConnectedBlock<>(entry.getKey(), con, connectorPos));
-                } else {
-                    itemConsumers.add(new ConnectedBlock<>(entry.getKey(), con, connectorPos));
+                ConnectedInventory<ItemConnectorSettings, IItemHandler> connectedInventory;
+                connectedInventory = getConnectedInventoryInfo(context, entry, world, con);
+                if (connectedInventory == null) {
+                    continue;
                 }
+                if (con.getItemMode() == InsExtMode.EXT) {
+                    itemExtractors.add(connectedInventory);
+                } else {
+                    itemConsumers.add(connectedInventory);
+                }
+
             }
             connectors = context.getRoutedConnectors(channel);
             for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
                 ItemConnectorSettings con = (ItemConnectorSettings) entry.getValue();
                 if (con.getItemMode() == InsExtMode.INS) {
-                    BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
-                    itemConsumers.add(new ConnectedBlock<>(entry.getKey(), con, connectorPos));
+                    ConnectedInventory<ItemConnectorSettings, IItemHandler> connectedInventory;
+                    connectedInventory = getConnectedInventoryInfo(context, entry, world, con);
+                    if (connectedInventory == null) {
+                        continue;
+                    }
+                    itemConsumers.add(connectedInventory);
                 }
             }
 
             itemConsumers.sort((o1, o2) -> o2.settings().getPriority().compareTo(o1.settings().getPriority()));
         }
+    }
+
+    @Nullable
+    private ConnectedInventory<ItemConnectorSettings, IItemHandler> getConnectedInventoryInfo(
+            IControllerContext context, Map.Entry<SidedConsumer, IConnectorSettings> entry, Level world, ItemConnectorSettings con
+    ) {
+        BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
+        if (connectorPos == null) {
+            return null;
+        }
+        ConnectorTileEntity connectorEntity = (ConnectorTileEntity) world.getBlockEntity(connectorPos);
+        if (connectorEntity == null) {
+            return null;
+        }
+        BlockPos connectedBlockPos = connectorPos.relative(entry.getKey().side());
+        BlockEntity connectedEntity = world.getBlockEntity(connectedBlockPos);
+        if (connectedEntity == null) {
+            return null;
+        }
+        IItemHandler connectedInventory = getItemHandlerAt(connectedEntity, con.getFacing());
+        return new ConnectedInventory<>(entry.getKey(), con, connectorPos, connectedEntity, connectorEntity, connectedInventory);
     }
 
     @Override

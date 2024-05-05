@@ -366,7 +366,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         blobData.save();
     }
 
-    public static boolean isAdvancedConnector(Level world, BlockPos pos) {
+    public static boolean isAdvancedConnector(@Nonnull Level world, @Nonnull BlockPos pos) {
         Block block = world.getBlockState(pos).getBlock();
         if (block instanceof GenericCableBlock) {
             return ((GenericCableBlock) block).isAdvancedConnector();

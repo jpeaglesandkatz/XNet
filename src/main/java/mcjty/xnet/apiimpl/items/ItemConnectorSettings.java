@@ -159,6 +159,9 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
                         ITEM_FILTER_OFF.i18n(), "1", "2", "3", "4")
                 .nl();
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
+            if (i > 0 && i % 9 == 0) {
+                gui.nl();
+            }
             gui.ghostSlot(TAG_FLT + i, filters.get(i));
         }
     }
