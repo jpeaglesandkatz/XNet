@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static mcjty.lib.gui.widgets.Widgets.textfield;
+import static mcjty.xnet.apiimpl.Constants.TAG_FLT;
 import static mcjty.xnet.utils.I18nConstants.RS_MODE_IGNORED_TOOLTIP;
 import static mcjty.xnet.utils.I18nConstants.RS_MODE_OFF_TOOLTIP;
 import static mcjty.xnet.utils.I18nConstants.RS_MODE_ON_TOOLTIP;
@@ -357,7 +358,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
                 ItemStack holding = Minecraft.getInstance().player.containerMenu.getCarried();
                 if (holding.isEmpty()) {
                     update(tag, holding);
-                    blockRender.renderItem(null);
+                    blockRender.renderItem(holding);
                 } else {
                     ItemStack copy = holding.copy();
                     copy.setCount(1);
@@ -370,6 +371,10 @@ public abstract class AbstractEditorPanel implements IEditorGui {
             public void doubleClick() {
 
             }
+        });
+        blockRender.event(itemStack -> {
+            update(tag, itemStack);
+            blockRender.renderItem(itemStack);
         });
         blockRender.hint(x, y-1, 17, 17);
         data.put(tag, stack);

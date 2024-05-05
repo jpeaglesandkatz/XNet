@@ -9,7 +9,6 @@ import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.apiimpl.enums.InsExtMode;
-import mcjty.xnet.modules.controller.client.ConnectorEditorPanel;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.utils.CastTools;
 import mcjty.xnet.utils.TagUtils;
