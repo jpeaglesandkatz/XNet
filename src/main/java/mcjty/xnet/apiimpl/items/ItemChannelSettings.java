@@ -171,7 +171,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
             ConsumerId consumerId = extractor.sidedConsumer().consumerId();
 
-            if (!LevelTools.isLoaded(world, extractor.getConnectedEntity().getBlockPos())) {
+            if (!LevelTools.isLoaded(world, extractor.getBlockPos())) {
                 continue;
             }
 
@@ -298,7 +298,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             ConnectedInventory<ItemConnectorSettings, IItemHandler> consumer = itemConsumers.get(i);
             ItemConnectorSettings settings = consumer.settings();
 
-            if (!LevelTools.isLoaded(world, consumer.getConnectedEntity().getBlockPos())) {
+            if (!LevelTools.isLoaded(world, consumer.getBlockPos())) {
                 continue;
             }
 
@@ -523,7 +523,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             return null;
         }
         IItemHandler connectedInventory = itemHandlerOptional.get();
-        return new ConnectedInventory<>(entry.getKey(), con, connectorPos, connectedEntity, connectorEntity, connectedInventory);
+        return new ConnectedInventory<>(entry.getKey(), con, connectorPos, connectedBlockPos, connectedEntity, connectorEntity, connectedInventory);
     }
 
     @Override
