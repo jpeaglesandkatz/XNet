@@ -47,6 +47,7 @@ import static mcjty.xnet.apiimpl.Constants.TAG_DELAY;
 import static mcjty.xnet.apiimpl.Constants.TAG_EXTIDX;
 import static mcjty.xnet.apiimpl.Constants.TAG_MODE;
 import static mcjty.xnet.apiimpl.Constants.TAG_OFFSET;
+import static mcjty.xnet.compat.RFToolsSupport.isStorageScanner;
 
 public class ItemChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
@@ -182,7 +183,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 continue;
             }
 
-            if (RFToolsSupport.isStorageScanner(extractor.getConnectedEntity())) {
+            if (isStorageScanner(extractor.getConnectedEntity())) {
                 RFToolsSupport.tickStorageScanner(context, settings, extractor.getConnectedEntity(), this, world);
             } else {
                 IItemHandler handler = extractor.getHandler();
@@ -310,11 +311,13 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             if (!matcher.test(source) || checkRedstone(world, settings, consumer.connectorPos()) || !context.matchColor(settings.getColorsMask())) {
                 continue;
             }
-
+            BlockEntity te = consumer.getConnectedEntity();
             int toinsert = total;
             Integer count = settings.getCount();
             if (count != null) {
-                int amount = countItems(destination, matcher);
+                int amount = isStorageScanner(te)
+                                     ? RFToolsSupport.countItems(te, matcher, count)
+                                     : countItems(destination, matcher);
                 int caninsert = count - amount;
                 if (caninsert <= 0) {
                     continue;
@@ -324,7 +327,9 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 source.setCount(toinsert);
             }
 
-            remaining = ItemHandlerHelper.insertItem(destination, source, false);
+            remaining = isStorageScanner(te)
+                                ? RFToolsSupport.insertItem(te, source, false)
+                                : ItemHandlerHelper.insertItem(destination, source, false);
 
             int actuallyinserted = toinsert - remaining.getCount();
             if (count == null) {
@@ -347,68 +352,6 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 // It will be enough to do it twice: at the beginning and in the middle of processing
                 if (isFull(destination)) {
                     consumerFull[i] = true;// We will ignore this consumer for next extractor (if any)
-                }
-            }
-        }
-        return total;
-    }
-
-
-    public int insertStackToStorageScanner(@Nonnull IControllerContext context, @Nonnull ItemStack source, @Nonnull Level world) {
-        if (channelMode == ChannelMode.PRIORITY) {
-            roundRobinOffset = 0;       // Always start at 0
-        }
-        int total = source.getCount();
-        int consumersSize = itemConsumers.size();
-        for (int j = 0; j < consumersSize; j++) {
-            int i = (j + roundRobinOffset) % consumersSize;
-            ConnectedInventory<ItemConnectorSettings, IItemHandler> consumer = itemConsumers.get(i);
-            ItemConnectorSettings settings = consumer.settings();
-
-            BlockPos connectorPos = consumer.connectorPos();
-            Direction side = consumer.sidedConsumer().side();
-            BlockPos connectedBlockPos = connectorPos.relative(side);
-            if (!LevelTools.isLoaded(world, connectedBlockPos)) {
-                continue;
-            }
-
-            BlockEntity te = world.getBlockEntity(connectedBlockPos);
-            ItemStack remaining;
-
-            Predicate<ItemStack> matcher = settings.getMatcher(context);
-            if (!matcher.test(source) || checkRedstone(world, settings, connectorPos) || !context.matchColor(settings.getColorsMask())) {
-                continue;
-            }
-
-            int toinsert = total;
-            Integer count = settings.getCount();
-            if (count != null) {
-                int amount = RFToolsSupport.countItems(te, matcher, count);
-                int caninsert = count - amount;
-                if (caninsert <= 0) {
-                    continue;
-                }
-                toinsert = Math.min(toinsert, caninsert);
-                source = source.copy();
-                source.setCount(toinsert);
-            }
-
-            remaining = RFToolsSupport.insertItem(te, source, false);
-
-            int actuallyinserted = toinsert - remaining.getCount();
-            if (count == null) {
-                // If we are not using a count then we restore 'stack' here as that is what
-                // we actually have to keep inserting until it is empty. If we are using a count
-                // then we don't do this as we don't want to risk stack getting null (on 1.10.2)
-                // from the insertItem() and then not being able to set stacksize a few lines
-                // above this
-                source = remaining;
-            }
-            if (actuallyinserted > 0) {
-                roundRobinOffset = (roundRobinOffset + 1) % consumersSize;
-                total -= actuallyinserted;
-                if (total <= 0) {
-                    return 0;
                 }
             }
         }

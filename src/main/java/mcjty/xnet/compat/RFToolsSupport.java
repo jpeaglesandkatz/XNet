@@ -54,7 +54,7 @@ public class RFToolsSupport {
         }
 
         if (context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
-            int remaining = channelSettings.insertStackToStorageScanner(context, stack, world);
+            int remaining = channelSettings.insertStack(context, stack, world, -1);
             if (remaining != toextract) {
                 scanner.requestItem(extractMatcher, false, toextract - remaining, true);
             }
