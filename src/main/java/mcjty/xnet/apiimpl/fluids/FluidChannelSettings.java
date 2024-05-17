@@ -101,7 +101,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                 continue;
             }
 
-            if (!LevelTools.isLoaded(world, extractor.getConnectedEntity().getBlockPos())) {
+            if (!LevelTools.isLoaded(world, extractor.getBlockPos())) {
                 continue;
             }
             if (checkRedstone(world, settings, extractor.connectorPos())) {
@@ -178,7 +178,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             int i = (j + roundRobinOffset)  % fluidConsumers.size();
             ConnectedInventory<FluidConnectorSettings, IFluidHandler> consumer = fluidConsumers.get(i);
             FluidConnectorSettings settings = consumer.settings();
-            if (!LevelTools.isLoaded(world, consumer.getConnectedEntity().getBlockPos())) {
+            if (!LevelTools.isLoaded(world, consumer.getBlockPos())) {
                 continue;
             }
             IFluidHandler destination = consumer.getHandler();
@@ -287,7 +287,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             return null;
         }
         IFluidHandler fluidHandler = fluidHandlerOptional.get();
-        return  new ConnectedInventory<>(entry.getKey(), con, connectorPos, connectedEntity, connectorTileEntity, fluidHandler);
+        return  new ConnectedInventory<>(entry.getKey(), con, connectorPos, connectedBlockPos, connectedEntity, connectorTileEntity, fluidHandler);
     }
 
     @Override
