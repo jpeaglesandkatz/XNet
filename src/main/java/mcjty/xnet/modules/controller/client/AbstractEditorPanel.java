@@ -356,7 +356,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
                 ItemStack holding = Minecraft.getInstance().player.containerMenu.getCarried();
                 if (holding.isEmpty()) {
                     update(tag, holding);
-                    blockRender.renderItem(null);
+                    blockRender.renderItem(holding);
                 } else {
                     ItemStack copy = holding.copy();
                     copy.setCount(1);
@@ -369,6 +369,10 @@ public abstract class AbstractEditorPanel implements IEditorGui {
             public void doubleClick() {
 
             }
+        });
+        blockRender.event(itemStack -> {
+            update(tag, itemStack);
+            blockRender.renderItem(itemStack);
         });
         blockRender.hint(x, y-1, 17, 17);
         data.put(tag, stack);

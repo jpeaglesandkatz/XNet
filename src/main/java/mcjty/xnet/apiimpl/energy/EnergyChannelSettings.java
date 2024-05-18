@@ -37,8 +37,8 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
     public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
 
     // Cache data
-    private List<EnergyConnectedBlock> energyExtractors = null;
-    private List<EnergyConnectedBlock> energyConsumers = null;
+    private List<EnergyConnectedEntity> energyExtractors = null;
+    private List<EnergyConnectedEntity> energyConsumers = null;
     private long maxConsume = 0; // Maximum RF that all consumers can accept per tick
 
     @Override
@@ -79,28 +79,21 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
         Map<BlockPos, Integer> alreadyHandled = new HashMap<>();
 
         List<Pair<ConnectorTileEntity, Integer>> energyProducers = new ArrayList<>();
-        for (EnergyConnectedBlock extractor : energyExtractors) {
+        for (EnergyConnectedEntity extractor : energyExtractors) {
             BlockPos connectorPos = extractor.connectorPos();
-            if (connectorPos == null) {
-                continue;
-            }
 
             Direction side = extractor.sidedConsumer().side();
-            BlockPos energyPos = connectorPos.relative(side);
-            if (!LevelTools.isLoaded(world, energyPos)) {
+            if (!LevelTools.isLoaded(world, extractor.getBlockPos())) {
                 continue;
             }
 
-            BlockEntity te = world.getBlockEntity(energyPos);
+            BlockEntity te = extractor.getConnectedEntity();
             // @todo report error somewhere?
             if (!isEnergyTE(te, side.getOpposite())) {
                 continue;
             }
             EnergyConnectorSettings settings = extractor.settings();
-            ConnectorTileEntity connectorTE = (ConnectorTileEntity) world.getBlockEntity(connectorPos);
-            if (connectorTE == null) {
-                continue;
-            }
+            ConnectorTileEntity connectorTE = extractor.getConnectorEntity();
 
             if (checkRedstone(world, settings, connectorPos) || !context.matchColor(settings.getColorsMask())) {
                 continue;
@@ -163,20 +156,14 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
     private long insertEnergy(@Nonnull IControllerContext context, long energy) {
         long total = 0;
         Level world = context.getControllerWorld();
-        for (EnergyConnectedBlock consumer : energyConsumers) {
+        for (EnergyConnectedEntity consumer : energyConsumers) {
             EnergyConnectorSettings settings = consumer.settings();
-            BlockPos connectorPos = consumer.connectorPos();
-            if (connectorPos == null) {
+            if (!LevelTools.isLoaded(world, consumer.getBlockPos())) {
                 continue;
             }
-            Direction side = consumer.sidedConsumer().side();
-            BlockPos connectedBlockPos = connectorPos.relative(side);
-            if (!LevelTools.isLoaded(world, connectedBlockPos)) {
-                continue;
-            }
-            BlockEntity te = world.getBlockEntity(connectedBlockPos);
+            BlockEntity te = consumer.getConnectedEntity();
             // @todo report error somewhere?
-            if (!isEnergyTE(te, settings.getFacing()) || checkRedstone(world, settings, connectorPos) || !context.matchColor(settings.getColorsMask())) {
+            if (!isEnergyTE(te, settings.getFacing()) || checkRedstone(world, settings, consumer.connectorPos()) || !context.matchColor(settings.getColorsMask())) {
                 continue;
             }
 
@@ -232,24 +219,28 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             Level world = context.getControllerWorld();
             for (var entry : connectors.entrySet()) {
                 EnergyConnectorSettings con = (EnergyConnectorSettings) entry.getValue();
-                BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
-                Integer rate = getRateOrMax(con, connectorPos, world);
+                EnergyConnectedEntity connectedBlock = getConnectedBlockInfo(context, entry, world, con);
+                if (connectedBlock == null) {
+                    continue;
+                }
                 if (con.getEnergyMode() == InsExtMode.EXT) {
-                    energyExtractors.add(new EnergyConnectedBlock(entry.getKey(), con, connectorPos, rate));
+                    energyExtractors.add(connectedBlock);
                 } else {
-                    energyConsumers.add(new EnergyConnectedBlock(entry.getKey(), con, connectorPos, rate));
-                    maxConsume += rate;
+                    energyConsumers.add(connectedBlock);
+                    maxConsume += connectedBlock.rate();
                 }
             }
 
             connectors = context.getRoutedConnectors(channel);
             for (var entry : connectors.entrySet()) {
                 EnergyConnectorSettings con = (EnergyConnectorSettings) entry.getValue();
-                BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
-                Integer rate = getRateOrMax(con, connectorPos, world);
+                EnergyConnectedEntity connectedBlock = getConnectedBlockInfo(context, entry, world, con);
+                if (connectedBlock == null) {
+                    continue;
+                }
                 if (con.getEnergyMode() == InsExtMode.INS) {
-                    energyConsumers.add(new EnergyConnectedBlock(entry.getKey(), con, connectorPos, rate));
-                    maxConsume += rate;
+                    energyConsumers.add(connectedBlock);
+                    maxConsume += connectedBlock.rate();
                 }
             }
 
@@ -258,7 +249,30 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
         }
     }
 
-    private static Integer getRateOrMax(EnergyConnectorSettings con, BlockPos connectorPos, Level world) {
+    @Nullable
+    private EnergyConnectedEntity getConnectedBlockInfo(
+            IControllerContext context, Map.Entry<SidedConsumer, IConnectorSettings> entry, @Nonnull Level world, @Nonnull EnergyConnectorSettings con
+    ) {
+        BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
+        if (connectorPos == null) {
+            return null;
+        }
+        ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) world.getBlockEntity(connectorPos);
+        if (connectorTileEntity == null) {
+            return null;
+        }
+
+        BlockPos connectedBlockPos = connectorPos.relative(entry.getKey().side());
+        BlockEntity connectedEntity = world.getBlockEntity(connectedBlockPos);
+        if (connectedEntity == null) {
+            return null;
+        }
+        Integer rate = getRateOrMax(con, connectorPos, world);
+        return new EnergyConnectedEntity(entry.getKey(), con, connectorPos, connectedBlockPos, connectedEntity, connectorTileEntity, rate);
+    }
+
+    private static Integer getRateOrMax(@Nonnull EnergyConnectorSettings con, @Nonnull BlockPos connectorPos,
+                                        @Nonnull Level world) {
         Integer rate = con.getRate();
         if (rate == null) {
             boolean advanced = ConnectorBlock.isAdvancedConnector(world, connectorPos);

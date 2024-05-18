@@ -142,6 +142,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             .playerSlots(91, 157));
 
     private NetworkId networkId;
+    private WorldBlob worldBlob;
     private int wirelessVersion = -1;   // To invalidate wireless channels if needed
 
     private final ChannelInfo[] channels = new ChannelInfo[MAX_CHANNELS];
@@ -214,7 +215,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     private NetworkChecker createNetworkChecker() {
         NetworkChecker checker = new NetworkChecker();
         checker.add(networkId);
-        WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
+        worldBlob = XNetBlobData.get(level).getWorldBlob(level);
         LogicTools.forEachRouter(level, networkId, router -> {
                     checker.add(worldBlob.getNetworksAt(router.getBlockPos()));
                     // We're only interested in one network. The other router networks are all same topology
@@ -296,7 +297,9 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
     @Override
     public void tickServer() {
-        WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
+        if (worldBlob == null) {
+            worldBlob = XNetBlobData.get(level).getWorldBlob(level);
+        }
 
         BlockState state = level.getBlockState(worldPosition);
         if (worldBlob.getNetworksAt(getBlockPos()).size() > 1) {
