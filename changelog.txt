@@ -1,3 +1,12 @@
+1.20-6.1.1:
+- Various changes and improvements from Dertiende:
+    - Ticking optimisation, caching of main variables
+    - Added support for jei drag&drop
+    - Fixed some translations for .ru
+    - Fixed problem with logical channel when it didn't work with redstone dust connected
+    - Fixed crash when working with StorageScanner from RFTools
+    - Fixed crash when energy channel connector breaks
+
 1.20-6.1.0:
 - Dertiende did some massive changes to XNet:
     - More text labels can now be localized
