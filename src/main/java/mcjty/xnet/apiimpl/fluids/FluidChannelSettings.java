@@ -11,10 +11,10 @@ import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
-import mcjty.xnet.apiimpl.ConnectedInventory;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.apiimpl.enums.ChannelMode;
 import mcjty.xnet.apiimpl.enums.InsExtMode;
+import mcjty.xnet.apiimpl.logic.ConnectedEntity;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.utils.CastTools;
@@ -34,7 +34,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static mcjty.xnet.apiimpl.Constants.TAG_DELAY;
 import static mcjty.xnet.apiimpl.Constants.TAG_MODE;
@@ -48,8 +47,8 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
     private int roundRobinOffset = 0;
 
     // Cache data
-    private List<ConnectedInventory<FluidConnectorSettings, IFluidHandler>> fluidExtractors = null;
-    private List<ConnectedInventory<FluidConnectorSettings, IFluidHandler>> fluidConsumers = null;
+    private List<ConnectedEntity<FluidConnectorSettings>> fluidExtractors = null;
+    private List<ConnectedEntity<FluidConnectorSettings>> fluidConsumers = null;
 
     public ChannelMode getChannelMode() {
         return channelMode;
@@ -95,7 +94,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
         updateCache(channel, context);
         Level world = context.getControllerWorld();
-        for (ConnectedInventory<FluidConnectorSettings, IFluidHandler> extractor : fluidExtractors) {
+        for (ConnectedEntity<FluidConnectorSettings> extractor : fluidExtractors) {
             FluidConnectorSettings settings = extractor.settings();
             if (d % settings.getSpeed() != 0) {
                 continue;
@@ -110,7 +109,10 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             if (!context.matchColor(settings.getColorsMask())) {
                 continue;
             }
-            IFluidHandler handler = extractor.getHandler();
+            IFluidHandler handler = getFluidHandlerAt(extractor.getConnectedEntity(), extractor.settings().getFacing()).resolve().orElse(null);
+            if (handler == null) {
+                continue;
+            }
             tickFluidHandler(context, settings, handler);
         }
 
@@ -176,12 +178,15 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
         int amount = stack.getAmount();
         for (int j = 0 ; j < fluidConsumers.size() ; j++) {
             int i = (j + roundRobinOffset)  % fluidConsumers.size();
-            ConnectedInventory<FluidConnectorSettings, IFluidHandler> consumer = fluidConsumers.get(i);
+            ConnectedEntity<FluidConnectorSettings> consumer = fluidConsumers.get(i);
             FluidConnectorSettings settings = consumer.settings();
             if (!LevelTools.isLoaded(world, consumer.getBlockPos())) {
                 continue;
             }
-            IFluidHandler destination = consumer.getHandler();
+            IFluidHandler destination = getFluidHandlerAt(consumer.getConnectedEntity(), consumer.settings().getFacing()).resolve().orElse(null);
+            if (destination == null) {
+                continue;
+            }
             FluidStack matcher = settings.getMatcher();
             if (matcher != null && !matcher.equals(stack)) {
                 continue;
@@ -236,15 +241,15 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             Map<SidedConsumer, IConnectorSettings> connectors = context.getConnectors(channel);
             for (var entry : connectors.entrySet()) {
                 FluidConnectorSettings con = (FluidConnectorSettings) entry.getValue();
-                ConnectedInventory<FluidConnectorSettings, IFluidHandler> connectedInventory;
-                connectedInventory = getConnectedInventoryInfo(context, entry, world, con);
-                if (connectedInventory == null) {
+                ConnectedEntity<FluidConnectorSettings> connectedEntity;
+                connectedEntity = getConnectedEntityInfo(context, entry, world, con);
+                if (connectedEntity == null) {
                     continue;
                 }
                 if (con.getFluidMode() == InsExtMode.EXT) {
-                    fluidExtractors.add(connectedInventory);
+                    fluidExtractors.add(connectedEntity);
                 } else {
-                    fluidConsumers.add(connectedInventory);
+                    fluidConsumers.add(connectedEntity);
                 }
             }
 
@@ -252,12 +257,12 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             for (var entry : connectors.entrySet()) {
                 FluidConnectorSettings con = (FluidConnectorSettings) entry.getValue();
                 if (con.getFluidMode() == InsExtMode.INS) {
-                    ConnectedInventory<FluidConnectorSettings, IFluidHandler> connectedInventory;
-                    connectedInventory = getConnectedInventoryInfo(context, entry, world, con);
-                    if (connectedInventory == null) {
+                    ConnectedEntity<FluidConnectorSettings> connectedEntity;
+                    connectedEntity = getConnectedEntityInfo(context, entry, world, con);
+                    if (connectedEntity == null) {
                         continue;
                     }
-                    fluidConsumers.add(connectedInventory);
+                    fluidConsumers.add(connectedEntity);
                 }
             }
 
@@ -266,7 +271,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
     }
 
     @Nullable
-    private ConnectedInventory<FluidConnectorSettings, IFluidHandler> getConnectedInventoryInfo(
+    private ConnectedEntity<FluidConnectorSettings> getConnectedEntityInfo(
             IControllerContext context, Map.Entry<SidedConsumer, IConnectorSettings> entry, @Nonnull Level world, @Nonnull FluidConnectorSettings con
     ) {
         BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
@@ -282,12 +287,8 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
         if (connectedEntity == null) {
             return null;
         }
-        Optional<IFluidHandler> fluidHandlerOptional = getFluidHandlerAt(connectedEntity, con.getFacing()).resolve();
-        if (fluidHandlerOptional.isEmpty()) {
-            return null;
-        }
-        IFluidHandler fluidHandler = fluidHandlerOptional.get();
-        return  new ConnectedInventory<>(entry.getKey(), con, connectorPos, connectedBlockPos, connectedEntity, connectorTileEntity, fluidHandler);
+
+        return  new ConnectedEntity<>(entry.getKey(), con, connectorPos, connectedBlockPos, connectedEntity, connectorTileEntity);
     }
 
     @Override
