@@ -1,3 +1,6 @@
+1.19-5.2.2:
+- Dertiende fixed a crash with XNet in combination with some other mods
+
 1.19-5.2.1:
 - Various changes and improvements from Dertiende:
     - Ticking optimisation, caching of main variables
