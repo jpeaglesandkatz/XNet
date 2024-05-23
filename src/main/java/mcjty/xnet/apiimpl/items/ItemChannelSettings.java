@@ -12,11 +12,11 @@ import mcjty.rftoolsbase.api.xnet.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
-import mcjty.xnet.apiimpl.ConnectedInventory;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.apiimpl.enums.ChannelMode;
 import mcjty.xnet.apiimpl.enums.InsExtMode;
 import mcjty.xnet.apiimpl.items.enums.StackMode;
+import mcjty.xnet.apiimpl.logic.ConnectedEntity;
 import mcjty.xnet.compat.RFToolsSupport;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.Config;
@@ -55,8 +55,8 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
 
     // Cache data
-    private List<ConnectedInventory<ItemConnectorSettings, IItemHandler>> itemExtractors = null;
-    private List<ConnectedInventory<ItemConnectorSettings, IItemHandler>> itemConsumers = null;
+    private List<ConnectedEntity<ItemConnectorSettings>> itemExtractors = null;
+    private List<ConnectedEntity<ItemConnectorSettings>> itemConsumers = null;
     private boolean[] consumerFull; // Àrray of filled consumers in which you don't have to try to insert
     private ChannelMode channelMode = ChannelMode.PRIORITY;
     private int delay = 0;
@@ -164,7 +164,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         Level world = context.getControllerWorld();
         consumerFull = new boolean[itemConsumers.size()];
         for (int i = 0; i < itemExtractors.size(); i++) {
-            ConnectedInventory<ItemConnectorSettings, IItemHandler> extractor = itemExtractors.get(i);
+            ConnectedEntity<ItemConnectorSettings> extractor = itemExtractors.get(i);
             ItemConnectorSettings settings = extractor.settings();
             if (d % settings.getSpeed() != 0) {
                 continue;
@@ -186,7 +186,10 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             if (isStorageScanner(extractor.getConnectedEntity())) {
                 RFToolsSupport.tickStorageScanner(context, settings, extractor.getConnectedEntity(), this, world);
             } else {
-                IItemHandler handler = extractor.getHandler();
+                IItemHandler handler = getItemHandlerAt(extractor.getConnectedEntity(), extractor.settings().getFacing()).resolve().orElse(null);
+                if (handler == null) {
+                    continue;
+                }
                 int idx = getStartExtractIndex(settings, consumerId, handler);
                 idx = tickItemHandler(context, settings, handler, world, idx, i);
                 if (handler.getSlots() > 0) {
@@ -296,7 +299,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             if (consumerFull[i]) {
                 continue;
             }
-            ConnectedInventory<ItemConnectorSettings, IItemHandler> consumer = itemConsumers.get(i);
+            ConnectedEntity<ItemConnectorSettings> consumer = itemConsumers.get(i);
             ItemConnectorSettings settings = consumer.settings();
 
             if (!LevelTools.isLoaded(world, consumer.getBlockPos())) {
@@ -305,7 +308,10 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
             ItemStack remaining;
 
-            IItemHandler destination = consumer.getHandler();
+            IItemHandler destination = getItemHandlerAt(consumer.getConnectedEntity(), consumer.settings().getFacing()).resolve().orElse(null);
+            if (destination == null) {
+                continue;
+            }
 
             Predicate<ItemStack> matcher = settings.getMatcher(context);
             if (!matcher.test(source) || checkRedstone(world, settings, consumer.connectorPos()) || !context.matchColor(settings.getColorsMask())) {
@@ -415,15 +421,15 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             Map<SidedConsumer, IConnectorSettings> connectors = context.getConnectors(channel);
             for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
                 ItemConnectorSettings con = (ItemConnectorSettings) entry.getValue();
-                ConnectedInventory<ItemConnectorSettings, IItemHandler> connectedInventory;
-                connectedInventory = getConnectedInventoryInfo(context, entry, world, con);
-                if (connectedInventory == null) {
+                ConnectedEntity<ItemConnectorSettings> connectedEntity;
+                connectedEntity = getConnectedEntityInfo(context, entry, world, con);
+                if (connectedEntity == null) {
                     continue;
                 }
                 if (con.getItemMode() == InsExtMode.EXT) {
-                    itemExtractors.add(connectedInventory);
+                    itemExtractors.add(connectedEntity);
                 } else {
-                    itemConsumers.add(connectedInventory);
+                    itemConsumers.add(connectedEntity);
                 }
 
             }
@@ -431,12 +437,12 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
                 ItemConnectorSettings con = (ItemConnectorSettings) entry.getValue();
                 if (con.getItemMode() == InsExtMode.INS) {
-                    ConnectedInventory<ItemConnectorSettings, IItemHandler> connectedInventory;
-                    connectedInventory = getConnectedInventoryInfo(context, entry, world, con);
-                    if (connectedInventory == null) {
+                    ConnectedEntity<ItemConnectorSettings> connectedEntity;
+                    connectedEntity = getConnectedEntityInfo(context, entry, world, con);
+                    if (connectedEntity == null) {
                         continue;
                     }
-                    itemConsumers.add(connectedInventory);
+                    itemConsumers.add(connectedEntity);
                 }
             }
 
@@ -445,7 +451,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     }
 
     @Nullable
-    private ConnectedInventory<ItemConnectorSettings, IItemHandler> getConnectedInventoryInfo(
+    private ConnectedEntity<ItemConnectorSettings> getConnectedEntityInfo(
             IControllerContext context, Map.Entry<SidedConsumer, IConnectorSettings> entry, Level world, ItemConnectorSettings con
     ) {
         BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
@@ -461,12 +467,8 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         if (connectedEntity == null) {
             return null;
         }
-        Optional<IItemHandler> itemHandlerOptional = getItemHandlerAt(connectedEntity, con.getFacing()).resolve();
-        if (itemHandlerOptional.isEmpty()) {
-            return null;
-        }
-        IItemHandler connectedInventory = itemHandlerOptional.get();
-        return new ConnectedInventory<>(entry.getKey(), con, connectorPos, connectedBlockPos, connectedEntity, connectorEntity, connectedInventory);
+
+        return new ConnectedEntity<>(entry.getKey(), con, connectorPos, connectedBlockPos, connectedEntity, connectorEntity);
     }
 
     @Override
