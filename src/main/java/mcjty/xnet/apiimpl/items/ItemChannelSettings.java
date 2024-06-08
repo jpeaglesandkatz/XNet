@@ -56,7 +56,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     // Cache data
     private List<ConnectedEntity<ItemConnectorSettings>> itemExtractors = null;
     private List<ConnectedEntity<ItemConnectorSettings>> itemConsumers = null;
-    private boolean[] consumerFull; // Àrray of filled consumers in which you don't have to try to insert
+    private boolean[] consumerFull; // Array of filled consumers in which you don't have to try to insert
     private ChannelMode channelMode = ChannelMode.PRIORITY;
     private int delay = 0;
     private int roundRobinOffset = 0;
