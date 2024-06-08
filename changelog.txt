@@ -1,3 +1,6 @@
+1.19-5.2.3:
+- Dertiende fixed redstone logic
+
 1.19-5.2.2:
 - Dertiende fixed a crash with XNet in combination with some other mods
 
