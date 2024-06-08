@@ -1,7 +1,7 @@
 package mcjty.xnet.apiimpl.energy;
 
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
-import mcjty.xnet.apiimpl.logic.ConnectedEntity;
+import mcjty.xnet.apiimpl.ConnectedEntity;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;

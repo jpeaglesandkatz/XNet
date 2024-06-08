@@ -26,7 +26,7 @@ public class CastTools {
         if (o != null) {
             return LogicFilter.values()[(int) o];
         } else {
-            return LogicFilter.OFF;
+            return LogicFilter.DIRECT;
         }
     }
 
