@@ -7,19 +7,23 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class ConnectedEntity<T> extends ConnectedBlock<T> {
+/*
+    A class to interact with a connected block, which could be a BlockEntity, and so we want to keep this entity in the cache.
+ */
+public class ConnectedOptionalEntity<T> extends ConnectedBlock<T> {
 
-    @Nonnull private final BlockEntity connectedEntity;
+    @Nullable private final BlockEntity connectedEntity;
 
-    public ConnectedEntity(@Nonnull SidedConsumer sidedConsumer, @Nonnull T settings, @Nonnull BlockPos connectorPos,
-                           @Nonnull BlockPos blockPos, @Nonnull BlockEntity connectedEntity,
+    public ConnectedOptionalEntity(@Nonnull SidedConsumer sidedConsumer, @Nonnull T settings, @Nonnull BlockPos connectorPos,
+                           @Nonnull BlockPos blockPos, @Nullable BlockEntity connectedEntity,
                            @Nonnull ConnectorTileEntity connectorEntity) {
         super(sidedConsumer, settings, connectorPos, blockPos, connectorEntity);
         this.connectedEntity = connectedEntity;
     }
 
-    public ConnectedEntity(@Nonnull ConnectedBlock<T> connectedBlock, @Nonnull BlockEntity connectedEntity) {
+    public ConnectedOptionalEntity(@Nonnull ConnectedBlock<T> connectedBlock, @Nullable BlockEntity connectedEntity) {
         super(
                 connectedBlock.sidedConsumer(), connectedBlock.settings(), connectedBlock.connectorPos(),
                 connectedBlock.getBlockPos(), connectedBlock.getConnectorEntity()
@@ -27,7 +31,7 @@ public class ConnectedEntity<T> extends ConnectedBlock<T> {
         this.connectedEntity = connectedEntity;
     }
 
-    @Nonnull
+    @Nullable
     public BlockEntity getConnectedEntity() {
         return connectedEntity;
     }
