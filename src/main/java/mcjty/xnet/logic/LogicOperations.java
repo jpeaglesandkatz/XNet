@@ -8,8 +8,8 @@ public class LogicOperations {
     public static boolean applyFilter (RSOutput connector, boolean input1, boolean input2) {
         switch (connector.getLogicFilter()) {
 
-            case OFF -> {return input1;}
-            case NOT -> {return not(input1);}
+            case DIRECT -> {return input1;}
+            case INVERTED -> {return not(input1);}
             case OR -> {return or(input1, input2);}
             case AND -> {return and(input1, input2);}
             case NOR -> {return nor(input1, input2);}
@@ -19,6 +19,7 @@ public class LogicOperations {
             case LATCH -> {return toggleLatch(connector, input1);}
             case COUNTER -> {return counting(connector, input1);}
             case TIMER -> {return timer(connector);}
+            case STATIC -> {return true;}
             default -> {return false;}
         }
     }

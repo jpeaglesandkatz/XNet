@@ -5,8 +5,8 @@ import mcjty.xnet.utils.I18nUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public enum LogicFilter implements ITranslatableEnum<LogicFilter> {
-    OFF("xnet.enum.logic.logicfilter.off"),
-    NOT("xnet.enum.logic.logicfilter.not"),
+    DIRECT("xnet.enum.logic.logicfilter.direct"),
+    INVERTED("xnet.enum.logic.logicfilter.inverted"),
     OR("xnet.enum.logic.logicfilter.or"),
     AND("xnet.enum.logic.logicfilter.and"),
     NOR("xnet.enum.logic.logicfilter.nor"),
@@ -15,7 +15,8 @@ public enum LogicFilter implements ITranslatableEnum<LogicFilter> {
     XNOR("xnet.enum.logic.logicfilter.xnor"),
     LATCH("xnet.enum.logic.logicfilter.latch"),
     COUNTER("xnet.enum.logic.logicfilter.counter"),
-    TIMER("xnet.enum.logic.logicfilter.timer");
+    TIMER("xnet.enum.logic.logicfilter.timer"),
+    STATIC("xnet.enum.logic.logicfilter.static"),;
 
     private final String i18n;
 

@@ -171,7 +171,7 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
             sensorArray.add(o);
         }
         object.add(TAG_SENSORS, sensorArray);
-        if (!output.getLogicFilter().equals(LogicFilter.OFF)) {
+        if (!output.getLogicFilter().equals(LogicFilter.DIRECT)) {
             object.add(TAG_ADVANCED_NEEDED, new JsonPrimitive(true));
         }
         JsonObject outputJSON = new JsonObject();

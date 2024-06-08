@@ -171,8 +171,8 @@
     "xnet.enum.items.stackmode.count": "Count",
     "xnet.enum.items.stackmode.count.tooltip": "Items per operation|Specified count",
 
-    "xnet.enum.logic.logicfilter.off.tooltip": "Output value when have input",
-    "xnet.enum.logic.logicfilter.not.tooltip": "Apply to input signal|logical NOT operation",
+    "xnet.enum.logic.logicfilter.direct.tooltip": "Output value when have input",
+    "xnet.enum.logic.logicfilter.inverted.tooltip": "Inverse input signal|0 -> specified value|1-15 -> 0",
     "xnet.enum.logic.logicfilter.or.tooltip": "Apply to input signal|logical OR operation",
     "xnet.enum.logic.logicfilter.and.tooltip": "Apply to input signal|logical AND operation",
     "xnet.enum.logic.logicfilter.nor.tooltip": "Apply to input signal|logical NOR operation",
@@ -182,6 +182,7 @@
     "xnet.enum.logic.logicfilter.latch.tooltip": "Toggles the output signal|every time it receives|an input signal",
     "xnet.enum.logic.logicfilter.counter.tooltip": "Outputs signal every|time it receives specified|count input signals",
     "xnet.enum.logic.logicfilter.timer.tooltip": "Outputs signal every|specified count game ticks|normally 20 ticks = 1 sec",
+    "xnet.enum.logic.logicfilter.static.tooltip": "Always outputs the specified value",
 
     "xnet.enum.logic.logicmode.sensor": "Sensor",
     "xnet.enum.logic.logicmode.sensor.tooltip": "Sensor connected block|and output redstone signal",

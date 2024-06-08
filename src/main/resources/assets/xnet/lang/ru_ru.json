@@ -163,8 +163,9 @@
   "xnet.enum.items.stackmode.stack.tooltip": "Предметов за операцию|Стак",
   "xnet.enum.items.stackmode.count": "Указ.",
   "xnet.enum.items.stackmode.count.tooltip": "Предметов за операцию|Указанное количество",
-  "xnet.enum.logic.logicfilter.off.tooltip": "Генерировать выходной сигнал, если активен",
-  "xnet.enum.logic.logicfilter.not.tooltip": "Применить к входному сигналу|Логическое NOT",
+
+  "xnet.enum.logic.logicfilter.direct.tooltip": "Генерировать выходной сигнал, если активен",
+  "xnet.enum.logic.logicfilter.inverted.tooltip": "Генерировать противоположный сигнал|0 -> установленное значение|1-15 -> 0",
   "xnet.enum.logic.logicfilter.or.tooltip": "Применить к входным сигналам|Логическое OR",
   "xnet.enum.logic.logicfilter.and.tooltip": "Применить к входным сигналам|Логическое AND",
   "xnet.enum.logic.logicfilter.nor.tooltip": "Применить к входным сигналам|Логическое NOR",
@@ -174,6 +175,8 @@
   "xnet.enum.logic.logicfilter.latch.tooltip": "Переключить выходной сигнал|при каждом получении|входного сигнала",
   "xnet.enum.logic.logicfilter.counter.tooltip": "Генерировать импульс|при получении указанного|количества входных импульсов",
   "xnet.enum.logic.logicfilter.timer.tooltip": "Генерировать импульс|каждые [число] \"тиков\"",
+  "xnet.enum.logic.logicfilter.static.tooltip": "Постоянно генерирует сигнал, равный установленному значению",
+
   "xnet.enum.logic.logicmode.sensor": "Сенсор",
   "xnet.enum.logic.logicmode.sensor.tooltip": "Отслеживать изменения|в подключенном блоке",
   "xnet.enum.logic.logicmode.output": "Вывод",

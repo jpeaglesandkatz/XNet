@@ -16,7 +16,7 @@ import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.apiimpl.enums.ChannelMode;
 import mcjty.xnet.apiimpl.enums.InsExtMode;
 import mcjty.xnet.apiimpl.items.enums.StackMode;
-import mcjty.xnet.apiimpl.logic.ConnectedEntity;
+import mcjty.xnet.apiimpl.ConnectedEntity;
 import mcjty.xnet.compat.RFToolsSupport;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.Config;
@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
 import java.util.function.Predicate;
 

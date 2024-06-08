@@ -27,7 +27,7 @@ import static mcjty.xnet.utils.I18nConstants.LOGIC_TIMER_FILTER_TOOLTIP;
 public class RSOutput {
     
     private boolean isAdvanced;
-    private LogicFilter logicFilter = LogicFilter.OFF;
+    private LogicFilter logicFilter = LogicFilter.DIRECT;
     private Color inputChannel1 = OFF;    // First input channel for logic filter
     private Color inputChannel2 = OFF;    // Second input channel for logic filter
     private int redstoneOut = 0;    // Redstone output value
@@ -139,12 +139,12 @@ public class RSOutput {
         if (gui.isAdvanced()) {
             gui.translatableChoices(TAG_RS_FILTER, logicFilter, LogicFilter.values());
             switch (logicFilter) {
-                case OFF -> {}
+                case DIRECT, STATIC -> {}
                 case COUNTER -> {
                     gui.colors(TAG_RS_CHANNEL_1, LOGIC_INPUT_CHANNEL_TOOLTIP.i18n(), inputChannel1.getColor(), COLORS);
                     gui.integer(TAG_RS_COUNTER, LOGIC_COUNTER_FILTER_TOOLTIP.i18n(), countingHolder, 50, Integer.MAX_VALUE, 0);
                 }
-                case LATCH, NOT -> {
+                case LATCH, INVERTED -> {
                     gui.colors(TAG_RS_CHANNEL_1, LOGIC_INPUT_CHANNEL_TOOLTIP.i18n(), inputChannel1.getColor(), COLORS);
                 }
                 case TIMER -> {
