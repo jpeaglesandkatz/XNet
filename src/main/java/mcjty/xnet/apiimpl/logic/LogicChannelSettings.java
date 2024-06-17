@@ -79,13 +79,8 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
                 continue;
             }
 
-            boolean sense = !checkRedstone(world, settings, connectedBlock.connectorPos());
-            if (sense && !context.matchColor(settings.getColorsMask())) {
-                sense = false;
-            }
-
-            // If sense is false the sensor is disabled which means the colors from it will also be disabled
-            if (sense) {
+            // If checkRedstone is false the sensor is disabled which means the colors from it will also be disabled
+            if (checkRedstone(settings, connectedBlock.getConnectorEntity(), context)) {
                 BlockEntity te = connectedBlock.getConnectedEntity();
 
                 for (RSSensor sensor : settings.getSensors()) {
@@ -109,14 +104,14 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
             Direction side = connector.sidedConsumer().side();
             ConnectorTileEntity connectorTileEntity = connector.getConnectorEntity();
             int powerOut;
-            if (checkRedstone(world, settings, connectorPos) || !context.matchColor(settings.getColorsMask())) {
-                powerOut = 0;
-            } else {
+            if (checkRedstone(settings, connectorTileEntity, context)) {
                 RSOutput output = settings.getOutput();
                 boolean[] colorsArray = LogicTools.intToBinary(colors);
                 boolean input1 = colorsArray[output.getInputChannel1().ordinal()];
                 boolean input2 = colorsArray[output.getInputChannel2().ordinal()];
                 powerOut = LogicOperations.applyFilter(output, input1, input2) ? output.getRedstoneOut() : 0;
+            } else {
+                powerOut = 0;
             }
             connectorTileEntity.setPowerOut(side, powerOut);
         }
