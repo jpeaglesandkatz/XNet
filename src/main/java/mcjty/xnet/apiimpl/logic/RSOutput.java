@@ -156,6 +156,7 @@ public class RSOutput {
                 }
             }
         } else {
+            gui.colors(TAG_RS_CHANNEL_1, LOGIC_INPUT_CHANNEL_TOOLTIP.i18n(), inputChannel1.getColor(), COLORS);
             gui.label(LOGIC_RS_LABEL.i18n());
         }
 
