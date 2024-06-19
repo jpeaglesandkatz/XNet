@@ -12,11 +12,11 @@ import mcjty.rftoolsbase.api.xnet.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
+import mcjty.xnet.apiimpl.ConnectedEntity;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.apiimpl.enums.ChannelMode;
 import mcjty.xnet.apiimpl.enums.InsExtMode;
 import mcjty.xnet.apiimpl.items.enums.StackMode;
-import mcjty.xnet.apiimpl.ConnectedEntity;
 import mcjty.xnet.compat.RFToolsSupport;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.Config;
@@ -175,10 +175,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 continue;
             }
 
-            if (checkRedstone(world, settings, extractor.connectorPos())) {
-                continue;
-            }
-            if (!context.matchColor(settings.getColorsMask())) {
+            if (!checkRedstone(settings, extractor.getConnectorEntity(), context)) {
                 continue;
             }
 
@@ -313,7 +310,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             }
 
             Predicate<ItemStack> matcher = settings.getMatcher(context);
-            if (!matcher.test(source) || checkRedstone(world, settings, consumer.connectorPos()) || !context.matchColor(settings.getColorsMask())) {
+            if (!matcher.test(source) || !checkRedstone(settings, consumer.getConnectorEntity(), context)) {
                 continue;
             }
             BlockEntity te = consumer.getConnectedEntity();

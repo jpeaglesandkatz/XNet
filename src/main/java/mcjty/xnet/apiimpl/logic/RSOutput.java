@@ -139,12 +139,12 @@ public class RSOutput {
         if (gui.isAdvanced()) {
             gui.translatableChoices(TAG_RS_FILTER, logicFilter, LogicFilter.values());
             switch (logicFilter) {
-                case DIRECT, STATIC -> {}
+                case STATIC -> {}
                 case COUNTER -> {
                     gui.colors(TAG_RS_CHANNEL_1, LOGIC_INPUT_CHANNEL_TOOLTIP.i18n(), inputChannel1.getColor(), COLORS);
                     gui.integer(TAG_RS_COUNTER, LOGIC_COUNTER_FILTER_TOOLTIP.i18n(), countingHolder, 50, Integer.MAX_VALUE, 0);
                 }
-                case LATCH, INVERTED -> {
+                case DIRECT, LATCH, INVERTED -> {
                     gui.colors(TAG_RS_CHANNEL_1, LOGIC_INPUT_CHANNEL_TOOLTIP.i18n(), inputChannel1.getColor(), COLORS);
                 }
                 case TIMER -> {
@@ -157,6 +157,7 @@ public class RSOutput {
             }
         } else {
             gui.label(LOGIC_RS_LABEL.i18n());
+            gui.colors(TAG_RS_CHANNEL_1, LOGIC_INPUT_CHANNEL_TOOLTIP.i18n(), inputChannel1.getColor(), COLORS);
         }
 
         gui.integer(TAG_REDSTONE_OUT, LOGIC_RS_TOOLTIP.i18n(), redstoneOut, 30, 15, 0).nl();

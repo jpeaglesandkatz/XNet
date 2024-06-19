@@ -11,10 +11,10 @@ import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
+import mcjty.xnet.apiimpl.ConnectedEntity;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.apiimpl.enums.ChannelMode;
 import mcjty.xnet.apiimpl.enums.InsExtMode;
-import mcjty.xnet.apiimpl.ConnectedEntity;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.utils.CastTools;
@@ -103,12 +103,10 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             if (!LevelTools.isLoaded(world, extractor.getBlockPos())) {
                 continue;
             }
-            if (checkRedstone(world, settings, extractor.connectorPos())) {
+            if (!checkRedstone(settings, extractor.getConnectorEntity(), context)) {
                 continue;
             }
-            if (!context.matchColor(settings.getColorsMask())) {
-                continue;
-            }
+
             IFluidHandler handler = getFluidHandlerAt(extractor.getConnectedEntity(), extractor.settings().getFacing()).resolve().orElse(null);
             if (handler == null) {
                 continue;
@@ -191,7 +189,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             if (matcher != null && !matcher.equals(stack)) {
                 continue;
             }
-            if (checkRedstone(world, settings, consumer.connectorPos()) || !context.matchColor(settings.getColorsMask())) {
+            if (!checkRedstone(settings, consumer.getConnectorEntity(), context)) {
                 continue;
             }
 
