@@ -95,7 +95,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             EnergyConnectorSettings settings = extractor.settings();
             ConnectorTileEntity connectorTE = extractor.getConnectorEntity();
 
-            if (checkRedstone(world, settings, connectorPos) || !context.matchColor(settings.getColorsMask())) {
+            if (!checkRedstone(settings, connectorTE, context)) {
                 continue;
             }
 
@@ -163,7 +163,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             }
             BlockEntity te = consumer.getConnectedEntity();
             // @todo report error somewhere?
-            if (!isEnergyTE(te, settings.getFacing()) || checkRedstone(world, settings, consumer.connectorPos()) || !context.matchColor(settings.getColorsMask())) {
+            if (!isEnergyTE(te, settings.getFacing()) || !checkRedstone(settings, consumer.getConnectorEntity(), context)) {
                 continue;
             }
 
