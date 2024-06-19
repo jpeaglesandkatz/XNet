@@ -1,3 +1,7 @@
+1.20-6.1.4:
+- Dertiende did another small refactor of redstone and color logic
+- Fixed a problem where a facade could mimic air in some situations
+
 1.20-6.1.3:
 - Dertiende fixed redstone logic
 

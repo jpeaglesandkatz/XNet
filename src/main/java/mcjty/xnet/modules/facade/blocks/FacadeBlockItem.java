@@ -80,6 +80,9 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
     }
 
     private static void userSetMimicBlock(@Nonnull ItemStack item, BlockState mimicBlock, UseOnContext context) {
+        if (mimicBlock.isAir()) {
+            return; // Don't allow mimicing air
+        }
         Level world = context.getLevel();
         Player player = context.getPlayer();
         setMimicBlock(item, mimicBlock);
