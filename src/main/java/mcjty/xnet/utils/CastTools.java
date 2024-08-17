@@ -22,6 +22,14 @@ public class CastTools {
         }
     }
 
+    public static boolean safeBoolean(Object o) {
+        if (o != null) {
+            return (Boolean) o;
+        } else {
+            return false;
+        }
+    }
+
     public static LogicFilter safeLogicFilter(Object o) {
         if (o != null) {
             return LogicFilter.values()[(int) o];
