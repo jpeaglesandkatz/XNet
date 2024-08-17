@@ -10,6 +10,9 @@ import java.util.Map;
 
 import static mcjty.rftoolsbase.api.xnet.channels.Color.COLORS;
 import static mcjty.rftoolsbase.api.xnet.channels.Color.OFF;
+import static mcjty.xnet.apiimpl.Constants.TAG_IMPULSE;
+import static mcjty.xnet.apiimpl.Constants.TAG_IMPULSE_DUR;
+import static mcjty.xnet.apiimpl.Constants.TAG_IMPULSE_REM;
 import static mcjty.xnet.apiimpl.Constants.TAG_REDSTONE_OUT;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_CHANNEL_1;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_CHANNEL_2;
@@ -18,11 +21,9 @@ import static mcjty.xnet.apiimpl.Constants.TAG_RS_COUNTING_HOLDER;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_FILTER;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_TICKS_HOLDER;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_TIMER;
-import static mcjty.xnet.utils.I18nConstants.LOGIC_COUNTER_FILTER_TOOLTIP;
 import static mcjty.xnet.utils.I18nConstants.LOGIC_INPUT_CHANNEL_TOOLTIP;
 import static mcjty.xnet.utils.I18nConstants.LOGIC_RS_LABEL;
 import static mcjty.xnet.utils.I18nConstants.LOGIC_RS_TOOLTIP;
-import static mcjty.xnet.utils.I18nConstants.LOGIC_TIMER_FILTER_TOOLTIP;
 
 public class RSOutput {
     
@@ -33,6 +34,10 @@ public class RSOutput {
     private int redstoneOut = 0;    // Redstone output value
     private boolean flipFlapState = false;  // If logicFilter == LATCH shows should we output redstone signal
     private boolean lastInputTrue = false;  // If logicFilter == LATCH shows should we toggle flipFlapState
+
+    private boolean impulse = false; // Impulse output, available for some LogicFilter values
+    private int impulseDuration = 1; // Impulse duration in ticks
+    private int impulseRemaining = 0; // Remaining impulse duration in current context
 
     private int countingHolder = 0;  // Holds user value for counting filter
     private int countingCurrent = 0; // Current value for counting filter
@@ -135,32 +140,53 @@ public class RSOutput {
         this.redstoneOut = redstoneOut;
     }
 
+    public boolean isImpulse() {
+        return impulse;
+    }
+
+    public void setImpulse(boolean impulse) {
+        this.impulse = impulse;
+    }
+
+    public int getImpulseDuration() {
+        return impulseDuration;
+    }
+
+    public void setImpulseDuration(int impulseDuration) {
+        this.impulseDuration = impulseDuration;
+    }
+
+    public int getImpulseRemaining() {
+        return impulseRemaining;
+    }
+
+    public boolean decreaseImpulseRemaining() {
+        if (impulseRemaining > 0) {
+            impulseRemaining--;
+            return true;
+        }
+        return false;
+    }
+
+    public void setAndDecreaseImpulseRemaining() {
+        impulseRemaining = impulseDuration;
+        impulseRemaining--;
+        lastInputTrue = true;
+    }
+
+    public void setImpulseRemaining(int impulseRemaining) {
+        this.impulseRemaining = impulseRemaining;
+    }
+
     public void createGui(IEditorGui gui) {
         if (gui.isAdvanced()) {
             gui.translatableChoices(TAG_RS_FILTER, logicFilter, LogicFilter.values());
-            switch (logicFilter) {
-                case STATIC -> {}
-                case COUNTER -> {
-                    gui.colors(TAG_RS_CHANNEL_1, LOGIC_INPUT_CHANNEL_TOOLTIP.i18n(), inputChannel1.getColor(), COLORS);
-                    gui.integer(TAG_RS_COUNTER, LOGIC_COUNTER_FILTER_TOOLTIP.i18n(), countingHolder, 50, Integer.MAX_VALUE, 0);
-                }
-                case DIRECT, LATCH, INVERTED -> {
-                    gui.colors(TAG_RS_CHANNEL_1, LOGIC_INPUT_CHANNEL_TOOLTIP.i18n(), inputChannel1.getColor(), COLORS);
-                }
-                case TIMER -> {
-                    gui.integer(TAG_RS_TIMER, LOGIC_TIMER_FILTER_TOOLTIP.i18n(), ticksHolder, 50, Integer.MAX_VALUE, 5);
-                }
-                case OR, NOR, NAND, XOR, XNOR, AND -> {
-                    gui.colors(TAG_RS_CHANNEL_1, LOGIC_INPUT_CHANNEL_TOOLTIP.i18n() + " 1", inputChannel1.getColor(), COLORS);
-                    gui.colors(TAG_RS_CHANNEL_2, LOGIC_INPUT_CHANNEL_TOOLTIP.i18n() + " 2", inputChannel2.getColor(), COLORS);
-                }
-            }
+            logicFilter.createGui(this, gui);
         } else {
             gui.label(LOGIC_RS_LABEL.i18n());
             gui.colors(TAG_RS_CHANNEL_1, LOGIC_INPUT_CHANNEL_TOOLTIP.i18n(), inputChannel1.getColor(), COLORS);
+            gui.integer(TAG_REDSTONE_OUT, LOGIC_RS_TOOLTIP.i18n(), redstoneOut, 30, 15, 0).nl();
         }
-
-        gui.integer(TAG_REDSTONE_OUT, LOGIC_RS_TOOLTIP.i18n(), redstoneOut, 30, 15, 0).nl();
     }
 
     public void update(Map<String, Object> data) {
@@ -170,12 +196,18 @@ public class RSOutput {
         countingHolder = CastTools.safeIntOrValue(data.get(TAG_RS_COUNTER), countingHolder);
         ticksHolder = CastTools.safeIntOrValue(data.get(TAG_RS_TIMER), ticksHolder);
         redstoneOut = CastTools.safeIntOrValue(data.get(TAG_REDSTONE_OUT), redstoneOut);
+        impulse = CastTools.safeBoolean(data.get(TAG_IMPULSE));
+        impulseDuration = CastTools.safeIntOrValue(data.get(TAG_IMPULSE_DUR), 1);
+        impulseRemaining = CastTools.safeInt(data.get(TAG_IMPULSE_REM));
     }
 
     public boolean isEnabled(String tag) {
         switch (tag) {
-            case TAG_RS_FILTER, TAG_REDSTONE_OUT, TAG_RS_CHANNEL_1, TAG_RS_CHANNEL_2, TAG_RS_COUNTER, TAG_RS_TIMER -> {
+            case TAG_RS_FILTER, TAG_REDSTONE_OUT, TAG_RS_CHANNEL_1, TAG_RS_CHANNEL_2, TAG_RS_COUNTER, TAG_RS_TIMER, TAG_IMPULSE -> {
                 return true;
+            }
+            case TAG_IMPULSE_DUR -> {
+                return impulse;
             }
             default -> {return false;}
         }
@@ -188,6 +220,9 @@ public class RSOutput {
         setCountingHolder(tag.getInt(TAG_RS_COUNTING_HOLDER));
         setTicksHolder(tag.getInt(TAG_RS_TICKS_HOLDER));
         redstoneOut = tag.getInt(TAG_REDSTONE_OUT);
+        impulse = tag.getBoolean(TAG_IMPULSE);
+        impulseDuration = tag.getInt(TAG_IMPULSE_DUR);
+        impulseRemaining = tag.getInt(TAG_IMPULSE_REM);
     }
 
     public void writeToNBT(CompoundTag tag) {
@@ -197,5 +232,8 @@ public class RSOutput {
         tag.putInt(TAG_RS_COUNTING_HOLDER, countingHolder);
         tag.putInt(TAG_RS_TICKS_HOLDER, ticksHolder);
         tag.putInt(TAG_REDSTONE_OUT, redstoneOut);
+        tag.putBoolean(TAG_IMPULSE, impulse);
+        tag.putInt(TAG_IMPULSE_DUR, impulseDuration);
+        tag.putInt(TAG_IMPULSE_REM, impulseRemaining);
     }
 }
