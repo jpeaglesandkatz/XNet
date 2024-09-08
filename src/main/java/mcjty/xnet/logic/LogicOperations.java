@@ -7,15 +7,7 @@ public class LogicOperations {
 
     public static boolean applyFilter (RSOutput connector, boolean input1, boolean input2) {
         switch (connector.getLogicFilter()) {
-
-            case DIRECT -> {return input1;}
-            case INVERTED -> {return not(input1);}
-            case OR -> {return or(input1, input2);}
-            case AND -> {return and(input1, input2);}
-            case NOR -> {return nor(input1, input2);}
-            case NAND -> {return nand(input1, input2);}
-            case XOR -> {return xor(input1, input2);}
-            case XNOR -> {return xnor(input1, input2);}
+            case DIRECT, INVERTED, OR, AND, NOR, NAND, XOR, XNOR -> {return processImpulseMode(connector, input1, input2);}
             case LATCH -> {return toggleLatch(connector, input1);}
             case COUNTER -> {return counting(connector, input1);}
             case TIMER -> {return timer(connector);}
@@ -78,6 +70,35 @@ public class LogicOperations {
             connector.setTicksCurrent(connector.getTicksCurrent() + 1);
         }
         return false;
+    }
+
+    private static boolean processImpulseMode(RSOutput connector, boolean input1, boolean input2) {
+        boolean isFilterActive;
+        switch (connector.getLogicFilter()) {
+            case DIRECT -> {isFilterActive = input1;}
+            case INVERTED -> {isFilterActive = not(input1);}
+            case OR -> {isFilterActive = or(input1, input2);}
+            case AND -> {isFilterActive = and(input1, input2);}
+            case NOR -> {isFilterActive = nor(input1, input2);}
+            case NAND -> {isFilterActive = nand(input1, input2);}
+            case XOR -> {isFilterActive = xor(input1, input2);}
+            case XNOR -> {isFilterActive = xnor(input1, input2);}
+            default -> {return false;}
+        }
+        if (connector.isImpulse()) {
+            if (connector.isLastInputTrue()) {
+                connector.setLastInputTrue(isFilterActive);
+                return connector.decreaseImpulseRemaining();
+            }
+            connector.setLastInputTrue(isFilterActive);
+            if (isFilterActive) {
+                connector.setAndDecreaseImpulseRemaining();
+                return true;
+            }
+            return connector.decreaseImpulseRemaining();
+        } else {
+            return isFilterActive;
+        }
     }
 
 }

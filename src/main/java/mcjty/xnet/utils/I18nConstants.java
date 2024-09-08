@@ -55,6 +55,9 @@ public enum I18nConstants {
     LOGIC_SENSOR_OPERATOR_TOOLTIP("xnet.logic.sensor.operator.tooltip"),
     LOGIC_SENSOR_AMOUNT_TOOLTIP("xnet.logic.sensor.amount.tooltip"),
     LOGIC_SENSOR_OUT_COLOR_TOOLTIP("xnet.logic.sensor.out.color.tooltip"),
+    LOGIC_IMPULSE_MODE_LABEL("xnet.logic.impulseMode.label"),
+    LOGIC_IMPULSE_MODE_TOOLTIP("xnet.logic.impulseMode.tooltip"),
+    LOGIC_IMPULSE_DUR_TOOLTIP("xnet.logic.impulseDuration.tooltip"),
 
     RS_MODE_IGNORED_TOOLTIP("xnet.rs.mode.ignored.tooltip"),
     RS_MODE_OFF_TOOLTIP("xnet.rs.mode.off.tooltip"),

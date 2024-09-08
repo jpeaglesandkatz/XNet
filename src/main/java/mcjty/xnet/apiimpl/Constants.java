@@ -92,6 +92,9 @@ public class Constants {
     public static final String TAG_RS_TIMER = "RSTimer";
     public static final String TAG_RS_COUNTING_HOLDER = "RSCountingHolder";
     public static final String TAG_RS_TICKS_HOLDER = "RSTicksHolder";
+    public static final String TAG_IMPULSE = "impulse";
+    public static final String TAG_IMPULSE_DUR = "impulseDuration";
+    public static final String TAG_IMPULSE_REM = "impulseRemaining";
 
     public static final String TAG_TOOLTIP = "tooltip";
     public static final String TAG_WORLDS = "worlds";
