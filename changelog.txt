@@ -1,3 +1,6 @@
+Upcoming:
+- Dertiende implemented a new 'pulse' mode for redstone channels. This will let the connector output a pulse with the specified duration
+
 1.19-5.2.4:
 - Dertiende did another small refactor of redstone and color logic
 - Fixed a problem where a facade could mimic air in some situations
