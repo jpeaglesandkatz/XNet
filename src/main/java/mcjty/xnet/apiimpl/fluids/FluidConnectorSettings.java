@@ -193,7 +193,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         setEnumSafe(object, TAG_FLUID_MODE, fluidMode);
         setIntegerSafe(object, TAG_PRIORITY, priority);
         setIntegerSafe(object, TAG_RATE, rate);
-        setIntegerSafe(object, TAG_RATE, minmax);
+        setIntegerSafe(object, TAG_MINMAX, minmax);
         setIntegerSafe(object, TAG_SPEED, speed);
         if (!filter.isEmpty()) {
             object.add(TAG_FLT, JSonTools.itemStackToJson(filter));
@@ -210,7 +210,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         fluidMode = getEnumSafe(object, TAG_FLUID_MODE, EnumStringTranslators::getFluidMode);
         priority = getIntegerSafe(object, TAG_PRIORITY);
         rate = getIntegerSafe(object, TAG_RATE);
-        minmax = getIntegerSafe(object, TAG_RATE);
+        minmax = getIntegerSafe(object, TAG_MINMAX);
         speed = getIntegerNotNull(object, TAG_SPEED);
         if (object.has(TAG_FLT)) {
             filter = JSonTools.jsonToItemStack(object.get(TAG_FLT).getAsJsonObject());
