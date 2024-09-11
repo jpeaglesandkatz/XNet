@@ -1,3 +1,6 @@
+Upcoming:
+- Dertiende fixed a bug in the copy of the fluid connector
+
 1.19-5.2.5:
 - Dertiende implemented a new 'pulse' mode for redstone channels. This will let the connector output a pulse with the specified duration
 
