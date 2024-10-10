@@ -13,7 +13,7 @@ public class KnownUnsidedBlocks {
     public static boolean isUnsided(ResourceLocation resourceLocation) {
         if (UNSIDED_BLOCKS.isEmpty()) {
             for (String block : Config.unsidedBlocks.get()) {
-                UNSIDED_BLOCKS.add(new ResourceLocation(block));
+                UNSIDED_BLOCKS.add(ResourceLocation.parse(block));
             }
         }
         return UNSIDED_BLOCKS.contains(resourceLocation);

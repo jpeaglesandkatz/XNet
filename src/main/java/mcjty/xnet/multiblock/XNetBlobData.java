@@ -2,6 +2,7 @@ package mcjty.xnet.multiblock;
 
 import mcjty.lib.varia.LevelTools;
 import mcjty.lib.worlddata.AbstractWorldData;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceKey;
@@ -52,7 +53,7 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
 
     @Nonnull
     @Override
-    public CompoundTag save(@Nonnull CompoundTag compound) {
+    public CompoundTag save(@Nonnull CompoundTag compound, HolderLookup.Provider provider) {
         ListTag list = new ListTag();
         for (var entry : worldBlobMap.entrySet()) {
             WorldBlob blob = entry.getValue();

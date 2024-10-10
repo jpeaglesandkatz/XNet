@@ -8,6 +8,7 @@ import mcjty.rftoolsbase.api.xnet.keys.NetworkId;
 import mcjty.xnet.XNet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -178,7 +179,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
     @Nonnull
     @Override
-    public CompoundTag save(@Nonnull CompoundTag compound) {
+    public CompoundTag save(@Nonnull CompoundTag compound, HolderLookup.Provider provider) {
         ListTag channelTagList = new ListTag();
 
         for (Map.Entry<WirelessChannelKey, WirelessChannelInfo> entry : channelToWireless.entrySet()) {

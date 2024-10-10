@@ -15,14 +15,14 @@ import mcjty.xnet.modules.wireless.WirelessRouterModule;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.ModSetup;
 import mcjty.xnet.setup.Registration;
+import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.api.distmarker.Dist;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.fml.common.Mod;
-import net.neoforged.neoforge.fml.event.lifecycle.InterModProcessEvent;
-import net.neoforged.neoforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.neoforged.neoforge.fml.loading.FMLEnvironment;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -39,14 +39,11 @@ public class XNet {
 
     public static final XNetApi xNetApi = new XNetApi();
 
-    public XNet() {
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-        Dist dist = FMLEnvironment.dist;
-
+    public XNet(ModContainer mod, IEventBus bus, Dist dist) {
         instance = this;
         setupModules(bus, dist);
 
-        Config.register(modules);
+        Config.register(mod, modules);
 
         Registration.register(bus);
 
@@ -54,6 +51,8 @@ public class XNet {
         bus.addListener(modules::init);
         bus.addListener(this::processIMC);
         bus.addListener(this::onDataGen);
+        bus.addListener(XNetMessages::registerMessages);
+        bus.addListener(setup.getBlockCapabilityRegistrar(Registration.RBLOCKS));
 
         if (dist.isClient()) {
             bus.addListener(modules::initClient);
@@ -67,16 +66,16 @@ public class XNet {
 
     private void onDataGen(GatherDataEvent event) {
         DataGen datagen = new DataGen(MODID, event);
-        modules.datagen(datagen);
+        modules.datagen(datagen, event.getLookupProvider());
         datagen.generate();
     }
 
     private void setupModules(IEventBus bus, Dist dist) {
         modules.register(new CableModule(bus, dist));
-        modules.register(new ControllerModule());
+        modules.register(new ControllerModule(bus));
         modules.register(new FacadeModule());
-        modules.register(new RouterModule());
-        modules.register(new WirelessRouterModule());
+        modules.register(new RouterModule(bus));
+        modules.register(new WirelessRouterModule(bus));
         modules.register(new VariousModule());
     }
 

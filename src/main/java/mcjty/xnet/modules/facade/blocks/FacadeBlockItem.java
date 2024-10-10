@@ -3,7 +3,6 @@ package mcjty.xnet.modules.facade.blocks;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.ComponentFactory;
-import mcjty.lib.varia.NBTTools;
 import mcjty.lib.varia.Tools;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableModule;
@@ -14,7 +13,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -32,7 +30,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.util.Lazy;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
@@ -40,27 +37,30 @@ import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.*;
 
 public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
-    private Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
+    private Lazy<TooltipBuilder> tooltipBuilder = Lazy.of(() -> new TooltipBuilder()
             .info(header(),
                     gold(stack -> !isMimicking(stack)),
-                    parameter("info", FacadeBlockItem::isMimicking, FacadeBlockItem::getMimickingString));
+                    parameter("info", FacadeBlockItem::isMimicking, FacadeBlockItem::getMimickingString)));
 
     private static boolean isMimicking(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        return tag != null && tag.contains("mimic");
+//        CompoundTag tag = stack.getTag();
+//        return tag != null && tag.contains("mimic");
+        // @todo 1.21 NBT
+        return false;
     }
 
     private static String getMimickingString(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag != null) {
-            CompoundTag mimic = tag.getCompound("mimic");
-            Block value = Tools.getBlock(new ResourceLocation(mimic.getString("Name")));
-            if (value != null) {
-                ItemStack s = new ItemStack(value, 1);
-                s.getItem();
-                return s.getHoverName().getString() /* was getFormattedText() */;
-            }
-        }
+        // @todo 1.21 NBT
+//        CompoundTag tag = stack.getTag();
+//        if (tag != null) {
+//            CompoundTag mimic = tag.getCompound("mimic");
+//            Block value = Tools.getBlock(ResourceLocation.fromNamespaceAndPath(mimic.getString("Name")));
+//            if (value != null) {
+//                ItemStack s = new ItemStack(value, 1);
+//                s.getItem();
+//                return s.getHoverName().getString() /* was getFormattedText() */;
+//            }
+//        }
         return "<unset>";
     }
 
@@ -82,16 +82,19 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
         CompoundTag tagCompound = new CompoundTag();
         CompoundTag nbt = NbtUtils.writeBlockState(mimicBlock);
         tagCompound.put("mimic", nbt);
-        item.setTag(tagCompound);
+        // @todo 1.21 NBT
+//        item.setTag(tagCompound);
     }
 
     public static BlockState getMimicBlock(Level level, @Nonnull ItemStack stack) {
-        CompoundTag tagCompound = stack.getTag();
-        if (tagCompound == null || !tagCompound.contains("mimic")) {
-            return Blocks.COBBLESTONE.defaultBlockState();
-        } else {
-            return NBTTools.readBlockState(level, tagCompound.getCompound("mimic"));
-        }
+        // @todo 1.21 NBT
+//        CompoundTag tagCompound = stack.getTag();
+//        if (tagCompound == null || !tagCompound.contains("mimic")) {
+//            return Blocks.COBBLESTONE.defaultBlockState();
+//        } else {
+//            return NBTTools.readBlockState(level, tagCompound.getCompound("mimic"));
+//        }
+        return Blocks.COBBLESTONE.defaultBlockState();
     }
 
     @Override
@@ -167,8 +170,8 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
-        super.appendHoverText(stack, worldIn, tooltip, flag);
+    public void appendHoverText(@Nonnull ItemStack stack, TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltip, flag);
         tooltipBuilder.get().makeTooltip(Tools.getId(this), stack, tooltip, flag);
     }
 }

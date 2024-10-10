@@ -38,15 +38,12 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.Connection;
-import net.minecraft.network.ConnectionProtocol;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.network.NetworkDirection;
-import net.neoforged.neoforge.network.filters.VanillaPacketSplitter;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
@@ -89,13 +86,13 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private boolean needsRefresh = true;
 
-    public GuiController(TileEntityController controller, GenericContainer container, Inventory inventory) {
-        super(controller, container, inventory, ControllerModule.CONTROLLER.get().getManualEntry());
+    public GuiController(GenericContainer container, Inventory inventory, Component title) {
+        super(container, inventory, title, ControllerModule.CONTROLLER.block().get().getManualEntry());
         openController = this;
     }
 
-    public static void register() {
-        register(ControllerModule.CONTAINER_CONTROLLER.get(), GuiController::new);
+    public static void register(RegisterMenuScreensEvent event) {
+        event.register(ControllerModule.CONTAINER_CONTROLLER.get(), GuiController::new);
     }
 
     @Override
@@ -106,7 +103,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     @Override
     public void init() {
-        window = new Window(this, tileEntity, new ResourceLocation(XNet.MODID, "gui/controller.gui"));
+        window = new Window(this, getBE(), ResourceLocation.fromNamespaceAndPath(XNet.MODID, "gui/controller.gui"));
         super.init();
 
         initializeFields();
@@ -158,6 +155,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         if (index < 0) {
             return;
         }
+        TileEntityController tileEntity = getBE();
         ConnectedBlockClientInfo c = tileEntity.clientConnectedBlocks.get(index);
         if (c != null) {
             RFToolsBase.instance.clientInfo.hilightBlock(c.getPos().pos(), System.currentTimeMillis() + 1000 * 5);
@@ -287,6 +285,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     public void refresh() {
+        TileEntityController tileEntity = getBE();
         tileEntity.clientChannels = null;
         tileEntity.clientConnectedBlocks = null;
         showingChannel = -1;
@@ -305,6 +304,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         if (!listsReady()) {
             return;
         }
+        TileEntityController tileEntity = getBE();
         if (editingChannel != -1 && showingChannel != editingChannel) {
             showingChannel = editingChannel;
             channelButtons[editingChannel].pressed(true);
@@ -441,6 +441,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 return;
             }
 
+            TileEntityController tileEntity = getBE();
             PacketServerCommandTyped packet = PacketServerCommandTyped.create(tileEntity.getBlockPos(), tileEntity.getDimension(), CMD_PASTECONNECTOR.name(), TypedMap.builder()
                     .put(PARAM_INDEX, getSelectedChannel())
                     .put(PARAM_POS, editingConnector.pos())
@@ -462,6 +463,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private void pasteChannel() {
         try {
+            TileEntityController tileEntity = getBE();
             String json = Minecraft.getInstance().keyboardHandler.getClipboard();
             int max = Config.controllerMaxPaste.get();
             if (max >= 0 && json.length() > max) {
@@ -489,15 +491,16 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private void sendSplit(PacketServerCommandTyped packet, boolean doSplit) {
-        if (doSplit) {
-            Packet<?> vanillaPacket = Networking.getChannel().toVanillaPacket(packet, NetworkDirection.PLAY_TO_SERVER);
-            List<Packet<?>> packets = new ArrayList<>();
-            VanillaPacketSplitter.appendPackets(ConnectionProtocol.PLAY, PacketFlow.SERVERBOUND, vanillaPacket, packets);
-            Connection connection = Minecraft.getInstance().getConnection().getConnection();
-            packets.forEach(connection::send);
-        } else {
+        // @todo 1.21 split
+//        if (doSplit) {
+//            Packet<?> vanillaPacket = Networking.getChannel().toVanillaPacket(packet, NetworkDirection.PLAY_TO_SERVER);
+//            List<Packet<?>> packets = new ArrayList<>();
+//            VanillaPacketSplitter.appendPackets(ConnectionProtocol.PLAY, PacketFlow.SERVERBOUND, vanillaPacket, packets);
+//            Connection connection = Minecraft.getInstance().getConnection().getConnection();
+//            packets.forEach(connection::send);
+//        } else {
             Networking.sendToServer(packet);
-        }
+//        }
     }
 
     private ConnectorClientInfo findClientInfo(ChannelClientInfo info, SidedPos p) {
@@ -514,6 +517,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             return;
         }
         if (editingConnector != null && !editingConnector.equals(showingConnector)) {
+            TileEntityController tileEntity = getBE();
             showingConnector = editingConnector;
             connectorEditPanel.removeChildren();
             ChannelClientInfo info = tileEntity.clientChannels.get(editingChannel);
@@ -554,6 +558,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
 
     private void requestListsIfNeeded() {
+        TileEntityController tileEntity = getBE();
         if (tileEntity.clientChannels != null && tileEntity.clientConnectedBlocks != null) {
             return;
         }
@@ -593,6 +598,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
         String selectedText = searchBar.getText().trim().toLowerCase();
 
+        TileEntityController tileEntity = getBE();
         for (ConnectedBlockClientInfo connectedBlock : tileEntity.clientConnectedBlocks) {
             SidedPos sidedPos = connectedBlock.getPos();
             BlockPos coordinate = sidedPos.pos();
@@ -662,16 +668,18 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private boolean listsReady() {
+        TileEntityController tileEntity = getBE();
         return tileEntity.clientChannels != null && tileEntity.clientConnectedBlocks != null;
     }
 
     @Override
-    protected void renderBg(@Nonnull GuiGraphics graphics, float v, int x1, int x2) {
+    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
         updateFields();
         requestListsIfNeeded();
         populateList();
         refreshChannelEditor();
         refreshConnectorEditor();
+        TileEntityController tileEntity = getBE();
         if (listsReady() && copyConnector != null && editingChannel != -1) {
             ChannelClientInfo info = tileEntity.clientChannels.get(editingChannel);
             ConnectorClientInfo clientInfo = findClientInfo(info, editingConnector);
@@ -698,18 +706,19 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 }
             }
         }
-        drawWindow(graphics, xxx, xxx, yyy);
+        drawWindow(graphics, partialTicks, mouseX, mouseY);
         int channel = getSelectedChannel();
         if (channel != -1) {
             int x = (int) window.getToplevel().getBounds().getX();
             int y = (int) window.getToplevel().getBounds().getY();
             RenderHelper.drawVerticalGradientRect(x+channel * 14 + 41, y+22, x+channel * 14 + 41+12, y+230, 0x33aaffff, 0x33aaffff);
         }
-        tileEntity.getCapability(ForgeCapabilities.ENERGY).ifPresent(h -> {
+        IEnergyStorage h = tileEntity.getLevel().getCapability(Capabilities.EnergyStorage.BLOCK, tileEntity.getBlockPos(), null);
+        if (h != null) {
             long currentRF = h.getEnergyStored();
             int max = h.getMaxEnergyStored();
             energyBar.value(currentRF).maxValue(max);
-        });
+        }
     }
 
     @Override

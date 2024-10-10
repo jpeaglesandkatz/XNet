@@ -51,6 +51,7 @@ import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.MenuProvider;
@@ -64,18 +65,20 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.neoforged.neoforge.common.util.Lazy;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.container;
 import static mcjty.lib.container.SlotDefinition.specific;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
-import static mcjty.xnet.modules.controller.ControllerModule.TYPE_CONTROLLER;
+import static mcjty.xnet.modules.controller.ControllerModule.CONTROLLER;
 
 public final class TileEntityController extends TickingTileEntity implements IControllerContext {
 
@@ -113,41 +116,38 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     private int wirelessVersion = -1;   // To invalidate wireless channels if needed
 
     private final ChannelInfo[] channels = new ChannelInfo[MAX_CHANNELS];
-    private int colors = 0;
 
     // Cached/transient data
     private final Map<SidedConsumer, IConnectorSettings> cachedConnectors[] = new Map[MAX_CHANNELS];
     private final Map<SidedConsumer, IConnectorSettings> cachedRoutedConnectors[] = new Map[MAX_CHANNELS];
 
-    @Cap(type = CapType.ITEMS_AUTOMATION)
     private final GenericItemHandler items = GenericItemHandler.create(this, CONTAINER_FACTORY)
             .itemValid((slot, stack) -> stack.getItem() instanceof FilterModuleItem)
             .onUpdate((slot, stack) -> clearFilterCache())
             .build();
+    @Cap(type = CapType.ITEMS_AUTOMATION)
+    private static final Function<TileEntityController, IItemHandler> ITEM_CAP = tile -> tile.items;
 
-    @Cap(type = CapType.ENERGY)
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get());
+    @Cap(type = CapType.ENERGY)
+    private static final Function<TileEntityController, GenericEnergyStorage> ENERGY_CAP = tile -> tile.energyStorage;
 
     @Cap(type = CapType.CONTAINER)
-    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
-            .containerSupplier(container(ControllerModule.CONTAINER_CONTROLLER, CONTAINER_FACTORY,this))
-            .itemHandler(() -> items)
-            .energyHandler(() -> energyStorage)
-            .setupSync(this));
+    private static final Function<TileEntityController, MenuProvider> SCREEN_CAP = be -> new DefaultContainerProvider<GenericContainer>("Controller")
+            .containerSupplier(container(ControllerModule.CONTAINER_CONTROLLER, CONTAINER_FACTORY, be))
+            .itemHandler(() -> be.items)
+            .energyHandler(() -> be.energyStorage)
+            .setupSync(be);
 
     private final Cached<NetworkChecker> networkChecker = Cached.of(this::createNetworkChecker);
 
     public TileEntityController(BlockPos pos, BlockState state) {
-        super(TYPE_CONTROLLER.get(), pos, state);
-        for (int i = 0; i < MAX_CHANNELS; i++) {
-            channels[i] = null;
-        }
+        super(CONTROLLER.be().get(), pos, state);
+        Arrays.fill(channels, null);
     }
 
     private void clearFilterCache() {
-        for (int i = 0; i < FILTER_SLOTS; i++) {
-            filterCaches[i] = null;
-        }
+        Arrays.fill(filterCaches, null);
     }
 
     @Nonnull
@@ -367,16 +367,16 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
+    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.saveAdditional(tagCompound, provider);
         if (networkId != null) {
             tagCompound.putInt("networkId", networkId.id());
         }
-        super.saveAdditional(tagCompound);
     }
 
     @Override
-    public void load(CompoundTag tagCompound) {
-        super.load(tagCompound);
+    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.loadAdditional(tagCompound, provider);
         if (tagCompound.contains("networkId")) {
             networkId = new NetworkId(tagCompound.getInt("networkId"));
         } else {
@@ -384,7 +384,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         }
     }
 
-    @Override
+    // @todo 1.21 data
     protected void saveInfo(CompoundTag tagCompound) {
         super.saveInfo(tagCompound);
         CompoundTag info = getOrCreateInfo(tagCompound);
@@ -400,26 +400,26 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         }
     }
 
-    @Override
+    // @todo 1.21 data
     public void loadInfo(CompoundTag tagCompound) {
-        super.loadInfo(tagCompound);
-        CompoundTag info = tagCompound.getCompound("Info");
-        colors = info.getInt("colors");
-        for (int i = 0; i < MAX_CHANNELS; i++) {
-            if (info.contains(JSON_CHANNEL + i)) {
-                CompoundTag tc = info.getCompound(JSON_CHANNEL + i);
-                String id = tc.getString(JSON_TYPE);
-                IChannelType type = XNet.xNetApi.findType(id);
-                if (type == null) {
-                    XNet.setup.getLogger().warn("Unsupported type " + id + "!");
-                    continue;
-                }
-                channels[i] = new ChannelInfo(type);
-                channels[i].readFromNBT(tc);
-            } else {
-                channels[i] = null;
-            }
-        }
+//        super.loadInfo(tagCompound);
+//        CompoundTag info = tagCompound.getCompound("Info");
+//        colors = info.getInt("colors");
+//        for (int i = 0; i < MAX_CHANNELS; i++) {
+//            if (info.contains(JSON_CHANNEL + i)) {
+//                CompoundTag tc = info.getCompound(JSON_CHANNEL + i);
+//                String id = tc.getString(JSON_TYPE);
+//                IChannelType type = XNet.xNetApi.findType(id);
+//                if (type == null) {
+//                    XNet.setup.getLogger().warn("Unsupported type " + id + "!");
+//                    continue;
+//                }
+//                channels[i] = new ChannelInfo(type);
+//                channels[i].readFromNBT(tc);
+//            } else {
+//                channels[i] = null;
+//            }
+//        }
     }
 
     @Nullable
@@ -877,7 +877,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                 // and also the name of the block we were connecting too
                 String name = connector.get(JSON_NAME).getAsString();
                 boolean advanced = connector.get(JSON_ADVANCED).getAsBoolean();
-                ResourceLocation block = connector.has(JSON_BLOCK) ? new ResourceLocation(connector.get(JSON_BLOCK).getAsString()) : null;
+                ResourceLocation block = connector.has(JSON_BLOCK) ? ResourceLocation.parse(connector.get(JSON_BLOCK).getAsString()) : null;
 
                 // Also get some useful settings from the connector data itself. Using these we can estimate a
                 // matching score to see how well the destination connector matches with this one
@@ -940,8 +940,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                 }
 
                 // Actually create the connector and paste the connector settings
-                ResourceLocation block = connector.has(JSON_BLOCK) ? new ResourceLocation(connector.get(JSON_BLOCK).getAsString()) : null;
-                System.out.println("Pasting " + info.getName() + " (" + block.toString() + " into " + Tools.getId(info.getConnectedState()).toString() + ") with score = " + pair.sortedMatches.get(0).getRight());
+                ResourceLocation block = connector.has(JSON_BLOCK) ? ResourceLocation.parse(connector.get(JSON_BLOCK).getAsString()) : null;
+                System.out.println("Pasting " + info.getName() + " (" + block.toString() + " into " + Tools.getId(info.getConnectedState()) + ") with score = " + pair.sortedMatches.get(0).getRight());
                 ConnectorInfo connectorInfo = createConnector(channel, info.getPos());
                 connectorInfo.getConnectorSettings().readFromJson(connectorSettings);
 

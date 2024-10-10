@@ -14,7 +14,7 @@ public class FacadeBlockId {
     }
 
     public BlockState getBlockState() {
-        return Tools.getBlock(new ResourceLocation(registryName)).defaultBlockState();
+        return Tools.getBlock(ResourceLocation.parse(registryName)).defaultBlockState();
     }
 
     @Override

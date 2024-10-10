@@ -38,8 +38,8 @@ public class ConnectorUpgradeItem extends Item {
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(@Nonnull ItemStack stack, TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, tooltip, flagIn);
         tooltip.add(ComponentFactory.literal(ChatFormatting.BLUE + "Sneak right click this on a"));
         tooltip.add(ComponentFactory.literal(ChatFormatting.BLUE + "normal connector to upgrade it"));
         tooltip.add(ComponentFactory.literal(ChatFormatting.BLUE + "to an advanced connector"));
@@ -64,7 +64,7 @@ public class ConnectorUpgradeItem extends Item {
             if (!world.isClientSide) {
                 BlockEntity te = world.getBlockEntity(pos);
                 if (te instanceof ConnectorTileEntity) {
-                    CompoundTag tag = te.saveWithoutMetadata();
+                    CompoundTag tag = te.saveWithoutMetadata(world.registryAccess());
                     CableColor color = world.getBlockState(pos).getValue(GenericCableBlock.COLOR);
 
                     XNetBlobData blobData = XNetBlobData.get(world);

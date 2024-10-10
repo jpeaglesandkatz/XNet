@@ -4,8 +4,9 @@ import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.xnet.XNet;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
@@ -21,7 +22,7 @@ public class ControllerChannelClientInfo {
 
     public static class Serializer implements ISerializer<ControllerChannelClientInfo> {
         @Override
-        public Function<FriendlyByteBuf, ControllerChannelClientInfo> getDeserializer() {
+        public Function<RegistryFriendlyByteBuf, ControllerChannelClientInfo> getDeserializer() {
             return buf -> {
                 if (buf.readBoolean()) {
                     return new ControllerChannelClientInfo(buf);
@@ -32,7 +33,7 @@ public class ControllerChannelClientInfo {
         }
 
         @Override
-        public BiConsumer<FriendlyByteBuf, ControllerChannelClientInfo> getSerializer() {
+        public BiConsumer<RegistryFriendlyByteBuf, ControllerChannelClientInfo> getSerializer() {
             return (buf, info) -> {
                 if (info == null) {
                     buf.writeBoolean(false);

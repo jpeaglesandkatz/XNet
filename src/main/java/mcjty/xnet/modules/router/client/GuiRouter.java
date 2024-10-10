@@ -18,8 +18,10 @@ import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
 import javax.annotation.Nonnull;
 
@@ -33,19 +35,19 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
     private boolean needsRefresh = true;
     private int listDirty;
 
-    private static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
+    private static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
-    public GuiRouter(TileEntityRouter router, GenericContainer container, Inventory inventory) {
-        super(router, container, inventory, RouterModule.ROUTER.get().getManualEntry());
+    public GuiRouter(GenericContainer container, Inventory inventory, Component title) {
+        super(container, inventory, title, RouterModule.ROUTER.block().get().getManualEntry());
     }
 
-    public static void register() {
-        register(RouterModule.CONTAINER_ROUTER.get(), GuiRouter::new);
+    public static void register(RegisterMenuScreensEvent event) {
+        event.register(RouterModule.CONTAINER_ROUTER.get(), GuiRouter::new);
     }
 
     @Override
     public void init() {
-        window = new Window(this, tileEntity, new ResourceLocation(XNet.MODID, "gui/router.gui"));
+        window = new Window(this, getBE(), ResourceLocation.fromNamespaceAndPath(XNet.MODID, "gui/router.gui"));
         super.init();
 
         localChannelList = window.findChild("localchannels");
@@ -65,6 +67,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
     }
 
     private void refresh() {
+        TileEntityRouter tileEntity = getBE();
         tileEntity.clientLocalChannels = null;
         tileEntity.clientRemoteChannels = null;
         needsRefresh = true;
@@ -74,6 +77,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
 
 
     private boolean listsReady() {
+        TileEntityRouter tileEntity = getBE();
         return tileEntity.clientLocalChannels != null && tileEntity.clientRemoteChannels != null;
     }
 
@@ -89,6 +93,8 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         localChannelList.removeChildren();
         localChannelList.rowheight(40);
         int sel = localChannelList.getSelected();
+
+        TileEntityRouter tileEntity = getBE();
 
         for (ControllerChannelClientInfo channel : tileEntity.clientLocalChannels) {
             localChannelList.children(makeChannelLine(channel, true));
@@ -151,6 +157,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
     }
 
     private void requestListsIfNeeded() {
+        TileEntityRouter tileEntity = getBE();
         if (tileEntity.clientLocalChannels != null && tileEntity.clientRemoteChannels != null) {
             return;
         }
@@ -164,9 +171,9 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
 
 
     @Override
-    protected void renderBg(@Nonnull GuiGraphics graphics, float v, int x1, int x2) {
+    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
         requestListsIfNeeded();
         populateList();
-        drawWindow(graphics, xxx, xxx, yyy);
+        drawWindow(graphics, partialTicks, mouseX, mouseY);
     }
 }

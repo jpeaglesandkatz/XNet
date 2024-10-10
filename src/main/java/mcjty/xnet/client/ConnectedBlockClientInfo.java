@@ -4,6 +4,7 @@ import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.network.NetworkTools;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -28,7 +29,7 @@ public class ConnectedBlockClientInfo {
 
     public static class Serializer implements ISerializer<ConnectedBlockClientInfo> {
         @Override
-        public Function<FriendlyByteBuf, ConnectedBlockClientInfo> getDeserializer() {
+        public Function<RegistryFriendlyByteBuf, ConnectedBlockClientInfo> getDeserializer() {
             return buf -> {
                 if (buf.readBoolean()) {
                     return new ConnectedBlockClientInfo(buf);
@@ -39,7 +40,7 @@ public class ConnectedBlockClientInfo {
         }
 
         @Override
-        public BiConsumer<FriendlyByteBuf, ConnectedBlockClientInfo> getSerializer() {
+        public BiConsumer<RegistryFriendlyByteBuf, ConnectedBlockClientInfo> getSerializer() {
             return (buf, info) -> {
                 if (info == null) {
                     buf.writeBoolean(false);
@@ -58,17 +59,17 @@ public class ConnectedBlockClientInfo {
         this.blockName = getStackUnlocalizedName(connectedBlock);
     }
 
-    public ConnectedBlockClientInfo(@Nonnull FriendlyByteBuf buf) {
+    public ConnectedBlockClientInfo(@Nonnull RegistryFriendlyByteBuf buf) {
         pos = new SidedPos(buf.readBlockPos(), OrientationTools.DIRECTION_VALUES[buf.readByte()]);
-        connectedBlock = buf.readItem();
+        connectedBlock = NetworkTools.readItemStack(buf);
         name = NetworkTools.readStringUTF8(buf);
         blockName = NetworkTools.readStringUTF8(buf);
     }
 
-    public void writeToBuf(@Nonnull FriendlyByteBuf buf) {
+    public void writeToBuf(@Nonnull RegistryFriendlyByteBuf buf) {
         buf.writeBlockPos(pos.pos());
         buf.writeByte(pos.side().ordinal());
-        buf.writeItem(connectedBlock);
+        NetworkTools.writeItemStack(buf, connectedBlock);
         NetworkTools.writeStringUTF8(buf, name);
         NetworkTools.writeStringUTF8(buf, blockName);
     }
@@ -125,11 +126,12 @@ public class ConnectedBlockClientInfo {
     }
 
     private static CompoundTag getSubCompound(ItemStack stack, String key) {
-        if (stack.getTag() != null && stack.getTag().contains(key, 10)) {
-            return stack.getTag().getCompound(key);
-        } else {
+        // @todo 1.21 NBT
+//        if (stack.getTag() != null && stack.getTag().contains(key, 10)) {
+//            return stack.getTag().getCompound(key);
+//        } else {
             return null;
-        }
+//        }
     }
 
 }

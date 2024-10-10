@@ -20,6 +20,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.SoundType;
@@ -29,7 +30,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -76,7 +76,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 
     private final CableBlockType type;
 
-    public static enum CableBlockType {
+    public enum CableBlockType {
         CABLE,
         CONNECTOR,
         ADVANCED_CONNECTOR,
@@ -170,9 +170,8 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
         };
     }
 
-    @Nonnull
     @Override
-    public ItemStack getCloneItemStack(@Nonnull BlockGetter worldIn, @Nonnull BlockPos pos, BlockState state) {
+    public ItemStack getCloneItemStack(LevelReader worldIn, BlockPos pos, BlockState state) {
         return new ItemStack(getItem(state.getValue(COLOR)));
     }
 
@@ -305,11 +304,6 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
             world.getFluidTicks().schedule(new ScheduledTick<>(Fluids.WATER, current, Fluids.WATER.getTickDelay(world), 0L));   // @todo 1.18 what is this last parameter exactly?
         }
         return calculateState(world, current, state);
-    }
-
-    @Override
-    public boolean isPathfindable(@Nonnull BlockState state, @Nonnull BlockGetter worldIn, @Nonnull BlockPos pos, @Nonnull PathComputationType type) {
-        return super.isPathfindable(state, worldIn, pos, type);
     }
 
     @Nullable

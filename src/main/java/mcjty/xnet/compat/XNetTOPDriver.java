@@ -51,11 +51,11 @@ public class XNetTOPDriver implements TOPDriver {
                 drivers.put(id, new CableDriver());
             } else if (block instanceof ConnectorBlock) {
                 drivers.put(id, new ConnectorDriver());
-            } else if (block == ControllerModule.CONTROLLER.get()) {
+            } else if (block == ControllerModule.CONTROLLER.block().get()) {
                 drivers.put(id, new ControllerDriver());
-            } else if (block == RouterModule.ROUTER.get()) {
+            } else if (block == RouterModule.ROUTER.block().get()) {
                 drivers.put(id, new RouterDriver());
-            } else if (block == WirelessRouterModule.WIRELESS_ROUTER.get()) {
+            } else if (block == WirelessRouterModule.WIRELESS_ROUTER.block().get()) {
                 drivers.put(id, new WirelessRouterDriver());
             } else {
                 drivers.put(id, new DefaultDriver());

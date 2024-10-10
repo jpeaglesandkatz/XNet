@@ -12,7 +12,9 @@ import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
 import javax.annotation.Nonnull;
 
@@ -30,15 +32,15 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
 //        this((ConnectorTileEntity) te, container, inventory);
 //    }
 
-    public GuiConnector(ConnectorTileEntity tileEntity, GenericContainer container, Inventory inventory) {
-        super(tileEntity, container, inventory, CableModule.CONNECTOR.get().getManualEntry());
+    public GuiConnector(GenericContainer container, Inventory inventory, Component title) {
+        super(container, inventory, title, CableModule.CONNECTOR.get().getManualEntry());
 
         imageWidth = WIDTH;
         imageHeight = HEIGHT;
     }
 
-    public static void register() {
-        register(CableModule.CONTAINER_CONNECTOR.get(), GuiConnector::new);
+    public static void register(RegisterMenuScreensEvent event) {
+        event.register(CableModule.CONTAINER_CONNECTOR.get(), GuiConnector::new);
     }
 
     @Override
@@ -54,6 +56,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
 
         Panel togglePanel = horizontal().
                 children(label("Directions:"));
+        ConnectorTileEntity tileEntity = getBE();
         for (Direction facing : OrientationTools.DIRECTION_VALUES) {
             toggleButtons[facing.ordinal()] = new ToggleButton().text(facing.getSerializedName().substring(0, 1).toUpperCase())
                 .event(() -> {
@@ -76,6 +79,6 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
 
     @Override
     protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-        drawWindow(graphics, xxx, xxx, yyy);
+        drawWindow(graphics, partialTicks, mouseX, mouseY);
     }
 }

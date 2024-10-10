@@ -21,7 +21,7 @@ import static mcjty.lib.gui.widgets.Widgets.textfield;
 
 public abstract class AbstractEditorPanel implements IEditorGui {
 
-    public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
+    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
     public static final int LEFTMARGIN = 3;
     public static final int TOPMARGIN = 3;

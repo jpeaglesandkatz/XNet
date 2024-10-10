@@ -1,6 +1,8 @@
 package mcjty.xnet.apiimpl.logic;
 
 import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
@@ -10,10 +12,14 @@ import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
+import mcjty.xnet.apiimpl.fluids.FluidChannelSettings;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -26,10 +32,10 @@ import java.util.Map;
 
 public class LogicChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
-    public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
+    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
-    private int delay = 0;
-    private int colors = 0;     // Colors for this channel
+    public int delay = 0;
+    public int colors = 0;     // Colors for this channel
     private List<Pair<SidedConsumer, LogicConnectorSettings>> sensors = null;
     private List<Pair<SidedConsumer, LogicConnectorSettings>> outputs = null;
 

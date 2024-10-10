@@ -24,7 +24,7 @@ import java.util.Set;
 
 public class FluidConnectorSettings extends AbstractConnectorSettings {
 
-    public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
+    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
     public static final String TAG_MODE = "mode";
     public static final String TAG_RATE = "rate";
@@ -229,12 +229,13 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         if (speed == 0) {
             speed = 2;
         }
-        if (tag.contains("filter")) {
-            CompoundTag itemTag = tag.getCompound("filter");
-            filter = ItemStack.of(itemTag);
-        } else {
+        // @todo 1.21 NBT
+//        if (tag.contains("filter")) {
+//            CompoundTag itemTag = tag.getCompound("filter");
+//            filter = ItemStack.of(itemTag);
+//        } else {
             filter = ItemStack.EMPTY;
-        }
+//        }
     }
 
     @Override
@@ -253,7 +254,8 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         tag.putInt("speed", speed);
         if (!filter.isEmpty()) {
             CompoundTag itemTag = new CompoundTag();
-            filter.save(itemTag);
+            // @todo 1.21 NBT
+//            filter.save(itemTag);
             tag.put("filter", itemTag);
         }
     }

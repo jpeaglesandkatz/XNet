@@ -5,9 +5,9 @@ import com.electronwill.nightconfig.core.io.WritingMode;
 import com.google.common.collect.Lists;
 import mcjty.lib.modules.Modules;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
-import net.neoforged.neoforge.fml.ModLoadingContext;
-import net.neoforged.neoforge.fml.config.ModConfig;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -55,7 +55,7 @@ public class Config {
     public static final ModConfigSpec.Builder SERVER_BUILDER = new ModConfigSpec.Builder();
     public static final ModConfigSpec.Builder CLIENT_BUILDER = new ModConfigSpec.Builder();
 
-    public static void register(Modules modules) {
+    public static void register(ModContainer mod, Modules modules) {
         SERVER_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
         CLIENT_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
 
@@ -140,22 +140,22 @@ public class Config {
         SERVER_CONFIG = SERVER_BUILDER.build();
         CLIENT_CONFIG = CLIENT_BUILDER.build();
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, CLIENT_CONFIG);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SERVER_CONFIG);
+        mod.registerConfig(ModConfig.Type.CLIENT, CLIENT_CONFIG);
+        mod.registerConfig(ModConfig.Type.SERVER, SERVER_CONFIG);
     }
 
     public static ModConfigSpec SERVER_CONFIG;
     public static ModConfigSpec CLIENT_CONFIG;
 
-    public static void loadConfig(ModConfigSpec spec, Path path) {
-
-        final CommentedFileConfig configData = CommentedFileConfig.builder(path)
-                .sync()
-                .autosave()
-                .writingMode(WritingMode.REPLACE)
-                .build();
-
-        configData.load();
-        spec.setConfig(configData);
-    }
+//    public static void loadConfig(ModConfigSpec spec, Path path) {
+//
+//        final CommentedFileConfig configData = CommentedFileConfig.builder(path)
+//                .sync()
+//                .autosave()
+//                .writingMode(WritingMode.REPLACE)
+//                .build();
+//
+//        configData.load();
+//        spec.setConfig(configData);
+//    }
 }

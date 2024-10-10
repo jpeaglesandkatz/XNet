@@ -1,35 +1,34 @@
 package mcjty.xnet.modules.controller.network;
 
-import mcjty.lib.network.NetworkTools;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.controller.client.GuiController;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record PacketJsonToClipboard(String json) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = new ResourceLocation(XNet.MODID, "jsontoclipboard");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "jsontoclipboard");
+    public static final CustomPacketPayload.Type<PacketJsonToClipboard> TYPE = new Type<>(ID);
 
-    public static PacketJsonToClipboard create(FriendlyByteBuf buf) {
-        return new PacketJsonToClipboard(NetworkTools.readStringUTF8(buf));
-    }
+    public static final StreamCodec<FriendlyByteBuf, PacketJsonToClipboard> CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, PacketJsonToClipboard::json,
+            PacketJsonToClipboard::new);
 
     public static PacketJsonToClipboard create(String json) {
         return new PacketJsonToClipboard(json);
     }
 
     @Override
-    public void write(FriendlyByteBuf buf) {
-        NetworkTools.writeStringUTF8(buf, json);
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    @Override
-    public ResourceLocation id() {
-        return ID;
-    }
-
-    public void handle(PlayPayloadContext ctx) {
-        ctx.workHandler().submitAsync(() -> {
+    public void handle(IPayloadContext ctx) {
+        ctx.enqueueWork(() -> {
             GuiController.toClipboard(json);
         });
     }

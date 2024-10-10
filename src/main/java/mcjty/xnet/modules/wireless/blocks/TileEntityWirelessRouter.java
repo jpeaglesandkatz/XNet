@@ -25,6 +25,7 @@ import mcjty.xnet.modules.wireless.WirelessRouterModule;
 import mcjty.xnet.multiblock.*;
 import mcjty.xnet.setup.Config;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
@@ -35,17 +36,17 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.neoforged.neoforge.common.util.Lazy;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.empty;
 import static mcjty.xnet.modules.controller.blocks.TileEntityController.ERROR;
-import static mcjty.xnet.modules.wireless.WirelessRouterModule.TYPE_WIRELESS_ROUTER;
+import static mcjty.xnet.modules.wireless.WirelessRouterModule.WIRELESS_ROUTER;
 
 public final class TileEntityWirelessRouter extends TickingTileEntity {
 
@@ -62,16 +63,17 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
 
     private int globalChannelVersion = -1;      // Used to detect if a wireless channel has been published and we might need to recheck
 
-    @Cap(type = CapType.ENERGY)
     private final GenericEnergyStorage energyHandler = new GenericEnergyStorage(this, true, Config.wirelessRouterMaxRF.get(), Config.wirelessRouterRfPerTick.get());
+    @Cap(type = CapType.ENERGY)
+    private static final Function<TileEntityWirelessRouter, GenericEnergyStorage> ENERGY_CAP = te -> te.energyHandler;
 
     @Cap(type = CapType.CONTAINER)
-    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<GenericContainer>("Wireless Router")
-            .containerSupplier(empty(WirelessRouterModule.CONTAINER_WIRELESS_ROUTER, this))
-            .setupSync(this));
+    private static final Function<TileEntityWirelessRouter, MenuProvider> screenHandler = be -> new DefaultContainerProvider<GenericContainer>("Wireless Router")
+            .containerSupplier(empty(WirelessRouterModule.CONTAINER_WIRELESS_ROUTER, be))
+            .setupSync(be);
 
     public TileEntityWirelessRouter(BlockPos pos, BlockState state) {
-        super(TYPE_WIRELESS_ROUTER.get(), pos, state);
+        super(WIRELESS_ROUTER.be().get(), pos, state);
     }
 
     public static BaseBlock createBlock() {
@@ -305,29 +307,29 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
 
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
+    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.saveAdditional(tagCompound, provider);
         tagCompound.putBoolean("error", error);
-        super.saveAdditional(tagCompound);
     }
 
     @Override
-    public void load(CompoundTag tagCompound) {
-        super.load(tagCompound);
+    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.loadAdditional(tagCompound, provider);
         error = tagCompound.getBoolean("error");
     }
 
-    @Override
+    // @todo 1.21 data
     public void saveInfo(CompoundTag tagCompound) {
-        super.saveInfo(tagCompound);
-        CompoundTag info = getOrCreateInfo(tagCompound);
-        info.putBoolean("publicAcc", publicAccess);
+//        super.saveInfo(tagCompound);
+//        CompoundTag info = getOrCreateInfo(tagCompound);
+//        info.putBoolean("publicAcc", publicAccess);
     }
 
-    @Override
+    // @todo 1.21 data
     public void loadInfo(CompoundTag tagCompound) {
-        super.loadInfo(tagCompound);
-        CompoundTag info = tagCompound.getCompound("Info");
-        publicAccess = info.getBoolean("publicAcc");
+//        super.loadInfo(tagCompound);
+//        CompoundTag info = tagCompound.getCompound("Info");
+//        publicAccess = info.getBoolean("publicAcc");
     }
 
     @Override

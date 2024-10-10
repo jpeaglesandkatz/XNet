@@ -75,18 +75,18 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
             for (CableColor color : CableColor.VALUES) {
                 int i = color.ordinal();
                 tt[i] = new CableTextures();
-                tt[i].spriteConnector = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/connector"));
-                tt[i].spriteAdvancedConnector = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/advanced_connector"));
+                tt[i].spriteConnector = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/connector"));
+                tt[i].spriteAdvancedConnector = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/advanced_connector"));
 
-                tt[i].spriteNormalCable = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/normal_netcable"));
-                tt[i].spriteNoneCable = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/normal_none_netcable"));
-                tt[i].spriteEndCable = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/normal_end_netcable"));
-                tt[i].spriteCornerCable = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/normal_corner_netcable"));
-                tt[i].spriteThreeCable = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/normal_three_netcable"));
-                tt[i].spriteCrossCable = getTexture(new ResourceLocation(XNet.MODID, "block/cable" + i + "/normal_cross_netcable"));
+                tt[i].spriteNormalCable = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_netcable"));
+                tt[i].spriteNoneCable = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_none_netcable"));
+                tt[i].spriteEndCable = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_end_netcable"));
+                tt[i].spriteCornerCable = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_corner_netcable"));
+                tt[i].spriteThreeCable = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_three_netcable"));
+                tt[i].spriteCrossCable = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_cross_netcable"));
             }
 
-            spriteSide = getTexture(new ResourceLocation(XNet.MODID, "block/connector_side"));
+            spriteSide = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/connector_side"));
             cableTextures = tt;
         }
     }
@@ -334,7 +334,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
     @Nonnull
     @Override
     public TextureAtlasSprite getParticleIcon() {
-        return spriteCable == null ? getTexture(new ResourceLocation("minecraft", "missingno")) : spriteCable;
+        return spriteCable == null ? getTexture(ResourceLocation.fromNamespaceAndPath("minecraft", "missingno")) : spriteCable;
     }
 
     @Nonnull

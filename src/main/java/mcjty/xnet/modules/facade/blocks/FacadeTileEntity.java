@@ -6,6 +6,7 @@ import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.modules.facade.MimicBlockSupport;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -24,8 +25,8 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
-        super.onDataPacket(net, packet);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
+        super.onDataPacket(net, pkt, lookupProvider);
 
         if (level.isClientSide) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
@@ -54,14 +55,14 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
     }
 
     @Override
-    public void load(CompoundTag tagCompound) {
-        super.load(tagCompound);
+    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.loadAdditional(tagCompound, provider);
         mimicBlockSupport.readFromNBT(tagCompound);
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
-        super.saveAdditional(tagCompound);
+    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.saveAdditional(tagCompound, provider);
         mimicBlockSupport.writeToNBT(tagCompound);
     }
 

@@ -18,8 +18,10 @@ import java.util.List;
 
 public class CableModelLoader implements IGeometryLoader<CableModelLoader.CableModelGeometry> {
 
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "cableloader");
+
     public static void register(ModelEvent.RegisterGeometryLoaders event) {
-        event.register("cableloader", new CableModelLoader());
+        event.register(ID, new CableModelLoader());
     }
 
 
@@ -38,17 +40,17 @@ public class CableModelLoader implements IGeometryLoader<CableModelLoader.CableM
         @Override
         public Collection<Material> getMaterials() {
             List<Material> materials = new ArrayList<>();
-            materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/connector_side")));
+            materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/connector_side")));
 
             for (int i = 0 ; i <= 4 ; i++) {
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/advanced_connector")));
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/connector")));
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_corner_netcable")));
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_cross_netcable")));
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_end_netcable")));
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_netcable")));
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_none_netcable")));
-                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(XNet.MODID, "block/cable"+i+"/normal_three_netcable")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable"+i+"/advanced_connector")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable"+i+"/connector")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable"+i+"/normal_corner_netcable")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable"+i+"/normal_cross_netcable")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable"+i+"/normal_end_netcable")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable"+i+"/normal_netcable")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable"+i+"/normal_none_netcable")));
+                materials.add(new Material(TextureAtlas.LOCATION_BLOCKS, ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable"+i+"/normal_three_netcable")));
             }
             return materials;
         }

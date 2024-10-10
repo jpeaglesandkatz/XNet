@@ -165,7 +165,7 @@ public class ChunkBlob {
                     BlockPos pos = new BlockPos((chunkPos.x << 4) + cx, cy, (chunkPos.z << 4) + cz);
 //                    BlockPos pos = chunkPos.getBlock(cx, cy, cz);
                     Block block = world.getBlockState(pos).getBlock();
-                    boolean hasid = block == CableModule.CONNECTOR.get() || block == CableModule.ADVANCED_CONNECTOR.get() || block == CableModule.NETCABLE.get() || block == ControllerModule.CONTROLLER.get() || block == FacadeModule.FACADE.get();
+                    boolean hasid = block == CableModule.CONNECTOR.get() || block == CableModule.ADVANCED_CONNECTOR.get() || block == CableModule.NETCABLE.get() || block == ControllerModule.CONTROLLER.block().get() || block == FacadeModule.FACADE.get();
                     if (hasid != blobAllocations.containsKey(new IntPos(pos))) {
                         if (hasid) {
                             System.out.println("Allocation at " + BlockPosTools.toString(pos) + " but no cable there!");

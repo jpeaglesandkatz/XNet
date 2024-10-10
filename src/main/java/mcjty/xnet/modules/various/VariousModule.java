@@ -7,18 +7,21 @@ import mcjty.xnet.modules.various.blocks.RedstoneProxyBlock;
 import mcjty.xnet.modules.various.blocks.RedstoneProxyUBlock;
 import mcjty.xnet.modules.various.items.ConnectorUpgradeItem;
 import mcjty.xnet.setup.Registration;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredItem;
 
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.xnet.XNet.tab;
 import static mcjty.xnet.setup.Registration.BLOCKS;
 import static mcjty.xnet.setup.Registration.ITEMS;
-import static net.minecraftforge.client.model.generators.ModelProvider.BLOCK_FOLDER;
+import static net.neoforged.neoforge.client.model.generators.ModelProvider.BLOCK_FOLDER;
 
 public class VariousModule implements IModule {
 
@@ -45,7 +48,7 @@ public class VariousModule implements IModule {
     }
 
     @Override
-    public void initDatagen(DataGen dataGen) {
+    public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(REDSTONE_PROXY)
                         .stonePickaxeTags()

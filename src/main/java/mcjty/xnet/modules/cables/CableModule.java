@@ -11,6 +11,7 @@ import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
 import mcjty.xnet.modules.cables.client.ClientSetup;
 import mcjty.xnet.modules.cables.client.GuiConnector;
 import mcjty.xnet.setup.Registration;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.MenuType;
@@ -18,11 +19,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.neoforged.neoforge.api.distmarker.Dist;
-import net.neoforged.neoforge.common.Tags;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -59,14 +63,15 @@ public class CableModule implements IModule {
 
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_CONNECTOR = CONTAINERS.register("connector", GenericContainer::createContainerType);
 
-    public static final TagKey<Item> TAG_CABLES = TagTools.createItemTagKey(new ResourceLocation(XNet.MODID, "cables"));
-    public static final TagKey<Item> TAG_CONNECTORS = TagTools.createItemTagKey(new ResourceLocation(XNet.MODID, "connectors"));
-    public static final TagKey<Item> TAG_ADVANCED_CONNECTORS = TagTools.createItemTagKey(new ResourceLocation(XNet.MODID, "advanced_connectors"));
+    public static final TagKey<Item> TAG_CABLES = TagTools.createItemTagKey(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "cables"));
+    public static final TagKey<Item> TAG_CONNECTORS = TagTools.createItemTagKey(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "connectors"));
+    public static final TagKey<Item> TAG_ADVANCED_CONNECTORS = TagTools.createItemTagKey(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "advanced_connectors"));
 
     public CableModule(IEventBus bus, Dist dist) {
         if (dist.isClient()) {
             bus.addListener(ClientSetup::modelInit);
         }
+        bus.addListener(this::registerScreens);
     }
 
     @Override
@@ -76,10 +81,11 @@ public class CableModule implements IModule {
 
     @Override
     public void initClient(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> {
-            GuiConnector.register();
-        });
         ClientSetup.initClient();
+    }
+
+    public void registerScreens(RegisterMenuScreensEvent event) {
+        GuiConnector.register(event);
     }
 
     @Override
@@ -88,7 +94,7 @@ public class CableModule implements IModule {
     }
 
     @Override
-    public void initDatagen(DataGen dataGen) {
+    public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(ADVANCED_CONNECTOR)
                         .loot(p -> {

@@ -10,6 +10,7 @@ import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public class ChannelClientInfo {
 
     public static class Serializer implements ISerializer<ChannelClientInfo> {
         @Override
-        public Function<FriendlyByteBuf, ChannelClientInfo> getDeserializer() {
+        public Function<RegistryFriendlyByteBuf, ChannelClientInfo> getDeserializer() {
             return buf -> {
                 if (buf.readBoolean()) {
                     return new ChannelClientInfo(buf);
@@ -42,7 +43,7 @@ public class ChannelClientInfo {
         }
 
         @Override
-        public BiConsumer<FriendlyByteBuf, ChannelClientInfo> getSerializer() {
+        public BiConsumer<RegistryFriendlyByteBuf, ChannelClientInfo> getSerializer() {
             return (buf, info) -> {
                 if (info == null) {
                     buf.writeBoolean(false);

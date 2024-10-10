@@ -20,7 +20,7 @@ import java.util.Set;
 
 public class EnergyConnectorSettings extends AbstractConnectorSettings {
 
-    public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
+    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
     public static final String TAG_MODE = "mode";
     public static final String TAG_RATE = "rate";

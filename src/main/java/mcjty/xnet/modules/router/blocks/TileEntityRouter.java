@@ -12,7 +12,6 @@ import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
-import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
@@ -35,8 +34,6 @@ import mcjty.xnet.setup.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -56,7 +53,7 @@ import static mcjty.lib.builder.TooltipBuilder.header;
 import static mcjty.lib.builder.TooltipBuilder.key;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.modules.controller.blocks.TileEntityController.ERROR;
-import static mcjty.xnet.modules.router.RouterModule.TYPE_ROUTER;
+import static mcjty.xnet.modules.router.RouterModule.ROUTER;
 
 public final class TileEntityRouter extends GenericTileEntity {
 
@@ -71,7 +68,7 @@ public final class TileEntityRouter extends GenericTileEntity {
             .containerSupplier(empty(RouterModule.CONTAINER_ROUTER, this)));
 
     public TileEntityRouter(BlockPos pos, BlockState state) {
-        super(TYPE_ROUTER.get(), pos, state);
+        super(ROUTER.be().get(), pos, state);
     }
 
     public static BaseBlock createBlock() {
@@ -129,34 +126,34 @@ public final class TileEntityRouter extends GenericTileEntity {
         markDirtyQuick();
     }
 
-    @Override
+    // @todo 1.21 data
     public void saveInfo(CompoundTag tagCompound) {
-        super.saveInfo(tagCompound);
-        CompoundTag info = getOrCreateInfo(tagCompound);
-        info.putInt("chancnt", channelCount);
-        ListTag published = new ListTag();
-        for (Map.Entry<LocalChannelId, String> entry : publishedChannels.entrySet()) {
-            CompoundTag tc = new CompoundTag();
-            BlockPosTools.write(tc, "pos", entry.getKey().controllerPos());
-            tc.putInt("index", entry.getKey().index());
-            tc.putString("name", entry.getValue());
-            published.add(tc);
-        }
-        info.put("published", published);
+//        super.saveInfo(tagCompound);
+//        CompoundTag info = getOrCreateInfo(tagCompound);
+//        info.putInt("chancnt", channelCount);
+//        ListTag published = new ListTag();
+//        for (Map.Entry<LocalChannelId, String> entry : publishedChannels.entrySet()) {
+//            CompoundTag tc = new CompoundTag();
+//            BlockPosTools.write(tc, "pos", entry.getKey().controllerPos());
+//            tc.putInt("index", entry.getKey().index());
+//            tc.putString("name", entry.getValue());
+//            published.add(tc);
+//        }
+//        info.put("published", published);
     }
 
-    @Override
+    // @todo 1.21 data
     public void loadInfo(CompoundTag tagCompound) {
-        super.loadInfo(tagCompound);
-        CompoundTag info = tagCompound.getCompound("Info");
-        channelCount = info.getInt("chancnt");
-        ListTag published = info.getList("published", Tag.TAG_COMPOUND);
-        for (int i = 0; i < published.size(); i++) {
-            CompoundTag tc = published.getCompound(i);
-            LocalChannelId id = new LocalChannelId(BlockPosTools.read(tc, "pos"), tc.getInt("index"));
-            String name = tc.getString("name");
-            publishedChannels.put(id, name);
-        }
+//        super.loadInfo(tagCompound);
+//        CompoundTag info = tagCompound.getCompound("Info");
+//        channelCount = info.getInt("chancnt");
+//        ListTag published = info.getList("published", Tag.TAG_COMPOUND);
+//        for (int i = 0; i < published.size(); i++) {
+//            CompoundTag tc = published.getCompound(i);
+//            LocalChannelId id = new LocalChannelId(BlockPosTools.read(tc, "pos"), tc.getInt("index"));
+//            String name = tc.getString("name");
+//            publishedChannels.put(id, name);
+//        }
     }
 
     public void forEachPublishedChannel(BiConsumer<String, IChannelType> consumer) {

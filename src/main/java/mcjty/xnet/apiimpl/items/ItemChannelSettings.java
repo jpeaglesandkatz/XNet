@@ -2,6 +2,7 @@ package mcjty.xnet.apiimpl.items;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.Codec;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
@@ -18,13 +19,17 @@ import mcjty.xnet.setup.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -34,7 +39,7 @@ import java.util.function.Predicate;
 
 public class ItemChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
-    public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
+    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
     public static final String TAG_MODE = "mode";
 
@@ -42,16 +47,39 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     private Map<SidedConsumer, ItemConnectorSettings> itemExtractors = null;
     private List<Pair<SidedConsumer, ItemConnectorSettings>> itemConsumers = null;
 
-
-    public enum ChannelMode {
-        PRIORITY,
-        ROUNDROBIN
+    public Map<Integer, Integer> getIndicesAsIntegerMap() {
+        Map<Integer, Integer> map = new HashMap<>();
+        for (Map.Entry<ConsumerId, Integer> entry : extractIndices.entrySet()) {
+            map.put(entry.getKey().id(), entry.getValue());
+        }
+        return map;
     }
 
-    private ChannelMode channelMode = ChannelMode.PRIORITY;
-    private int delay = 0;
-    private int roundRobinOffset = 0;
-    private final Map<ConsumerId, Integer> extractIndices = new HashMap<>();
+    public void setIndicesAsIntegerMap(Map<Integer, Integer> map) {
+        extractIndices.clear();
+        for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
+            extractIndices.put(new ConsumerId(entry.getKey()), entry.getValue());
+        }
+    }
+
+    public enum ChannelMode implements StringRepresentable {
+        PRIORITY,
+        ROUNDROBIN;
+
+        public static final Codec<ChannelMode> CODEC = StringRepresentable.fromEnum(ChannelMode::values);
+        public static final StreamCodec<FriendlyByteBuf, ChannelMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(ChannelMode.class);
+
+        @Override
+        public String getSerializedName() {
+            return name();
+        }
+
+    }
+
+    public ChannelMode channelMode = ChannelMode.PRIORITY;
+    public int delay = 0;
+    public int roundRobinOffset = 0;
+    public final Map<ConsumerId, Integer> extractIndices = new HashMap<>();
 
     public ChannelMode getChannelMode() {
         return channelMode;
@@ -545,7 +573,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     @Nullable
     public static IItemHandler getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
-            return te.getCapability(ForgeCapabilities.ITEM_HANDLER, intSide).orElse(null);
+            return te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, te.getBlockPos(), intSide);
         }
         return null;
     }

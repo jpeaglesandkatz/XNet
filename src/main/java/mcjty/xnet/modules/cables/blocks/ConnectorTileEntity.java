@@ -1,5 +1,6 @@
 package mcjty.xnet.modules.cables.blocks;
 
+import cpw.mods.util.Lazy;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.blockcommands.Command;
@@ -20,6 +21,7 @@ import mcjty.xnet.multiblock.XNetBlobData;
 import mcjty.xnet.setup.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -28,13 +30,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.common.capabilities.Capability;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.common.util.LazyOptional;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.function.Function;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.empty;
 import static mcjty.xnet.modules.cables.CableModule.TYPE_CONNECTOR;
@@ -52,7 +51,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     private byte enabled = 0x3f;
 
-    private final LazyOptional<SidedHandler>[] sidedStorages;
+    private final Lazy<SidedHandler>[] sidedStorages;
 
     private final Block[] cachedNeighbours = new Block[OrientationTools.DIRECTION_VALUES.length];
 
@@ -68,8 +67,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Cap(type = CapType.CONTAINER)
-    private LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Connector")
-            .containerSupplier(empty(CableModule.CONTAINER_CONNECTOR, this)));
+    private static final Function<ConnectorTileEntity, MenuProvider> SCREEN_CAP = be -> new DefaultContainerProvider<GenericContainer>("Connector")
+            .containerSupplier(empty(CableModule.CONTAINER_CONNECTOR, be));
 
     public ConnectorTileEntity(BlockPos pos, BlockState state) {
         this(TYPE_CONNECTOR.get(), pos, state);
@@ -77,16 +76,15 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     protected ConnectorTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        sidedStorages = new LazyOptional[OrientationTools.DIRECTION_VALUES.length];
+        sidedStorages = new Lazy[OrientationTools.DIRECTION_VALUES.length];
         for (Direction direction : OrientationTools.DIRECTION_VALUES) {
-            sidedStorages[direction.ordinal()] = LazyOptional.of(() -> createSidedHandler(direction));
+            sidedStorages[direction.ordinal()] = Lazy.of(() -> createSidedHandler(direction));
         }
-
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
-        super.onDataPacket(net, packet);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
+        super.onDataPacket(net, pkt, lookupProvider);
 
         if (level.isClientSide) {
             requestModelDataUpdate();
@@ -166,8 +164,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
-    public void load(CompoundTag tagCompound) {
-        super.load(tagCompound);
+    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.loadAdditional(tagCompound, provider);
         energy = tagCompound.getInt("energy");
         inputFromSide = tagCompound.getIntArray("inputs");
         if (inputFromSide.length != 6) {
@@ -180,9 +178,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         }
     }
 
-    @Override
+    // @todo 1.21 data
     public void loadInfo(CompoundTag tagCompound) {
-        super.loadInfo(tagCompound);
         CompoundTag info = tagCompound.getCompound("Info");
         name = info.getString("name");
         if (info.contains("enabled")) {
@@ -193,8 +190,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
-        super.saveAdditional(tagCompound);
+    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.saveAdditional(tagCompound, provider);
         tagCompound.putInt("energy", energy);
         tagCompound.putIntArray("inputs", inputFromSide);
         mimicBlockSupport.writeToNBT(tagCompound);
@@ -214,12 +211,11 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         mimicBlockSupport.readFromNBT(tagCompound);
     }
 
-    @Override
+    // @todo 1.21 data
     public void saveInfo(CompoundTag tagCompound) {
-        super.saveInfo(tagCompound);
-        CompoundTag info = getOrCreateInfo(tagCompound);
-        info.putString("name", name);
-        info.putByte("enabled", enabled);
+//        CompoundTag info = getOrCreateInfo(tagCompound);
+//        info.putString("name", name);
+//        info.putByte("enabled", enabled);
     }
 
     public void setConnectorName(String n) {
@@ -306,18 +302,19 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
                 te.setEnabled(OrientationTools.DIRECTION_VALUES[f], e);
             });
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ENERGY) {
-            if (side == null) {
-                return LazyOptional.empty();
-            } else {
-                return sidedStorages[side.ordinal()].cast();
-            }
-        }
-        return super.getCapability(cap, side);
-    }
+    // @todo 1.21 cap
+//    @Nonnull
+//    @Override
+//    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+//        if (cap == ForgeCapabilities.ENERGY) {
+//            if (side == null) {
+//                return LazyOptional.empty();
+//            } else {
+//                return sidedStorages[side.ordinal()].cast();
+//            }
+//        }
+//        return super.getCapability(cap, side);
+//    }
 
     private SidedHandler createSidedHandler(Direction facing) {
         return new SidedHandler(facing);

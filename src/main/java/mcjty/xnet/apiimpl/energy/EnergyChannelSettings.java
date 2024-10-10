@@ -1,6 +1,7 @@
 package mcjty.xnet.apiimpl.energy;
 
 import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
 import mcjty.lib.varia.EnergyTools;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
@@ -15,12 +16,14 @@ import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.Config;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -33,7 +36,7 @@ import java.util.Map;
 
 public class EnergyChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
-    public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
+    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
     // Cache data
     private List<Pair<SidedConsumer, EnergyConnectorSettings>> energyExtractors = null;
@@ -47,7 +50,6 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
     @Override
     public void readFromJson(JsonObject data) {
     }
-
 
     @Override
     public void readFromNBT(CompoundTag tag) {
@@ -211,19 +213,21 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
     }
 
 
-    public static boolean isEnergyTE(@Nullable BlockEntity te, @Nonnull Direction side) {
-        if (te == null) {
+    public static boolean isEnergyTE(@Nullable BlockEntity be, @Nonnull Direction side) {
+        if (be == null) {
             return false;
         }
-        return te.getCapability(ForgeCapabilities.ENERGY, side).isPresent();
+        return be.getLevel().getCapability(Capabilities.EnergyStorage.BLOCK, be.getBlockPos(), side) != null;
     }
 
-    public static int getEnergyLevel(BlockEntity tileEntity, @Nonnull Direction side) {
-        if (tileEntity != null) {
-            return tileEntity.getCapability(ForgeCapabilities.ENERGY, side).map(IEnergyStorage::getEnergyStored).orElse(0);
-        } else {
-            return 0;
+    public static int getEnergyLevel(BlockEntity be, @Nonnull Direction side) {
+        if (be != null) {
+            IEnergyStorage capability = be.getLevel().getCapability(Capabilities.EnergyStorage.BLOCK, be.getBlockPos(), side);
+            if (capability != null) {
+                return capability.getEnergyStored();
+            }
         }
+        return 0;
     }
 
 

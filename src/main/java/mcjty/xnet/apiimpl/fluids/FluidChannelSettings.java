@@ -2,6 +2,7 @@ package mcjty.xnet.apiimpl.fluids;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.Codec;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
@@ -16,13 +17,16 @@ import mcjty.xnet.setup.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -34,18 +38,27 @@ import java.util.Map;
 
 public class FluidChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
-    public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
+    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
     public static final String TAG_MODE = "mode";
 
-    public enum ChannelMode {
+
+    public enum ChannelMode implements StringRepresentable {
         PRIORITY,
-        DISTRIBUTE
+        DISTRIBUTE;
+
+        public static final Codec<ChannelMode> CODEC = StringRepresentable.fromEnum(ChannelMode::values);
+        public static final StreamCodec<FriendlyByteBuf, ChannelMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(ChannelMode.class);
+
+        @Override
+        public String getSerializedName() {
+            return name();
+        }
     }
 
-    private ChannelMode channelMode = ChannelMode.DISTRIBUTE;
-    private int delay = 0;
-    private int roundRobinOffset = 0;
+    public ChannelMode channelMode = ChannelMode.DISTRIBUTE;
+    public int delay = 0;
+    public int roundRobinOffset = 0;
 
     // Cache data
     private Map<SidedConsumer, FluidConnectorSettings> fluidExtractors = null;
@@ -86,12 +99,12 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
     public void tick(int channel, IControllerContext context) {
         delay--;
         if (delay <= 0) {
-            delay = 200*6;      // Multiply of the different speeds we have
+            delay = 200 * 6;      // Multiply of the different speeds we have
         }
         if (delay % 10 != 0) {
             return;
         }
-        int d = delay/10;
+        int d = delay / 10;
 
         updateCache(channel, context);
         // @todo optimize
@@ -112,8 +125,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                 }
 
                 BlockEntity te = world.getBlockEntity(pos);
-                // @todo ugly code!
-                IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing()).map(h -> h).orElse(null);
+                IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing());
                 // @todo report error somewhere?
                 if (handler != null) {
                     if (checkRedstone(world, settings, extractorPos)) {
@@ -130,7 +142,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                     Integer count = settings.getMinmax();
                     if (count != null) {
                         int amount = countFluid(handler, extractMatcher);
-                        int canextract = amount-count;
+                        int canextract = amount - count;
                         if (canextract <= 0) {
                             continue;
                         }
@@ -154,7 +166,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                         if (inserted.isEmpty() || toextract <= 0) {
                             continue extractorsLoop;
                         }
-                    } while(remaining > 0);
+                    } while (remaining > 0);
                     if (context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
                         FluidStack stack = fetchFluid(handler, false, extractMatcher, toextract);
                         if (stack.isEmpty()) {
@@ -194,8 +206,8 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             roundRobinOffset = 0;       // Always start at 0
         }
         int amount = stack.getAmount();
-        for (int j = 0 ; j < fluidConsumers.size() ; j++) {
-            int i = (j + roundRobinOffset)  % fluidConsumers.size();
+        for (int j = 0; j < fluidConsumers.size(); j++) {
+            int i = (j + roundRobinOffset) % fluidConsumers.size();
             var entry = fluidConsumers.get(i);
             FluidConnectorSettings settings = entry.getValue();
 
@@ -215,8 +227,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                     Direction side = entry.getKey().side();
                     BlockPos pos = consumerPos.relative(side);
                     BlockEntity te = world.getBlockEntity(pos);
-                    // @todo ugly code!
-                    IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing()).map(h -> h).orElse(null);
+                    IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing());
                     // @todo report error somewhere?
                     if (handler != null) {
                         int toinsert = Math.min(settings.getRate(), amount);
@@ -224,7 +235,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                         Integer count = settings.getMinmax();
                         if (count != null) {
                             int a = countFluid(handler, settings.getMatcher());
-                            int caninsert = count-a;
+                            int caninsert = count - a;
                             if (caninsert <= 0) {
                                 continue;
                             }
@@ -251,7 +262,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
     private int countFluid(IFluidHandler handler, @Nullable FluidStack matcher) {
         int cnt = 0;
-        for (int i = 0 ; i < handler.getTanks() ; i++) {
+        for (int i = 0; i < handler.getTanks(); i++) {
             if (!handler.getFluidInTank(i).isEmpty() && (matcher == null || matcher.equals(handler.getFluidInTank(i)))) {
                 cnt += handler.getFluidInTank(i).getAmount();
             }
@@ -268,15 +279,14 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             FluidConnectorSettings settings = pair.getValue();
             BlockPos pos = consumerPosition.relative(side);
             BlockEntity te = context.getControllerWorld().getBlockEntity(pos);
-            // @todo ugly code!
-            IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing()).map(h -> h).orElse(null);
+            IFluidHandler handler = getFluidHandlerAt(te, settings.getFacing());
 
             int toinsert = Math.min(settings.getRate(), amount);
 
             Integer count = settings.getMinmax();
             if (count != null) {
                 int a = countFluid(handler, settings.getMatcher());
-                int caninsert = count-a;
+                int caninsert = count - a;
                 if (caninsert <= 0) {
                     continue;
                 }
@@ -288,7 +298,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
             int filled = handler.fill(copy, IFluidHandler.FluidAction.EXECUTE);
             if (filled > 0) {
-                roundRobinOffset = (roundRobinOffset+1) % fluidConsumers.size();
+                roundRobinOffset = (roundRobinOffset + 1) % fluidConsumers.size();
                 amount -= filled;
                 if (amount <= 0) {
                     return;
@@ -296,7 +306,6 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             }
         }
     }
-
 
 
     private void updateCache(int channel, IControllerContext context) {
@@ -349,7 +358,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
     @Override
     public void update(Map<String, Object> data) {
-        channelMode = ChannelMode.valueOf(((String)data.get(TAG_MODE)).toUpperCase());
+        channelMode = ChannelMode.valueOf(((String) data.get(TAG_MODE)).toUpperCase());
     }
 
     @Override
@@ -357,12 +366,12 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
         return 0;
     }
 
-    @Nonnull
-    public static LazyOptional<IFluidHandler> getFluidHandlerAt(@Nullable BlockEntity te, Direction intSide) {
+    @Nullable
+    public static IFluidHandler getFluidHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
-            return te.getCapability(ForgeCapabilities.FLUID_HANDLER, intSide);
+            return te.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, te.getBlockPos(), intSide);
         } else {
-            return LazyOptional.empty();
+            return null;
         }
     }
 }

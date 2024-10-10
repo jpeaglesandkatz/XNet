@@ -5,7 +5,7 @@ import net.neoforged.neoforge.common.NeoForge;
 
 public class ClientSetup {
     public static void initClient() {
-        MinecraftForge.EVENT_BUS.addListener(CableWorldRenderer::tick);
+        NeoForge.EVENT_BUS.addListener(CableWorldRenderer::tick);
     }
 
     public static void modelInit(ModelEvent.RegisterGeometryLoaders event) {

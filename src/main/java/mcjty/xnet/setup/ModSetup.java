@@ -24,8 +24,6 @@ public class ModSetup extends DefaultModSetup {
         NeoForge.EVENT_BUS.register(new ForgeEventHandlers());
 //        CommandHandler.registerCommands();
 
-        XNetMessages.registerMessages();
-
         XNet.xNetApi.registerConsumerProvider((world, blob, net) -> blob.getConsumers(net));
         XNet.xNetApi.registerChannelType(new ItemChannelType());
         XNet.xNetApi.registerChannelType(new EnergyChannelType());

@@ -1,6 +1,7 @@
 package mcjty.xnet.modules.wireless;
 
 import mcjty.lib.blocks.BaseBlock;
+import mcjty.lib.blocks.RBlock;
 import mcjty.lib.blocks.RotationType;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.builder.TooltipBuilder;
@@ -17,6 +18,7 @@ import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.Registration;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -27,14 +29,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredItem;
 
 import javax.annotation.Nonnull;
-
 import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
@@ -43,9 +47,12 @@ import static mcjty.xnet.setup.Registration.*;
 
 public class WirelessRouterModule implements IModule {
 
-    public static final DeferredBlock<BaseBlock> WIRELESS_ROUTER = BLOCKS.register("wireless_router", TileEntityWirelessRouter::createBlock);
-    public static final DeferredItem<Item> WIRELESS_ROUTER_ITEM = ITEMS.register("wireless_router", tab(() -> new BlockItem(WIRELESS_ROUTER.get(), Registration.createStandardProperties())));
-    public static final Supplier<BlockEntityType<?>> TYPE_WIRELESS_ROUTER = TILES.register("wireless_router", () -> BlockEntityType.Builder.of(TileEntityWirelessRouter::new, WIRELESS_ROUTER.get()).build(null));
+    public static final RBlock<BaseBlock, BlockItem, TileEntityWirelessRouter> WIRELESS_ROUTER = RBLOCKS.registerBlock("wireless_router",
+            TileEntityWirelessRouter.class,
+            TileEntityWirelessRouter::createBlock,
+            block -> new BlockItem(block.get(), createStandardProperties()),
+            TileEntityWirelessRouter::new
+    );
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_WIRELESS_ROUTER = CONTAINERS.register("wireless_router", GenericContainer::createContainerType);
 
     public static final DeferredBlock<BaseBlock> ANTENNA = BLOCKS.register("antenna", WirelessRouterModule::createAntennaBlock);
@@ -115,6 +122,10 @@ public class WirelessRouterModule implements IModule {
         };
     }
 
+    public WirelessRouterModule(IEventBus bus) {
+        bus.addListener(this::registerScreens);
+    }
+
     @Override
     public void init(FMLCommonSetupEvent event) {
 
@@ -122,9 +133,10 @@ public class WirelessRouterModule implements IModule {
 
     @Override
     public void initClient(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> {
-            GuiWirelessRouter.register();
-        });
+    }
+
+    public void registerScreens(RegisterMenuScreensEvent event) {
+        GuiWirelessRouter.register(event);
     }
 
     @Override
@@ -133,16 +145,16 @@ public class WirelessRouterModule implements IModule {
     }
 
     @Override
-    public void initDatagen(DataGen dataGen) {
+    public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(WIRELESS_ROUTER)
                         .ironPickaxeTags()
                         .parentedItem("block/wireless_router")
-                        .standardLoot(TYPE_WIRELESS_ROUTER)
+                        .standardLoot() // @todo 1.21 fix loot
                         .blockState(p -> {
                             ModelFile modelOk = p.frontBasedModel("wireless_router", p.modLoc("block/machine_wireless_router"));
                             ModelFile modelError = p.frontBasedModel("wireless_router_error", p.modLoc("block/machine_wireless_router_error"));
-                            VariantBlockStateBuilder builder = p.getVariantBuilder(WIRELESS_ROUTER.get());
+                            VariantBlockStateBuilder builder = p.getVariantBuilder(WIRELESS_ROUTER.block().get());
                             for (Direction direction : OrientationTools.DIRECTION_VALUES) {
                                 p.applyRotation(builder.partialState().with(BlockStateProperties.FACING, direction).with(TileEntityController.ERROR, false)
                                         .modelForState().modelFile(modelOk), direction);

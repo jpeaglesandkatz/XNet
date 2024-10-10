@@ -7,11 +7,11 @@ import mcjty.xnet.apiimpl.energy.EnergyChannelSettings;
 import mcjty.xnet.apiimpl.fluids.FluidChannelSettings;
 import mcjty.xnet.apiimpl.items.ItemChannelSettings;
 import mcjty.xnet.compat.RFToolsSupport;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -181,10 +181,13 @@ public class Sensor {
                 }
             }
             case FLUID -> {
-                return FluidChannelSettings.getFluidHandlerAt(te, settings.getFacing()).map(h -> {
-                    int cnt = countFluid(h, filter, amount + 1);
+                IFluidHandler fluidHandler = FluidChannelSettings.getFluidHandlerAt(te, settings.getFacing());
+                if (fluidHandler == null) {
+                    return false;
+                } else {
+                    int cnt = countFluid(fluidHandler, filter, amount + 1);
                     return operator.match(cnt, amount);
-                }).orElse(false);
+                }
             }
             case ENERGY -> {
                 if (EnergyChannelSettings.isEnergyTE(te, settings.getFacing())) {
@@ -242,12 +245,13 @@ public class Sensor {
         operator = Operator.values()[tag.getByte("operator" + index)];
         amount = tag.getInt("amount" + index);
         outputColor = Color.values()[tag.getByte("scolor" + index)];
-        if (tag.contains("filter" + index)) {
-            CompoundTag itemTag = tag.getCompound("filter" + index);
-            filter = ItemStack.of(itemTag);
-        } else {
-            filter = ItemStack.EMPTY;
-        }
+        // @todo 1.21 NBT
+//        if (tag.contains("filter" + index)) {
+//            CompoundTag itemTag = tag.getCompound("filter" + index);
+//            filter = ItemStack.of(itemTag);
+//        } else {
+//            filter = ItemStack.EMPTY;
+//        }
     }
 
     public void writeToNBT(CompoundTag tag) {
@@ -255,11 +259,12 @@ public class Sensor {
         tag.putByte("operator" + index, (byte) operator.ordinal());
         tag.putInt("amount" + index, amount);
         tag.putByte("scolor" + index, (byte) outputColor.ordinal());
-        if (!filter.isEmpty()) {
-            CompoundTag itemTag = new CompoundTag();
-            filter.save(itemTag);
-            tag.put("filter" + index, itemTag);
-        }
+        // @todo 1.21 NBT
+//        if (!filter.isEmpty()) {
+//            CompoundTag itemTag = new CompoundTag();
+//            filter.save(itemTag);
+//            tag.put("filter" + index, itemTag);
+//        }
     }
 
     // Count items. We will stop early if we have enough to satisfy the sensor

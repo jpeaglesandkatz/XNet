@@ -24,7 +24,7 @@ import java.util.function.Predicate;
 
 public class ItemConnectorSettings extends AbstractConnectorSettings {
 
-    public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
+    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
     public static final String TAG_MODE = "mode";
     public static final String TAG_STACK = "stack";
@@ -373,14 +373,15 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         } else {
             count = null;
         }
-        for (int i = 0 ; i < FILTER_SIZE ; i++) {
-            if (tag.contains("filter" + i)) {
-                CompoundTag itemTag = tag.getCompound("filter" + i);
-                filters.set(i, ItemStack.of(itemTag));
-            } else {
-                filters.set(i, ItemStack.EMPTY);
-            }
-        }
+        // @todo 1.21 NBT
+//        for (int i = 0 ; i < FILTER_SIZE ; i++) {
+//            if (tag.contains("filter" + i)) {
+//                CompoundTag itemTag = tag.getCompound("filter" + i);
+//                filters.set(i, ItemStack.of(itemTag));
+//            } else {
+//                filters.set(i, ItemStack.EMPTY);
+//            }
+//        }
         matcher = null;
     }
 
@@ -405,12 +406,13 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         if (count != null) {
             tag.putInt("count", count);
         }
-        for (int i = 0 ; i < FILTER_SIZE ; i++) {
-            if (!filters.get(i).isEmpty()) {
-                CompoundTag itemTag = new CompoundTag();
-                filters.get(i).save(itemTag);
-                tag.put("filter" + i, itemTag);
-            }
-        }
+        // @todo 1.21 NBT
+//        for (int i = 0 ; i < FILTER_SIZE ; i++) {
+//            if (!filters.get(i).isEmpty()) {
+//                CompoundTag itemTag = new CompoundTag();
+//                filters.get(i).save(itemTag);
+//                tag.put("filter" + i, itemTag);
+//            }
+//        }
     }
 }

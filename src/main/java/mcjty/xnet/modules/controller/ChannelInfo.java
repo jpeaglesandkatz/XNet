@@ -1,5 +1,10 @@
 package mcjty.xnet.modules.controller;
 
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
@@ -11,6 +16,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -27,9 +35,46 @@ public class ChannelInfo {
 
     private final Map<SidedConsumer, ConnectorInfo> connectors = new HashMap<>();
 
+    private static final Codec<IChannelType> CHANNEL_TYPE_CODEC = new Codec<>() {
+        @Override
+        public <T> DataResult<Pair<IChannelType, T>> decode(DynamicOps<T> ops, T input) {
+            return ops.getStringValue(input).map(s -> {
+                IChannelType type = XNet.xNetApi.findType(s);
+                return Pair.of(type, ops.empty());
+            });
+        }
+
+        @Override
+        public <T> DataResult<T> encode(IChannelType input, DynamicOps<T> ops, T prefix) {
+            return DataResult.success(ops.createString(input.getID()));
+        }
+    };
+
+    private static final StreamCodec<RegistryFriendlyByteBuf, IChannelType> CHANNEL_TYPE_STREAM_CODEC = StreamCodec.of(
+            (buf, type) -> buf.writeUtf(type.getID()),
+            (buf) -> XNet.xNetApi.findType(buf.readUtf(32767))
+    );
+
+    public static final Codec<ChannelInfo> CODEC = Codec.STRING
+            .xmap(XNet.xNetApi::findType, IChannelType::getID).dispatch(ChannelInfo::getType, IChannelType::getCodec);
+
+    public static final Codec<ChannelInfo> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            CHANNEL_TYPE_CODEC.fieldOf("type").forGetter(ChannelInfo::getType)
+            Codec.lazyInitialized(CHANNEL_TYPE_CODEC)....,
+    ).apply(instance, ChannelInfo::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, ChannelInfo> STREAM_CODEC = StreamCodec.composite(
+            CHANNEL_TYPE_STREAM_CODEC, ChannelInfo::getType,
+            ChannelInfo::new);
+
     public ChannelInfo(IChannelType type) {
         this.type = type;
         channelSettings = type.createChannel();
+    }
+
+    public ChannelInfo(IChannelType type, IChannelSettings settings) {
+        this.type = type;
+        this.channelSettings = settings;
     }
 
     @Nonnull

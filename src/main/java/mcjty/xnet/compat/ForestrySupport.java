@@ -79,33 +79,34 @@ public final class ForestrySupport {
      * @return		the item with appropriate NBT tags removed
      */
     public static ItemStack sanitize(ItemStack item, int flags) {
-	    CompoundTag tagCompound = item.getTag().copy();
-	    List<Tag> tagsToRemove = new ArrayList<>();
-	    switch (Tools.getId(item).toString()) {
-	        case QUEEN_BEE:
-	        case PRINCESS_BEE:
-	            tagsToRemove.add(Tag.GEN);
-	            //$FALL-THROUGH$
-	        case DRONE_BEE:
-	        case LARVAE_BEE:
-	            Collections.addAll(tagsToRemove, Tag.GENOME, Tag.MATE, Tag.HEALTH, Tag.IS_ANALYZED, Tag.MAX_HEALTH);
-	            item.setTag(removeTags(tagsToRemove, tagCompound, flags));
-	            break;
-	        case SAPLING:
-	        case POLLEN:
-	            Collections.addAll(tagsToRemove, Tag.GENOME, Tag.IS_ANALYZED);
-	            item.setTag(removeTags(tagsToRemove, tagCompound, flags));
-	            break;
-	        case BUTTERFLY:
-	        case SERUM:
-	        case CATERPILLAR:
-	        case COCOON:
-	            Collections.addAll(tagsToRemove, Tag.GENOME, Tag.MATE, Tag.HEALTH, Tag.IS_ANALYZED, Tag.MAX_HEALTH, Tag.AGE);
-	            item.setTag(removeTags(tagsToRemove, tagCompound, flags));
-	            break;
-	        default:
-	            throw new IllegalArgumentException("Tried to sanitize \"" + Tools.getId(item).toString() + "\" for Forestry!");
-	    }
+		// @todo 1.21 NBT
+//	    CompoundTag tagCompound = item.getTag().copy();
+//	    List<Tag> tagsToRemove = new ArrayList<>();
+//	    switch (Tools.getId(item).toString()) {
+//	        case QUEEN_BEE:
+//	        case PRINCESS_BEE:
+//	            tagsToRemove.add(Tag.GEN);
+//	            //$FALL-THROUGH$
+//	        case DRONE_BEE:
+//	        case LARVAE_BEE:
+//	            Collections.addAll(tagsToRemove, Tag.GENOME, Tag.MATE, Tag.HEALTH, Tag.IS_ANALYZED, Tag.MAX_HEALTH);
+//	            item.setTag(removeTags(tagsToRemove, tagCompound, flags));
+//	            break;
+//	        case SAPLING:
+//	        case POLLEN:
+//	            Collections.addAll(tagsToRemove, Tag.GENOME, Tag.IS_ANALYZED);
+//	            item.setTag(removeTags(tagsToRemove, tagCompound, flags));
+//	            break;
+//	        case BUTTERFLY:
+//	        case SERUM:
+//	        case CATERPILLAR:
+//	        case COCOON:
+//	            Collections.addAll(tagsToRemove, Tag.GENOME, Tag.MATE, Tag.HEALTH, Tag.IS_ANALYZED, Tag.MAX_HEALTH, Tag.AGE);
+//	            item.setTag(removeTags(tagsToRemove, tagCompound, flags));
+//	            break;
+//	        default:
+//	            throw new IllegalArgumentException("Tried to sanitize \"" + Tools.getId(item).toString() + "\" for Forestry!");
+//	    }
 	    return item;
     }
 

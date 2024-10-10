@@ -37,6 +37,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
@@ -53,9 +54,8 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -66,10 +66,10 @@ import static mcjty.lib.builder.TooltipBuilder.*;
 public class ConnectorBlock extends GenericCableBlock implements ITooltipSettings, EntityBlock {
 
     public static final ManualEntry MANUAL = ManualHelper.create("xnet:simple/connector");
-    private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
+    private final Lazy<TooltipBuilder> tooltipBuilder = Lazy.of(() -> new TooltipBuilder()
             .info(key("message.xnet.shiftmessage"))
             .infoShift(header(), gold(stack -> isAdvancedConnector()),
-                    parameter("info", stack -> Integer.toString(isAdvancedConnector() ? Config.maxRfAdvancedConnector.get() : Config.maxRfConnector.get())));
+                    parameter("info", stack -> Integer.toString(isAdvancedConnector() ? Config.maxRfAdvancedConnector.get() : Config.maxRfConnector.get()))));
 
     public ConnectorBlock(CableBlockType type) {
         super(type);
@@ -87,13 +87,12 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     }
 
     @Override
-    @Nonnull
-    public InteractionResult use(@Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand handIn, @Nonnull BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
         if (!world.isClientSide) {
             BlockEntity te = world.getBlockEntity(pos);
             if (te instanceof GenericTileEntity) {
                 GenericTileEntity genericTileEntity = (GenericTileEntity) te;
-                NetworkHooks.openScreen((ServerPlayer) player, new MenuProvider() {
+                player.openMenu(new MenuProvider() {
                     @Override
                     @Nonnull
                     public Component getDisplayName() {
@@ -285,10 +284,11 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         if (EnergyTools.isEnergyTE(te, null)) {
             return true;
         }
-        if (te.getCapability(ForgeCapabilities.ITEM_HANDLER).isPresent()) {
+        Level level = te.getLevel();
+        if (level.getCapability(Capabilities.ItemHandler.BLOCK, te.getBlockPos(), null) != null) {
             return true;
         }
-        if (te.getCapability(ForgeCapabilities.FLUID_HANDLER).isPresent()) {
+        if (level.getCapability(Capabilities.FluidHandler.BLOCK, te.getBlockPos(), null) != null) {
             return true;
         }
         if (te instanceof TileEntityController) {
@@ -328,29 +328,31 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
             Vec3 pos = builder.getOptionalParameter(LootContextParams.ORIGIN);
             ConsumerId consumer = worldBlob.getConsumerAt(new BlockPos((int) pos.x, (int) pos.y, (int) pos.z));
             if (consumer != null) {
-                drop.getOrCreateTag().putInt("consumerId", consumer.id());
+                // @todo 1.21 NBT
+//                drop.getOrCreateTag().putInt("consumerId", consumer.id());
             }
         }
         return drops;
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter worldIn, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(@Nonnull ItemStack stack, Item.TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, tooltip, flagIn);
         tooltipBuilder.get().makeTooltip(Tools.getId(this), stack, tooltip, flagIn);
     }
 
     @Override
     public void createCableSegment(Level world, BlockPos pos, ItemStack stack) {
         ConsumerId consumer;
-        if (!stack.isEmpty() && stack.hasTag() && stack.getTag().contains("consumerId")) {
-            consumer = new ConsumerId(stack.getTag().getInt("consumerId"));
-        } else {
-            XNetBlobData blobData = XNetBlobData.get(world);
-            WorldBlob worldBlob = blobData.getWorldBlob(world);
-            consumer = worldBlob.newConsumer();
-        }
-        createCableSegment(world, pos, consumer);
+        // @todo 1.21 NBT
+//        if (!stack.isEmpty() && stack.hasTag() && stack.getTag().contains("consumerId")) {
+//            consumer = new ConsumerId(stack.getTag().getInt("consumerId"));
+//        } else {
+//            XNetBlobData blobData = XNetBlobData.get(world);
+//            WorldBlob worldBlob = blobData.getWorldBlob(world);
+//            consumer = worldBlob.newConsumer();
+//        }
+//        createCableSegment(world, pos, consumer);
     }
 
     public void createCableSegment(Level world, BlockPos pos, ConsumerId consumer) {
