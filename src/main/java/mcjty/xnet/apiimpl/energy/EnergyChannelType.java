@@ -1,6 +1,7 @@
 package mcjty.xnet.apiimpl.energy;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
@@ -17,7 +18,7 @@ import javax.annotation.Nullable;
 
 public class EnergyChannelType implements IChannelType {
 
-    public static final Codec<EnergyChannelSettings> CODEC = Codec.unit(new EnergyChannelSettings());
+    public static final MapCodec<EnergyChannelSettings> CODEC = MapCodec.unit(new EnergyChannelSettings());
     public static final StreamCodec<RegistryFriendlyByteBuf, EnergyChannelSettings> STREAM_CODEC = StreamCodec.unit(new EnergyChannelSettings());
 
     @Override
@@ -31,13 +32,23 @@ public class EnergyChannelType implements IChannelType {
     }
 
     @Override
-    public Codec<? extends IChannelSettings> getCodec() {
+    public MapCodec<? extends IChannelSettings> getCodec() {
         return CODEC;
     }
 
     @Override
     public StreamCodec<RegistryFriendlyByteBuf, ? extends IChannelSettings> getStreamCodec() {
         return STREAM_CODEC;
+    }
+
+    @Override
+    public MapCodec<? extends IConnectorSettings> getConnectorCodec() {
+        return null;
+    }
+
+    @Override
+    public StreamCodec<RegistryFriendlyByteBuf, ? extends IConnectorSettings> getConnectorStreamCodec() {
+        return null;
     }
 
     @Override

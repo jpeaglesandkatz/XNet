@@ -1,13 +1,11 @@
 package mcjty.xnet.modules.controller;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
+import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
@@ -18,7 +16,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -35,46 +32,61 @@ public class ChannelInfo {
 
     private final Map<SidedConsumer, ConnectorInfo> connectors = new HashMap<>();
 
-    private static final Codec<IChannelType> CHANNEL_TYPE_CODEC = new Codec<>() {
-        @Override
-        public <T> DataResult<Pair<IChannelType, T>> decode(DynamicOps<T> ops, T input) {
-            return ops.getStringValue(input).map(s -> {
-                IChannelType type = XNet.xNetApi.findType(s);
-                return Pair.of(type, ops.empty());
-            });
-        }
-
-        @Override
-        public <T> DataResult<T> encode(IChannelType input, DynamicOps<T> ops, T prefix) {
-            return DataResult.success(ops.createString(input.getID()));
-        }
-    };
-
-    private static final StreamCodec<RegistryFriendlyByteBuf, IChannelType> CHANNEL_TYPE_STREAM_CODEC = StreamCodec.of(
-            (buf, type) -> buf.writeUtf(type.getID()),
-            (buf) -> XNet.xNetApi.findType(buf.readUtf(32767))
-    );
-
-    public static final Codec<ChannelInfo> CODEC = Codec.STRING
-            .xmap(XNet.xNetApi::findType, IChannelType::getID).dispatch(ChannelInfo::getType, IChannelType::getCodec);
+    private static final Codec<IChannelSettings> CHANNEL_SETTINGS_CODEC = Codec.lazyInitialized(() -> Codec.STRING.dispatch("type",
+            e -> e.getType().getID(),
+            s -> XNet.xNetApi.findType(s).getCodec()));
 
     public static final Codec<ChannelInfo> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            CHANNEL_TYPE_CODEC.fieldOf("type").forGetter(ChannelInfo::getType)
-            Codec.lazyInitialized(CHANNEL_TYPE_CODEC)....,
+            CHANNEL_SETTINGS_CODEC.fieldOf("settings").forGetter(ChannelInfo::getChannelSettings),
+            Codec.STRING.fieldOf("name").forGetter(ChannelInfo::getChannelName),
+            Codec.BOOL.fieldOf("enabled").forGetter(ChannelInfo::isEnabled),
+            Codec.unboundedMap(SidedConsumer.CODEC, ConnectorInfo.CODEC).fieldOf("connectors").forGetter(ChannelInfo::getConnectors)
     ).apply(instance, ChannelInfo::new));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ChannelInfo> STREAM_CODEC = StreamCodec.composite(
-            CHANNEL_TYPE_STREAM_CODEC, ChannelInfo::getType,
-            ChannelInfo::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, ChannelInfo> STREAM_CODEC = StreamCodec.of(
+            (buf, info) -> {
+                buf.writeUtf(info.type.getID());
+                StreamCodec<RegistryFriendlyByteBuf, IChannelSettings> streamCodec = (StreamCodec<RegistryFriendlyByteBuf, IChannelSettings>) info.type.getStreamCodec();
+                StreamCodec<RegistryFriendlyByteBuf, IConnectorSettings> connectorStreamCodec = (StreamCodec<RegistryFriendlyByteBuf, IConnectorSettings>) info.type.getConnectorStreamCodec();
+                streamCodec.encode(buf, info.channelSettings);
+                buf.writeUtf(info.getChannelName());
+                buf.writeBoolean(info.isEnabled());
+                buf.writeInt(info.connectors.size());
+                for (Map.Entry<SidedConsumer, ConnectorInfo> entry : info.connectors.entrySet()) {
+                    ConnectorInfo connectorInfo = entry.getValue();
+                    connectorStreamCodec.encode(buf, connectorInfo.getConnectorSettings());
+                    SidedConsumer.STREAM_CODEC.encode(buf, entry.getKey());
+                }
+            },
+            buf -> {
+                String id = buf.readUtf(32767);
+                IChannelType type = XNet.xNetApi.findType(id);
+                IChannelSettings settings = type.getStreamCodec().decode(buf);
+                String name = buf.readUtf(32767);
+                boolean enabled = buf.readBoolean();
+                Map<SidedConsumer, ConnectorInfo> connectorMap = new HashMap<>();
+                int size = buf.readInt();
+                for (int i = 0 ; i < size ; i++) {
+                    IConnectorSettings connectorSettings = type.getConnectorStreamCodec().decode(buf);
+                    SidedConsumer sidedConsumer = SidedConsumer.STREAM_CODEC.decode(buf);
+                    ConnectorInfo connectorInfo = new ConnectorInfo(connectorSettings, sidedConsumer, false);
+                    connectorMap.put(sidedConsumer, connectorInfo);
+                }
+                return new ChannelInfo(settings, name, enabled, connectorMap);
+            }
+    );
 
     public ChannelInfo(IChannelType type) {
         this.type = type;
         channelSettings = type.createChannel();
     }
 
-    public ChannelInfo(IChannelType type, IChannelSettings settings) {
-        this.type = type;
+    public ChannelInfo(IChannelSettings settings, String name, boolean enabled, Map<SidedConsumer, ConnectorInfo> connectors) {
+        this.type = settings.getType();
         this.channelSettings = settings;
+        this.channelName = name;
+        this.enabled = enabled;
+        this.connectors.putAll(connectors);
     }
 
     @Nonnull

@@ -1,6 +1,7 @@
 package mcjty.xnet.apiimpl.logic;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
@@ -17,7 +18,7 @@ import javax.annotation.Nullable;
 
 public class LogicChannelType implements IChannelType {
 
-    public static final Codec<LogicChannelSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    public static final MapCodec<LogicChannelSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Codec.INT.fieldOf("delay").forGetter(settings -> settings.delay),
             Codec.INT.fieldOf("colors").forGetter(settings -> settings.colors)
     ).apply(instance, (delay, colors) -> {
@@ -49,7 +50,7 @@ public class LogicChannelType implements IChannelType {
     }
 
     @Override
-    public Codec<? extends IChannelSettings> getCodec() {
+    public MapCodec<? extends IChannelSettings> getCodec() {
         return null;
     }
 

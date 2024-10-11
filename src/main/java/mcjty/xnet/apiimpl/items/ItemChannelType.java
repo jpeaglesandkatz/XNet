@@ -1,6 +1,7 @@
 package mcjty.xnet.apiimpl.items;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
@@ -21,7 +22,7 @@ import java.util.HashMap;
 
 public class ItemChannelType implements IChannelType {
 
-    public static final Codec<ItemChannelSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    public static final MapCodec<ItemChannelSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ItemChannelSettings.ChannelMode.CODEC.fieldOf("mode").forGetter(ItemChannelSettings::getChannelMode),
             Codec.INT.fieldOf("delay").forGetter(settings -> settings.delay),
             Codec.INT.fieldOf("offset").forGetter(settings -> settings.roundRobinOffset),
@@ -61,13 +62,13 @@ public class ItemChannelType implements IChannelType {
     }
 
     @Override
-    public Codec<? extends IChannelSettings> getCodec() {
-        return null;
+    public MapCodec<? extends IChannelSettings> getCodec() {
+        return CODEC;
     }
 
     @Override
     public StreamCodec<RegistryFriendlyByteBuf, ? extends IChannelSettings> getStreamCodec() {
-        return null;
+        return STREAM_CODEC;
     }
 
     @Override

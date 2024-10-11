@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import mcjty.lib.varia.EnergyTools;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
@@ -15,6 +16,7 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.Config;
+import mcjty.xnet.setup.ModSetup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -41,6 +43,11 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
     // Cache data
     private List<Pair<SidedConsumer, EnergyConnectorSettings>> energyExtractors = null;
     private List<Pair<SidedConsumer, EnergyConnectorSettings>> energyConsumers = null;
+
+    @Override
+    public IChannelType getType() {
+        return XNet.setup.energyChannelType;
+    }
 
     @Override
     public JsonObject writeToJson() {

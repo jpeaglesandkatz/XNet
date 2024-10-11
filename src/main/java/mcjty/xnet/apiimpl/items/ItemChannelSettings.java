@@ -5,6 +5,7 @@ import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.Codec;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
@@ -83,6 +84,11 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
     public ChannelMode getChannelMode() {
         return channelMode;
+    }
+
+    @Override
+    public IChannelType getType() {
+        return XNet.setup.itemChannelType;
     }
 
     @Override

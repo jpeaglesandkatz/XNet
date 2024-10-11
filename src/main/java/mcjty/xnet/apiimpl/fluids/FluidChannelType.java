@@ -1,6 +1,7 @@
 package mcjty.xnet.apiimpl.fluids;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
@@ -19,7 +20,7 @@ import javax.annotation.Nullable;
 
 public class FluidChannelType implements IChannelType {
 
-    public static final Codec<FluidChannelSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    public static final MapCodec<FluidChannelSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             FluidChannelSettings.ChannelMode.CODEC.fieldOf("mode").forGetter(FluidChannelSettings::getChannelMode),
             Codec.INT.fieldOf("delay").forGetter(settings -> settings.delay),
             Codec.INT.fieldOf("offset").forGetter(settings -> settings.roundRobinOffset)
@@ -55,7 +56,7 @@ public class FluidChannelType implements IChannelType {
     }
 
     @Override
-    public Codec<? extends IChannelSettings> getCodec() {
+    public MapCodec<? extends IChannelSettings> getCodec() {
         return CODEC;
     }
 

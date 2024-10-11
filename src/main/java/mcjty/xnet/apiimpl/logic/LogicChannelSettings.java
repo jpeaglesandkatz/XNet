@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
@@ -38,6 +39,11 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
     public int colors = 0;     // Colors for this channel
     private List<Pair<SidedConsumer, LogicConnectorSettings>> sensors = null;
     private List<Pair<SidedConsumer, LogicConnectorSettings>> outputs = null;
+
+    @Override
+    public IChannelType getType() {
+        return XNet.setup.logicChannelType;
+    }
 
     @Override
     public JsonObject writeToJson() {

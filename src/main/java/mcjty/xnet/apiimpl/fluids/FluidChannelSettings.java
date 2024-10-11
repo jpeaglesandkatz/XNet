@@ -5,6 +5,7 @@ import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.Codec;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
@@ -42,7 +43,6 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
     public static final String TAG_MODE = "mode";
 
-
     public enum ChannelMode implements StringRepresentable {
         PRIORITY,
         DISTRIBUTE;
@@ -66,6 +66,11 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
     public ChannelMode getChannelMode() {
         return channelMode;
+    }
+
+    @Override
+    public IChannelType getType() {
+        return XNet.setup.fluidChannelType;
     }
 
     @Override

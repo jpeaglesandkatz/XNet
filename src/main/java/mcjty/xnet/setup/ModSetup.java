@@ -17,6 +17,11 @@ public class ModSetup extends DefaultModSetup {
 
     public static boolean rftoolsControl = false;
 
+    public final ItemChannelType itemChannelType = new ItemChannelType();
+    public final EnergyChannelType energyChannelType = new EnergyChannelType();
+    public final FluidChannelType fluidChannelType = new FluidChannelType();
+    public final LogicChannelType logicChannelType = new LogicChannelType();
+
     @Override
     public void init(FMLCommonSetupEvent e) {
         super.init(e);
@@ -25,10 +30,10 @@ public class ModSetup extends DefaultModSetup {
 //        CommandHandler.registerCommands();
 
         XNet.xNetApi.registerConsumerProvider((world, blob, net) -> blob.getConsumers(net));
-        XNet.xNetApi.registerChannelType(new ItemChannelType());
-        XNet.xNetApi.registerChannelType(new EnergyChannelType());
-        XNet.xNetApi.registerChannelType(new FluidChannelType());
-        XNet.xNetApi.registerChannelType(new LogicChannelType());
+        XNet.xNetApi.registerChannelType(itemChannelType);
+        XNet.xNetApi.registerChannelType(energyChannelType);
+        XNet.xNetApi.registerChannelType(fluidChannelType);
+        XNet.xNetApi.registerChannelType(logicChannelType);
     }
 
     @Override
