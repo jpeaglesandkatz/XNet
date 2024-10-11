@@ -3,6 +3,8 @@ package mcjty.xnet.apiimpl.fluids;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
@@ -19,6 +21,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
@@ -56,9 +60,30 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
         }
     }
 
-    public ChannelMode channelMode = ChannelMode.DISTRIBUTE;
-    public int delay = 0;
-    public int roundRobinOffset = 0;
+    private ChannelMode channelMode = ChannelMode.DISTRIBUTE;
+    private int delay = 0;
+    private int roundRobinOffset = 0;
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, FluidChannelSettings> STREAM_CODEC = StreamCodec.composite(
+            ChannelMode.STREAM_CODEC, FluidChannelSettings::getChannelMode,
+            ByteBufCodecs.INT, s -> s.delay,
+            ByteBufCodecs.INT, s -> s.roundRobinOffset,
+            FluidChannelSettings::new
+    );
+    public static final MapCodec<FluidChannelSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ChannelMode.CODEC.fieldOf("mode").forGetter(FluidChannelSettings::getChannelMode),
+            Codec.INT.fieldOf("delay").forGetter(settings -> settings.delay),
+            Codec.INT.fieldOf("offset").forGetter(settings -> settings.roundRobinOffset)
+    ).apply(instance, FluidChannelSettings::new));
+
+    public FluidChannelSettings() {
+    }
+
+    public FluidChannelSettings(ChannelMode channelMode, int delay, int roundRobinOffset) {
+        this.channelMode = channelMode;
+        this.delay = delay;
+        this.roundRobinOffset = roundRobinOffset;
+    }
 
     // Cache data
     private Map<SidedConsumer, FluidConnectorSettings> fluidExtractors = null;

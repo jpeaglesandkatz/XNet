@@ -3,18 +3,28 @@ package mcjty.xnet.apiimpl.items;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import mcjty.lib.varia.CompositeStreamCodec;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.lib.varia.JSonTools;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,21 +52,45 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
 
     public static final int FILTER_SIZE = 18;
 
-    public enum ItemMode {
+    public enum ItemMode implements StringRepresentable {
         INS,
-        EXT
+        EXT;
+
+        public static final Codec<ItemMode> CODEC = StringRepresentable.fromEnum(ItemMode::values);
+        public static final StreamCodec<RegistryFriendlyByteBuf, ItemMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(ItemMode.class);
+
+        @Override
+        public String getSerializedName() {
+            return name();
+        }
     }
 
-    public enum StackMode {
+    public enum StackMode implements StringRepresentable {
         SINGLE,
         STACK,
-        COUNT
+        COUNT;
+
+        public static final Codec<StackMode> CODEC = StringRepresentable.fromEnum(StackMode::values);
+        public static final StreamCodec<RegistryFriendlyByteBuf, StackMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(StackMode.class);
+
+        @Override
+        public String getSerializedName() {
+            return name();
+        }
     }
 
-    public enum ExtractMode {
+    public enum ExtractMode implements StringRepresentable {
         FIRST,
         RND,
-        ORDER
+        ORDER;
+
+        public static final Codec<ExtractMode> CODEC = StringRepresentable.fromEnum(ExtractMode::values);
+        public static final StreamCodec<RegistryFriendlyByteBuf, ExtractMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(ExtractMode.class);
+
+        @Override
+        public String getSerializedName() {
+            return name();
+        }
     }
 
     private ItemMode itemMode = ItemMode.INS;
@@ -74,6 +108,73 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     private final ItemStackList filters = ItemStackList.create(FILTER_SIZE);
     private int filterIndex = -1;
 
+    public static final MapCodec<ItemConnectorSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ItemMode.CODEC.fieldOf("itemMode").forGetter(settings -> settings.itemMode),
+            ExtractMode.CODEC.fieldOf("extractMode").forGetter(settings -> settings.extractMode),
+            StackMode.CODEC.fieldOf("stackMode").forGetter(settings -> settings.stackMode),
+            Codec.INT.fieldOf("speed").forGetter(settings -> settings.speed),
+            Codec.INT.fieldOf("filterIndex").forGetter(settings -> settings.filterIndex),
+            Codec.BOOL.fieldOf("tagsMode").forGetter(settings -> settings.tagsMode),
+            Codec.BOOL.fieldOf("metaMode").forGetter(settings -> settings.metaMode),
+            Codec.BOOL.fieldOf("nbtMode").forGetter(settings -> settings.nbtMode),
+            Codec.BOOL.fieldOf("blacklist").forGetter(settings -> settings.blacklist),
+            Codec.INT.optionalFieldOf("priority", 0).forGetter(settings -> settings.priority),
+            Codec.INT.optionalFieldOf("extractAmount", 1).forGetter(settings -> settings.extractAmount),
+            Codec.INT.optionalFieldOf("count", null).forGetter(settings -> settings.count),
+            ItemStack.CODEC.listOf().fieldOf("filters").forGetter(settings -> settings.filters)
+    ).apply(instance, (itemMode, extractMode, stackMode, speed, filterIndex, tagsMode, metaMode, nbtMode, blacklist, priority, extractAmount, count, filters) -> {
+        ItemConnectorSettings settings = new ItemConnectorSettings(Direction.NORTH);
+        settings.itemMode = itemMode;
+        settings.extractMode = extractMode;
+        settings.stackMode = stackMode;
+        settings.speed = speed;
+        settings.filterIndex = filterIndex;
+        settings.tagsMode = tagsMode;
+        settings.metaMode = metaMode;
+        settings.nbtMode = nbtMode;
+        settings.blacklist = blacklist;
+        settings.priority = priority;
+        settings.extractAmount = extractAmount;
+        settings.count = count;
+        settings.filters.clear();
+        settings.filters.addAll(filters);
+        return settings;
+    }));
+
+    public static StreamCodec<RegistryFriendlyByteBuf, ItemConnectorSettings> STREAM_CODEC = CompositeStreamCodec.composite(
+            ItemMode.STREAM_CODEC, s -> s.itemMode,
+            ExtractMode.STREAM_CODEC, s -> s.extractMode,
+            StackMode.STREAM_CODEC, s -> s.stackMode,
+            ByteBufCodecs.INT, s -> s.speed,
+            ByteBufCodecs.INT, s -> s.filterIndex,
+            ByteBufCodecs.BOOL, s -> s.tagsMode,
+            ByteBufCodecs.BOOL, s -> s.metaMode,
+            ByteBufCodecs.BOOL, s -> s.nbtMode,
+            ByteBufCodecs.BOOL, s -> s.blacklist,
+            ByteBufCodecs.INT, s -> s.priority,
+            ByteBufCodecs.INT, s -> s.extractAmount,
+            ByteBufCodecs.INT, s -> s.count,
+            ItemStack.OPTIONAL_LIST_STREAM_CODEC, s -> s.filters,
+            (itemMode, extractMode, stackMode, speed, filterIndex, tagsMode, metaMode, nbtMode, blacklist, priority, extractAmount, count, filters) -> {
+                ItemConnectorSettings settings = new ItemConnectorSettings(Direction.NORTH);
+                settings.itemMode = itemMode;
+                settings.extractMode = extractMode;
+                settings.stackMode = stackMode;
+                settings.speed = speed;
+                settings.filterIndex = filterIndex;
+                settings.tagsMode = tagsMode;
+                settings.metaMode = metaMode;
+                settings.nbtMode = nbtMode;
+                settings.blacklist = blacklist;
+                settings.priority = priority;
+                settings.extractAmount = extractAmount;
+                settings.count = count;
+                settings.filters.clear();
+                settings.filters.addAll(filters);
+                return settings;
+            }
+    );
+
     // Cached matcher for items
     private Predicate<ItemStack> matcher = null;
 
@@ -83,6 +184,11 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
 
     public ItemConnectorSettings(@Nonnull Direction side) {
         super(side);
+    }
+
+    @Override
+    public IChannelType getType() {
+        return XNet.setup.itemChannelType;
     }
 
     @Nullable

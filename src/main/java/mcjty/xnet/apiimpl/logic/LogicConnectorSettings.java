@@ -5,17 +5,28 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.varia.JSonTools;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.helper.BaseStringTranslators;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,19 +43,52 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     public static final String TAG_SPEED = "speed";
     public static final String TAG_REDSTONE_OUT = "rsout";
 
-    public enum LogicMode {
+    public enum LogicMode implements StringRepresentable {
         SENSOR,
-        OUTPUT
+        OUTPUT;
+
+        public static final Codec<LogicMode> CODEC = StringRepresentable.fromEnum(LogicMode::values);
+        public static final StreamCodec<FriendlyByteBuf, LogicMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(LogicMode.class);
+
+        @Override
+        public String getSerializedName() {
+            return name();
+        }
     }
 
     public static final int SENSORS = 4;
 
-    private LogicMode logicMode = LogicMode.SENSOR;
     private List<Sensor> sensors = null;
 
+    private LogicMode logicMode = LogicMode.SENSOR;
     private int colors;         // Current colormask
     private int speed = 2;
     private Integer redstoneOut;    // Redstone output value
+
+    public static final MapCodec<LogicConnectorSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Direction.CODEC.fieldOf("side").forGetter(LogicConnectorSettings::getSide),
+            LogicMode.CODEC.fieldOf("mode").forGetter(LogicConnectorSettings::getLogicMode),
+            Codec.INT.fieldOf("colors").forGetter(settings -> settings.colors),
+            Codec.INT.fieldOf("speed").forGetter(settings -> settings.speed),
+            Codec.INT.fieldOf("rsout").forGetter(settings -> settings.redstoneOut)
+    ).apply(instance, LogicConnectorSettings::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, LogicConnectorSettings> STREAM_CODEC = StreamCodec.composite(
+            Direction.STREAM_CODEC, AbstractConnectorSettings::getSide,
+            LogicMode.STREAM_CODEC, LogicConnectorSettings::getLogicMode,
+            ByteBufCodecs.INT, s -> s.colors,
+            ByteBufCodecs.INT, s -> s.speed,
+            ByteBufCodecs.INT, s -> s.redstoneOut,
+            LogicConnectorSettings::new
+    );
+
+    public LogicConnectorSettings(@NotNull Direction side, LogicMode logicMode, int colors, int speed, Integer redstoneOut) {
+        this(side);
+        this.logicMode = logicMode;
+        this.colors = colors;
+        this.speed = speed;
+        this.redstoneOut = redstoneOut;
+    }
 
     public LogicConnectorSettings(@Nonnull Direction side) {
         super(side);
@@ -70,6 +114,11 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
         return redstoneOut;
     }
 
+    @Override
+    public IChannelType getType() {
+        return XNet.setup.logicChannelType;
+    }
+
     @Nullable
     @Override
     public IndicatorIcon getIndicatorIcon() {
@@ -78,8 +127,6 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
             case OUTPUT -> new IndicatorIcon(iconGuiElements, 39, 70, 13, 10);
         };
     }
-
-
 
     @Nullable
     @Override

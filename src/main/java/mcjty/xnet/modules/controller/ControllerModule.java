@@ -29,9 +29,11 @@ import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
+import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.setup.Registration.*;
 
 public class ControllerModule implements IModule {
@@ -45,7 +47,13 @@ public class ControllerModule implements IModule {
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_CONTROLLER = CONTAINERS.register("controller", GenericContainer::createContainerType);
 
     public static final Supplier<AttachmentType<ControllerData>> CONTROLLER_DATA = ATTACHMENT_TYPES.register(
-            "controller_data", () -> AttachmentType.builder(() -> new ControllerData(0, new ArrayList<>()))
+            "controller_data", () -> AttachmentType.builder(() -> {
+                        var data = new ControllerData(0, new ArrayList<>());
+                        for (int i = 0; i < MAX_CHANNELS; i++) {
+                            data.channels().add(null);
+                        }
+                        return data;
+                    })
                     .serialize(ControllerData.CODEC)
                     .build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ControllerData>> ITEM_CONTROLLER_DATA = COMPONENTS.registerComponentType(

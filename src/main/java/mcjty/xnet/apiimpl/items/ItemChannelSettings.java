@@ -3,6 +3,8 @@ package mcjty.xnet.apiimpl.items;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
@@ -21,6 +23,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
@@ -77,10 +81,34 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
     }
 
-    public ChannelMode channelMode = ChannelMode.PRIORITY;
-    public int delay = 0;
-    public int roundRobinOffset = 0;
+    private ChannelMode channelMode = ChannelMode.PRIORITY;
+    private int delay = 0;
+    private int roundRobinOffset = 0;
     public final Map<ConsumerId, Integer> extractIndices = new HashMap<>();
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, ItemChannelSettings> STREAM_CODEC = StreamCodec.composite(
+            ChannelMode.STREAM_CODEC, ItemChannelSettings::getChannelMode,
+            ByteBufCodecs.INT, s -> s.delay,
+            ByteBufCodecs.INT, s -> s.roundRobinOffset,
+            ByteBufCodecs.map(HashMap::new, ByteBufCodecs.INT, ByteBufCodecs.INT), ItemChannelSettings::getIndicesAsIntegerMap,
+            ItemChannelSettings::new
+    );
+    public static final MapCodec<ItemChannelSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ChannelMode.CODEC.fieldOf("mode").forGetter(ItemChannelSettings::getChannelMode),
+            Codec.INT.fieldOf("delay").forGetter(settings -> settings.delay),
+            Codec.INT.fieldOf("offset").forGetter(settings -> settings.roundRobinOffset),
+            Codec.unboundedMap(Codec.INT, Codec.INT).fieldOf("extidx").forGetter(ItemChannelSettings::getIndicesAsIntegerMap)
+    ).apply(instance, ItemChannelSettings::new));
+
+    public ItemChannelSettings() {
+    }
+
+    public ItemChannelSettings(ChannelMode channelMode, int delay, int roundRobinOffset, Map<Integer, Integer> itemExtractors) {
+        this.channelMode = channelMode;
+        this.delay = delay;
+        this.roundRobinOffset = roundRobinOffset;
+        setIndicesAsIntegerMap(itemExtractors);
+    }
 
     public ChannelMode getChannelMode() {
         return channelMode;

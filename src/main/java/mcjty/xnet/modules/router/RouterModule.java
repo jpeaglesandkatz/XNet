@@ -9,10 +9,13 @@ import mcjty.lib.modules.IModule;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.modules.various.VariousModule;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
+import mcjty.xnet.modules.controller.data.ControllerData;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.modules.router.client.GuiRouter;
+import mcjty.xnet.modules.router.data.RouterData;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Items;
@@ -20,13 +23,18 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
+import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.setup.Registration.*;
 
 public class RouterModule implements IModule {
@@ -38,6 +46,16 @@ public class RouterModule implements IModule {
             TileEntityRouter::new
     );
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_ROUTER = CONTAINERS.register("router", GenericContainer::createContainerType);
+
+    public static final Supplier<AttachmentType<RouterData>> ROUTER_DATA = ATTACHMENT_TYPES.register(
+            "router_data", () -> AttachmentType.builder(() -> RouterData.EMPTY)
+                    .serialize(RouterData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<RouterData>> ITEM_ROUTER_DATA = COMPONENTS.registerComponentType(
+            "router_data",
+            builder -> builder
+                    .persistent(RouterData.CODEC)
+                    .networkSynchronized(RouterData.STREAM_CODEC));
 
     public RouterModule(IEventBus bus) {
         bus.addListener(this::registerScreens);

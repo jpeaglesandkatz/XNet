@@ -30,7 +30,7 @@ public class ConnectorInfo {
     public static final StreamCodec<RegistryFriendlyByteBuf, ConnectorInfo> STREAM_CODEC = StreamCodec.of(
             (buf, info) -> {
                 buf.writeUtf(info.type.getID());
-                StreamCodec<RegistryFriendlyByteBuf, IConnectorSettings> streamCodec = (StreamCodec<RegistryFriendlyByteBuf, IConnectorSettings>) info.type.getStreamCodec();
+                StreamCodec<RegistryFriendlyByteBuf, IConnectorSettings> streamCodec = (StreamCodec<RegistryFriendlyByteBuf, IConnectorSettings>) info.type.getConnectorStreamCodec();
                 streamCodec.encode(buf, info.connectorSettings);
                 SidedConsumer.STREAM_CODEC.encode(buf, info.id);
                 buf.writeBoolean(info.isAdvanced());

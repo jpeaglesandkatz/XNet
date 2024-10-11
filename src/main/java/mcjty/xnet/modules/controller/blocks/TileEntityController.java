@@ -44,6 +44,7 @@ import mcjty.xnet.modules.controller.ConnectedBlockInfo;
 import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.controller.KnownUnsidedBlocks;
 import mcjty.xnet.modules.controller.client.GuiController;
+import mcjty.xnet.modules.controller.data.ControllerData;
 import mcjty.xnet.modules.controller.network.PacketControllerError;
 import mcjty.xnet.modules.controller.network.PacketJsonToClipboard;
 import mcjty.xnet.multiblock.*;
@@ -115,8 +116,6 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     private NetworkId networkId;
     private int wirelessVersion = -1;   // To invalidate wireless channels if needed
 
-    private final ChannelInfo[] channels = new ChannelInfo[MAX_CHANNELS];
-
     // Cached/transient data
     private final Map<SidedConsumer, IConnectorSettings> cachedConnectors[] = new Map[MAX_CHANNELS];
     private final Map<SidedConsumer, IConnectorSettings> cachedRoutedConnectors[] = new Map[MAX_CHANNELS];
@@ -143,7 +142,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
     public TileEntityController(BlockPos pos, BlockState state) {
         super(CONTROLLER.be().get(), pos, state);
-        Arrays.fill(channels, null);
+//        Arrays.fill(channels, null);
     }
 
     private void clearFilterCache() {
@@ -226,8 +225,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         markDirtyQuick();
     }
 
-    public ChannelInfo[] getChannels() {
-        return channels;
+    public List<ChannelInfo> getChannels() {
+        return getData(ControllerModule.CONTROLLER_DATA).channels();
     }
 
     public Cached<NetworkChecker> getNetworkChecker() {
@@ -250,8 +249,9 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     private void cleanCaches() {
-        for (int i = 0; i < MAX_CHANNELS; i++) {
-            if (channels[i] != null) {
+        ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+        for (int i = 0; i < data.channels().size(); i++) {
+            if (data.channels().get(i) != null) {
                 cleanCache(i);
             }
         }
@@ -259,11 +259,12 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
     @Override
     public boolean matchColor(int colorMask) {
+        int colors = getData(ControllerModule.CONTROLLER_DATA).colors();
         return (colors & colorMask) == colorMask;
     }
 
     public int getColors() {
-        return colors;
+        return getData(ControllerModule.CONTROLLER_DATA).colors();
     }
 
     @Override
@@ -290,18 +291,19 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
         boolean dirty = false;
         int newcolors = 0;
+        ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
         for (int i = 0; i < MAX_CHANNELS; i++) {
-            if (channels[i] != null && channels[i].isEnabled()) {
+            if (data.channels().get(i) != null && data.channels().get(i).isEnabled()) {
                 if (checkAndConsumeRF(Config.controllerChannelRFT.get())) {
-                    channels[i].getChannelSettings().tick(i, this);
+                    data.channels().get(i).getChannelSettings().tick(i, this);
                 }
-                newcolors |= channels[i].getChannelSettings().getColors();
+                newcolors |= data.channels().get(i).getChannelSettings().getColors();
                 dirty = true;
             }
         }
-        if (newcolors != colors) {
-            dirty = true;
-            colors = newcolors;
+        if (newcolors != data.colors()) {
+            data = data.withColors(newcolors);
+            setData(ControllerModule.CONTROLLER_DATA, data);
         }
         if (dirty) {
             markDirtyQuick();
@@ -330,7 +332,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     private void cleanCache(int channel) {
         cachedConnectors[channel] = null;
         cachedRoutedConnectors[channel] = null;
-        channels[channel].getChannelSettings().cleanCache();
+        ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+        data.channels().get(channel).getChannelSettings().cleanCache();
     }
 
     @Override
@@ -339,7 +342,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         if (cachedConnectors[channel] == null) {
             WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
             cachedConnectors[channel] = new HashMap<>();
-            for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channels[channel].getConnectors().entrySet()) {
+            ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+            for (Map.Entry<SidedConsumer, ConnectorInfo> entry : data.channels().get(channel).getConnectors().entrySet()) {
                 SidedConsumer sidedConsumer = entry.getKey();
                 BlockPos pos = findConsumerPosition(sidedConsumer.consumerId());
                 if (pos != null && worldBlob.getNetworksAt(pos).contains(getNetworkId())) {
@@ -356,10 +360,11 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         if (cachedRoutedConnectors[channel] == null) {
             cachedRoutedConnectors[channel] = new HashMap<>();
 
-            if (!channels[channel].getChannelName().isEmpty()) {
+            ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+            if (!data.channels().get(channel).getChannelName().isEmpty()) {
                 LogicTools.forEachRouter(level, networkId, router -> {
                             router.addRoutedConnectors(cachedRoutedConnectors[channel], getBlockPos(),
-                                    channel, channels[channel].getType());
+                                    channel, data.channels().get(channel).getType());
                         });
             }
         }
@@ -382,44 +387,6 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         } else {
             networkId = null;
         }
-    }
-
-    // @todo 1.21 data
-    protected void saveInfo(CompoundTag tagCompound) {
-        super.saveInfo(tagCompound);
-        CompoundTag info = getOrCreateInfo(tagCompound);
-        info.putInt("colors", colors);
-
-        for (int i = 0; i < MAX_CHANNELS; i++) {
-            if (channels[i] != null) {
-                CompoundTag tc = new CompoundTag();
-                tc.putString(JSON_TYPE, channels[i].getType().getID());
-                channels[i].writeToNBT(tc);
-                info.put(JSON_CHANNEL + i, tc);
-            }
-        }
-    }
-
-    // @todo 1.21 data
-    public void loadInfo(CompoundTag tagCompound) {
-//        super.loadInfo(tagCompound);
-//        CompoundTag info = tagCompound.getCompound("Info");
-//        colors = info.getInt("colors");
-//        for (int i = 0; i < MAX_CHANNELS; i++) {
-//            if (info.contains(JSON_CHANNEL + i)) {
-//                CompoundTag tc = info.getCompound(JSON_CHANNEL + i);
-//                String id = tc.getString(JSON_TYPE);
-//                IChannelType type = XNet.xNetApi.findType(id);
-//                if (type == null) {
-//                    XNet.setup.getLogger().warn("Unsupported type " + id + "!");
-//                    continue;
-//                }
-//                channels[i] = new ChannelInfo(type);
-//                channels[i].readFromNBT(tc);
-//            } else {
-//                channels[i] = null;
-//            }
-//        }
     }
 
     @Nullable
@@ -499,8 +466,9 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     private List<ChannelClientInfo> findChannelInfo() {
         WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
 
+        ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
         List<ChannelClientInfo> chanList = new ArrayList<>();
-        for (ChannelInfo channel : channels) {
+        for (ChannelInfo channel : data.channels()) {
             if (channel != null) {
                 ChannelClientInfo clientInfo = new ChannelClientInfo(channel.getChannelName(), channel.getType(),
                         channel.getChannelSettings(), channel.isEnabled());
@@ -531,17 +499,18 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     private void updateChannel(int channel, TypedMap params) {
-        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         for (Key<?> key : params.getKeys()) {
-            data.put(key.name(), params.get(key));
+            map.put(key.name(), params.get(key));
         }
-        channels[channel].getChannelSettings().update(data);
+        ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+        data.channels().get(channel).getChannelSettings().update(map);
 
-        Boolean enabled = (Boolean) data.get(GuiController.TAG_ENABLED);
-        channels[channel].setEnabled(Boolean.TRUE.equals(enabled));
+        Boolean enabled = (Boolean) map.get(GuiController.TAG_ENABLED);
+        data.channels().get(channel).setEnabled(Boolean.TRUE.equals(enabled));
 
-        String name = (String) data.get(GuiController.TAG_NAME);
-        channels[channel].setChannelName(name);
+        String name = (String) map.get(GuiController.TAG_NAME);
+        data.channels().get(channel).setChannelName(name);
 
         XNetWirelessChannels channels = XNetWirelessChannels.get(level);
         channels.updateGlobalChannelVersion();
@@ -554,7 +523,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     private void removeChannel(int channel) {
-        channels[channel] = null;
+        ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+        data.channels().set(channel, null);
         cachedConnectors[channel] = null;
         cachedRoutedConnectors[channel] = null;
         markAsDirty();
@@ -562,21 +532,23 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
     private void createChannel(int channel, String typeId) {
         IChannelType type = XNet.xNetApi.findType(typeId);
-        channels[channel] = new ChannelInfo(type);
+        ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+        data.channels().set(channel, new ChannelInfo(type));
         markAsDirty();
     }
 
     private void updateConnector(int channel, SidedPos pos, TypedMap params) {
         WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
         ConsumerId consumerId = worldBlob.getConsumerAt(pos.pos().relative(pos.side()));
-        for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channels[channel].getConnectors().entrySet()) {
+        ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+        for (Map.Entry<SidedConsumer, ConnectorInfo> entry : data.channels().get(channel).getConnectors().entrySet()) {
             SidedConsumer key = entry.getKey();
             if (key.consumerId().equals(consumerId) && key.side().getOpposite().equals(pos.side())) {
-                Map<String, Object> data = new HashMap<>();
+                Map<String, Object> map = new HashMap<>();
                 for (Key<?> k : params.getKeys()) {
-                    data.put(k.name(), params.get(k));
+                    map.put(k.name(), params.get(k));
                 }
-                channels[channel].getConnectors().get(key).getConnectorSettings().update(data);
+                data.channels().get(channel).getConnectors().get(key).getConnectorSettings().update(map);
                 markAsDirty();
                 return;
             }
@@ -587,7 +559,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
         ConsumerId consumerId = worldBlob.getConsumerAt(pos.pos().relative(pos.side()));
         SidedConsumer toremove = null;
-        for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channels[channel].getConnectors().entrySet()) {
+        ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+        for (Map.Entry<SidedConsumer, ConnectorInfo> entry : data.channels().get(channel).getConnectors().entrySet()) {
             SidedConsumer key = entry.getKey();
             if (key.side().getOpposite().equals(pos.side())) {
                 if (key.consumerId().equals(consumerId)) {
@@ -597,7 +570,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             }
         }
         if (toremove != null) {
-            channels[channel].getConnectors().remove(toremove);
+            data.channels().get(channel).getConnectors().remove(toremove);
             markAsDirty();
         }
     }
@@ -611,7 +584,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         }
         SidedConsumer id = new SidedConsumer(consumerId, pos.side().getOpposite());
         boolean advanced = level.getBlockState(consumerPos).getBlock() == CableModule.ADVANCED_CONNECTOR.get();
-        ConnectorInfo info = channels[channel].createConnector(id, advanced);
+        ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+        ConnectorInfo info = data.channels().get(channel).createConnector(id, advanced);
         markAsDirty();
         return info;
     }
@@ -661,7 +635,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     private void copyConnector(Player player, int index, SidedPos sidedPos) {
-        ChannelInfo channel = channels[index];
+        ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+        ChannelInfo channel = data.channels().get(index);
         JsonObject parent = new JsonObject();
         IConnectorSettings connectorSettings = findConnectorSettings(channel, sidedPos);
         if (connectorSettings != null) {
@@ -683,7 +658,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     private void copyChannel(Player player, int index) {
-        ChannelInfo channel = channels[index];
+        ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+        ChannelInfo channel = data.channels().get(index);
         IChannelSettings settings = channel.getChannelSettings();
         JsonObject parent = new JsonObject();
         JsonObject channelObject = settings.writeToJson();
@@ -797,7 +773,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
             String typeId = root.get(JSON_TYPE).getAsString();
             IChannelType type = XNet.xNetApi.findType(typeId);
-            if (type != channels[channel].getType()) {
+            ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+            if (type != data.channels().get(channel).getType()) {
                 XNetMessages.sendToPlayer(PacketControllerError.create("Wrong channel type!"), player);
                 return;
             }
@@ -856,10 +833,12 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             }
             String typeId = root.get(JSON_TYPE).getAsString();
             IChannelType type = XNet.xNetApi.findType(typeId);
-            channels[channel] = new ChannelInfo(type);
-            channels[channel].setChannelName(root.get(JSON_NAME).getAsString());
-            channels[channel].getChannelSettings().readFromJson(root.get(JSON_CHANNEL).getAsJsonObject());
-            channels[channel].setEnabled(false);
+            ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+            ChannelInfo chan = new ChannelInfo(type);
+            chan.setChannelName(root.get(JSON_NAME).getAsString());
+            chan.getChannelSettings().readFromJson(root.get(JSON_CHANNEL).getAsJsonObject());
+            chan.setEnabled(false);
+            data.channels().set(channel, chan);
 
             // We try to paste the best matches first. If there are any connectors in the clip that can't
             // be pasted we'll give a warning to the user

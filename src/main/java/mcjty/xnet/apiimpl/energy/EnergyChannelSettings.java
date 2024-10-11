@@ -2,6 +2,7 @@ package mcjty.xnet.apiimpl.energy;
 
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import mcjty.lib.varia.EnergyTools;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
@@ -39,6 +40,9 @@ import java.util.Map;
 public class EnergyChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
     public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
+
+    public static final MapCodec<EnergyChannelSettings> CODEC = MapCodec.unit(new EnergyChannelSettings());
+    public static final StreamCodec<RegistryFriendlyByteBuf, EnergyChannelSettings> STREAM_CODEC = StreamCodec.unit(new EnergyChannelSettings());
 
     // Cache data
     private List<Pair<SidedConsumer, EnergyConnectorSettings>> energyExtractors = null;

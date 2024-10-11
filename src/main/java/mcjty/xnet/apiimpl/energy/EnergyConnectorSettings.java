@@ -3,15 +3,26 @@ package mcjty.xnet.apiimpl.energy;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.setup.Config;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
+import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,9 +38,17 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     public static final String TAG_MINMAX = "minmax";
     public static final String TAG_PRIORITY = "priority";
 
-    public enum EnergyMode {
+    public enum EnergyMode implements StringRepresentable {
         INS,
-        EXT
+        EXT;
+
+        public static final Codec<EnergyMode> CODEC = StringRepresentable.fromEnum(EnergyMode::values);
+        public static final StreamCodec<FriendlyByteBuf, EnergyMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(EnergyMode.class);
+
+        @Override
+        public String getSerializedName() {
+            return name();
+        }
     }
 
     private EnergyMode energyMode = EnergyMode.INS;
@@ -38,12 +57,42 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     @Nullable private Integer rate = null;
     @Nullable private Integer minmax = null;
 
+    public static final MapCodec<EnergyConnectorSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Direction.CODEC.fieldOf("side").forGetter(EnergyConnectorSettings::getSide),
+            EnergyMode.CODEC.fieldOf("mode").forGetter(EnergyConnectorSettings::getEnergyMode),
+            Codec.INT.fieldOf("priority").forGetter(settings -> settings.priority),
+            Codec.INT.fieldOf("rate").forGetter(settings -> settings.rate),
+            Codec.INT.fieldOf("minmax").forGetter(settings -> settings.minmax)
+    ).apply(instance, EnergyConnectorSettings::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, EnergyConnectorSettings> STREAM_CODEC = StreamCodec.composite(
+            Direction.STREAM_CODEC, AbstractConnectorSettings::getSide,
+            EnergyMode.STREAM_CODEC, EnergyConnectorSettings::getEnergyMode,
+            ByteBufCodecs.INT, s -> s.priority,
+            ByteBufCodecs.INT, s -> s.rate,
+            ByteBufCodecs.INT, s -> s.minmax,
+            EnergyConnectorSettings::new
+    );
+
     public EnergyConnectorSettings(@Nonnull Direction side) {
         super(side);
     }
 
+    public EnergyConnectorSettings(@NotNull Direction side, EnergyMode energyMode, @Nullable Integer priority, @Nullable Integer rate, @Nullable Integer minmax) {
+        super(side);
+        this.energyMode = energyMode;
+        this.priority = priority;
+        this.rate = rate;
+        this.minmax = minmax;
+    }
+
     public EnergyMode getEnergyMode() {
         return energyMode;
+    }
+
+    @Override
+    public IChannelType getType() {
+        return XNet.setup.energyChannelType;
     }
 
     @Nullable

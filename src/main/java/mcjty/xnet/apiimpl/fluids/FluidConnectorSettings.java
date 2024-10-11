@@ -3,23 +3,36 @@ package mcjty.xnet.apiimpl.fluids;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import mcjty.lib.varia.CompositeStreamCodec;
 import mcjty.lib.varia.FluidTools;
 import mcjty.lib.varia.JSonTools;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.setup.Config;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class FluidConnectorSettings extends AbstractConnectorSettings {
@@ -33,10 +46,17 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     public static final String TAG_FILTER = "flt";
     public static final String TAG_SPEED = "speed";
 
-
-    public enum FluidMode {
+    public enum FluidMode implements StringRepresentable {
         INS,
-        EXT
+        EXT;
+
+        public static final Codec<FluidMode> CODEC = StringRepresentable.fromEnum(FluidMode::values);
+        public static final StreamCodec<FriendlyByteBuf, FluidMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(FluidMode.class);
+
+        @Override
+        public String getSerializedName() {
+            return name();
+        }
     }
 
     private FluidMode fluidMode = FluidMode.INS;
@@ -45,11 +65,43 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     @Nullable private Integer rate = null;
     @Nullable private Integer minmax = null;
     private int speed = 2;
-
     private ItemStack filter = ItemStack.EMPTY;
+
+    public static final MapCodec<FluidConnectorSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Direction.CODEC.fieldOf("side").forGetter(FluidConnectorSettings::getSide),
+            FluidMode.CODEC.fieldOf("mode").forGetter(FluidConnectorSettings::getFluidMode),
+            Codec.INT.optionalFieldOf("priority", 0).forGetter(o -> o.priority),
+            Codec.INT.optionalFieldOf("rate").forGetter(o -> Optional.ofNullable(o.rate)),
+            Codec.INT.optionalFieldOf("minmax").forGetter(o -> Optional.ofNullable(o.minmax)),
+            Codec.INT.fieldOf("speed").forGetter(FluidConnectorSettings::getSpeed),
+            ItemStack.OPTIONAL_CODEC.optionalFieldOf("filter", ItemStack.EMPTY).forGetter(o -> o.filter)
+    ).apply(instance, FluidConnectorSettings::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, FluidConnectorSettings> STREAM_CODEC = CompositeStreamCodec.composite(
+            Direction.STREAM_CODEC, AbstractConnectorSettings::getSide,
+            FluidMode.STREAM_CODEC, FluidConnectorSettings::getFluidMode,
+            ByteBufCodecs.INT, s -> s.priority,
+            ByteBufCodecs.INT, s -> s.rate,
+            ByteBufCodecs.INT, s -> s.minmax,
+            ByteBufCodecs.INT, s -> s.speed,
+            ItemStack.OPTIONAL_STREAM_CODEC, s -> s.filter,
+            (side, mode, priority, rate, minmax, speed, filter) -> new FluidConnectorSettings(side, mode, priority,
+                    Optional.ofNullable(rate), Optional.ofNullable(minmax), speed, filter)
+    );
 
     public FluidConnectorSettings(@Nonnull Direction side) {
         super(side);
+    }
+
+    public FluidConnectorSettings(@NotNull Direction side, FluidMode fluidMode, Integer priority,
+                                  Optional<Integer> rate, Optional<Integer> minmax, int speed, ItemStack filter) {
+        super(side);
+        this.fluidMode = fluidMode;
+        this.priority = priority;
+        this.rate = rate.orElse(null);
+        this.minmax = minmax.orElse(null);
+        this.speed = speed;
+        this.filter = filter;
     }
 
     public FluidMode getFluidMode() {
@@ -58,6 +110,11 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
 
     public int getSpeed() {
         return speed;
+    }
+
+    @Override
+    public IChannelType getType() {
+        return XNet.setup.fluidChannelType;
     }
 
     @Nonnull

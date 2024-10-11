@@ -1,15 +1,12 @@
 package mcjty.xnet.apiimpl.fluids;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -19,31 +16,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class FluidChannelType implements IChannelType {
-
-    public static final MapCodec<FluidChannelSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            FluidChannelSettings.ChannelMode.CODEC.fieldOf("mode").forGetter(FluidChannelSettings::getChannelMode),
-            Codec.INT.fieldOf("delay").forGetter(settings -> settings.delay),
-            Codec.INT.fieldOf("offset").forGetter(settings -> settings.roundRobinOffset)
-    ).apply(instance, (mode, delay, offset) -> {
-        FluidChannelSettings settings = new FluidChannelSettings();
-        settings.channelMode = mode;
-        settings.delay = delay;
-        settings.roundRobinOffset = offset;
-        return settings;
-    }));
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, FluidChannelSettings> STREAM_CODEC = StreamCodec.composite(
-            FluidChannelSettings.ChannelMode.STREAM_CODEC, FluidChannelSettings::getChannelMode,
-            ByteBufCodecs.INT, s -> s.delay,
-            ByteBufCodecs.INT, s -> s.roundRobinOffset,
-            (mode, delay, offset) -> {
-                FluidChannelSettings settings = new FluidChannelSettings();
-                settings.channelMode = mode;
-                settings.delay = delay;
-                settings.roundRobinOffset = offset;
-                return settings;
-            }
-    );
 
     @Override
     public String getID() {
@@ -57,12 +29,22 @@ public class FluidChannelType implements IChannelType {
 
     @Override
     public MapCodec<? extends IChannelSettings> getCodec() {
-        return CODEC;
+        return FluidChannelSettings.CODEC;
     }
 
     @Override
     public StreamCodec<RegistryFriendlyByteBuf, ? extends IChannelSettings> getStreamCodec() {
-        return STREAM_CODEC;
+        return FluidChannelSettings.STREAM_CODEC;
+    }
+
+    @Override
+    public MapCodec<? extends IConnectorSettings> getConnectorCodec() {
+        return FluidConnectorSettings.CODEC;
+    }
+
+    @Override
+    public StreamCodec<RegistryFriendlyByteBuf, ? extends IConnectorSettings> getConnectorStreamCodec() {
+        return FluidConnectorSettings.STREAM_CODEC;
     }
 
     @Override
