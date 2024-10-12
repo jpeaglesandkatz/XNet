@@ -7,7 +7,9 @@ import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.modules.facade.blocks.FacadeBlock;
 import mcjty.xnet.modules.facade.blocks.FacadeBlockItem;
 import mcjty.xnet.modules.facade.blocks.FacadeTileEntity;
+import mcjty.xnet.modules.facade.data.MimicData;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -15,7 +17,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.function.Supplier;
@@ -29,6 +33,17 @@ public class FacadeModule implements IModule {
     public static final DeferredBlock<FacadeBlock> FACADE = BLOCKS.register("facade", () -> new FacadeBlock(GenericCableBlock.CableBlockType.FACADE)); // @todo 1.14
     public static final DeferredItem<Item> FACADE_ITEM = ITEMS.register("facade", tab(() -> new FacadeBlockItem(FACADE.get())));
     public static final Supplier<BlockEntityType<?>> TYPE_FACADE = TILES.register("facade", () -> BlockEntityType.Builder.of(FacadeTileEntity::new, FACADE.get()).build(null));
+
+    public static final Supplier<AttachmentType<MimicData>> MIMIC_DATA = ATTACHMENT_TYPES.register(
+            "mimic_data", () -> AttachmentType.builder(() -> MimicData.EMPTY)
+                    .serialize(MimicData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<MimicData>> ITEM_MIMIC_DATA = COMPONENTS.registerComponentType(
+            "mimic_data",
+            builder -> builder
+                    .persistent(MimicData.CODEC)
+                    .networkSynchronized(MimicData.STREAM_CODEC));
+
 
     @Override
     public void init(FMLCommonSetupEvent event) {

@@ -6,22 +6,23 @@ import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.tileentity.Cap;
-import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.tiles.IConnectorTile;
 import mcjty.xnet.modules.cables.CableModule;
+import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.modules.facade.MimicBlockSupport;
+import mcjty.xnet.modules.facade.data.MimicData;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
 import mcjty.xnet.setup.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -66,8 +67,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         }
     }
 
-    @Cap(type = CapType.CONTAINER)
-    private static final Function<ConnectorTileEntity, MenuProvider> SCREEN_CAP = be -> new DefaultContainerProvider<GenericContainer>("Connector")
+    public static final Function<ConnectorTileEntity, MenuProvider> SCREEN_CAP = be -> new DefaultContainerProvider<GenericContainer>("Connector")
             .containerSupplier(empty(CableModule.CONTAINER_CONNECTOR, be));
 
     public ConnectorTileEntity(BlockPos pos, BlockState state) {
@@ -83,8 +83,8 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
+        super.onDataPacket(net, pkt, provider);
 
         if (level.isClientSide) {
             requestModelDataUpdate();
@@ -127,11 +127,11 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     @Override
     public BlockState getMimicBlock() {
-        return mimicBlockSupport.getMimicBlock();
+        return getData(FacadeModule.MIMIC_DATA).state();
     }
 
     public void setMimicBlock(BlockState mimicBlock) {
-        mimicBlockSupport.setMimicBlock(mimicBlock);
+        setData(FacadeModule.MIMIC_DATA, new MimicData(mimicBlock));
         markDirtyClient();
     }
 
@@ -171,21 +171,9 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         if (inputFromSide.length != 6) {
             inputFromSide = new int[] { 0, 0, 0, 0, 0, 0 };
         }
-        mimicBlockSupport.readFromNBT(tagCompound);
         pulseCounter = tagCompound.getInt("pulse");
         for (int i = 0 ; i < 6 ; i++) {
             powerOut[i] = tagCompound.getByte("p" + i);
-        }
-    }
-
-    // @todo 1.21 data
-    public void loadInfo(CompoundTag tagCompound) {
-        CompoundTag info = tagCompound.getCompound("Info");
-        name = info.getString("name");
-        if (info.contains("enabled")) {
-            enabled = info.getByte("enabled");
-        } else {
-            enabled = 0x3f;
         }
     }
 
@@ -194,7 +182,6 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         super.saveAdditional(tagCompound, provider);
         tagCompound.putInt("energy", energy);
         tagCompound.putIntArray("inputs", inputFromSide);
-        mimicBlockSupport.writeToNBT(tagCompound);
         tagCompound.putInt("pulse", pulseCounter);
         for (int i = 0 ; i < 6 ; i++) {
             tagCompound.putByte("p" + i, (byte) powerOut[i]);
@@ -202,20 +189,29 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
-    public void saveClientDataToNBT(CompoundTag tagCompound) {
-        mimicBlockSupport.writeToNBT(tagCompound);
+    protected void applyImplicitComponents(DataComponentInput input) {
+        super.applyImplicitComponents(input);
+        var data = input.get(CableModule.ITEM_CONNECTOR_DATA);
+        if (data != null) {
+            setData(CableModule.CONNECTOR_DATA, data);
+        }
     }
 
     @Override
-    public void loadClientDataFromNBT(CompoundTag tagCompound) {
-        mimicBlockSupport.readFromNBT(tagCompound);
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        builder.set(CableModule.ITEM_CONNECTOR_DATA, getData(CableModule.CONNECTOR_DATA));
     }
 
-    // @todo 1.21 data
-    public void saveInfo(CompoundTag tagCompound) {
-//        CompoundTag info = getOrCreateInfo(tagCompound);
-//        info.putString("name", name);
-//        info.putByte("enabled", enabled);
+    @Override
+    public void saveClientDataToNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        MimicBlockSupport.writeToNBT(tagCompound, getMimicBlock());
+    }
+
+    @Override
+    public void loadClientDataFromNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        BlockState state = MimicBlockSupport.readFromNBT(provider, tagCompound);
+        setData(FacadeModule.MIMIC_DATA, new MimicData(state));
     }
 
     public void setConnectorName(String n) {
@@ -302,19 +298,13 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
                 te.setEnabled(OrientationTools.DIRECTION_VALUES[f], e);
             });
 
-    // @todo 1.21 cap
-//    @Nonnull
-//    @Override
-//    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-//        if (cap == ForgeCapabilities.ENERGY) {
-//            if (side == null) {
-//                return LazyOptional.empty();
-//            } else {
-//                return sidedStorages[side.ordinal()].cast();
-//            }
-//        }
-//        return super.getCapability(cap, side);
-//    }
+    public IEnergyStorage getEnergyStorage(Direction facing) {
+        if (facing == null) {
+            return null;
+        } else {
+            return sidedStorages[facing.ordinal()].get();
+        }
+    }
 
     private SidedHandler createSidedHandler(Direction facing) {
         return new SidedHandler(facing);

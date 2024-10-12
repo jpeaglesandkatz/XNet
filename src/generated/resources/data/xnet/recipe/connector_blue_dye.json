@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "c:dyes/blue"
+    },
+    {
+      "tag": "xnet:connectors"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "xnet:connector_blue"
+  }
+}

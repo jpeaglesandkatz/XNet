@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "xnet:redstone_proxy"
+        }
+      ],
+      "name": "redstone_proxy",
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "xnet:blocks/redstone_proxy"
+}

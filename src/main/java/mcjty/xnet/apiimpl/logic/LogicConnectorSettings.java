@@ -70,7 +70,8 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
             LogicMode.CODEC.fieldOf("mode").forGetter(LogicConnectorSettings::getLogicMode),
             Codec.INT.fieldOf("colors").forGetter(settings -> settings.colors),
             Codec.INT.fieldOf("speed").forGetter(settings -> settings.speed),
-            Codec.INT.fieldOf("rsout").forGetter(settings -> settings.redstoneOut)
+            Codec.INT.fieldOf("rsout").forGetter(settings -> settings.redstoneOut),
+            Codec.list(Sensor.CODEC).fieldOf("sensors").forGetter(LogicConnectorSettings::getSensors)
     ).apply(instance, LogicConnectorSettings::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, LogicConnectorSettings> STREAM_CODEC = StreamCodec.composite(
@@ -79,15 +80,17 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
             ByteBufCodecs.INT, s -> s.colors,
             ByteBufCodecs.INT, s -> s.speed,
             ByteBufCodecs.INT, s -> s.redstoneOut,
+            Sensor.STREAM_CODEC.apply(ByteBufCodecs.list()), LogicConnectorSettings::getSensors,
             LogicConnectorSettings::new
     );
 
-    public LogicConnectorSettings(@NotNull Direction side, LogicMode logicMode, int colors, int speed, Integer redstoneOut) {
+    public LogicConnectorSettings(@NotNull Direction side, LogicMode logicMode, int colors, int speed, Integer redstoneOut, List<Sensor> sensors) {
         this(side);
         this.logicMode = logicMode;
         this.colors = colors;
         this.speed = speed;
         this.redstoneOut = redstoneOut;
+        this.sensors = sensors;
     }
 
     public LogicConnectorSettings(@Nonnull Direction side) {

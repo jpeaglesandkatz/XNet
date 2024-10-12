@@ -5,9 +5,11 @@ import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.modules.facade.MimicBlockSupport;
+import mcjty.xnet.modules.facade.data.MimicData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.Block;
@@ -18,15 +20,13 @@ import javax.annotation.Nonnull;
 
 public class FacadeTileEntity extends GenericTileEntity implements IFacadeSupport {
 
-    private final MimicBlockSupport mimicBlockSupport = new MimicBlockSupport();
-
     public FacadeTileEntity(BlockPos pos, BlockState state) {
         super(FacadeModule.TYPE_FACADE.get(), pos, state);
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
+        super.onDataPacket(net, pkt, provider);
 
         if (level.isClientSide) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
@@ -37,7 +37,7 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
 
     @Override
     public BlockState getMimicBlock() {
-        return mimicBlockSupport.getMimicBlock();
+        return getData(FacadeModule.MIMIC_DATA).state();
     }
 
     @Nonnull
@@ -50,29 +50,19 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
 
 
     public void setMimicBlock(BlockState mimicBlock) {
-        mimicBlockSupport.setMimicBlock(mimicBlock);
+        setData(FacadeModule.MIMIC_DATA, new MimicData(mimicBlock));
         markDirtyClient();
     }
 
     @Override
-    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.loadAdditional(tagCompound, provider);
-        mimicBlockSupport.readFromNBT(tagCompound);
+    public void saveClientDataToNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        BlockState state = getData(FacadeModule.MIMIC_DATA).state();
+        MimicBlockSupport.writeToNBT(tagCompound, state);
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.saveAdditional(tagCompound, provider);
-        mimicBlockSupport.writeToNBT(tagCompound);
-    }
-
-    @Override
-    public void saveClientDataToNBT(CompoundTag tagCompound) {
-        mimicBlockSupport.writeToNBT(tagCompound);
-    }
-
-    @Override
-    public void loadClientDataFromNBT(CompoundTag tagCompound) {
-        mimicBlockSupport.readFromNBT(tagCompound);
+    public void loadClientDataFromNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        BlockState state = MimicBlockSupport.readFromNBT(provider, tagCompound);
+        setData(FacadeModule.MIMIC_DATA, new MimicData(state));
     }
 }

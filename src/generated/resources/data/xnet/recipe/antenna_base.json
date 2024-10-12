@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    }
+  },
+  "pattern": [
+    " i ",
+    " i ",
+    "iIi"
+  ],
+  "result": {
+    "count": 1,
+    "id": "xnet:antenna_base"
+  }
+}

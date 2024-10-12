@@ -1,0 +1,106 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "xnet:connector",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "color": "blue"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "xnet:connector_blue"
+        }
+      ],
+      "name": "connector_blue",
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "xnet:connector",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "color": "red"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "xnet:connector_red"
+        }
+      ],
+      "name": "connector_red",
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "xnet:connector",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "color": "green"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "xnet:connector_green"
+        }
+      ],
+      "name": "connector_green",
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "xnet:connector",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "color": "yellow"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "xnet:connector_yellow"
+        }
+      ],
+      "name": "connector_yellow",
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "xnet:connector",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "color": "routing"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "xnet:connector_routing"
+        }
+      ],
+      "name": "connector_routing",
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "xnet:blocks/connector"
+}

@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:comparator"
+    },
+    "F": {
+      "item": "rftoolsbase:machine_frame"
+    },
+    "I": {
+      "item": "minecraft:powered_rail"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    },
+    "o": {
+      "tag": "c:ender_pearls"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    "ICI",
+    "rFr",
+    "ioi"
+  ],
+  "result": {
+    "count": 1,
+    "id": "xnet:router"
+  }
+}

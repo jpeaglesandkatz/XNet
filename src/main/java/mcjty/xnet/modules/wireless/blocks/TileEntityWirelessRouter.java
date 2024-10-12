@@ -20,12 +20,15 @@ import mcjty.xnet.client.ControllerChannelClientInfo;
 import mcjty.xnet.compat.XNetTOPDriver;
 import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.modules.cables.CableColor;
+import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.modules.wireless.WirelessRouterModule;
+import mcjty.xnet.modules.wireless.data.WirelessRouterData;
 import mcjty.xnet.multiblock.*;
 import mcjty.xnet.setup.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
@@ -58,9 +61,6 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
     private boolean error = false;
     private int counter = 10;
 
-    @GuiValue(name = "public")
-    private boolean publicAccess = false;
-
     private int globalChannelVersion = -1;      // Used to detect if a wireless channel has been published and we might need to recheck
 
     private final GenericEnergyStorage energyHandler = new GenericEnergyStorage(this, true, Config.wirelessRouterMaxRF.get(), Config.wirelessRouterRfPerTick.get());
@@ -70,6 +70,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
     @Cap(type = CapType.CONTAINER)
     private static final Function<TileEntityWirelessRouter, MenuProvider> screenHandler = be -> new DefaultContainerProvider<GenericContainer>("Wireless Router")
             .containerSupplier(empty(WirelessRouterModule.CONTAINER_WIRELESS_ROUTER, be))
+            .data(WirelessRouterModule.WIRELESS_ROUTER_DATA, WirelessRouterData.STREAM_CODEC)
             .setupSync(be);
 
     public TileEntityWirelessRouter(BlockPos pos, BlockState state) {
@@ -93,12 +94,14 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
     }
 
     public boolean isPublicAccess() {
-        return publicAccess;
+        WirelessRouterData data = getData(WirelessRouterModule.WIRELESS_ROUTER_DATA);
+        return data.publicAccess();
     }
 
     public void setPublicAccess(boolean publicAccess) {
-        this.publicAccess = publicAccess;
-        setChanged();
+        WirelessRouterData data = getData(WirelessRouterModule.WIRELESS_ROUTER_DATA);
+        data = data.withPublicAccess(publicAccess);
+        setData(WirelessRouterModule.WIRELESS_ROUTER_DATA, data);
     }
 
     @Override
@@ -238,7 +241,8 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
 
     private void publishChannels(TileEntityRouter router, NetworkId networkId) {
         int tier = getAntennaTier();
-        UUID ownerUUID = publicAccess ? null : getOwnerUUID();
+        WirelessRouterData data = getData(WirelessRouterModule.WIRELESS_ROUTER_DATA);
+        UUID ownerUUID = data.publicAccess() ? null : getOwnerUUID();
         XNetWirelessChannels wirelessData = XNetWirelessChannels.get(level);
         router.forEachPublishedChannel((name, channelType) -> {
             long energyStored = energyHandler.getEnergy();
@@ -318,19 +322,21 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
         error = tagCompound.getBoolean("error");
     }
 
-    // @todo 1.21 data
-    public void saveInfo(CompoundTag tagCompound) {
-//        super.saveInfo(tagCompound);
-//        CompoundTag info = getOrCreateInfo(tagCompound);
-//        info.putBoolean("publicAcc", publicAccess);
+    @Override
+    protected void applyImplicitComponents(DataComponentInput input) {
+        super.applyImplicitComponents(input);
+        var data = input.get(WirelessRouterModule.ITEM_WIRELESS_ROUTER_DATA);
+        if (data != null) {
+            setData(WirelessRouterModule.WIRELESS_ROUTER_DATA, data);
+        }
     }
 
-    // @todo 1.21 data
-    public void loadInfo(CompoundTag tagCompound) {
-//        super.loadInfo(tagCompound);
-//        CompoundTag info = tagCompound.getCompound("Info");
-//        publicAccess = info.getBoolean("publicAcc");
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        builder.set(WirelessRouterModule.ITEM_WIRELESS_ROUTER_DATA, getData(WirelessRouterModule.WIRELESS_ROUTER_DATA));
     }
+
 
     @Override
     public void onReplaced(Level world, BlockPos pos, BlockState state, BlockState newstate) {

@@ -1,5 +1,7 @@
 package mcjty.xnet.apiimpl.logic;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.varia.FluidTools;
 import mcjty.rftoolsbase.api.xnet.channels.Color;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
@@ -9,12 +11,18 @@ import mcjty.xnet.apiimpl.items.ItemChannelSettings;
 import mcjty.xnet.compat.RFToolsSupport;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,22 +41,32 @@ public class Sensor {
     public static final String TAG_COLOR = "scolor";
     public static final String TAG_STACK = "stack";
 
-
-    public enum SensorMode {
+    public enum SensorMode implements StringRepresentable {
         OFF,
         ITEM,
         FLUID,
         ENERGY,
-        RS
+        RS;
+
+        public static final Codec<SensorMode> CODEC = StringRepresentable.fromEnum(SensorMode::values);
+        public static final StreamCodec<FriendlyByteBuf, SensorMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(SensorMode.class);
+
+        @Override
+        public String getSerializedName() {
+            return name();
+        }
     }
 
-    public enum Operator {
+    public enum Operator implements StringRepresentable{
         EQUAL("=", Integer::equals),
         NOTEQUAL("!=", (i1, i2) -> !i1.equals(i2)),
         LESS("<", (i1, i2) -> i1 < i2),
         GREATER(">", (i1, i2) -> i1 > i2),
         LESSOREQUAL("<=", (i1, i2) -> i1 <= i2),
         GREATOROREQUAL(">=", (i1, i2) -> i1 >= i2);
+
+        public static final Codec<Operator> CODEC = StringRepresentable.fromEnum(Operator::values);
+        public static final StreamCodec<FriendlyByteBuf, Operator> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(Operator.class);
 
         private final String code;
         private final BiPredicate<Integer, Integer> matcher;
@@ -82,6 +100,12 @@ public class Sensor {
         public static Operator valueOfCode(String code) {
             return OPERATOR_MAP.get(code);
         }
+
+
+        @Override
+        public String getSerializedName() {
+            return name();
+        }
     }
 
     private final int index;
@@ -91,6 +115,34 @@ public class Sensor {
     private int amount = 0;
     private Color outputColor = OFF;
     private ItemStack filter = ItemStack.EMPTY;
+
+    public static final Codec<Sensor> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.fieldOf("index").forGetter(s -> s.index),
+            SensorMode.CODEC.fieldOf("sensorMode").forGetter(Sensor::getSensorMode),
+            Operator.CODEC.fieldOf("operator").forGetter(Sensor::getOperator),
+            Codec.INT.fieldOf("amount").forGetter(Sensor::getAmount),
+            Color.CODEC.fieldOf("outputColor").forGetter(Sensor::getOutputColor),
+            ItemStack.OPTIONAL_CODEC.fieldOf("filter").forGetter(Sensor::getFilter)
+    ).apply(instance, Sensor::new));
+
+    public final static StreamCodec<RegistryFriendlyByteBuf, Sensor> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT, s -> s.index,
+            SensorMode.STREAM_CODEC, Sensor::getSensorMode,
+            Operator.STREAM_CODEC, Sensor::getOperator,
+            ByteBufCodecs.INT, Sensor::getAmount,
+            Color.STREAM_CODEC, Sensor::getOutputColor,
+            ItemStack.OPTIONAL_STREAM_CODEC, Sensor::getFilter,
+            Sensor::new
+    );
+
+    public Sensor(int index, SensorMode sensorMode, Operator operator, int amount, Color outputColor, ItemStack filter) {
+        this.index = index;
+        this.sensorMode = sensorMode;
+        this.operator = operator;
+        this.amount = amount;
+        this.outputColor = outputColor;
+        this.filter = filter;
+    }
 
     public Sensor(int index) {
         this.index = index;
@@ -304,7 +356,7 @@ public class Sensor {
             FluidStack contents = handler.getFluidInTank(i);
             if (!contents.isEmpty()) {
                 if (fluidStack != null) {
-                    if (fluidStack.isFluidEqual(contents)) {
+                    if (FluidStack.isSameFluidSameComponents(fluidStack, contents)) {
                         cnt += contents.getAmount();
                         if (cnt >= maxNeeded) {
                             return cnt;

@@ -112,6 +112,7 @@ public class ConnectedBlockClientInfo {
     private static String getStackUnlocalizedName(ItemStack stack) {
         CompoundTag nbttagcompound = getSubCompound(stack, "display");
 
+        // @todo 1.21
         if (nbttagcompound != null) {
             if (nbttagcompound.contains("Name", 8)) {
                 return nbttagcompound.getString("Name");

@@ -53,6 +53,7 @@ import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.MenuProvider;
@@ -369,6 +370,21 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             }
         }
         return cachedRoutedConnectors[channel];
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentInput input) {
+        super.applyImplicitComponents(input);
+        var data = input.get(ControllerModule.ITEM_CONTROLLER_DATA);
+        if (data != null) {
+            setData(ControllerModule.CONTROLLER_DATA, data);
+        }
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        builder.set(ControllerModule.ITEM_CONTROLLER_DATA, getData(ControllerModule.CONTROLLER_DATA));
     }
 
     @Override

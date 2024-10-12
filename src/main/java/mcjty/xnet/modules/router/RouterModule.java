@@ -85,7 +85,7 @@ public class RouterModule implements IModule {
                 Dob.blockBuilder(ROUTER)
                         .ironPickaxeTags()
                         .parentedItem("block/router")
-                        .standardLoot() // @todo 1.21 fix loot
+                        .standardLoot(ITEM_ROUTER_DATA.get())
                         .blockState(p -> {
                             ModelFile modelOk = p.frontBasedModel("router", p.modLoc("block/machine_router"));
                             ModelFile modelError = p.frontBasedModel("router_error", p.modLoc("block/machine_router_error"));

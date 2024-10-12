@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "tag": "xnet:connectors"
+    },
+    "g": {
+      "tag": "c:nuggets/gold"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    "rrr",
+    "gCg",
+    "rrr"
+  ],
+  "result": {
+    "count": 1,
+    "id": "xnet:connector_routing"
+  }
+}

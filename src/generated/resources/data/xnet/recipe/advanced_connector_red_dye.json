@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "c:dyes/red"
+    },
+    {
+      "tag": "xnet:advanced_connectors"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "xnet:advanced_connector_red"
+  }
+}

@@ -10,8 +10,10 @@ import mcjty.xnet.modules.cables.blocks.*;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
 import mcjty.xnet.modules.cables.client.ClientSetup;
 import mcjty.xnet.modules.cables.client.GuiConnector;
+import mcjty.xnet.modules.cables.data.ConnectorData;
 import mcjty.xnet.setup.Registration;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.MenuType;
@@ -23,9 +25,11 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.List;
@@ -67,6 +71,16 @@ public class CableModule implements IModule {
     public static final TagKey<Item> TAG_CONNECTORS = TagTools.createItemTagKey(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "connectors"));
     public static final TagKey<Item> TAG_ADVANCED_CONNECTORS = TagTools.createItemTagKey(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "advanced_connectors"));
 
+    public static final Supplier<AttachmentType<ConnectorData>> CONNECTOR_DATA = ATTACHMENT_TYPES.register(
+            "connector_data", () -> AttachmentType.builder(() -> ConnectorData.EMPTY)
+                    .serialize(ConnectorData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConnectorData>> ITEM_CONNECTOR_DATA = COMPONENTS.registerComponentType(
+            "connector_data",
+            builder -> builder
+                    .persistent(ConnectorData.CODEC)
+                    .networkSynchronized(ConnectorData.STREAM_CODEC));
+
     public CableModule(IEventBus bus, Dist dist) {
         if (dist.isClient()) {
             bus.addListener(ClientSetup::modelInit);
@@ -97,6 +111,7 @@ public class CableModule implements IModule {
     public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(ADVANCED_CONNECTOR)
+                        // @todo 1.21 correct loot tables for copy of data
                         .loot(p -> {
                             p.addLootTable(ADVANCED_CONNECTOR.get(), LootTable.lootTable()
                                     .withPool(DataGenHelper.getLootTableEntry("advanced_connector_blue", ADVANCED_CONNECTOR.get(), ADVANCED_CONNECTOR_BLUE.get(), CableColor.BLUE))
@@ -108,6 +123,7 @@ public class CableModule implements IModule {
                         })
                         .stonePickaxeTags(),
                 Dob.blockBuilder(CONNECTOR)
+                        // @todo 1.21 correct loot tables for copy of data
                         .loot(p -> {
                             p.addLootTable(CONNECTOR.get(), LootTable.lootTable()
                                     .withPool(DataGenHelper.getLootTableEntry("connector_blue", CONNECTOR.get(), CONNECTOR_BLUE.get(), CableColor.BLUE))

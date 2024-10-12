@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "item": "minecraft:iron_trapdoor"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    },
+    "o": {
+      "tag": "c:ender_pearls"
+    }
+  },
+  "pattern": [
+    "III",
+    "IoI",
+    " i "
+  ],
+  "result": {
+    "count": 1,
+    "id": "xnet:antenna_dish"
+  }
+}

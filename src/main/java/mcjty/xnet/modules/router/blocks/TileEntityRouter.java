@@ -36,6 +36,7 @@ import mcjty.xnet.multiblock.XNetWirelessChannels;
 import mcjty.xnet.setup.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
@@ -265,17 +266,17 @@ public final class TileEntityRouter extends GenericTileEntity {
     private void updatePublishName(@Nonnull BlockPos controllerPos, int channel, String name) {
         RouterData data = getData(RouterModule.ROUTER_DATA);
         LocalChannelId id = new LocalChannelId(controllerPos, channel);
-        if (name == null || name.isEmpty()) {
-            // @todo 1.21 make api to remove and add published channels
-            publishedChannels.remove(id);
+        if (name.isEmpty()) {
+            data = data.removeChannel(id);
         } else {
-            publishedChannels.put(id, name);
+            data = data.addChannel(id, name);
         }
+        setData(RouterModule.ROUTER_DATA, data);
         int number = countPublishedChannelsOnNet();
         WorldBlob worldBlob = XNetBlobData.get(level).getWorldBlob(level);
         NetworkId networkId = findRoutingNetwork();
         if (networkId != null) {
-            if (number != channelCount) {
+            if (number != data.channelCount()) {
                 LogicTools.forEachRouter(level, networkId, router -> router.setChannelCount(number));
             }
             worldBlob.markNetworkDirty(networkId); // Force a recalc of affected networks
@@ -292,6 +293,22 @@ public final class TileEntityRouter extends GenericTileEntity {
 
         markDirtyQuick();
     }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentInput input) {
+        super.applyImplicitComponents(input);
+        var data = input.get(RouterModule.ITEM_ROUTER_DATA);
+        if (data != null) {
+            setData(RouterModule.ROUTER_DATA, data);
+        }
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        builder.set(RouterModule.ITEM_ROUTER_DATA, getData(RouterModule.ROUTER_DATA));
+    }
+
 
     public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
     public static final Key<Integer> PARAM_CHANNEL = new Key<>("channel", Type.INTEGER);

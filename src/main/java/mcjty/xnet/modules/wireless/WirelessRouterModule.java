@@ -14,17 +14,18 @@ import mcjty.rftoolsbase.modules.various.VariousModule;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import mcjty.xnet.modules.wireless.client.GuiWirelessRouter;
+import mcjty.xnet.modules.wireless.data.WirelessRouterData;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.Registration;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -32,10 +33,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder;
 import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 import javax.annotation.Nonnull;
@@ -61,6 +64,17 @@ public class WirelessRouterModule implements IModule {
     public static final DeferredItem<Item> ANTENNA_BASE_ITEM = ITEMS.register("antenna_base", tab(() -> new BlockItem(ANTENNA_BASE.get(), Registration.createStandardProperties())));
     public static final DeferredBlock<BaseBlock> ANTENNA_DISH = BLOCKS.register("antenna_dish", WirelessRouterModule::createAntennaDishBlock);
     public static final DeferredItem<Item> ANTENNA_DISH_ITEM = ITEMS.register("antenna_dish", tab(() -> new BlockItem(ANTENNA_DISH.get(), Registration.createStandardProperties())));
+
+    public static final Supplier<AttachmentType<WirelessRouterData>> WIRELESS_ROUTER_DATA = ATTACHMENT_TYPES.register(
+            "wireless_router_data", () -> AttachmentType.builder(() -> WirelessRouterData.EMPTY)
+                    .serialize(WirelessRouterData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<WirelessRouterData>> ITEM_WIRELESS_ROUTER_DATA = COMPONENTS.registerComponentType(
+            "wireless_router_data",
+            builder -> builder
+                    .persistent(WirelessRouterData.CODEC)
+                    .networkSynchronized(WirelessRouterData.STREAM_CODEC));
+
 
     public static final VoxelShape SMALLER_CUBE = Shapes.box(0.01f, 0.01f, 0.01f, 0.99f, 0.99f, 0.99f);
 
@@ -150,7 +164,7 @@ public class WirelessRouterModule implements IModule {
                 Dob.blockBuilder(WIRELESS_ROUTER)
                         .ironPickaxeTags()
                         .parentedItem("block/wireless_router")
-                        .standardLoot() // @todo 1.21 fix loot
+                        .standardLoot(ITEM_WIRELESS_ROUTER_DATA.get())
                         .blockState(p -> {
                             ModelFile modelOk = p.frontBasedModel("wireless_router", p.modLoc("block/machine_wireless_router"));
                             ModelFile modelError = p.frontBasedModel("wireless_router_error", p.modLoc("block/machine_wireless_router_error"));

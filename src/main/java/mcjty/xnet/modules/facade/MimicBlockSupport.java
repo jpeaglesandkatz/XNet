@@ -1,38 +1,25 @@
 package mcjty.xnet.modules.facade;
 
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nullable;
-
 public class MimicBlockSupport {
 
-    @Nullable
-    private BlockState mimicBlock = null;
-
-    @Nullable
-    public BlockState getMimicBlock() {
-        return mimicBlock;
-    }
-
-    public void setMimicBlock(@Nullable BlockState mimicBlock) {
-        this.mimicBlock = mimicBlock;
-    }
-
-
-    public void readFromNBT(CompoundTag tagCompound) {
+    public static BlockState readFromNBT(HolderLookup.Provider provider, CompoundTag tagCompound) {
+        BlockState mimicBlock;
         if (tagCompound != null && tagCompound.contains("mimic")) {
-            // @todo 1.21 NBT
-            mimicBlock = null; //NBTTools.readBlockState(tagCompound.getCompound("mimic"));
+            mimicBlock = NbtUtils.readBlockState(provider.lookup(Registries.BLOCK).get(), tagCompound.getCompound("mimic"));
         } else {
             mimicBlock = null;
         }
+        return mimicBlock;
     }
 
-    public void writeToNBT(CompoundTag tagCompound) {
+    public static void writeToNBT(CompoundTag tagCompound, BlockState mimicBlock) {
         if (mimicBlock != null) {
-            // @todo 1.21 NBT
             CompoundTag tag = NbtUtils.writeBlockState(mimicBlock);
             tagCompound.put("mimic", tag);
         }

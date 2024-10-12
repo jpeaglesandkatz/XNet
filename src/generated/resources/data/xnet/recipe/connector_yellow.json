@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "1": {
+      "tag": "c:dyes/yellow"
+    },
+    "C": {
+      "tag": "c:chests"
+    },
+    "g": {
+      "tag": "c:ingots/gold"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    "1C1",
+    "rgr",
+    "1r1"
+  ],
+  "result": {
+    "count": 1,
+    "id": "xnet:connector_yellow"
+  }
+}

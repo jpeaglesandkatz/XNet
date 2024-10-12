@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:copy_name",
+              "source": "block_entity"
+            },
+            {
+              "function": "minecraft:copy_components",
+              "include": [
+                "mcjtylib:item_energy",
+                "mcjtylib:item_inventory",
+                "xnet:wireless_router_data"
+              ],
+              "source": "block_entity"
+            }
+          ],
+          "name": "xnet:wireless_router"
+        }
+      ],
+      "name": "wireless_router",
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "xnet:blocks/wireless_router"
+}

@@ -1,11 +1,13 @@
 package mcjty.xnet;
 
 
+import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.modules.Modules;
 import mcjty.rftoolsbase.api.xnet.IXNet;
 import mcjty.xnet.apiimpl.XNetApi;
 import mcjty.xnet.modules.cables.CableModule;
+import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.facade.client.ClientSetup;
@@ -16,13 +18,24 @@ import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.ModSetup;
 import mcjty.xnet.setup.Registration;
 import mcjty.xnet.setup.XNetMessages;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.IBlockCapabilityProvider;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -53,6 +66,7 @@ public class XNet {
         bus.addListener(this::onDataGen);
         bus.addListener(XNetMessages::registerMessages);
         bus.addListener(setup.getBlockCapabilityRegistrar(Registration.RBLOCKS));
+        bus.addListener(this::onRegisterCapabilities);
 
         if (dist.isClient()) {
             bus.addListener(modules::initClient);
@@ -88,4 +102,24 @@ public class XNet {
         });
     }
 
+    private void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlock(CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY, new IBlockCapabilityProvider<>() {
+            @Override
+            public @Nullable MenuProvider getCapability(Level level, BlockPos blockPos, BlockState blockState, @Nullable BlockEntity blockEntity, Direction direction) {
+                if (blockEntity instanceof ConnectorTileEntity connector) {
+                    return ConnectorTileEntity.SCREEN_CAP.apply(connector);
+                }
+                return null;
+            }
+        }, CableModule.CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR.get());
+        event.registerBlock(Capabilities.EnergyStorage.BLOCK, new IBlockCapabilityProvider<IEnergyStorage, Direction>() {
+            @Override
+            public @Nullable IEnergyStorage getCapability(Level level, BlockPos blockPos, BlockState blockState, @Nullable BlockEntity blockEntity, Direction direction) {
+                if (blockEntity instanceof ConnectorTileEntity connector) {
+                    return connector.getEnergyStorage(direction);
+                }
+                return null;
+            }
+        }, CableModule.CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR.get());
+    }
 }

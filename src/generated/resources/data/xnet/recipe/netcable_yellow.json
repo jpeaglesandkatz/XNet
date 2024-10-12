@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "1": {
+      "tag": "c:dyes/yellow"
+    },
+    "g": {
+      "tag": "c:nuggets/gold"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "s": {
+      "item": "minecraft:string"
+    }
+  },
+  "pattern": [
+    "s1s",
+    "rgr",
+    "srs"
+  ],
+  "result": {
+    "count": 16,
+    "id": "xnet:netcable_yellow"
+  }
+}

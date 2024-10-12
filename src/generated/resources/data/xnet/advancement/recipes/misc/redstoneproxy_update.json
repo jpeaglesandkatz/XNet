@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "xnet:redstoneproxy_update"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "torch": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:redstone_torch"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "torch"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "xnet:redstoneproxy_update"
+    ]
+  }
+}

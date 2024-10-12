@@ -90,7 +90,7 @@ public class ControllerModule implements IModule {
                 Dob.blockBuilder(CONTROLLER)
                         .ironPickaxeTags()
                         .parentedItem("block/controller")
-                        .standardLoot()
+                        .standardLoot(ITEM_CONTROLLER_DATA.get())
                         .blockState(p -> {
                             ModelFile modelOk = p.frontBasedModel("controller", p.modLoc("block/machine_controller"));
                             ModelFile modelError = p.frontBasedModel("controller_error", p.modLoc("block/machine_controller_error"));

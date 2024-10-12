@@ -28,4 +28,16 @@ public record RouterData(int channelCount, Map<LocalChannelId, String> published
     public RouterData withChannelCount(int channelCount) {
         return new RouterData(channelCount, publishedChannels);
     }
+
+    public RouterData removeChannel(LocalChannelId channel) {
+        Map<LocalChannelId, String> newChannels = new HashMap<>(publishedChannels);
+        newChannels.remove(channel);
+        return new RouterData(channelCount, newChannels);
+    }
+
+    public RouterData addChannel(LocalChannelId channel, String name) {
+        Map<LocalChannelId, String> newChannels = new HashMap<>(publishedChannels);
+        newChannels.put(channel, name);
+        return new RouterData(channelCount, newChannels);
+    }
 }
