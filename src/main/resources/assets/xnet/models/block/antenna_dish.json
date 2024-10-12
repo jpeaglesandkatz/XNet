@@ -1,7 +1,7 @@
 {
   "parent": "block/cube",
   "render_type": "minecraft:cutout",
-  "loader": "forge:obj",
+  "loader": "neoforge:obj",
   "model": "xnet:models/block/antenna_dish.obj",
   "flip_v": true
 }

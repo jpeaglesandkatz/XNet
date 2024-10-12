@@ -1,6 +1,5 @@
 package mcjty.xnet.modules.cables.blocks;
 
-import cpw.mods.util.Lazy;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.blockcommands.Command;
@@ -31,6 +30,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import javax.annotation.Nonnull;

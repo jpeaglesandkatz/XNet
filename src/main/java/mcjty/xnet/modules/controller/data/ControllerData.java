@@ -8,13 +8,22 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 import java.util.List;
+import java.util.Optional;
 
 public record ControllerData(int colors, List<ChannelInfo> channels) {
 
     public static final Codec<ControllerData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("colors").forGetter(ControllerData::colors),
-            ChannelInfo.CODEC.listOf().fieldOf("channels").forGetter(ControllerData::channels)
-    ).apply(instance, ControllerData::new));
+            ChannelInfo.CODEC.xmap(Optional::ofNullable, s -> s.orElse(null)).listOf().fieldOf("channels").forGetter(ControllerData::getOptionalChannels)
+    ).apply(instance, ControllerData::createWithOptional));
+
+    private List<Optional<ChannelInfo>> getOptionalChannels() {
+        return channels.stream().map(Optional::ofNullable).toList();
+    }
+
+    static ControllerData createWithOptional(int colors, List<Optional<ChannelInfo>> channels) {
+        return new ControllerData(colors, channels.stream().map(channelInfo -> channelInfo.orElse(null)).toList());
+    }
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ControllerData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, ControllerData::colors,
