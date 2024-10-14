@@ -227,10 +227,6 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         markDirtyQuick();
     }
 
-    public List<ChannelInfo> getChannels() {
-        return getData(ControllerModule.CONTROLLER_DATA).channels();
-    }
-
     public Cached<NetworkChecker> getNetworkChecker() {
         return networkChecker;
     }
@@ -253,7 +249,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     private void cleanCaches() {
         ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
         for (int i = 0; i < data.channels().size(); i++) {
-            if (data.channels().get(i) != ChannelInfo.EMPTY) {
+            if (!data.channels().get(i).isEmpty()) {
                 cleanCache(i);
             }
         }
@@ -295,7 +291,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         int newcolors = 0;
         ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
         for (int i = 0; i < MAX_CHANNELS; i++) {
-            if (data.channels().get(i) != ChannelInfo.EMPTY && data.channels().get(i).isEnabled()) {
+            if (data.channels().get(i).isEnabled()) {
                 if (checkAndConsumeRF(Config.controllerChannelRFT.get())) {
                     data.channels().get(i).getChannelSettings().tick(i, this);
                 }
@@ -494,7 +490,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
         List<ChannelClientInfo> chanList = new ArrayList<>();
         for (ChannelInfo channel : data.channels()) {
-            if (channel != ChannelInfo.EMPTY) {
+            if (!channel.isEmpty()) {
                 ChannelClientInfo clientInfo = new ChannelClientInfo(channel.getChannelName(), channel.getType(),
                         channel.getChannelSettings(), channel.isEnabled());
 

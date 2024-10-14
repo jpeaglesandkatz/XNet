@@ -8,7 +8,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 import java.util.List;
-import java.util.Optional;
 
 public record ControllerData(int colors, List<ChannelInfo> channels) {
 
@@ -22,14 +21,6 @@ public record ControllerData(int colors, List<ChannelInfo> channels) {
             ChannelInfo.STREAM_CODEC.apply(ByteBufCodecs.list()), ControllerData::channels,
             ControllerData::new
     );
-
-    private List<Optional<ChannelInfo>> getOptionalChannels() {
-        return channels.stream().map(Optional::ofNullable).toList();
-    }
-
-    static ControllerData createWithOptional(int colors, List<Optional<ChannelInfo>> channels) {
-        return new ControllerData(colors, channels.stream().map(channelInfo -> channelInfo.orElse(null)).toList());
-    }
 
     public ControllerData withColors(int colors) {
         return new ControllerData(colors, channels);

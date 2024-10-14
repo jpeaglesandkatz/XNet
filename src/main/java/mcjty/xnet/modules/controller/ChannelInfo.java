@@ -81,6 +81,7 @@ public class ChannelInfo {
     public ChannelInfo(IChannelType type) {
         this.type = type;
         channelSettings = type.createChannel();
+        enabled = !isEmpty();
     }
 
     public ChannelInfo(IChannelSettings settings, String name, boolean enabled, Map<SidedConsumer, ConnectorInfo> connectors) {
@@ -89,6 +90,10 @@ public class ChannelInfo {
         this.channelName = name;
         this.enabled = enabled;
         this.connectors.putAll(connectors);
+    }
+
+    public boolean isEmpty() {
+        return type == XNet.setup.noneChannelType;
     }
 
     @Nonnull

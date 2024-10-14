@@ -14,7 +14,7 @@ public record WirelessChannelKey(@Nonnull String name,
         return "WirelessChannelKey{" +
                 "name='" + name + '\'' +
                 ", channelType=" + channelType +
-                ", owner=" + owner +
+                ", ownerUUID=" + owner +
                 '}';
     }
 }

@@ -68,10 +68,11 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
         }
     }
 
-    public static void setMimicBlock(@Nonnull ItemStack item, BlockState mimicBlock) {
+    public static void setMimicBlock(@Nonnull ItemStack item, @Nonnull BlockState mimicBlock) {
         item.set(FacadeModule.ITEM_MIMIC_DATA, new MimicData(mimicBlock));
     }
 
+    @Nonnull
     public static BlockState getMimicBlock(@Nonnull ItemStack stack) {
         return stack.getOrDefault(FacadeModule.ITEM_MIMIC_DATA, MimicData.EMPTY).state();
     }

@@ -37,8 +37,8 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             WirelessChannelInfo channelInfo = new WirelessChannelInfo();
             readRouters(tc.getList("routers", Tag.TAG_COMPOUND), channelInfo);
             UUID owner = null;
-            if (tc.hasUUID("owner")) {
-                owner = tc.getUUID("owner");
+            if (tc.hasUUID("ownerUUID")) {
+                owner = tc.getUUID("ownerUUID");
             }
             String name = tc.getString("name");
             IChannelType type = XNet.xNetApi.findType(tc.getString("type"));
@@ -189,7 +189,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             channelTc.putString("name", key.name());
             channelTc.putString("type", key.channelType().getID());
             if (key.owner() != null) {
-                channelTc.putUUID("owner", key.owner());
+                channelTc.putUUID("ownerUUID", key.owner());
             }
             channelTc.put("routers", writeRouters(channelInfo));
             channelTagList.add(channelTc);

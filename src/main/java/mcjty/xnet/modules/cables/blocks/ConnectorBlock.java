@@ -16,6 +16,7 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.ConnectorType;
+import mcjty.xnet.modules.cables.data.CableItemData;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.facade.blocks.FacadeBlockItem;
@@ -30,8 +31,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -251,8 +250,8 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
 
         BlockEntity te = world.getBlockEntity(pos);
 
-        if (block instanceof IConnectable) {
-            IConnectable.ConnectResult result = ((IConnectable) block).canConnect(world, connectorPos, pos, te, facing);
+        if (block instanceof IConnectable connectable) {
+            IConnectable.ConnectResult result = connectable.canConnect(world, connectorPos, pos, te, facing);
             if (result == IConnectable.ConnectResult.NO) {
                 return false;
             } else if (result == IConnectable.ConnectResult.YES) {
@@ -328,8 +327,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
             Vec3 pos = builder.getOptionalParameter(LootContextParams.ORIGIN);
             ConsumerId consumer = worldBlob.getConsumerAt(new BlockPos((int) pos.x, (int) pos.y, (int) pos.z));
             if (consumer != null) {
-                // @todo 1.21 NBT
-//                drop.getOrCreateTag().putInt("consumerId", consumer.id());
+                drop.set(CableModule.ITEM_CABLE_ITEM_DATA, new CableItemData(consumer));
             }
         }
         return drops;
@@ -344,15 +342,14 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     @Override
     public void createCableSegment(Level world, BlockPos pos, ItemStack stack) {
         ConsumerId consumer;
-        // @todo 1.21 NBT
-//        if (!stack.isEmpty() && stack.hasTag() && stack.getTag().contains("consumerId")) {
-//            consumer = new ConsumerId(stack.getTag().getInt("consumerId"));
-//        } else {
-//            XNetBlobData blobData = XNetBlobData.get(world);
-//            WorldBlob worldBlob = blobData.getWorldBlob(world);
-//            consumer = worldBlob.newConsumer();
-//        }
-//        createCableSegment(world, pos, consumer);
+        if (!stack.isEmpty() && stack.get(CableModule.ITEM_CABLE_ITEM_DATA) != null) {
+            consumer = stack.get(CableModule.ITEM_CABLE_ITEM_DATA).id();
+        } else {
+            XNetBlobData blobData = XNetBlobData.get(world);
+            WorldBlob worldBlob = blobData.getWorldBlob(world);
+            consumer = worldBlob.newConsumer();
+        }
+        createCableSegment(world, pos, consumer);
     }
 
     public void createCableSegment(Level world, BlockPos pos, ConsumerId consumer) {

@@ -217,6 +217,9 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     @Override
     public void loadClientDataFromNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
         BlockState state = MimicBlockSupport.readFromNBT(provider, tagCompound);
+        if (state == null) {
+            state = Blocks.AIR.defaultBlockState();
+        }
         setData(FacadeModule.MIMIC_DATA, new MimicData(state));
     }
 

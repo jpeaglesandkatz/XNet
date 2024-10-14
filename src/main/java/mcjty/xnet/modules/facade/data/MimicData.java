@@ -9,9 +9,16 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-public record MimicData(BlockState state) {
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
+public record MimicData(@Nonnull BlockState state) {
 
     public static final MimicData EMPTY = new MimicData(Blocks.AIR.defaultBlockState());
+
+    public MimicData(@Nonnull BlockState state) {
+        this.state = Objects.requireNonNull(state);
+    }
 
     public static final Codec<MimicData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BlockState.CODEC.fieldOf("state").forGetter(MimicData::state)

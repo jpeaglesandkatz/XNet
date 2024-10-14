@@ -10,6 +10,7 @@ import mcjty.xnet.modules.cables.blocks.*;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock.CableBlockType;
 import mcjty.xnet.modules.cables.client.ClientSetup;
 import mcjty.xnet.modules.cables.client.GuiConnector;
+import mcjty.xnet.modules.cables.data.CableItemData;
 import mcjty.xnet.modules.cables.data.ConnectorData;
 import mcjty.xnet.setup.Registration;
 import net.minecraft.core.HolderLookup;
@@ -80,6 +81,12 @@ public class CableModule implements IModule {
             builder -> builder
                     .persistent(ConnectorData.CODEC)
                     .networkSynchronized(ConnectorData.STREAM_CODEC));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<CableItemData>> ITEM_CABLE_ITEM_DATA = COMPONENTS.registerComponentType(
+            "cable_item_data",
+            builder -> builder
+                    .persistent(CableItemData.CODEC)
+                    .networkSynchronized(CableItemData.STREAM_CODEC));
 
     public CableModule(IEventBus bus, Dist dist) {
         if (dist.isClient()) {

@@ -142,7 +142,7 @@ public final class TileEntityRouter extends GenericTileEntity {
                 ControllerData controllerData = controller.getData(ControllerModule.CONTROLLER_DATA);
                 for (int i = 0 ; i < MAX_CHANNELS ; i++) {
                     ChannelInfo channelInfo = controllerData.channels().get(i);
-                    if (channelInfo != null && !channelInfo.getChannelName().isEmpty()) {
+                    if (!channelInfo.isEmpty() && !channelInfo.getChannelName().isEmpty()) {
                         LocalChannelId id = new LocalChannelId(controller.getBlockPos(), i);
                         String publishedName = data.publishedChannels().get(id);
                         if (publishedName != null && !publishedName.isEmpty()) {
@@ -162,7 +162,7 @@ public final class TileEntityRouter extends GenericTileEntity {
                 ControllerData controllerData = controller.getData(ControllerModule.CONTROLLER_DATA);
                 for (int i = 0; i < MAX_CHANNELS; i++) {
                     ChannelInfo channelInfo = controllerData.channels().get(i);
-                    if (channelInfo != null && !channelInfo.getChannelName().isEmpty()) {
+                    if (!channelInfo.isEmpty() && !channelInfo.getChannelName().isEmpty()) {
                         LocalChannelId id = new LocalChannelId(controller.getBlockPos(), i);
                         String publishedName = data.publishedChannels().get(id);
                         if (publishedName == null) {
@@ -250,7 +250,7 @@ public final class TileEntityRouter extends GenericTileEntity {
                 ControllerData controllerData = controller.getData(ControllerModule.CONTROLLER_DATA);
                 for (int i = 0; i < MAX_CHANNELS; i++) {
                     ChannelInfo info = controllerData.channels().get(i);
-                    if (info != null && info.isEnabled()) {
+                    if (!info.isEmpty() && info.isEnabled()) {
                         String publishedName = data.publishedChannels().get(new LocalChannelId(controller.getBlockPos(), i));
                         if (publishedName != null && !publishedName.isEmpty()) {
                             if (channelName.equals(publishedName) && type.equals(info.getType())) {

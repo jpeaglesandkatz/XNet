@@ -13,6 +13,7 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
@@ -53,7 +54,7 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
     }
 
 
-    public void setMimicBlock(BlockState mimicBlock) {
+    public void setMimicBlock(@Nonnull BlockState mimicBlock) {
         setData(FacadeModule.MIMIC_DATA, new MimicData(mimicBlock));
         markDirtyClient();
     }
@@ -67,6 +68,9 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
     @Override
     public void loadClientDataFromNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
         BlockState state = MimicBlockSupport.readFromNBT(provider, tagCompound);
+        if (state == null) {
+            state = Blocks.AIR.defaultBlockState();
+        }
         setData(FacadeModule.MIMIC_DATA, new MimicData(state));
     }
 }
