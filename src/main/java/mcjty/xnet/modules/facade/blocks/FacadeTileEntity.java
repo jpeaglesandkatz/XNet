@@ -37,7 +37,11 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
 
     @Override
     public BlockState getMimicBlock() {
-        return getData(FacadeModule.MIMIC_DATA).state();
+        BlockState state = getData(FacadeModule.MIMIC_DATA).state();
+        if (state.isAir()) {
+            return null;
+        }
+        return state;
     }
 
     @Nonnull

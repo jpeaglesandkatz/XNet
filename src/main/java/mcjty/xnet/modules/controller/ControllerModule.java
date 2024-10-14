@@ -50,7 +50,7 @@ public class ControllerModule implements IModule {
             "controller_data", () -> AttachmentType.builder(() -> {
                         var data = new ControllerData(0, new ArrayList<>());
                         for (int i = 0; i < MAX_CHANNELS; i++) {
-                            data.channels().add(null);
+                            data.channels().add(ChannelInfo.EMPTY);
                         }
                         return data;
                     })

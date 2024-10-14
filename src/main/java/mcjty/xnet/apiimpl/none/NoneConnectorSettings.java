@@ -1,0 +1,61 @@
+package mcjty.xnet.apiimpl.none;
+
+import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
+import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
+import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
+import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
+import mcjty.xnet.XNet;
+import net.minecraft.core.Direction;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+public class NoneConnectorSettings extends AbstractConnectorSettings {
+
+    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
+
+    private static final NoneConnectorSettings EMPTY = new NoneConnectorSettings(Direction.NORTH);
+    public static final MapCodec<NoneConnectorSettings> CODEC = MapCodec.unit(EMPTY);
+    public static final StreamCodec<RegistryFriendlyByteBuf, NoneConnectorSettings> STREAM_CODEC = StreamCodec.unit(EMPTY);
+
+    public NoneConnectorSettings(@Nonnull Direction side) {
+        super(side);
+    }
+
+    @Override
+    public IChannelType getType() {
+        return XNet.setup.noneChannelType;
+    }
+
+    @Nullable
+    @Override
+    public IndicatorIcon getIndicatorIcon() {
+        return new IndicatorIcon(iconGuiElements, 26, 70, 13, 10);
+    }
+
+    @Nullable
+    @Override
+    public String getIndicator() {
+        return null;
+    }
+
+    @Override
+    public boolean isEnabled(String tag) {
+        return false;
+    }
+
+    @Override
+    public void createGui(IEditorGui gui) {
+    }
+
+    @Override
+    public JsonObject writeToJson() {
+        return new JsonObject();
+    }
+
+}

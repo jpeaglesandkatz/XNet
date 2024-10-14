@@ -11,6 +11,7 @@ import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.GenericItemHandler;
+import mcjty.lib.setup.Registration;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -252,7 +253,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     private void cleanCaches() {
         ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
         for (int i = 0; i < data.channels().size(); i++) {
-            if (data.channels().get(i) != null) {
+            if (data.channels().get(i) != ChannelInfo.EMPTY) {
                 cleanCache(i);
             }
         }
@@ -294,7 +295,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         int newcolors = 0;
         ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
         for (int i = 0; i < MAX_CHANNELS; i++) {
-            if (data.channels().get(i) != null && data.channels().get(i).isEnabled()) {
+            if (data.channels().get(i) != ChannelInfo.EMPTY && data.channels().get(i).isEnabled()) {
                 if (checkAndConsumeRF(Config.controllerChannelRFT.get())) {
                     data.channels().get(i).getChannelSettings().tick(i, this);
                 }
@@ -375,6 +376,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     @Override
     protected void applyImplicitComponents(DataComponentInput input) {
         super.applyImplicitComponents(input);
+        energyStorage.applyImplicitComponents(input.get(Registration.ITEM_ENERGY));
         var data = input.get(ControllerModule.ITEM_CONTROLLER_DATA);
         if (data != null) {
             setData(ControllerModule.CONTROLLER_DATA, data);
@@ -384,15 +386,21 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder builder) {
         super.collectImplicitComponents(builder);
+        energyStorage.collectImplicitComponents(builder);
         builder.set(ControllerModule.ITEM_CONTROLLER_DATA, getData(ControllerModule.CONTROLLER_DATA));
     }
 
     @Override
     public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.saveAdditional(tagCompound, provider);
+        try {
+            super.saveAdditional(tagCompound, provider);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         if (networkId != null) {
             tagCompound.putInt("networkId", networkId.id());
         }
+        energyStorage.save(tagCompound, "energy", provider);
     }
 
     @Override
@@ -403,6 +411,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         } else {
             networkId = null;
         }
+        energyStorage.load(tagCompound, "energy", provider);
     }
 
     @Nullable
@@ -485,7 +494,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
         List<ChannelClientInfo> chanList = new ArrayList<>();
         for (ChannelInfo channel : data.channels()) {
-            if (channel != null) {
+            if (channel != ChannelInfo.EMPTY) {
                 ChannelClientInfo clientInfo = new ChannelClientInfo(channel.getChannelName(), channel.getType(),
                         channel.getChannelSettings(), channel.isEnabled());
 
@@ -540,7 +549,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
     private void removeChannel(int channel) {
         ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
-        data.channels().set(channel, null);
+        data.channels().set(channel, ChannelInfo.EMPTY);
         cachedConnectors[channel] = null;
         cachedRoutedConnectors[channel] = null;
         markAsDirty();

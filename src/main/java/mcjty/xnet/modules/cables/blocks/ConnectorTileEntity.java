@@ -27,6 +27,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.data.ModelData;
@@ -40,8 +41,6 @@ import static mcjty.lib.api.container.DefaultContainerProvider.empty;
 import static mcjty.xnet.modules.cables.CableModule.TYPE_CONNECTOR;
 
 public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSupport, IConnectorTile {
-
-    private final MimicBlockSupport mimicBlockSupport = new MimicBlockSupport();
 
     private int energy = 0;
     private int[] inputFromSide = new int[] { 0, 0, 0, 0, 0, 0 };
@@ -127,10 +126,17 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     @Override
     public BlockState getMimicBlock() {
-        return getData(FacadeModule.MIMIC_DATA).state();
+        BlockState state = getData(FacadeModule.MIMIC_DATA).state();
+        if (state == null || state.isAir()) {
+            return null;
+        }
+        return state;
     }
 
     public void setMimicBlock(BlockState mimicBlock) {
+        if (mimicBlock == null) {
+            mimicBlock = Blocks.AIR.defaultBlockState();
+        }
         setData(FacadeModule.MIMIC_DATA, new MimicData(mimicBlock));
         markDirtyClient();
     }

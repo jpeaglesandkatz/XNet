@@ -8,6 +8,7 @@ import mcjty.xnet.apiimpl.energy.EnergyChannelType;
 import mcjty.xnet.apiimpl.fluids.FluidChannelType;
 import mcjty.xnet.apiimpl.items.ItemChannelType;
 import mcjty.xnet.apiimpl.logic.LogicChannelType;
+import mcjty.xnet.apiimpl.none.NoneChannelType;
 import mcjty.xnet.compat.TopExtras;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.fml.ModList;
@@ -21,6 +22,7 @@ public class ModSetup extends DefaultModSetup {
     public final EnergyChannelType energyChannelType = new EnergyChannelType();
     public final FluidChannelType fluidChannelType = new FluidChannelType();
     public final LogicChannelType logicChannelType = new LogicChannelType();
+    public final NoneChannelType noneChannelType = new NoneChannelType();
 
     @Override
     public void init(FMLCommonSetupEvent e) {
@@ -34,6 +36,7 @@ public class ModSetup extends DefaultModSetup {
         XNet.xNetApi.registerChannelType(energyChannelType);
         XNet.xNetApi.registerChannelType(fluidChannelType);
         XNet.xNetApi.registerChannelType(logicChannelType);
+        XNet.xNetApi.registerChannelType(noneChannelType);
     }
 
     @Override

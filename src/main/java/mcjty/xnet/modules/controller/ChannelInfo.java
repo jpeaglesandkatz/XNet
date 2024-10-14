@@ -32,6 +32,8 @@ public class ChannelInfo {
 
     private final Map<SidedConsumer, ConnectorInfo> connectors = new HashMap<>();
 
+    public static final ChannelInfo EMPTY = new ChannelInfo(XNet.setup.noneChannelType);
+
     private static final Codec<IChannelSettings> CHANNEL_SETTINGS_CODEC = Codec.lazyInitialized(() -> Codec.STRING.dispatch("type",
             e -> e.getType().getID(),
             s -> XNet.xNetApi.findType(s).getCodec()));
