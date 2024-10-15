@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class EnergyConnectorSettings extends AbstractConnectorSettings {
@@ -58,19 +59,21 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     @Nullable private Integer minmax = null;
 
     public static final MapCodec<EnergyConnectorSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            BaseSettings.CODEC.fieldOf("base").forGetter(settings -> settings.settings),
             Direction.CODEC.fieldOf("side").forGetter(EnergyConnectorSettings::getSide),
             EnergyMode.CODEC.fieldOf("mode").forGetter(EnergyConnectorSettings::getEnergyMode),
-            Codec.INT.fieldOf("priority").forGetter(settings -> settings.priority),
-            Codec.INT.fieldOf("rate").forGetter(settings -> settings.rate),
-            Codec.INT.fieldOf("minmax").forGetter(settings -> settings.minmax)
+            Codec.INT.optionalFieldOf("priority").forGetter(settings -> Optional.ofNullable(settings.priority)),
+            Codec.INT.optionalFieldOf("rate").forGetter(settings -> Optional.ofNullable(settings.rate)),
+            Codec.INT.optionalFieldOf("minmax").forGetter(settings -> Optional.ofNullable(settings.minmax))
     ).apply(instance, EnergyConnectorSettings::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, EnergyConnectorSettings> STREAM_CODEC = StreamCodec.composite(
+            BaseSettings.STREAM_CODEC, s -> s.settings,
             Direction.STREAM_CODEC, AbstractConnectorSettings::getSide,
             EnergyMode.STREAM_CODEC, EnergyConnectorSettings::getEnergyMode,
-            ByteBufCodecs.INT, s -> s.priority,
-            ByteBufCodecs.INT, s -> s.rate,
-            ByteBufCodecs.INT, s -> s.minmax,
+            ByteBufCodecs.optional(ByteBufCodecs.INT), s -> Optional.ofNullable(s.priority),
+            ByteBufCodecs.optional(ByteBufCodecs.INT), s -> Optional.ofNullable(s.rate),
+            ByteBufCodecs.optional(ByteBufCodecs.INT), s -> Optional.ofNullable(s.minmax),
             EnergyConnectorSettings::new
     );
 
@@ -78,12 +81,13 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
         super(side);
     }
 
-    public EnergyConnectorSettings(@NotNull Direction side, EnergyMode energyMode, @Nullable Integer priority, @Nullable Integer rate, @Nullable Integer minmax) {
+    public EnergyConnectorSettings(@Nonnull BaseSettings base, @Nonnull Direction side, EnergyMode energyMode, Optional<Integer> priority, Optional<Integer> rate, Optional<Integer> minmax) {
         super(side);
+        this.settings = base;
         this.energyMode = energyMode;
-        this.priority = priority;
-        this.rate = rate;
-        this.minmax = minmax;
+        this.priority = priority.orElse(null);
+        this.rate = rate.orElse(null);
+        this.minmax = minmax.orElse(null);
     }
 
     public EnergyMode getEnergyMode() {

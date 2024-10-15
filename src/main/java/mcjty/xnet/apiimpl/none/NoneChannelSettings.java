@@ -21,9 +21,12 @@ public class NoneChannelSettings extends DefaultChannelSettings implements IChan
 
     public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
-    private static final NoneChannelSettings EMPTY = new NoneChannelSettings();
+    public static final NoneChannelSettings EMPTY = new NoneChannelSettings();
     public static final StreamCodec<RegistryFriendlyByteBuf, NoneChannelSettings> STREAM_CODEC = StreamCodec.unit(EMPTY);
     public static final MapCodec<NoneChannelSettings> CODEC = MapCodec.unit(EMPTY);
+
+    private NoneChannelSettings() {
+    }
 
     @Override
     public IChannelType getType() {

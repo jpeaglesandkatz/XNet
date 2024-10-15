@@ -19,11 +19,11 @@ public class NoneConnectorSettings extends AbstractConnectorSettings {
 
     public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
-    private static final NoneConnectorSettings EMPTY = new NoneConnectorSettings(Direction.NORTH);
+    public static final NoneConnectorSettings EMPTY = new NoneConnectorSettings(Direction.NORTH);
     public static final MapCodec<NoneConnectorSettings> CODEC = MapCodec.unit(EMPTY);
     public static final StreamCodec<RegistryFriendlyByteBuf, NoneConnectorSettings> STREAM_CODEC = StreamCodec.unit(EMPTY);
 
-    public NoneConnectorSettings(@Nonnull Direction side) {
+    private NoneConnectorSettings(@Nonnull Direction side) {
         super(side);
     }
 

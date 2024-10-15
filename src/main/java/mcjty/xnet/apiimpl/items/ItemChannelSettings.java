@@ -86,19 +86,18 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     private int roundRobinOffset = 0;
     public final Map<ConsumerId, Integer> extractIndices = new HashMap<>();
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ItemChannelSettings> STREAM_CODEC = StreamCodec.composite(
-            ChannelMode.STREAM_CODEC, ItemChannelSettings::getChannelMode,
-            ByteBufCodecs.INT, s -> s.delay,
-            ByteBufCodecs.INT, s -> s.roundRobinOffset,
-            ByteBufCodecs.map(HashMap::new, ByteBufCodecs.INT, ByteBufCodecs.INT), ItemChannelSettings::getIndicesAsIntegerMap,
-            ItemChannelSettings::new
-    );
     public static final MapCodec<ItemChannelSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ChannelMode.CODEC.fieldOf("mode").forGetter(ItemChannelSettings::getChannelMode),
             Codec.INT.fieldOf("delay").forGetter(settings -> settings.delay),
             Codec.INT.fieldOf("offset").forGetter(settings -> settings.roundRobinOffset),
             Codec.unboundedMap(Codec.INT, Codec.INT).fieldOf("extidx").forGetter(ItemChannelSettings::getIndicesAsIntegerMap)
     ).apply(instance, ItemChannelSettings::new));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ItemChannelSettings> STREAM_CODEC = StreamCodec.composite(
+            ChannelMode.STREAM_CODEC, ItemChannelSettings::getChannelMode,
+            ByteBufCodecs.INT, s -> s.delay,
+            ByteBufCodecs.INT, s -> s.roundRobinOffset,
+            ByteBufCodecs.map(HashMap::new, ByteBufCodecs.INT, ByteBufCodecs.INT), ItemChannelSettings::getIndicesAsIntegerMap,
+            ItemChannelSettings::new);
 
     public ItemChannelSettings() {
     }

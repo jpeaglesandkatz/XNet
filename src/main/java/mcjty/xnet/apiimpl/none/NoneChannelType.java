@@ -53,12 +53,12 @@ public class NoneChannelType implements IChannelType {
     @Override
     @Nonnull
     public IConnectorSettings createConnector(@Nonnull Direction side) {
-        return new NoneConnectorSettings(side);
+        return NoneConnectorSettings.EMPTY;
     }
 
     @Nonnull
     @Override
     public IChannelSettings createChannel() {
-        return new NoneChannelSettings();
+        return NoneChannelSettings.EMPTY;
     }
 }

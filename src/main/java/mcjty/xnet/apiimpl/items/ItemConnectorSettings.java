@@ -29,6 +29,7 @@ import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -99,7 +100,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     private StackMode stackMode = StackMode.SINGLE;
     private boolean tagsMode = false;
     private boolean metaMode = false;
-    private boolean nbtMode = false;
+    private boolean componentMode = false;
     private boolean blacklist = false;
     @Nullable private Integer priority = 0;
     @Nullable private Integer count = null;
@@ -109,6 +110,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     private int filterIndex = -1;
 
     public static final MapCodec<ItemConnectorSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            BaseSettings.CODEC.fieldOf("base").forGetter(settings -> settings.settings),
             ItemMode.CODEC.fieldOf("itemMode").forGetter(settings -> settings.itemMode),
             ExtractMode.CODEC.fieldOf("extractMode").forGetter(settings -> settings.extractMode),
             StackMode.CODEC.fieldOf("stackMode").forGetter(settings -> settings.stackMode),
@@ -116,14 +118,15 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
             Codec.INT.fieldOf("filterIndex").forGetter(settings -> settings.filterIndex),
             Codec.BOOL.fieldOf("tagsMode").forGetter(settings -> settings.tagsMode),
             Codec.BOOL.fieldOf("metaMode").forGetter(settings -> settings.metaMode),
-            Codec.BOOL.fieldOf("nbtMode").forGetter(settings -> settings.nbtMode),
+            Codec.BOOL.fieldOf("componentMode").forGetter(settings -> settings.componentMode),
             Codec.BOOL.fieldOf("blacklist").forGetter(settings -> settings.blacklist),
-            Codec.INT.optionalFieldOf("priority", 0).forGetter(settings -> settings.priority),
-            Codec.INT.optionalFieldOf("extractAmount", 1).forGetter(settings -> settings.extractAmount),
-            Codec.INT.optionalFieldOf("count", null).forGetter(settings -> settings.count),
-            ItemStack.CODEC.listOf().fieldOf("filters").forGetter(settings -> settings.filters)
-    ).apply(instance, (itemMode, extractMode, stackMode, speed, filterIndex, tagsMode, metaMode, nbtMode, blacklist, priority, extractAmount, count, filters) -> {
+            Codec.INT.optionalFieldOf("priority").forGetter(settings -> Optional.ofNullable(settings.priority)),
+            Codec.INT.optionalFieldOf("extractAmount").forGetter(settings -> Optional.ofNullable(settings.extractAmount)),
+            Codec.INT.optionalFieldOf("count").forGetter(settings -> Optional.ofNullable(settings.count)),
+            ItemStack.OPTIONAL_CODEC.listOf().fieldOf("filters").forGetter(settings -> settings.filters)
+    ).apply(instance, (base, itemMode, extractMode, stackMode, speed, filterIndex, tagsMode, metaMode, componentMode, blacklist, priority, extractAmount, count, filters) -> {
         ItemConnectorSettings settings = new ItemConnectorSettings(Direction.NORTH);
+        settings.settings = base;
         settings.itemMode = itemMode;
         settings.extractMode = extractMode;
         settings.stackMode = stackMode;
@@ -131,17 +134,18 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         settings.filterIndex = filterIndex;
         settings.tagsMode = tagsMode;
         settings.metaMode = metaMode;
-        settings.nbtMode = nbtMode;
+        settings.componentMode = componentMode;
         settings.blacklist = blacklist;
-        settings.priority = priority;
-        settings.extractAmount = extractAmount;
-        settings.count = count;
+        settings.priority = priority.orElse(null);
+        settings.extractAmount = extractAmount.orElse(null);
+        settings.count = count.orElse(null);
         settings.filters.clear();
         settings.filters.addAll(filters);
         return settings;
     }));
 
     public static StreamCodec<RegistryFriendlyByteBuf, ItemConnectorSettings> STREAM_CODEC = CompositeStreamCodec.composite(
+            BaseSettings.STREAM_CODEC, s -> s.settings,
             ItemMode.STREAM_CODEC, s -> s.itemMode,
             ExtractMode.STREAM_CODEC, s -> s.extractMode,
             StackMode.STREAM_CODEC, s -> s.stackMode,
@@ -149,14 +153,15 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
             ByteBufCodecs.INT, s -> s.filterIndex,
             ByteBufCodecs.BOOL, s -> s.tagsMode,
             ByteBufCodecs.BOOL, s -> s.metaMode,
-            ByteBufCodecs.BOOL, s -> s.nbtMode,
+            ByteBufCodecs.BOOL, s -> s.componentMode,
             ByteBufCodecs.BOOL, s -> s.blacklist,
-            ByteBufCodecs.INT, s -> s.priority,
-            ByteBufCodecs.INT, s -> s.extractAmount,
-            ByteBufCodecs.INT, s -> s.count,
+            ByteBufCodecs.optional(ByteBufCodecs.INT), s -> Optional.ofNullable(s.priority),
+            ByteBufCodecs.optional(ByteBufCodecs.INT), s -> Optional.ofNullable(s.extractAmount),
+            ByteBufCodecs.optional(ByteBufCodecs.INT), s -> Optional.ofNullable(s.count),
             ItemStack.OPTIONAL_LIST_STREAM_CODEC, s -> s.filters,
-            (itemMode, extractMode, stackMode, speed, filterIndex, tagsMode, metaMode, nbtMode, blacklist, priority, extractAmount, count, filters) -> {
+            (base, itemMode, extractMode, stackMode, speed, filterIndex, tagsMode, metaMode, componentMode, blacklist, priority, extractAmount, count, filters) -> {
                 ItemConnectorSettings settings = new ItemConnectorSettings(Direction.NORTH);
+                settings.settings = base;
                 settings.itemMode = itemMode;
                 settings.extractMode = extractMode;
                 settings.stackMode = stackMode;
@@ -164,11 +169,11 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
                 settings.filterIndex = filterIndex;
                 settings.tagsMode = tagsMode;
                 settings.metaMode = metaMode;
-                settings.nbtMode = nbtMode;
+                settings.componentMode = componentMode;
                 settings.blacklist = blacklist;
-                settings.priority = priority;
-                settings.extractAmount = extractAmount;
-                settings.count = count;
+                settings.priority = priority.orElse(null);
+                settings.extractAmount = extractAmount.orElse(null);
+                settings.count = count.orElse(null);
                 settings.filters.clear();
                 settings.filters.addAll(filters);
                 return settings;
@@ -251,7 +256,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
                 .toggleText(TAG_BLACKLIST, "Enable blacklist mode", "BL", blacklist).shift(0)
                 .toggleText(TAG_TAGS, "Tag matching", "Tags", tagsMode).shift(0)
                 .toggleText(TAG_META, "Metadata matching", "Meta", metaMode).shift(0)
-                .toggleText(TAG_NBT, "NBT matching", "NBT", nbtMode).shift(0)
+                .toggleText(TAG_NBT, "NBT matching", "NBT", componentMode).shift(0)
                 .choices(TAG_FILTER_IDX, "Filter Index", getFilterIndexString(), "<Off>", "1", "2", "3", "4")
                 .nl();
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
@@ -283,7 +288,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
                     matcher = itemStack -> true;
                 }
             } else {
-                ItemFilterCache filterCache = new ItemFilterCache(metaMode, tagsMode, blacklist, nbtMode, filterList);
+                ItemFilterCache filterCache = new ItemFilterCache(metaMode, tagsMode, blacklist, componentMode, filterList);
                 if (filterMatcher != null) {
                     matcher = stack -> filterMatcher.test(stack) || filterCache.match(stack);
                 } else {
@@ -370,7 +375,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         this.filterIndex = "<Off>".equalsIgnoreCase(idx) ? -1 : Integer.parseInt(idx);
         tagsMode = Boolean.TRUE.equals(data.get(TAG_TAGS));
         metaMode = Boolean.TRUE.equals(data.get(TAG_META));
-        nbtMode = Boolean.TRUE.equals(data.get(TAG_NBT));
+        componentMode = Boolean.TRUE.equals(data.get(TAG_NBT));
 
         blacklist = Boolean.TRUE.equals(data.get(TAG_BLACKLIST));
         priority = (Integer) data.get(TAG_PRIORITY);
@@ -391,7 +396,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         setEnumSafe(object, "stackmode", stackMode);
         object.add("tagsmode", new JsonPrimitive(tagsMode));
         object.add("metamode", new JsonPrimitive(metaMode));
-        object.add("nbtmode", new JsonPrimitive(nbtMode));
+        object.add("nbtmode", new JsonPrimitive(componentMode));
         object.add("blacklist", new JsonPrimitive(blacklist));
         setIntegerSafe(object, "priority", priority);
         setIntegerSafe(object, "extractamount", extractAmount);
@@ -418,7 +423,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         stackMode = getEnumSafe(object, "stackmode", EnumStringTranslators::getStackMode);
         tagsMode = getBoolSafe(object, "tagsmode");
         metaMode = getBoolSafe(object, "metamode");
-        nbtMode = getBoolSafe(object, "nbtmode");
+        componentMode = getBoolSafe(object, "nbtmode");
         blacklist = getBoolSafe(object, "blacklist");
         priority = getIntegerSafe(object, "priority");
         extractAmount = getIntegerSafe(object, "extractamount");
@@ -462,7 +467,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         }
         tagsMode = tag.getBoolean("tagsMode");
         metaMode = tag.getBoolean("metaMode");
-        nbtMode = tag.getBoolean("nbtMode");
+        componentMode = tag.getBoolean("componentMode");
         blacklist = tag.getBoolean("blacklist");
         if (tag.contains("priority")) {
             priority = tag.getInt("priority");
@@ -501,7 +506,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         tag.putInt("filterindex", filterIndex);
         tag.putBoolean("tagsMode", tagsMode);
         tag.putBoolean("metaMode", metaMode);
-        tag.putBoolean("nbtMode", nbtMode);
+        tag.putBoolean("componentMode", componentMode);
         tag.putBoolean("blacklist", blacklist);
         if (priority != null) {
             tag.putInt("priority", priority);

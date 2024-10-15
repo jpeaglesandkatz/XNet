@@ -68,9 +68,10 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     private ItemStack filter = ItemStack.EMPTY;
 
     public static final MapCodec<FluidConnectorSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            BaseSettings.CODEC.fieldOf("base").forGetter(settings -> settings.settings),
             Direction.CODEC.fieldOf("side").forGetter(FluidConnectorSettings::getSide),
             FluidMode.CODEC.fieldOf("mode").forGetter(FluidConnectorSettings::getFluidMode),
-            Codec.INT.optionalFieldOf("priority", 0).forGetter(o -> o.priority),
+            Codec.INT.optionalFieldOf("priority").forGetter(o -> Optional.ofNullable(o.priority)),
             Codec.INT.optionalFieldOf("rate").forGetter(o -> Optional.ofNullable(o.rate)),
             Codec.INT.optionalFieldOf("minmax").forGetter(o -> Optional.ofNullable(o.minmax)),
             Codec.INT.fieldOf("speed").forGetter(FluidConnectorSettings::getSpeed),
@@ -78,26 +79,27 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     ).apply(instance, FluidConnectorSettings::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, FluidConnectorSettings> STREAM_CODEC = CompositeStreamCodec.composite(
+            BaseSettings.STREAM_CODEC, s -> s.settings,
             Direction.STREAM_CODEC, AbstractConnectorSettings::getSide,
             FluidMode.STREAM_CODEC, FluidConnectorSettings::getFluidMode,
-            ByteBufCodecs.INT, s -> s.priority,
-            ByteBufCodecs.INT, s -> s.rate,
-            ByteBufCodecs.INT, s -> s.minmax,
+            ByteBufCodecs.optional(ByteBufCodecs.INT), s -> Optional.ofNullable(s.priority),
+            ByteBufCodecs.optional(ByteBufCodecs.INT), s -> Optional.ofNullable(s.rate),
+            ByteBufCodecs.optional(ByteBufCodecs.INT), s -> Optional.ofNullable(s.minmax),
             ByteBufCodecs.INT, s -> s.speed,
             ItemStack.OPTIONAL_STREAM_CODEC, s -> s.filter,
-            (side, mode, priority, rate, minmax, speed, filter) -> new FluidConnectorSettings(side, mode, priority,
-                    Optional.ofNullable(rate), Optional.ofNullable(minmax), speed, filter)
+            FluidConnectorSettings::new
     );
 
     public FluidConnectorSettings(@Nonnull Direction side) {
         super(side);
     }
 
-    public FluidConnectorSettings(@NotNull Direction side, FluidMode fluidMode, Integer priority,
+    public FluidConnectorSettings(@Nonnull BaseSettings base, @Nonnull Direction side, FluidMode fluidMode, Optional<Integer> priority,
                                   Optional<Integer> rate, Optional<Integer> minmax, int speed, ItemStack filter) {
         super(side);
+        this.settings = base;
         this.fluidMode = fluidMode;
-        this.priority = priority;
+        this.priority = priority.orElse(null);
         this.rate = rate.orElse(null);
         this.minmax = minmax.orElse(null);
         this.speed = speed;

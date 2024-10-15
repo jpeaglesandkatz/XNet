@@ -8,6 +8,7 @@ import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import mcjty.lib.varia.CompositeStreamCodec;
 import mcjty.lib.varia.JSonTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
@@ -66,6 +67,7 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     private Integer redstoneOut;    // Redstone output value
 
     public static final MapCodec<LogicConnectorSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            BaseSettings.CODEC.fieldOf("base").forGetter(settings -> settings.settings),
             Direction.CODEC.fieldOf("side").forGetter(LogicConnectorSettings::getSide),
             LogicMode.CODEC.fieldOf("mode").forGetter(LogicConnectorSettings::getLogicMode),
             Codec.INT.fieldOf("colors").forGetter(settings -> settings.colors),
@@ -74,7 +76,8 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
             Codec.list(Sensor.CODEC).fieldOf("sensors").forGetter(LogicConnectorSettings::getSensors)
     ).apply(instance, LogicConnectorSettings::new));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, LogicConnectorSettings> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, LogicConnectorSettings> STREAM_CODEC = CompositeStreamCodec.composite(
+            BaseSettings.STREAM_CODEC, s -> s.settings,
             Direction.STREAM_CODEC, AbstractConnectorSettings::getSide,
             LogicMode.STREAM_CODEC, LogicConnectorSettings::getLogicMode,
             ByteBufCodecs.INT, s -> s.colors,
@@ -84,8 +87,9 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
             LogicConnectorSettings::new
     );
 
-    public LogicConnectorSettings(@NotNull Direction side, LogicMode logicMode, int colors, int speed, Integer redstoneOut, List<Sensor> sensors) {
+    public LogicConnectorSettings(@Nonnull BaseSettings base, @Nonnull Direction side, LogicMode logicMode, int colors, int speed, Integer redstoneOut, List<Sensor> sensors) {
         this(side);
+        this.settings = base;
         this.logicMode = logicMode;
         this.colors = colors;
         this.speed = speed;
