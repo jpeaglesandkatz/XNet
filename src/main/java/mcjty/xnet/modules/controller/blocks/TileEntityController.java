@@ -545,17 +545,17 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
     private void removeChannel(int channel) {
         ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
-        data.channels().set(channel, ChannelInfo.EMPTY);
+        data = data.setChannel(channel, ChannelInfo.EMPTY);
+        setData(ControllerModule.CONTROLLER_DATA, data);
         cachedConnectors[channel] = null;
         cachedRoutedConnectors[channel] = null;
-        markAsDirty();
     }
 
     private void createChannel(int channel, String typeId) {
         IChannelType type = XNet.xNetApi.findType(typeId);
         ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
-        data.channels().set(channel, new ChannelInfo(type));
-        markAsDirty();
+        data = data.setChannel(channel, new ChannelInfo(type));
+        setData(ControllerModule.CONTROLLER_DATA, data);
     }
 
     private void updateConnector(int channel, SidedPos pos, TypedMap params) {
@@ -859,7 +859,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             chan.setChannelName(root.get(JSON_NAME).getAsString());
             chan.getChannelSettings().readFromJson(root.get(JSON_CHANNEL).getAsJsonObject());
             chan.setEnabled(false);
-            data.channels().set(channel, chan);
+            data = data.setChannel(channel, chan);
+            setData(ControllerModule.CONTROLLER_DATA, data);
 
             // We try to paste the best matches first. If there are any connectors in the clip that can't
             // be pasted we'll give a warning to the user

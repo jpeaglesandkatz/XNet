@@ -7,6 +7,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public record ControllerData(int colors, List<ChannelInfo> channels) {
@@ -24,5 +25,11 @@ public record ControllerData(int colors, List<ChannelInfo> channels) {
 
     public ControllerData withColors(int colors) {
         return new ControllerData(colors, channels);
+    }
+
+    public ControllerData setChannel(int index, ChannelInfo channel) {
+        List<ChannelInfo> list = new ArrayList<>(this.channels);
+        list.set(index, channel);
+        return new ControllerData(colors, list);
     }
 }
