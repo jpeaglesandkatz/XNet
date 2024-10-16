@@ -18,7 +18,9 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ChannelInfo {
@@ -42,7 +44,7 @@ public class ChannelInfo {
             CHANNEL_SETTINGS_CODEC.fieldOf("settings").forGetter(ChannelInfo::getChannelSettings),
             Codec.STRING.optionalFieldOf("name", "").forGetter(ChannelInfo::getChannelName),
             Codec.BOOL.fieldOf("enabled").forGetter(ChannelInfo::isEnabled),
-            Codec.unboundedMap(SidedConsumer.CODEC, ConnectorInfo.CODEC).fieldOf("connectors").forGetter(ChannelInfo::getConnectors)
+            Codec.list(ConnectorInfo.CODEC).fieldOf("connectors").forGetter(info -> new ArrayList<>(info.connectors.values()))
     ).apply(instance, ChannelInfo::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ChannelInfo> STREAM_CODEC = StreamCodec.of(
@@ -54,10 +56,8 @@ public class ChannelInfo {
                 buf.writeUtf(info.getChannelName());
                 buf.writeBoolean(info.isEnabled());
                 buf.writeInt(info.connectors.size());
-                for (Map.Entry<SidedConsumer, ConnectorInfo> entry : info.connectors.entrySet()) {
-                    ConnectorInfo connectorInfo = entry.getValue();
-                    connectorStreamCodec.encode(buf, connectorInfo.getConnectorSettings());
-                    SidedConsumer.STREAM_CODEC.encode(buf, entry.getKey());
+                for (ConnectorInfo connectorInfo : info.connectors.values()) {
+                    ConnectorInfo.STREAM_CODEC.encode(buf, connectorInfo);
                 }
             },
             buf -> {
@@ -66,15 +66,12 @@ public class ChannelInfo {
                 IChannelSettings settings = type.getStreamCodec().decode(buf);
                 String name = buf.readUtf(32767);
                 boolean enabled = buf.readBoolean();
-                Map<SidedConsumer, ConnectorInfo> connectorMap = new HashMap<>();
+                List<ConnectorInfo> connectors = new ArrayList<>();
                 int size = buf.readInt();
                 for (int i = 0 ; i < size ; i++) {
-                    IConnectorSettings connectorSettings = type.getConnectorStreamCodec().decode(buf);
-                    SidedConsumer sidedConsumer = SidedConsumer.STREAM_CODEC.decode(buf);
-                    ConnectorInfo connectorInfo = new ConnectorInfo(connectorSettings, sidedConsumer, false);
-                    connectorMap.put(sidedConsumer, connectorInfo);
+                    connectors.add(ConnectorInfo.STREAM_CODEC.decode(buf));
                 }
-                return new ChannelInfo(settings, name, enabled, connectorMap);
+                return new ChannelInfo(settings, name, enabled, connectors);
             }
     );
 
@@ -84,12 +81,14 @@ public class ChannelInfo {
         enabled = !isEmpty();
     }
 
-    public ChannelInfo(IChannelSettings settings, String name, boolean enabled, Map<SidedConsumer, ConnectorInfo> connectors) {
+    public ChannelInfo(IChannelSettings settings, String name, boolean enabled, List<ConnectorInfo> connectors) {
         this.type = settings.getType();
         this.channelSettings = settings;
         this.channelName = name;
         this.enabled = enabled;
-        this.connectors.putAll(connectors);
+        for (ConnectorInfo connector : connectors) {
+            this.connectors.put(connector.getId(), connector);
+        }
     }
 
     public boolean isEmpty() {

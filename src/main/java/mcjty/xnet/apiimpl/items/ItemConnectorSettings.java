@@ -139,8 +139,9 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         settings.priority = priority.orElse(null);
         settings.extractAmount = extractAmount.orElse(null);
         settings.count = count.orElse(null);
-        settings.filters.clear();
-        settings.filters.addAll(filters);
+        for (int i = 0 ; i < FILTER_SIZE ; i++) {
+            settings.filters.set(i, filters.get(i));
+        }
         return settings;
     }));
 

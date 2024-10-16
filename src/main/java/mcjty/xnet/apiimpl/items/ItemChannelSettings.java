@@ -52,7 +52,15 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     private Map<SidedConsumer, ItemConnectorSettings> itemExtractors = null;
     private List<Pair<SidedConsumer, ItemConnectorSettings>> itemConsumers = null;
 
-    public Map<Integer, Integer> getIndicesAsIntegerMap() {
+    public List<com.mojang.datafixers.util.Pair<Integer, Integer>> getIndicesAsListOfPairs() {
+        List<com.mojang.datafixers.util.Pair<Integer, Integer>> list = new ArrayList<>();
+        for (Map.Entry<ConsumerId, Integer> entry : extractIndices.entrySet()) {
+            list.add(com.mojang.datafixers.util.Pair.of(entry.getKey().id(), entry.getValue()));
+        }
+        return list;
+    }
+
+    public Map<Integer, Integer> getIndicesAsMap() {
         Map<Integer, Integer> map = new HashMap<>();
         for (Map.Entry<ConsumerId, Integer> entry : extractIndices.entrySet()) {
             map.put(entry.getKey().id(), entry.getValue());
@@ -60,10 +68,10 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         return map;
     }
 
-    public void setIndicesAsIntegerMap(Map<Integer, Integer> map) {
+    public void setIndicesFromListOfPairs(List<com.mojang.datafixers.util.Pair<Integer, Integer>> list) {
         extractIndices.clear();
-        for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
-            extractIndices.put(new ConsumerId(entry.getKey()), entry.getValue());
+        for (com.mojang.datafixers.util.Pair<Integer, Integer> entry : list) {
+            extractIndices.put(new ConsumerId(entry.getFirst()), entry.getSecond());
         }
     }
 
@@ -90,23 +98,30 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             ChannelMode.CODEC.fieldOf("mode").forGetter(ItemChannelSettings::getChannelMode),
             Codec.INT.fieldOf("delay").forGetter(settings -> settings.delay),
             Codec.INT.fieldOf("offset").forGetter(settings -> settings.roundRobinOffset),
-            Codec.unboundedMap(Codec.INT, Codec.INT).fieldOf("extidx").forGetter(ItemChannelSettings::getIndicesAsIntegerMap)
+            Codec.pair(Codec.INT, Codec.INT).listOf().fieldOf("extidx").forGetter(ItemChannelSettings::getIndicesAsListOfPairs)
     ).apply(instance, ItemChannelSettings::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemChannelSettings> STREAM_CODEC = StreamCodec.composite(
             ChannelMode.STREAM_CODEC, ItemChannelSettings::getChannelMode,
             ByteBufCodecs.INT, s -> s.delay,
             ByteBufCodecs.INT, s -> s.roundRobinOffset,
-            ByteBufCodecs.map(HashMap::new, ByteBufCodecs.INT, ByteBufCodecs.INT), ItemChannelSettings::getIndicesAsIntegerMap,
+            ByteBufCodecs.map(HashMap::new, ByteBufCodecs.INT, ByteBufCodecs.INT), ItemChannelSettings::getIndicesAsMap,
             ItemChannelSettings::new);
 
     public ItemChannelSettings() {
+    }
+
+    public ItemChannelSettings(ChannelMode channelMode, int delay, int roundRobinOffset, List<com.mojang.datafixers.util.Pair<Integer, Integer>> itemExtractors) {
+        this.channelMode = channelMode;
+        this.delay = delay;
+        this.roundRobinOffset = roundRobinOffset;
+        setIndicesFromListOfPairs(itemExtractors);
     }
 
     public ItemChannelSettings(ChannelMode channelMode, int delay, int roundRobinOffset, Map<Integer, Integer> itemExtractors) {
         this.channelMode = channelMode;
         this.delay = delay;
         this.roundRobinOffset = roundRobinOffset;
-        setIndicesAsIntegerMap(itemExtractors);
+        itemExtractors.forEach((k, v) -> extractIndices.put(new ConsumerId(k), v));
     }
 
     public ChannelMode getChannelMode() {

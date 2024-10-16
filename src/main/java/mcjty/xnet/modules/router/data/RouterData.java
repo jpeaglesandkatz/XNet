@@ -1,5 +1,6 @@
 package mcjty.xnet.modules.router.data;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.xnet.modules.router.LocalChannelId;
@@ -16,8 +17,12 @@ public record RouterData(int channelCount, Map<LocalChannelId, String> published
 
     public static final Codec<RouterData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("channelCount").forGetter(RouterData::channelCount),
-            Codec.unboundedMap(LocalChannelId.CODEC, Codec.STRING).fieldOf("publishedChannels").forGetter(RouterData::publishedChannels)
-    ).apply(instance, RouterData::new));
+            Codec.pair(LocalChannelId.CODEC, Codec.STRING).listOf().fieldOf("publishedChannels").forGetter(s -> s.publishedChannels().entrySet().stream().map(e -> Pair.of(e.getKey(), e.getValue())).toList())
+    ).apply(instance, (channelCount, publishedChannels) -> {
+        Map<LocalChannelId, String> map = new HashMap<>();
+        publishedChannels.forEach(pair -> map.put(pair.getFirst(), pair.getSecond()));
+        return new RouterData(channelCount, map);
+    }));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RouterData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, RouterData::channelCount,
