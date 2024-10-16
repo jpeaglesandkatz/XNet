@@ -27,7 +27,7 @@ public class ChannelInfo {
 
     private final IChannelType type;
     private final IChannelSettings channelSettings;
-    private String channelName;
+    private String channelName = "";
     private boolean enabled = true;
 
     private final Map<SidedConsumer, ConnectorInfo> connectors = new HashMap<>();
@@ -40,7 +40,7 @@ public class ChannelInfo {
 
     public static final Codec<ChannelInfo> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             CHANNEL_SETTINGS_CODEC.fieldOf("settings").forGetter(ChannelInfo::getChannelSettings),
-            Codec.STRING.fieldOf("name").forGetter(ChannelInfo::getChannelName),
+            Codec.STRING.optionalFieldOf("name", "").forGetter(ChannelInfo::getChannelName),
             Codec.BOOL.fieldOf("enabled").forGetter(ChannelInfo::isEnabled),
             Codec.unboundedMap(SidedConsumer.CODEC, ConnectorInfo.CODEC).fieldOf("connectors").forGetter(ChannelInfo::getConnectors)
     ).apply(instance, ChannelInfo::new));
@@ -157,7 +157,7 @@ public class ChannelInfo {
         if (tag.contains("name")) {
             channelName = tag.getString("name");
         } else {
-            channelName = null;
+            channelName = "";
         }
         ListTag conlist = tag.getList("connectors", Tag.TAG_COMPOUND);
         for (int i = 0 ; i < conlist.size() ; i++) {
