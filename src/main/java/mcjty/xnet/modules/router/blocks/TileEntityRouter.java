@@ -121,6 +121,7 @@ public final class TileEntityRouter extends GenericTileEntity {
             return;
         }
         data = data.withChannelCount(cnt);
+        setData(RouterModule.ROUTER_DATA, data);
         BlockState state = level.getBlockState(worldPosition);
         if (inError()) {
             if (!state.getValue(ERROR)) {
@@ -131,7 +132,6 @@ public final class TileEntityRouter extends GenericTileEntity {
                 level.setBlock(worldPosition, state.setValue(ERROR, false), Block.UPDATE_ALL);
             }
         }
-        markDirtyQuick();
     }
 
     public void forEachPublishedChannel(BiConsumer<String, IChannelType> consumer) {
@@ -290,8 +290,6 @@ public final class TileEntityRouter extends GenericTileEntity {
             }
         }
         XNetWirelessChannels.get(level).updateGlobalChannelVersion();
-
-        markDirtyQuick();
     }
 
     @Override

@@ -1,6 +1,5 @@
 package mcjty.xnet.modules.router.data;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.xnet.modules.router.LocalChannelId;
@@ -15,12 +14,20 @@ public record RouterData(int channelCount, Map<LocalChannelId, String> published
 
     public static final RouterData EMPTY = new RouterData(0, new HashMap<>());
 
+    public record ChannelData(LocalChannelId channel, String name) {
+    }
+
+    private static final Codec<ChannelData> CHANNEL_DATA_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            LocalChannelId.CODEC.fieldOf("channel").forGetter(ChannelData::channel),
+            Codec.STRING.fieldOf("name").forGetter(ChannelData::name)
+    ).apply(instance, ChannelData::new));
+
     public static final Codec<RouterData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("channelCount").forGetter(RouterData::channelCount),
-            Codec.pair(LocalChannelId.CODEC, Codec.STRING).listOf().fieldOf("publishedChannels").forGetter(s -> s.publishedChannels().entrySet().stream().map(e -> Pair.of(e.getKey(), e.getValue())).toList())
+            CHANNEL_DATA_CODEC.listOf().fieldOf("publishedChannels").forGetter(s -> s.publishedChannels().entrySet().stream().map(p -> new ChannelData(p.getKey(), p.getValue())).toList())
     ).apply(instance, (channelCount, publishedChannels) -> {
         Map<LocalChannelId, String> map = new HashMap<>();
-        publishedChannels.forEach(pair -> map.put(pair.getFirst(), pair.getSecond()));
+        publishedChannels.forEach(pair -> map.put(pair.channel(), pair.name()));
         return new RouterData(channelCount, map);
     }));
 

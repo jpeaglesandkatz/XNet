@@ -52,10 +52,11 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     private Map<SidedConsumer, ItemConnectorSettings> itemExtractors = null;
     private List<Pair<SidedConsumer, ItemConnectorSettings>> itemConsumers = null;
 
-    public List<com.mojang.datafixers.util.Pair<Integer, Integer>> getIndicesAsListOfPairs() {
-        List<com.mojang.datafixers.util.Pair<Integer, Integer>> list = new ArrayList<>();
+    public List<Integer> getIndicesAsList() {
+        List<Integer> list = new ArrayList<>();
         for (Map.Entry<ConsumerId, Integer> entry : extractIndices.entrySet()) {
-            list.add(com.mojang.datafixers.util.Pair.of(entry.getKey().id(), entry.getValue()));
+            list.add(entry.getKey().id());
+            list.add(entry.getValue());
         }
         return list;
     }
@@ -68,10 +69,10 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         return map;
     }
 
-    public void setIndicesFromListOfPairs(List<com.mojang.datafixers.util.Pair<Integer, Integer>> list) {
+    public void setIndicesFromList(List<Integer> list) {
         extractIndices.clear();
-        for (com.mojang.datafixers.util.Pair<Integer, Integer> entry : list) {
-            extractIndices.put(new ConsumerId(entry.getFirst()), entry.getSecond());
+        for (int i = 0; i < list.size(); i += 2) {
+            extractIndices.put(new ConsumerId(list.get(i)), list.get(i + 1));
         }
     }
 
@@ -98,7 +99,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             ChannelMode.CODEC.fieldOf("mode").forGetter(ItemChannelSettings::getChannelMode),
             Codec.INT.fieldOf("delay").forGetter(settings -> settings.delay),
             Codec.INT.fieldOf("offset").forGetter(settings -> settings.roundRobinOffset),
-            Codec.pair(Codec.INT, Codec.INT).listOf().fieldOf("extidx").forGetter(ItemChannelSettings::getIndicesAsListOfPairs)
+            Codec.INT.listOf().fieldOf("extidx").forGetter(ItemChannelSettings::getIndicesAsList)
     ).apply(instance, ItemChannelSettings::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemChannelSettings> STREAM_CODEC = StreamCodec.composite(
             ChannelMode.STREAM_CODEC, ItemChannelSettings::getChannelMode,
@@ -110,11 +111,11 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     public ItemChannelSettings() {
     }
 
-    public ItemChannelSettings(ChannelMode channelMode, int delay, int roundRobinOffset, List<com.mojang.datafixers.util.Pair<Integer, Integer>> itemExtractors) {
+    public ItemChannelSettings(ChannelMode channelMode, int delay, int roundRobinOffset, List<Integer> itemExtractors) {
         this.channelMode = channelMode;
         this.delay = delay;
         this.roundRobinOffset = roundRobinOffset;
-        setIndicesFromListOfPairs(itemExtractors);
+        setIndicesFromList(itemExtractors);
     }
 
     public ItemChannelSettings(ChannelMode channelMode, int delay, int roundRobinOffset, Map<Integer, Integer> itemExtractors) {
