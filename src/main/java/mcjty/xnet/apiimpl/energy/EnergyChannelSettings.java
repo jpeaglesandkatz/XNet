@@ -39,8 +39,11 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
 
     public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
-    public static final MapCodec<EnergyChannelSettings> CODEC = MapCodec.unit(new EnergyChannelSettings());
-    public static final StreamCodec<RegistryFriendlyByteBuf, EnergyChannelSettings> STREAM_CODEC = StreamCodec.unit(new EnergyChannelSettings());
+    public static final MapCodec<EnergyChannelSettings> CODEC = MapCodec.unit(EnergyChannelSettings::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, EnergyChannelSettings> STREAM_CODEC = StreamCodec.of(
+            (buf, settings) -> {},
+            buf -> new EnergyChannelSettings()
+    );
 
     // Cache data
     private List<Pair<SidedConsumer, EnergyConnectorSettings>> energyExtractors = null;

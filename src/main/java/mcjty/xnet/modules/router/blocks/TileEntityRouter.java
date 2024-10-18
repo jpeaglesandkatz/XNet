@@ -41,6 +41,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -61,9 +62,6 @@ import static mcjty.xnet.modules.controller.blocks.TileEntityController.ERROR;
 import static mcjty.xnet.modules.router.RouterModule.ROUTER;
 
 public final class TileEntityRouter extends GenericTileEntity {
-
-//    private final Map<LocalChannelId, String> publishedChannels = new HashMap<>();
-//    private int channelCount = 0;
 
     public List<ControllerChannelClientInfo> clientLocalChannels = null;
     public List<ControllerChannelClientInfo> clientRemoteChannels = null;
@@ -88,6 +86,12 @@ public final class TileEntityRouter extends GenericTileEntity {
             protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
                 super.createBlockStateDefinition(builder);
                 builder.add(ERROR);
+            }
+
+            @Nullable
+            @Override
+            public BlockState getStateForPlacement(BlockPlaceContext context) {
+                return super.getStateForPlacement(context).setValue(ERROR, false);
             }
         };
     }
