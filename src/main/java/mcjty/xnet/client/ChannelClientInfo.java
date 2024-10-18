@@ -8,9 +8,8 @@ import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -62,7 +61,7 @@ public class ChannelClientInfo {
         this.enabled = enabled;
     }
 
-    public ChannelClientInfo(@Nonnull FriendlyByteBuf buf) {
+    public ChannelClientInfo(@Nonnull RegistryFriendlyByteBuf buf) {
         channelName = NetworkTools.readStringUTF8(buf);
         enabled = buf.readBoolean();
         String id = buf.readUtf(32767);
@@ -71,9 +70,8 @@ public class ChannelClientInfo {
             throw new RuntimeException("Bad type: " + id);
         }
         type = t;
-        channelSettings = type.createChannel();
-        CompoundTag tag = buf.readNbt();
-        channelSettings.readFromNBT(tag);
+        StreamCodec<RegistryFriendlyByteBuf, IChannelSettings> codec = (StreamCodec<RegistryFriendlyByteBuf, IChannelSettings>) t.getStreamCodec();
+        channelSettings = codec.decode(buf);
 
         int size = buf.readInt();
         for (int i = 0 ; i < size ; i++) {
@@ -83,13 +81,12 @@ public class ChannelClientInfo {
         }
     }
 
-    public void writeToNBT(@Nonnull FriendlyByteBuf buf) {
+    public void writeToNBT(@Nonnull RegistryFriendlyByteBuf buf) {
         NetworkTools.writeStringUTF8(buf, channelName);
         buf.writeBoolean(enabled);
         buf.writeUtf(type.getID());
-        CompoundTag tag = new CompoundTag();
-        channelSettings.writeToNBT(tag);
-        buf.writeNbt(tag);
+        StreamCodec<RegistryFriendlyByteBuf, IChannelSettings> codec = (StreamCodec<RegistryFriendlyByteBuf, IChannelSettings>) channelSettings.getType().getStreamCodec();
+        codec.encode(buf, channelSettings);
         buf.writeInt(connectors.size());
         for (Map.Entry<SidedConsumer, ConnectorClientInfo> entry : connectors.entrySet()) {
             SidedConsumer key = entry.getKey();

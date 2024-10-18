@@ -24,7 +24,7 @@ public class NoneConnectorSettings extends AbstractConnectorSettings {
     public static final StreamCodec<RegistryFriendlyByteBuf, NoneConnectorSettings> STREAM_CODEC = StreamCodec.unit(EMPTY);
 
     private NoneConnectorSettings(@Nonnull Direction side) {
-        super(side);
+        super(DEFAULT_SETTINGS, side);
     }
 
     @Override

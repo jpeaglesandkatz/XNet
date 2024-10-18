@@ -1,7 +1,6 @@
 package mcjty.xnet.apiimpl.energy;
 
 import com.google.gson.JsonObject;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import mcjty.lib.varia.EnergyTools;
 import mcjty.lib.varia.LevelTools;
@@ -17,15 +16,14 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.Config;
-import mcjty.xnet.setup.ModSetup;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.apache.commons.lang3.tuple.Pair;
@@ -240,8 +238,6 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
         }
         return 0;
     }
-
-
 
     @Override
     public void cleanCache() {

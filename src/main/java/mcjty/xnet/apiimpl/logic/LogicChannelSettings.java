@@ -39,25 +39,12 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
     private int delay = 0;
     private int colors = 0;     // Colors for this channel
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, LogicChannelSettings> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT, s -> s.delay,
-            ByteBufCodecs.INT, s -> s.colors,
-            (delay, colors) -> {
-                LogicChannelSettings settings = new LogicChannelSettings();
-                settings.delay = delay;
-                settings.colors = colors;
-                return settings;
-            }
+    public static final MapCodec<LogicChannelSettings> CODEC = MapCodec.unit(LogicChannelSettings::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, LogicChannelSettings> STREAM_CODEC = StreamCodec.of(
+            (buf, settings) -> { },
+            buf -> new LogicChannelSettings()
     );
-    public static final MapCodec<LogicChannelSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.INT.fieldOf("delay").forGetter(settings -> settings.delay),
-            Codec.INT.fieldOf("colors").forGetter(settings -> settings.colors)
-    ).apply(instance, (delay, colors) -> {
-        LogicChannelSettings settings = new LogicChannelSettings();
-        settings.delay = delay;
-        settings.colors = colors;
-        return settings;
-    }));
+
     private List<Pair<SidedConsumer, LogicConnectorSettings>> sensors = null;
     private List<Pair<SidedConsumer, LogicConnectorSettings>> outputs = null;
 
@@ -74,7 +61,6 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
     @Override
     public void readFromJson(JsonObject data) {
     }
-
 
     @Override
     public void readFromNBT(CompoundTag tag) {

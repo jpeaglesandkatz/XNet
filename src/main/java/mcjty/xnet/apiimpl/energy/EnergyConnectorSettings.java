@@ -22,7 +22,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -78,12 +77,11 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     );
 
     public EnergyConnectorSettings(@Nonnull Direction side) {
-        super(side);
+        super(DEFAULT_SETTINGS, side);
     }
 
     public EnergyConnectorSettings(@Nonnull BaseSettings base, @Nonnull Direction side, EnergyMode energyMode, Optional<Integer> priority, Optional<Integer> rate, Optional<Integer> minmax) {
-        super(side);
-        this.settings = base;
+        super(base, side);
         this.energyMode = energyMode;
         this.priority = priority.orElse(null);
         this.rate = rate.orElse(null);
@@ -203,36 +201,10 @@ public class EnergyConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
-        energyMode = EnergyMode.values()[tag.getByte("itemMode")];
-        if (tag.contains("priority")) {
-            priority = tag.getInt("priority");
-        } else {
-            priority = null;
-        }
-        if (tag.contains("rate")) {
-            rate = tag.getInt("rate");
-        } else {
-            rate = null;
-        }
-        if (tag.contains("minmax")) {
-            minmax = tag.getInt("minmax");
-        } else {
-            minmax = null;
-        }
     }
 
     @Override
     public void writeToNBT(CompoundTag tag) {
         super.writeToNBT(tag);
-        tag.putByte("itemMode", (byte) energyMode.ordinal());
-        if (priority != null) {
-            tag.putInt("priority", priority);
-        }
-        if (rate != null) {
-            tag.putInt("rate", rate);
-        }
-        if (minmax != null) {
-            tag.putInt("minmax", minmax);
-        }
     }
 }

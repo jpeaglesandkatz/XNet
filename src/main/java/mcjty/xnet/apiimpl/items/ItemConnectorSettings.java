@@ -125,8 +125,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
             Codec.INT.optionalFieldOf("count").forGetter(settings -> Optional.ofNullable(settings.count)),
             ItemStack.OPTIONAL_CODEC.listOf().fieldOf("filters").forGetter(settings -> settings.filters)
     ).apply(instance, (base, itemMode, extractMode, stackMode, speed, filterIndex, tagsMode, metaMode, componentMode, blacklist, priority, extractAmount, count, filters) -> {
-        ItemConnectorSettings settings = new ItemConnectorSettings(Direction.NORTH);
-        settings.settings = base;
+        ItemConnectorSettings settings = new ItemConnectorSettings(base, Direction.NORTH);
         settings.itemMode = itemMode;
         settings.extractMode = extractMode;
         settings.stackMode = stackMode;
@@ -161,8 +160,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
             ByteBufCodecs.optional(ByteBufCodecs.INT), s -> Optional.ofNullable(s.count),
             ItemStack.OPTIONAL_LIST_STREAM_CODEC, s -> s.filters,
             (base, itemMode, extractMode, stackMode, speed, filterIndex, tagsMode, metaMode, componentMode, blacklist, priority, extractAmount, count, filters) -> {
-                ItemConnectorSettings settings = new ItemConnectorSettings(Direction.NORTH);
-                settings.settings = base;
+                ItemConnectorSettings settings = new ItemConnectorSettings(base, Direction.NORTH);
                 settings.itemMode = itemMode;
                 settings.extractMode = extractMode;
                 settings.stackMode = stackMode;
@@ -181,15 +179,15 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
             }
     );
 
+    public ItemConnectorSettings(@Nonnull BaseSettings settings, @Nonnull Direction side) {
+        super(settings, side);
+    }
+
     // Cached matcher for items
     private Predicate<ItemStack> matcher = null;
 
     public ItemMode getItemMode() {
         return itemMode;
-    }
-
-    public ItemConnectorSettings(@Nonnull Direction side) {
-        super(side);
     }
 
     @Override
@@ -447,84 +445,10 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
-        itemMode = ItemMode.values()[tag.getByte("itemMode")];
-        extractMode = ExtractMode.values()[tag.getByte("extractMode")];
-        stackMode = StackMode.values()[tag.getByte("stackMode")];
-        if (tag.contains("spd")) {
-            // New tag
-            speed = tag.getInt("spd");
-        } else {
-            // Old tag for compatibility
-            speed = tag.getInt("speed");
-            if (speed == 0) {
-                speed = 2;
-            }
-            speed *= 2;
-        }
-        if (tag.contains("filterindex")) {
-            filterIndex = tag.getInt("filterindex");
-        } else {
-            filterIndex = -1;
-        }
-        tagsMode = tag.getBoolean("tagsMode");
-        metaMode = tag.getBoolean("metaMode");
-        componentMode = tag.getBoolean("componentMode");
-        blacklist = tag.getBoolean("blacklist");
-        if (tag.contains("priority")) {
-            priority = tag.getInt("priority");
-        } else {
-            priority = null;
-        }
-        if (tag.contains("extractAmount")) {
-            extractAmount = tag.getInt("extractAmount");
-        } else {
-            extractAmount = null;
-        }
-        if (tag.contains("count")) {
-            count = tag.getInt("count");
-        } else {
-            count = null;
-        }
-        // @todo 1.21 NBT
-//        for (int i = 0 ; i < FILTER_SIZE ; i++) {
-//            if (tag.contains("filter" + i)) {
-//                CompoundTag itemTag = tag.getCompound("filter" + i);
-//                filters.set(i, ItemStack.of(itemTag));
-//            } else {
-//                filters.set(i, ItemStack.EMPTY);
-//            }
-//        }
-        matcher = null;
     }
 
     @Override
     public void writeToNBT(CompoundTag tag) {
         super.writeToNBT(tag);
-        tag.putByte("itemMode", (byte) itemMode.ordinal());
-        tag.putByte("extractMode", (byte) extractMode.ordinal());
-        tag.putByte("stackMode", (byte) stackMode.ordinal());
-        tag.putInt("spd", speed);
-        tag.putInt("filterindex", filterIndex);
-        tag.putBoolean("tagsMode", tagsMode);
-        tag.putBoolean("metaMode", metaMode);
-        tag.putBoolean("componentMode", componentMode);
-        tag.putBoolean("blacklist", blacklist);
-        if (priority != null) {
-            tag.putInt("priority", priority);
-        }
-        if (extractAmount != null) {
-            tag.putInt("extractAmount", extractAmount);
-        }
-        if (count != null) {
-            tag.putInt("count", count);
-        }
-        // @todo 1.21 NBT
-//        for (int i = 0 ; i < FILTER_SIZE ; i++) {
-//            if (!filters.get(i).isEmpty()) {
-//                CompoundTag itemTag = new CompoundTag();
-//                filters.get(i).save(itemTag);
-//                tag.put("filter" + i, itemTag);
-//            }
-//        }
     }
 }

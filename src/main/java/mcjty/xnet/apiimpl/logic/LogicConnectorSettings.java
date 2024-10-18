@@ -2,7 +2,6 @@ package mcjty.xnet.apiimpl.logic;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.Codec;
@@ -14,20 +13,16 @@ import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
-import mcjty.rftoolsbase.api.xnet.helper.BaseStringTranslators;
 import mcjty.xnet.XNet;
-import mcjty.xnet.apiimpl.EnumStringTranslators;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -88,8 +83,7 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     );
 
     public LogicConnectorSettings(@Nonnull BaseSettings base, @Nonnull Direction side, LogicMode logicMode, int colors, int speed, Integer redstoneOut, List<Sensor> sensors) {
-        this(side);
-        this.settings = base;
+        this(base, side);
         this.logicMode = logicMode;
         this.colors = colors;
         this.speed = speed;
@@ -97,8 +91,8 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
         this.sensors = sensors;
     }
 
-    public LogicConnectorSettings(@Nonnull Direction side) {
-        super(side);
+    public LogicConnectorSettings(@Nonnull BaseSettings settings, @Nonnull Direction side) {
+        super(settings, side);
         sensors = new ArrayList<>(SENSORS);
         for (int i = 0 ; i < SENSORS ; i++) {
             sensors.add(new Sensor(i));
@@ -244,53 +238,16 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void readFromJson(JsonObject object) {
         super.readFromJsonInternal(object);
-        logicMode = getEnumSafe(object, "logicmode", EnumStringTranslators::getLogicMode);
-        speed = getIntegerNotNull(object, "speed");
-        JsonArray sensorArray = object.get("sensors").getAsJsonArray();
-        sensors.clear();
-        for (JsonElement oe : sensorArray) {
-            JsonObject o = oe.getAsJsonObject();
-            Sensor sensor = new Sensor(sensors.size());
-            sensor.setAmount(getIntegerNotNull(o, "amount"));
-            sensor.setOperator(getEnumSafe(o, "operator", EnumStringTranslators::getOperator));
-            sensor.setOutputColor(getEnumSafe(o, "outputcolor", BaseStringTranslators::getColor));
-            sensor.setSensorMode(getEnumSafe(o, "sensormode", EnumStringTranslators::getSensorMode));
-            if (o.has("filter")) {
-                sensor.setFilter(JSonTools.jsonToItemStack(o.get("filter").getAsJsonObject()));
-            } else {
-                sensor.setFilter(ItemStack.EMPTY);
-            }
-            sensors.add(sensor);
-        }
     }
 
     @Override
     public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
-        logicMode = LogicMode.values()[tag.getByte("logicMode")];
-        speed = tag.getInt("speed");
-        if (speed == 0) {
-            speed = 2;
-        }
-        colors = tag.getInt("colors");
-        for (Sensor sensor : sensors) {
-            sensor.readFromNBT(tag);
-        }
-        redstoneOut = tag.getInt("rsout");
     }
 
     @Override
     public void writeToNBT(CompoundTag tag) {
         super.writeToNBT(tag);
-        tag.putByte("logicMode", (byte) logicMode.ordinal());
-        tag.putInt("speed", speed);
-        tag.putInt("colors", colors);
-        for (Sensor sensor : sensors) {
-            sensor.writeToNBT(tag);
-        }
-        if (redstoneOut != null) {
-            tag.putInt("rsout", redstoneOut);
-        }
     }
 
 }

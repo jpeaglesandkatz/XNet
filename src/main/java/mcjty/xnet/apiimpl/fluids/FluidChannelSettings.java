@@ -66,23 +66,17 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
     public static final StreamCodec<RegistryFriendlyByteBuf, FluidChannelSettings> STREAM_CODEC = StreamCodec.composite(
             ChannelMode.STREAM_CODEC, FluidChannelSettings::getChannelMode,
-            ByteBufCodecs.INT, s -> s.delay,
-            ByteBufCodecs.INT, s -> s.roundRobinOffset,
             FluidChannelSettings::new
     );
     public static final MapCodec<FluidChannelSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ChannelMode.CODEC.fieldOf("mode").forGetter(FluidChannelSettings::getChannelMode),
-            Codec.INT.fieldOf("delay").forGetter(settings -> settings.delay),
-            Codec.INT.fieldOf("offset").forGetter(settings -> settings.roundRobinOffset)
+            ChannelMode.CODEC.fieldOf("mode").forGetter(FluidChannelSettings::getChannelMode)
     ).apply(instance, FluidChannelSettings::new));
 
     public FluidChannelSettings() {
     }
 
-    public FluidChannelSettings(ChannelMode channelMode, int delay, int roundRobinOffset) {
+    public FluidChannelSettings(ChannelMode channelMode) {
         this.channelMode = channelMode;
-        this.delay = delay;
-        this.roundRobinOffset = roundRobinOffset;
     }
 
     // Cache data
@@ -113,14 +107,12 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
     @Override
     public void readFromNBT(CompoundTag tag) {
-        channelMode = ChannelMode.values()[tag.getByte("mode")];
         delay = tag.getInt("delay");
         roundRobinOffset = tag.getInt("offset");
     }
 
     @Override
     public void writeToNBT(CompoundTag tag) {
-        tag.putByte("mode", (byte) channelMode.ordinal());
         tag.putInt("delay", delay);
         tag.putInt("offset", roundRobinOffset);
     }

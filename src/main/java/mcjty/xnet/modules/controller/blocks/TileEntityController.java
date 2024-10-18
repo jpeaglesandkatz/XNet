@@ -388,10 +388,22 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
     @Override
     public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
-        try {
-            super.saveAdditional(tagCompound, provider);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        super.saveAdditional(tagCompound, provider);
+        ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+        for (int i = 0 ; i < data.channels().size() ; i++) {
+            CompoundTag channelTag = new CompoundTag();
+            channelTag.putInt("index", i);
+            ChannelInfo channel = data.channels().get(i);
+            channel.getChannelSettings().writeToNBT(channelTag);
+            CompoundTag connectorsTag = new CompoundTag();
+            for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channel.getConnectors().entrySet()) {
+                CompoundTag connectorTag = new CompoundTag();
+                SidedConsumer sidedConsumer = entry.getKey();
+                ConnectorInfo connectorInfo = entry.getValue();
+                connectorInfo.getConnectorSettings().writeToNBT(connectorTag);
+                connectorsTag.put(sidedConsumer.consumerId().toString() + ":" + sidedConsumer.side().getName(), connectorTag);
+            }
+            channelTag.put("connectors", connectorsTag);
         }
         if (networkId != null) {
             tagCompound.putInt("networkId", networkId.id());
@@ -402,6 +414,21 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     @Override
     public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
         super.loadAdditional(tagCompound, provider);
+        ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
+        for (int i = 0 ; i < data.channels().size() ; i++) {
+            ChannelInfo channel = data.channels().get(i);
+            CompoundTag channelTag = tagCompound.getCompound("channel" + i);
+            channel.getChannelSettings().readFromNBT(channelTag);
+            CompoundTag connectorsTag = channelTag.getCompound("connectors");
+            for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channel.getConnectors().entrySet()) {
+                SidedConsumer sidedConsumer = entry.getKey();
+                CompoundTag connectorTag = connectorsTag.getCompound(sidedConsumer.consumerId().toString() + ":" + sidedConsumer.side().getName());
+                if (!connectorTag.isEmpty()) {
+                    ConnectorInfo connectorInfo = entry.getValue();
+                    connectorInfo.getConnectorSettings().readFromNBT(connectorTag);
+                }
+            }
+        }
         if (tagCompound.contains("networkId")) {
             networkId = new NetworkId(tagCompound.getInt("networkId"));
         } else {

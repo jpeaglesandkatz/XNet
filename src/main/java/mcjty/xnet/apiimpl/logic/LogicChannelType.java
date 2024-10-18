@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
+import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -53,7 +54,7 @@ public class LogicChannelType implements IChannelType {
     @Override
     @Nonnull
     public IConnectorSettings createConnector(@Nonnull Direction side) {
-        return new LogicConnectorSettings(side);
+        return new LogicConnectorSettings(AbstractConnectorSettings.DEFAULT_SETTINGS, side);
     }
 
     @Nonnull

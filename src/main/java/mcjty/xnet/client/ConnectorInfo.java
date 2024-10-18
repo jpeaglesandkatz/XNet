@@ -6,7 +6,6 @@ import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -73,13 +72,5 @@ public class ConnectorInfo {
 
     public SidedConsumer getId() {
         return id;
-    }
-
-    public void writeToNBT(CompoundTag tag) {
-        connectorSettings.writeToNBT(tag);
-    }
-
-    public void readFromNBT(CompoundTag tag) {
-        connectorSettings.readFromNBT(tag);
     }
 }

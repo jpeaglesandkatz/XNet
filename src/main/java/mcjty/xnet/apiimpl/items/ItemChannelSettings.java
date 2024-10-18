@@ -97,31 +97,23 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
     public static final MapCodec<ItemChannelSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ChannelMode.CODEC.fieldOf("mode").forGetter(ItemChannelSettings::getChannelMode),
-            Codec.INT.fieldOf("delay").forGetter(settings -> settings.delay),
-            Codec.INT.fieldOf("offset").forGetter(settings -> settings.roundRobinOffset),
             Codec.INT.listOf().fieldOf("extidx").forGetter(ItemChannelSettings::getIndicesAsList)
     ).apply(instance, ItemChannelSettings::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemChannelSettings> STREAM_CODEC = StreamCodec.composite(
             ChannelMode.STREAM_CODEC, ItemChannelSettings::getChannelMode,
-            ByteBufCodecs.INT, s -> s.delay,
-            ByteBufCodecs.INT, s -> s.roundRobinOffset,
             ByteBufCodecs.map(HashMap::new, ByteBufCodecs.INT, ByteBufCodecs.INT), ItemChannelSettings::getIndicesAsMap,
             ItemChannelSettings::new);
 
     public ItemChannelSettings() {
     }
 
-    public ItemChannelSettings(ChannelMode channelMode, int delay, int roundRobinOffset, List<Integer> itemExtractors) {
+    public ItemChannelSettings(ChannelMode channelMode, List<Integer> itemExtractors) {
         this.channelMode = channelMode;
-        this.delay = delay;
-        this.roundRobinOffset = roundRobinOffset;
         setIndicesFromList(itemExtractors);
     }
 
-    public ItemChannelSettings(ChannelMode channelMode, int delay, int roundRobinOffset, Map<Integer, Integer> itemExtractors) {
+    public ItemChannelSettings(ChannelMode channelMode, Map<Integer, Integer> itemExtractors) {
         this.channelMode = channelMode;
-        this.delay = delay;
-        this.roundRobinOffset = roundRobinOffset;
         itemExtractors.forEach((k, v) -> extractIndices.put(new ConsumerId(k), v));
     }
 
@@ -154,30 +146,14 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
     @Override
     public void readFromNBT(CompoundTag tag) {
-        channelMode = ChannelMode.values()[tag.getByte("mode")];
         delay = tag.getInt("delay");
         roundRobinOffset = tag.getInt("offset");
-        int[] cons = tag.getIntArray("extidx");
-        for (int idx = 0; idx < cons.length; idx += 2) {
-            extractIndices.put(new ConsumerId(cons[idx]), cons[idx + 1]);
-        }
     }
 
     @Override
     public void writeToNBT(CompoundTag tag) {
-        tag.putByte("mode", (byte) channelMode.ordinal());
         tag.putInt("delay", delay);
         tag.putInt("offset", roundRobinOffset);
-
-        if (!extractIndices.isEmpty()) {
-            int[] cons = new int[extractIndices.size() * 2];
-            int idx = 0;
-            for (Map.Entry<ConsumerId, Integer> entry : extractIndices.entrySet()) {
-                cons[idx++] = entry.getKey().id();
-                cons[idx++] = entry.getValue();
-            }
-            tag.putIntArray("extidx", cons);
-        }
     }
 
     private int getExtractIndex(ConsumerId consumer) {

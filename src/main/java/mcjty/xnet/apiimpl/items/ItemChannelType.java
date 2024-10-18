@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
+import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -66,7 +67,7 @@ public class ItemChannelType implements IChannelType {
     @Override
     @Nonnull
     public IConnectorSettings createConnector(@Nonnull Direction side) {
-        return new ItemConnectorSettings(side);
+        return new ItemConnectorSettings(AbstractConnectorSettings.DEFAULT_SETTINGS, side);
     }
 
     @Nonnull

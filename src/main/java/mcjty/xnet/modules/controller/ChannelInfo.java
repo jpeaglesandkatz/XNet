@@ -2,18 +2,12 @@ package mcjty.xnet.modules.controller;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
-import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.client.ConnectorInfo;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -128,56 +122,5 @@ public class ChannelInfo {
         ConnectorInfo info = new ConnectorInfo(type, id, advanced);
         connectors.put(id, info);
         return info;
-    }
-
-    public void writeToNBT(CompoundTag tag) {
-        channelSettings.writeToNBT(tag);
-        tag.putBoolean("enabled", enabled);
-        if (channelName != null && !channelName.isEmpty()) {
-            tag.putString("name", channelName);
-        }
-        ListTag conlist = new ListTag();
-        for (Map.Entry<SidedConsumer, ConnectorInfo> entry : connectors.entrySet()) {
-            CompoundTag tc = new CompoundTag();
-            ConnectorInfo connectorInfo = entry.getValue();
-            connectorInfo.writeToNBT(tc);
-            tc.putInt("consumerId", entry.getKey().consumerId().id());
-            tc.putInt("side", entry.getKey().side().ordinal());
-            tc.putString("type", connectorInfo.getType().getID());
-            tc.putBoolean("advanced", connectorInfo.isAdvanced());
-            conlist.add(tc);
-        }
-        tag.put("connectors", conlist);
-    }
-
-    public void readFromNBT(CompoundTag tag) {
-        channelSettings.readFromNBT(tag);
-        enabled = tag.getBoolean("enabled");
-        if (tag.contains("name")) {
-            channelName = tag.getString("name");
-        } else {
-            channelName = "";
-        }
-        ListTag conlist = tag.getList("connectors", Tag.TAG_COMPOUND);
-        for (int i = 0 ; i < conlist.size() ; i++) {
-            CompoundTag tc = conlist.getCompound(i);
-            String id = tc.getString("type");
-            IChannelType type = XNet.xNetApi.findType(id);
-            if (type == null) {
-                XNet.setup.getLogger().warn("Unsupported type " + id + "!");
-                continue;
-            }
-            if (!getType().equals(type)) {
-                XNet.setup.getLogger().warn("Trying to load a connector with non-matching type " + type + "!");
-                continue;
-            }
-            ConsumerId consumerId = new ConsumerId(tc.getInt("consumerId"));
-            Direction side = OrientationTools.DIRECTION_VALUES[tc.getInt("side")];
-            SidedConsumer key = new SidedConsumer(consumerId, side);
-            boolean advanced = tc.getBoolean("advanced");
-            ConnectorInfo connectorInfo = new ConnectorInfo(type, key, advanced);
-            connectorInfo.readFromNBT(tc);
-            connectors.put(key, connectorInfo);
-        }
     }
 }

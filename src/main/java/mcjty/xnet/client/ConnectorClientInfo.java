@@ -6,8 +6,8 @@ import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
 import mcjty.xnet.XNet;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 
 import javax.annotation.Nonnull;
 
@@ -30,7 +30,7 @@ public class ConnectorClientInfo {
         this.connectorSettings = connectorSettings;
     }
 
-    public ConnectorClientInfo(@Nonnull FriendlyByteBuf buf) {
+    public ConnectorClientInfo(@Nonnull RegistryFriendlyByteBuf buf) {
         pos = new SidedPos(buf.readBlockPos(), OrientationTools.DIRECTION_VALUES[buf.readByte()]);
         consumerId = new ConsumerId(buf.readInt());
         IChannelType t = XNet.xNetApi.findType(buf.readUtf(32767));
@@ -38,19 +38,17 @@ public class ConnectorClientInfo {
             throw new RuntimeException("Cannot happen!");
         }
         channelType = t;
-        CompoundTag tag = buf.readNbt();
-        connectorSettings = channelType.createConnector(pos.side());
-        connectorSettings.readFromNBT(tag);
+        StreamCodec<RegistryFriendlyByteBuf, IConnectorSettings> codec = (StreamCodec<RegistryFriendlyByteBuf, IConnectorSettings>) channelType.getConnectorStreamCodec();
+        connectorSettings = codec.decode(buf);
     }
 
-    public void writeToBuf(@Nonnull FriendlyByteBuf buf) {
+    public void writeToBuf(@Nonnull RegistryFriendlyByteBuf buf) {
         buf.writeBlockPos(pos.pos());
         buf.writeByte(pos.side().ordinal());
         buf.writeInt(consumerId.id());
         buf.writeUtf(channelType.getID());
-        CompoundTag tag = new CompoundTag();
-        connectorSettings.writeToNBT(tag);
-        buf.writeNbt(tag);
+        StreamCodec<RegistryFriendlyByteBuf, IConnectorSettings> codec = (StreamCodec<RegistryFriendlyByteBuf, IConnectorSettings>) channelType.getConnectorStreamCodec();
+        codec.encode(buf, connectorSettings);
     }
 
     @Nonnull

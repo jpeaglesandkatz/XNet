@@ -27,7 +27,6 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -91,13 +90,12 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     );
 
     public FluidConnectorSettings(@Nonnull Direction side) {
-        super(side);
+        super(DEFAULT_SETTINGS, side);
     }
 
     public FluidConnectorSettings(@Nonnull BaseSettings base, @Nonnull Direction side, FluidMode fluidMode, Optional<Integer> priority,
                                   Optional<Integer> rate, Optional<Integer> minmax, int speed, ItemStack filter) {
-        super(side);
-        this.settings = base;
+        super(base, side);
         this.fluidMode = fluidMode;
         this.priority = priority.orElse(null);
         this.rate = rate.orElse(null);
@@ -268,54 +266,10 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
-        fluidMode = FluidMode.values()[tag.getByte("fluidMode")];
-        if (tag.contains("priority")) {
-            priority = tag.getInt("priority");
-        } else {
-            priority = null;
-        }
-        if (tag.contains("rate")) {
-            rate = tag.getInt("rate");
-        } else {
-            rate = null;
-        }
-        if (tag.contains("minmax")) {
-            minmax = tag.getInt("minmax");
-        } else {
-            minmax = null;
-        }
-        speed = tag.getInt("speed");
-        if (speed == 0) {
-            speed = 2;
-        }
-        // @todo 1.21 NBT
-//        if (tag.contains("filter")) {
-//            CompoundTag itemTag = tag.getCompound("filter");
-//            filter = ItemStack.of(itemTag);
-//        } else {
-            filter = ItemStack.EMPTY;
-//        }
     }
 
     @Override
     public void writeToNBT(CompoundTag tag) {
         super.writeToNBT(tag);
-        tag.putByte("fluidMode", (byte) fluidMode.ordinal());
-        if (priority != null) {
-            tag.putInt("priority", priority);
-        }
-        if (rate != null) {
-            tag.putInt("rate", rate);
-        }
-        if (minmax != null) {
-            tag.putInt("minmax", minmax);
-        }
-        tag.putInt("speed", speed);
-        if (!filter.isEmpty()) {
-            CompoundTag itemTag = new CompoundTag();
-            // @todo 1.21 NBT
-//            filter.save(itemTag);
-            tag.put("filter", itemTag);
-        }
     }
 }
