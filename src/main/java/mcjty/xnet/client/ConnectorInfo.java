@@ -16,7 +16,7 @@ public class ConnectorInfo {
     private final IConnectorSettings connectorSettings;
     private final boolean advanced;
 
-    private static final Codec<IConnectorSettings> CONNECTOR_SETTINGS_CODEC = Codec.lazyInitialized(() -> Codec.STRING.dispatch("type",
+    public static final Codec<IConnectorSettings> CONNECTOR_SETTINGS_CODEC = Codec.lazyInitialized(() -> Codec.STRING.dispatch("type",
             e -> e.getType().getID(),
             s -> XNet.xNetApi.findType(s).getConnectorCodec()));
 

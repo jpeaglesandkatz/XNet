@@ -21,6 +21,25 @@ public class ConnectorClientInfo {
     @Nonnull private final IChannelType channelType;
     @Nonnull private final IConnectorSettings connectorSettings;
 
+    public static final StreamCodec<RegistryFriendlyByteBuf, ConnectorClientInfo> STREAM_CODEC = StreamCodec.of(
+            (buf, info) -> {
+                buf.writeUtf(info.channelType.getID());
+                StreamCodec<RegistryFriendlyByteBuf, IConnectorSettings> streamCodec = (StreamCodec<RegistryFriendlyByteBuf, IConnectorSettings>) info.channelType.getConnectorStreamCodec();
+                streamCodec.encode(buf, info.connectorSettings);
+                SidedPos.STREAM_CODEC.encode(buf, info.pos);
+                buf.writeInt(info.consumerId.id());
+            },
+            buf -> {
+                String id = buf.readUtf(32767);
+                IChannelType type = XNet.xNetApi.findType(id);
+                IConnectorSettings settings = type.getConnectorStreamCodec().decode(buf);
+                SidedPos pos = SidedPos.STREAM_CODEC.decode(buf);
+                ConsumerId consumerId = new ConsumerId(buf.readInt());
+                return new ConnectorClientInfo(pos, consumerId, type, settings);
+            }
+    );
+
+
     public ConnectorClientInfo(@Nonnull SidedPos pos, @Nonnull ConsumerId consumerId,
                                @Nonnull IChannelType channelType,
                                @Nonnull IConnectorSettings connectorSettings) {
