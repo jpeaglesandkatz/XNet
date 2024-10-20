@@ -99,6 +99,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             ChannelMode.CODEC.fieldOf("mode").forGetter(ItemChannelSettings::getChannelMode),
             Codec.INT.listOf().fieldOf("extidx").forGetter(ItemChannelSettings::getIndicesAsList)
     ).apply(instance, ItemChannelSettings::new));
+
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemChannelSettings> STREAM_CODEC = StreamCodec.composite(
             ChannelMode.STREAM_CODEC, ItemChannelSettings::getChannelMode,
             ByteBufCodecs.map(HashMap::new, ByteBufCodecs.INT, ByteBufCodecs.INT), ItemChannelSettings::getIndicesAsMap,
