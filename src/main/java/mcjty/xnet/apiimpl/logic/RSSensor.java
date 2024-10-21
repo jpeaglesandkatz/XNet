@@ -13,6 +13,7 @@ import mcjty.xnet.apiimpl.logic.enums.SensorMode;
 import mcjty.xnet.compat.RFToolsSupport;
 import mcjty.xnet.utils.CastTools;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -191,6 +192,13 @@ public class RSSensor {
         outputColor = CastTools.safeColor(data.get(TAG_COLOR + index));
         filter = CastTools.safeItemStack(data.get(TAG_STACK + index));
     }
+
+    public void readFromNBT(CompoundTag tag) {
+    }
+
+    public void writeToNBT(CompoundTag tag) {
+    }
+
 
     // Count items. We will stop early if we have enough to satisfy the sensor
     private int countItem(@Nonnull IItemHandler handler, ItemStack matcher, int maxNeeded) {

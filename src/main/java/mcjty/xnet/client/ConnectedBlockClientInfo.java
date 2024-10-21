@@ -6,9 +6,6 @@ import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.keys.SidedPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
@@ -111,29 +108,7 @@ public class ConnectedBlockClientInfo {
     }
 
     private static String getStackUnlocalizedName(ItemStack stack) {
-        CompoundTag nbttagcompound = getSubCompound(stack, "display");
-
-        // @todo 1.21
-        if (nbttagcompound != null) {
-            if (nbttagcompound.contains("Name", 8)) {
-                return nbttagcompound.getString("Name");
-            }
-
-            if (nbttagcompound.contains("LocName", 8)) {
-                return nbttagcompound.getString("LocName");
-            }
-        }
-
+        // @todo 1.21 support for custom names
         return stack.getItem().getDescriptionId(stack);
     }
-
-    private static CompoundTag getSubCompound(ItemStack stack, String key) {
-        // @todo 1.21 NBT
-//        if (stack.getTag() != null && stack.getTag().contains(key, 10)) {
-//            return stack.getTag().getCompound(key);
-//        } else {
-            return null;
-//        }
-    }
-
 }

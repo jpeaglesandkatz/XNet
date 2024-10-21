@@ -69,7 +69,7 @@ import static mcjty.xnet.utils.I18nConstants.BLOCK_CONNECTOR;
 
 public class ConnectorBlock extends GenericCableBlock implements ITooltipSettings, EntityBlock {
 
-    public static final ManualEntry MANUAL = ManualHelper.create("xnet:simple/connector");
+    public static final ManualEntry MANUAL = ManualHelper.create("rftoolsbase:simple/connector");
     private final Lazy<TooltipBuilder> tooltipBuilder = Lazy.of(() -> new TooltipBuilder()
             .info(key("message.xnet.shiftmessage"))
             .infoShift(header(), gold(stack -> isAdvancedConnector()),

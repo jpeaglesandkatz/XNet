@@ -26,17 +26,18 @@ public class RSOutput {
     private Color inputChannel1 = OFF;    // First input channel for logic filter
     private Color inputChannel2 = OFF;    // Second input channel for logic filter
     private int redstoneOut = 0;    // Redstone output value
-    private boolean flipFlapState = false;  // If logicFilter == LATCH shows should we output redstone signal
-    private boolean lastInputTrue = false;  // If logicFilter == LATCH shows should we toggle flipFlapState
 
     private boolean impulse = false; // Impulse output, available for some LogicFilter values
     private int impulseDuration = 1; // Impulse duration in ticks
-    private int impulseRemaining = 0; // Remaining impulse duration in current context
 
     private int countingHolder = 0;  // Holds user value for counting filter
-    private int countingCurrent = 0; // Current value for counting filter
-
     private int ticksHolder = 5;  // Holds user value for timer filter
+
+    // Runtime values
+    private boolean flipFlapState = false;  // If logicFilter == LATCH shows should we output redstone signal
+    private boolean lastInputTrue = false;  // If logicFilter == LATCH shows should we toggle flipFlapState
+    private int impulseRemaining = 0; // Remaining impulse duration in current context
+    private int countingCurrent = 0; // Current value for counting filter
     private int ticksCurrent = 5; // Current value for timer filter
 
     public static final Codec<RSOutput> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -47,13 +48,8 @@ public class RSOutput {
             Codec.INT.fieldOf("redstoneOut").forGetter(RSOutput::getRedstoneOut),
             Codec.INT.fieldOf("countingHolder").forGetter(RSOutput::getCountingHolder),
             Codec.INT.fieldOf("ticksHolder").forGetter(RSOutput::getTicksHolder),
-            Codec.BOOL.fieldOf("flipFlapState").forGetter(RSOutput::isFlipFlapState),
-            Codec.BOOL.fieldOf("lastInputTrue").forGetter(RSOutput::isLastInputTrue),
-            Codec.INT.fieldOf("countingCurrent").forGetter(RSOutput::getCountingCurrent),   // 1.21 runtime
-            Codec.INT.fieldOf("ticksCurrent").forGetter(RSOutput::getTicksCurrent), // 1.21 runtime
             Codec.BOOL.fieldOf("impulse").forGetter(RSOutput::isImpulse),
-            Codec.INT.fieldOf("impulseDuration").forGetter(RSOutput::getImpulseDuration),
-            Codec.INT.fieldOf("impulseRemaining").forGetter(RSOutput::getImpulseRemaining)  // 1.21 runtime
+            Codec.INT.fieldOf("impulseDuration").forGetter(RSOutput::getImpulseDuration)
     ).apply(instance, RSOutput::new));
 
     public static final StreamCodec<FriendlyByteBuf, RSOutput> STREAM_CODEC = CompositeStreamCodec.composite(
@@ -64,17 +60,13 @@ public class RSOutput {
             ByteBufCodecs.INT, RSOutput::getRedstoneOut,
             ByteBufCodecs.INT, RSOutput::getCountingHolder,
             ByteBufCodecs.INT, RSOutput::getTicksHolder,
-            ByteBufCodecs.BOOL, RSOutput::isFlipFlapState,
-            ByteBufCodecs.BOOL, RSOutput::isLastInputTrue,
-            ByteBufCodecs.INT, RSOutput::getCountingCurrent,  // 1.21 runtime
-            ByteBufCodecs.INT, RSOutput::getTicksCurrent, // 1.21 runtime
             ByteBufCodecs.BOOL, RSOutput::isImpulse,
             ByteBufCodecs.INT, RSOutput::getImpulseDuration,
-            ByteBufCodecs.INT, RSOutput::getImpulseRemaining,  // 1.21 runtime
             RSOutput::new
     );
 
-    public RSOutput(boolean isAdvanced, LogicFilter logicFilter, Color inputChannel1, Color inputChannel2, int redstoneOut, int countingHolder, int ticksHolder, boolean flipFlapState, boolean lastInputTrue, int countingCurrent, int ticksCurrent, boolean impulse, int impulseDuration, int impulseRemaining) {
+    public RSOutput(boolean isAdvanced, LogicFilter logicFilter, Color inputChannel1, Color inputChannel2,
+                    int redstoneOut, int countingHolder, int ticksHolder, boolean impulse, int impulseDuration) {
         this.isAdvanced = isAdvanced;
         this.logicFilter = logicFilter;
         this.inputChannel1 = inputChannel1;
@@ -82,13 +74,8 @@ public class RSOutput {
         this.redstoneOut = redstoneOut;
         this.countingHolder = countingHolder;
         this.ticksHolder = ticksHolder;
-        this.flipFlapState = flipFlapState;
-        this.lastInputTrue = lastInputTrue;
-        this.countingCurrent = countingCurrent;
-        this.ticksCurrent = ticksCurrent;
         this.impulse = impulse;
         this.impulseDuration = impulseDuration;
-        this.impulseRemaining = impulseRemaining;
     }
 
     public RSOutput(boolean isAdvanced) {
@@ -247,38 +234,26 @@ public class RSOutput {
     }
 
     public boolean isEnabled(String tag) {
-        switch (tag) {
-            case TAG_RS_FILTER, TAG_REDSTONE_OUT, TAG_RS_CHANNEL_1, TAG_RS_CHANNEL_2, TAG_RS_COUNTER, TAG_RS_TIMER, TAG_IMPULSE -> {
-                return true;
-            }
-            case TAG_IMPULSE_DUR -> {
-                return impulse;
-            }
-            default -> {return false;}
-        }
+        return switch (tag) {
+            case TAG_RS_FILTER, TAG_REDSTONE_OUT, TAG_RS_CHANNEL_1, TAG_RS_CHANNEL_2, TAG_RS_COUNTER, TAG_RS_TIMER, TAG_IMPULSE -> true;
+            case TAG_IMPULSE_DUR -> impulse;
+            default -> false;
+        };
     }
 
     public void readFromNBT(CompoundTag tag) {
-        logicFilter = LogicFilter.values()[tag.getByte(TAG_RS_FILTER)];
-        inputChannel1 = Color.values()[tag.getByte(TAG_RS_CHANNEL_1)];
-        inputChannel2 = Color.values()[tag.getByte(TAG_RS_CHANNEL_2)];
-        setCountingHolder(tag.getInt(TAG_RS_COUNTING_HOLDER));
-        setTicksHolder(tag.getInt(TAG_RS_TICKS_HOLDER));
-        redstoneOut = tag.getInt(TAG_REDSTONE_OUT);
-        impulse = tag.getBoolean(TAG_IMPULSE);
-        impulseDuration = tag.getInt(TAG_IMPULSE_DUR);
         impulseRemaining = tag.getInt(TAG_IMPULSE_REM);
+        flipFlapState = tag.getBoolean(TAG_RS_FLIP_FLAP);
+        lastInputTrue = tag.getBoolean(TAG_RS_LAST_INPUT);
+        countingCurrent = tag.getInt(TAG_RS_COUNTING_CURRENT);
+        ticksCurrent = tag.getInt(TAG_RS_TICKS_CURRENT);
     }
 
     public void writeToNBT(CompoundTag tag) {
-        tag.putByte(TAG_RS_FILTER, (byte) logicFilter.ordinal());
-        tag.putByte(TAG_RS_CHANNEL_1, (byte) inputChannel1.ordinal());
-        tag.putByte(TAG_RS_CHANNEL_2, (byte) inputChannel2.ordinal());
-        tag.putInt(TAG_RS_COUNTING_HOLDER, countingHolder);
-        tag.putInt(TAG_RS_TICKS_HOLDER, ticksHolder);
-        tag.putInt(TAG_REDSTONE_OUT, redstoneOut);
-        tag.putBoolean(TAG_IMPULSE, impulse);
-        tag.putInt(TAG_IMPULSE_DUR, impulseDuration);
         tag.putInt(TAG_IMPULSE_REM, impulseRemaining);
+        tag.putBoolean(TAG_RS_FLIP_FLAP, flipFlapState);
+        tag.putBoolean(TAG_RS_LAST_INPUT, lastInputTrue);
+        tag.putInt(TAG_RS_COUNTING_CURRENT, countingCurrent);
+        tag.putInt(TAG_RS_TICKS_CURRENT, ticksCurrent);
     }
 }

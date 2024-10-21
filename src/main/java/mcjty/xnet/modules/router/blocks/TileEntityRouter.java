@@ -91,7 +91,7 @@ public final class TileEntityRouter extends GenericTileEntity {
         return new BaseBlock(new BlockBuilder()
                 .topDriver(XNetTOPDriver.DRIVER)
                 .tileEntitySupplier(TileEntityRouter::new)
-                .manualEntry(ManualHelper.create("xnet:network/router"))
+                .manualEntry(ManualHelper.create("rftoolsbase:network/router"))
                 .info(key("message.xnet.shiftmessage"))
                 .infoShift(header())
         ) {

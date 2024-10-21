@@ -174,7 +174,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         return new BaseBlock(new BlockBuilder()
                 .topDriver(XNetTOPDriver.DRIVER)
                 .tileEntitySupplier(TileEntityController::new)
-                .manualEntry(ManualHelper.create("xnet:simple/controller"))
+                .manualEntry(ManualHelper.create("rftoolsbase:simple/controller"))
                 .info(TooltipBuilder.key("message.xnet.shiftmessage"))
                 .infoShift(TooltipBuilder.header())
         ) {

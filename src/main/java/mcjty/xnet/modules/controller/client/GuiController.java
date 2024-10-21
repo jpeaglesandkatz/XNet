@@ -61,6 +61,7 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static mcjty.lib.gui.widgets.Widgets.button;
 import static mcjty.lib.gui.widgets.Widgets.horizontal;
@@ -435,11 +436,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 } else {
                     ChannelChoiceLabel type = new ChannelChoiceLabel()
                             .hint(5, 3, 95, 14);
-                    for (IChannelType channelType : XNet.xNetApi.getChannels().values()) {
-                        if (channelType != XNet.setup.noneChannelType) {
-                            type.choices(new IChannelType[]{ channelType });       // Show names?
-                        }
-                    }
+                    List<IChannelType> filtered = XNet.xNetApi.getChannels().values().stream().filter(channelType -> channelType != XNet.setup.noneChannelType).toList();
+                    type.choices(filtered.toArray(new IChannelType[0]));
                     Button create = button(100, 3, 53, 14, CREATE_LABEL.i18n())
                             .event(() -> createChannel(type.getCurrentChoice()));
 

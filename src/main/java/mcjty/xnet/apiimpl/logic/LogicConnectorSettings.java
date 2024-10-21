@@ -237,11 +237,18 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
+        for (RSSensor sensor : sensors) {
+            sensor.readFromNBT(tag);
+        }
+        output.readFromNBT(tag);
     }
 
     @Override
     public void writeToNBT(CompoundTag tag) {
         super.writeToNBT(tag);
+        for (RSSensor sensor : sensors) {
+            sensor.writeToNBT(tag);
+        }
+        output.writeToNBT(tag);
     }
-
 }

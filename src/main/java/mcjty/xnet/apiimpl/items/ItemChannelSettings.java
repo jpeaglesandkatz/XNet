@@ -51,7 +51,6 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
     public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
-
     // Cache data
     private List<ConnectedEntity<ItemConnectorSettings>> itemExtractors = null;
     private List<ConnectedEntity<ItemConnectorSettings>> itemConsumers = null;
