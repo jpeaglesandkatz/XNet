@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
+import static mcjty.xnet.XNet.tab;
+import static mcjty.xnet.apiimpl.Constants.ITEM_CONTROLLER;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.setup.Registration.*;
 
@@ -92,7 +94,7 @@ public class ControllerModule implements IModule {
                         .parentedItem("block/controller")
                         .standardLoot(ITEM_CONTROLLER_DATA.get())
                         .blockState(p -> {
-                            ModelFile modelOk = p.frontBasedModel("controller", p.modLoc("block/machine_controller"));
+                            ModelFile modelOk = p.frontBasedModel(ITEM_CONTROLLER, p.modLoc("block/machine_controller"));
                             ModelFile modelError = p.frontBasedModel("controller_error", p.modLoc("block/machine_controller_error"));
                             VariantBlockStateBuilder builder = p.getVariantBuilder(ControllerModule.CONTROLLER.block().get());
                             for (Direction direction : OrientationTools.DIRECTION_VALUES) {

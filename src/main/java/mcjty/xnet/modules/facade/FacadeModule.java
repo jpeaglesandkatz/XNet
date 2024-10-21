@@ -26,13 +26,14 @@ import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.xnet.XNet.tab;
+import static mcjty.xnet.apiimpl.Constants.ITEM_FACADE;
 import static mcjty.xnet.setup.Registration.*;
 
 public class FacadeModule implements IModule {
 
-    public static final DeferredBlock<FacadeBlock> FACADE = BLOCKS.register("facade", () -> new FacadeBlock(GenericCableBlock.CableBlockType.FACADE)); // @todo 1.14
-    public static final DeferredItem<Item> FACADE_ITEM = ITEMS.register("facade", tab(() -> new FacadeBlockItem(FACADE.get())));
-    public static final Supplier<BlockEntityType<?>> TYPE_FACADE = TILES.register("facade", () -> BlockEntityType.Builder.of(FacadeTileEntity::new, FACADE.get()).build(null));
+    public static final DeferredBlock<FacadeBlock> FACADE = BLOCKS.register(ITEM_FACADE, () -> new FacadeBlock(GenericCableBlock.CableBlockType.FACADE)); // @todo 1.14
+    public static final DeferredItem<Item> FACADE_ITEM = ITEMS.register(ITEM_FACADE, tab(() -> new FacadeBlockItem(FACADE.get())));
+    public static final Supplier<BlockEntityType<?>> TYPE_FACADE = TILES.register(ITEM_FACADE, () -> BlockEntityType.Builder.of(FacadeTileEntity::new, FACADE.get()).build(null));
 
     public static final Supplier<AttachmentType<MimicData>> MIMIC_DATA = ATTACHMENT_TYPES.register(
             "mimic_data", () -> AttachmentType.builder(() -> MimicData.EMPTY)

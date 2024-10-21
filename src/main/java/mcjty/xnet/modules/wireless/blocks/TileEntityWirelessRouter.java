@@ -48,8 +48,10 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.empty;
+import static mcjty.xnet.apiimpl.Constants.TAG_INFO;
 import static mcjty.xnet.modules.controller.blocks.TileEntityController.ERROR;
 import static mcjty.xnet.modules.wireless.WirelessRouterModule.WIRELESS_ROUTER;
+import static mcjty.xnet.utils.I18nConstants.BLOCK_WIRELESS_ROUTER;
 
 public final class TileEntityWirelessRouter extends TickingTileEntity {
 
@@ -68,7 +70,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
     private static final Function<TileEntityWirelessRouter, GenericEnergyStorage> ENERGY_CAP = te -> te.energyHandler;
 
     @Cap(type = CapType.CONTAINER)
-    private static final Function<TileEntityWirelessRouter, MenuProvider> screenHandler = be -> new DefaultContainerProvider<GenericContainer>("Wireless Router")
+    private static final Function<TileEntityWirelessRouter, MenuProvider> screenHandler = be -> new DefaultContainerProvider<GenericContainer>(BLOCK_WIRELESS_ROUTER.i18n())
             .containerSupplier(empty(WirelessRouterModule.CONTAINER_WIRELESS_ROUTER, be))
             .data(WirelessRouterModule.WIRELESS_ROUTER_DATA, WirelessRouterData.STREAM_CODEC)
             .setupSync(be);

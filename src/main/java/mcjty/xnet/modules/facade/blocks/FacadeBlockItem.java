@@ -30,8 +30,18 @@ import net.neoforged.neoforge.common.util.Lazy;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-import static mcjty.lib.builder.TooltipBuilder.*;
-import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.*;
+import static mcjty.lib.builder.TooltipBuilder.gold;
+import static mcjty.lib.builder.TooltipBuilder.header;
+import static mcjty.lib.builder.TooltipBuilder.parameter;
+import static mcjty.xnet.apiimpl.Constants.TAG_MIMIC;
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.COLOR;
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.DOWN;
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.EAST;
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.NORTH;
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.SOUTH;
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.UP;
+import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.WEST;
+import static mcjty.xnet.utils.I18nConstants.FACADE_CURRENT_MIMIC_FORMATTED;
 
 public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
@@ -60,11 +70,17 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
     }
 
     private static void userSetMimicBlock(@Nonnull ItemStack item, BlockState mimicBlock, UseOnContext context) {
+        if (mimicBlock.isAir()) {
+            return; // Don't allow mimicing air
+        }
         Level world = context.getLevel();
         Player player = context.getPlayer();
         setMimicBlock(item, mimicBlock);
         if (world.isClientSide) {
-            player.displayClientMessage(ComponentFactory.literal("Facade is now mimicking " + mimicBlock.getBlock().getDescriptionId()), false);
+            player.displayClientMessage(ComponentFactory.literal(
+                    FACADE_CURRENT_MIMIC_FORMATTED.i18n(mimicBlock.getBlock().getDescriptionId())),
+                    false
+            );
         }
     }
 

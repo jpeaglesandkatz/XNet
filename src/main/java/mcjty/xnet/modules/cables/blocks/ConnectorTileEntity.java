@@ -3,11 +3,13 @@ package mcjty.xnet.modules.cables.blocks;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ResultCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
+import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.tiles.IConnectorTile;
 import mcjty.xnet.modules.cables.CableModule;
@@ -38,7 +40,12 @@ import javax.annotation.Nonnull;
 import java.util.function.Function;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.empty;
+import static mcjty.xnet.apiimpl.Constants.TAG_ENABLED;
+import static mcjty.xnet.apiimpl.Constants.TAG_FACING;
+import static mcjty.xnet.apiimpl.Constants.TAG_INFO;
+import static mcjty.xnet.apiimpl.Constants.TAG_NAME;
 import static mcjty.xnet.modules.cables.CableModule.TYPE_CONNECTOR;
+import static mcjty.xnet.utils.I18nConstants.BLOCK_CONNECTOR;
 
 public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSupport, IConnectorTile {
 
@@ -66,7 +73,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         }
     }
 
-    public static final Function<ConnectorTileEntity, MenuProvider> SCREEN_CAP = be -> new DefaultContainerProvider<GenericContainer>("Connector")
+    public static final Function<ConnectorTileEntity, MenuProvider> SCREEN_CAP = be -> new DefaultContainerProvider<GenericContainer>(BLOCK_CONNECTOR.i18n())
             .containerSupplier(empty(CableModule.CONTAINER_CONNECTOR, be));
 
     public ConnectorTileEntity(BlockPos pos, BlockState state) {
@@ -297,8 +304,10 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
 
-    public static final Key<Integer> PARAM_FACING = new Key<>("facing", Type.INTEGER);
-    public static final Key<Boolean> PARAM_ENABLED = new Key<>("enabled", Type.BOOLEAN);
+    public static final Key<Integer> PARAM_FACING = new Key<>(TAG_FACING, Type.INTEGER);
+    public static final Key<Boolean> PARAM_ENABLED = new Key<>(TAG_ENABLED, Type.BOOLEAN);
+    public static final Key<String> PARAM_NAME = new Key<>(TAG_NAME, Type.STRING);
+
     @ServerCommand
     public static final Command<?> CMD_ENABLE = Command.<ConnectorTileEntity>create("connector.enable",
             (te, playerEntity, params) -> {
@@ -306,6 +315,10 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
                 boolean e = params.get(PARAM_ENABLED);
                 te.setEnabled(OrientationTools.DIRECTION_VALUES[f], e);
             });
+    @ServerCommand
+    public static final ResultCommand<?> CMD_GET_NAME = ResultCommand.<ConnectorTileEntity>create("xnet.connector.name",
+            (te, player, params) -> TypedMap.builder().put(PARAM_NAME, te.getConnectorName()).build(),
+            (te, player, params) -> te.setConnectorName(params.get(PARAM_NAME)));
 
     public IEnergyStorage getEnergyStorage(Direction facing) {
         if (facing == null) {

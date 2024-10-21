@@ -50,13 +50,26 @@ import net.neoforged.neoforge.common.util.Lazy;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.empty;
 import static mcjty.lib.builder.TooltipBuilder.header;
 import static mcjty.lib.builder.TooltipBuilder.key;
+import static mcjty.xnet.apiimpl.Constants.TAG_CHANCNT;
+import static mcjty.xnet.apiimpl.Constants.TAG_CHANNEL;
+import static mcjty.xnet.apiimpl.Constants.TAG_INDEX;
+import static mcjty.xnet.apiimpl.Constants.TAG_INFO;
+import static mcjty.xnet.apiimpl.Constants.TAG_NAME;
+import static mcjty.xnet.apiimpl.Constants.TAG_POS;
+import static mcjty.xnet.apiimpl.Constants.TAG_PUBLISHED;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.modules.controller.blocks.TileEntityController.ERROR;
 import static mcjty.xnet.modules.router.RouterModule.ROUTER;
@@ -312,9 +325,9 @@ public final class TileEntityRouter extends GenericTileEntity {
     }
 
 
-    public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
-    public static final Key<Integer> PARAM_CHANNEL = new Key<>("channel", Type.INTEGER);
-    public static final Key<String> PARAM_NAME = new Key<>("name", Type.STRING);
+    public static final Key<BlockPos> PARAM_POS = new Key<>(TAG_POS, Type.BLOCKPOS);
+    public static final Key<Integer> PARAM_CHANNEL = new Key<>(TAG_CHANNEL, Type.INTEGER);
+    public static final Key<String> PARAM_NAME = new Key<>(TAG_NAME, Type.STRING);
     @ServerCommand
     public static final Command<?> CMD_UPDATENAME = Command.<TileEntityRouter>create("router.updateName",
         (te, player, params) -> te.updatePublishName(params.get(PARAM_POS), params.get(PARAM_CHANNEL), params.get(PARAM_NAME)));

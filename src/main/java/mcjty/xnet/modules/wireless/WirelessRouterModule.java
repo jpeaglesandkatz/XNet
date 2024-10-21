@@ -46,6 +46,10 @@ import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.xnet.XNet.tab;
+import static mcjty.xnet.apiimpl.Constants.ITEM_ANTENNA;
+import static mcjty.xnet.apiimpl.Constants.ITEM_ANTENNA_BASE;
+import static mcjty.xnet.apiimpl.Constants.ITEM_ANTENNA_DISH;
+import static mcjty.xnet.apiimpl.Constants.ITEM_WIRELESS_ROUTER;
 import static mcjty.xnet.setup.Registration.*;
 
 public class WirelessRouterModule implements IModule {
@@ -58,12 +62,12 @@ public class WirelessRouterModule implements IModule {
     );
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_WIRELESS_ROUTER = CONTAINERS.register("wireless_router", GenericContainer::createContainerType);
 
-    public static final DeferredBlock<BaseBlock> ANTENNA = BLOCKS.register("antenna", WirelessRouterModule::createAntennaBlock);
-    public static final DeferredItem<Item> ANTENNA_ITEM = ITEMS.register("antenna", tab(() -> new BlockItem(ANTENNA.get(), Registration.createStandardProperties())));
-    public static final DeferredBlock<BaseBlock> ANTENNA_BASE = BLOCKS.register("antenna_base", WirelessRouterModule::createAntennaBaseBlock);
-    public static final DeferredItem<Item> ANTENNA_BASE_ITEM = ITEMS.register("antenna_base", tab(() -> new BlockItem(ANTENNA_BASE.get(), Registration.createStandardProperties())));
-    public static final DeferredBlock<BaseBlock> ANTENNA_DISH = BLOCKS.register("antenna_dish", WirelessRouterModule::createAntennaDishBlock);
-    public static final DeferredItem<Item> ANTENNA_DISH_ITEM = ITEMS.register("antenna_dish", tab(() -> new BlockItem(ANTENNA_DISH.get(), Registration.createStandardProperties())));
+    public static final DeferredBlock<BaseBlock> ANTENNA = BLOCKS.register(ITEM_ANTENNA, WirelessRouterModule::createAntennaBlock);
+    public static final DeferredItem<Item> ANTENNA_ITEM = ITEMS.register(ITEM_ANTENNA, tab(() -> new BlockItem(ANTENNA.get(), Registration.createStandardProperties())));
+    public static final DeferredBlock<BaseBlock> ANTENNA_BASE = BLOCKS.register(ITEM_ANTENNA_BASE, WirelessRouterModule::createAntennaBaseBlock);
+    public static final DeferredItem<Item> ANTENNA_BASE_ITEM = ITEMS.register(ITEM_ANTENNA_BASE, tab(() -> new BlockItem(ANTENNA_BASE.get(), Registration.createStandardProperties())));
+    public static final DeferredBlock<BaseBlock> ANTENNA_DISH = BLOCKS.register(ITEM_ANTENNA_DISH, WirelessRouterModule::createAntennaDishBlock);
+    public static final DeferredItem<Item> ANTENNA_DISH_ITEM = ITEMS.register(ITEM_ANTENNA_DISH, tab(() -> new BlockItem(ANTENNA_DISH.get(), Registration.createStandardProperties())));
 
     public static final Supplier<AttachmentType<WirelessRouterData>> WIRELESS_ROUTER_DATA = ATTACHMENT_TYPES.register(
             "wireless_router_data", () -> AttachmentType.builder(() -> WirelessRouterData.EMPTY)
@@ -166,7 +170,7 @@ public class WirelessRouterModule implements IModule {
                         .parentedItem("block/wireless_router")
                         .standardLoot(ITEM_WIRELESS_ROUTER_DATA.get())
                         .blockState(p -> {
-                            ModelFile modelOk = p.frontBasedModel("wireless_router", p.modLoc("block/machine_wireless_router"));
+                            ModelFile modelOk = p.frontBasedModel(ITEM_WIRELESS_ROUTER, p.modLoc("block/machine_wireless_router"));
                             ModelFile modelError = p.frontBasedModel("wireless_router_error", p.modLoc("block/machine_wireless_router_error"));
                             VariantBlockStateBuilder builder = p.getVariantBuilder(WIRELESS_ROUTER.block().get());
                             for (Direction direction : OrientationTools.DIRECTION_VALUES) {

@@ -27,7 +27,7 @@ public final class ForestrySupport {
     		this.name = name;
     		this.flag = flag;
     	}
-	
+
     	public int getFlag() {
     		return flag;
     	}

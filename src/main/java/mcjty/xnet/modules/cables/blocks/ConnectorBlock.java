@@ -60,7 +60,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static mcjty.lib.builder.TooltipBuilder.*;
+import static mcjty.lib.builder.TooltipBuilder.gold;
+import static mcjty.lib.builder.TooltipBuilder.header;
+import static mcjty.lib.builder.TooltipBuilder.key;
+import static mcjty.lib.builder.TooltipBuilder.parameter;
+import static mcjty.xnet.apiimpl.Constants.TAG_CONSUMER_ID;
+import static mcjty.xnet.utils.I18nConstants.BLOCK_CONNECTOR;
 
 public class ConnectorBlock extends GenericCableBlock implements ITooltipSettings, EntityBlock {
 
@@ -95,7 +100,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
                     @Override
                     @Nonnull
                     public Component getDisplayName() {
-                        return ComponentFactory.literal("Connector");
+                        return ComponentFactory.literal(BLOCK_CONNECTOR.i18n());
                     }
 
                     @Nonnull
@@ -360,7 +365,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         blobData.save();
     }
 
-    public static boolean isAdvancedConnector(Level world, BlockPos pos) {
+    public static boolean isAdvancedConnector(@Nonnull Level world, @Nonnull BlockPos pos) {
         Block block = world.getBlockState(pos).getBlock();
         if (block instanceof GenericCableBlock) {
             return ((GenericCableBlock) block).isAdvancedConnector();

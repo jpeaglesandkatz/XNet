@@ -15,16 +15,19 @@ import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.XNet;
+import mcjty.xnet.apiimpl.Constants;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
+import mcjty.xnet.apiimpl.enums.InsExtMode;
+import mcjty.xnet.apiimpl.items.enums.ExtractMode;
+import mcjty.xnet.apiimpl.items.enums.StackMode;
+import mcjty.xnet.utils.CastTools;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,68 +36,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import static mcjty.xnet.apiimpl.Constants.*;
+import static mcjty.xnet.utils.I18nConstants.*;
+
 public class ItemConnectorSettings extends AbstractConnectorSettings {
 
     public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
-    public static final String TAG_MODE = "mode";
-    public static final String TAG_STACK = "stack";
-    public static final String TAG_EXTRACT_AMOUNT = "extract_amount";
-    public static final String TAG_SPEED = "speed";
-    public static final String TAG_EXTRACT = "extract";
-    public static final String TAG_TAGS = "od";
-    public static final String TAG_NBT = "nbt";
-    public static final String TAG_META = "meta";
-    public static final String TAG_PRIORITY = "priority";
-    public static final String TAG_COUNT = "count";
-    public static final String TAG_FILTER = "flt";
-    public static final String TAG_FILTER_IDX = "fltIdx";
-    public static final String TAG_BLACKLIST = "blacklist";
-
     public static final int FILTER_SIZE = 18;
 
-    public enum ItemMode implements StringRepresentable {
-        INS,
-        EXT;
-
-        public static final Codec<ItemMode> CODEC = StringRepresentable.fromEnum(ItemMode::values);
-        public static final StreamCodec<RegistryFriendlyByteBuf, ItemMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(ItemMode.class);
-
-        @Override
-        public String getSerializedName() {
-            return name();
-        }
-    }
-
-    public enum StackMode implements StringRepresentable {
-        SINGLE,
-        STACK,
-        COUNT;
-
-        public static final Codec<StackMode> CODEC = StringRepresentable.fromEnum(StackMode::values);
-        public static final StreamCodec<RegistryFriendlyByteBuf, StackMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(StackMode.class);
-
-        @Override
-        public String getSerializedName() {
-            return name();
-        }
-    }
-
-    public enum ExtractMode implements StringRepresentable {
-        FIRST,
-        RND,
-        ORDER;
-
-        public static final Codec<ExtractMode> CODEC = StringRepresentable.fromEnum(ExtractMode::values);
-        public static final StreamCodec<RegistryFriendlyByteBuf, ExtractMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(ExtractMode.class);
-
-        @Override
-        public String getSerializedName() {
-            return name();
-        }
-    }
-
-    private ItemMode itemMode = ItemMode.INS;
+    private InsExtMode itemMode = InsExtMode.INS;
     private ExtractMode extractMode = ExtractMode.FIRST;
     private int speed = 2;
     private StackMode stackMode = StackMode.SINGLE;
@@ -111,7 +62,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
 
     public static final MapCodec<ItemConnectorSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             BaseSettings.CODEC.fieldOf("base").forGetter(settings -> settings.settings),
-            ItemMode.CODEC.fieldOf("itemMode").forGetter(settings -> settings.itemMode),
+            InsExtMode.CODEC.fieldOf("itemMode").forGetter(settings -> settings.itemMode),
             ExtractMode.CODEC.fieldOf("extractMode").forGetter(settings -> settings.extractMode),
             StackMode.CODEC.fieldOf("stackMode").forGetter(settings -> settings.stackMode),
             Codec.INT.fieldOf("speed").forGetter(settings -> settings.speed),
@@ -146,7 +97,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
 
     public static StreamCodec<RegistryFriendlyByteBuf, ItemConnectorSettings> STREAM_CODEC = CompositeStreamCodec.composite(
             BaseSettings.STREAM_CODEC, s -> s.settings,
-            ItemMode.STREAM_CODEC, s -> s.itemMode,
+            InsExtMode.STREAM_CODEC, s -> s.itemMode,
             ExtractMode.STREAM_CODEC, s -> s.extractMode,
             StackMode.STREAM_CODEC, s -> s.stackMode,
             ByteBufCodecs.INT, s -> s.speed,
@@ -187,7 +138,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     // Cached matcher for items
     private Predicate<ItemStack> matcher = null;
 
-    public ItemMode getItemMode() {
+    public InsExtMode getItemMode() {
         return itemMode;
     }
 
@@ -211,62 +162,59 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         return null;
     }
 
+    private String getMinMaxTooltip() {
+        return ITEM_COUNT_TOOLTIP_FORMATTED.i18n(
+                (itemMode == InsExtMode.EXT ? EXT_ENDING : INS_ENDING).i18n(),
+                (itemMode == InsExtMode.EXT ? LOW_FORMAT : HIGH_FORMAT).i18n()
+        );
+    }
+
     @Override
     public void createGui(IEditorGui gui) {
         advanced = gui.isAdvanced();
-        String[] speeds;
-        if (advanced) {
-            speeds = new String[] { "5", "10", "20", "60", "100", "200" };
-        } else {
-            speeds = new String[] { "10", "20", "60", "100", "200" };
-        }
+        String[] speeds = advanced ? Constants.ADVANCED_SPEEDS : Constants.SPEEDS;
 
         sideGui(gui);
         colorsGui(gui);
         redstoneGui(gui);
-        gui.nl()
-                .choices(TAG_MODE, "Insert or extract mode", itemMode, ItemMode.values())
-                .shift(5)
-                .choices(TAG_STACK, "Single item, stack, or count", stackMode, StackMode.values());
+        gui.nl();
+        gui.translatableChoices(TAG_MODE, itemMode, InsExtMode.values()).shift(5);
+        gui.translatableChoices(TAG_STACK, stackMode, StackMode.values());
 
-        if (stackMode == StackMode.COUNT && itemMode == ItemMode.EXT) {
-            gui
-                    .integer(TAG_EXTRACT_AMOUNT, "Amount of items to extract|per operation", extractAmount, 30, 64);
+        if (stackMode == StackMode.COUNT && itemMode == InsExtMode.EXT) {
+            gui.integer(TAG_EXTRACT_AMOUNT, ITEM_EXT_COUNT_TOOLTIP.i18n(), extractAmount, 30, 64);
         }
 
+        gui.shift(10).choices(TAG_SPEED, SPEED_TOOLTIP.i18n(), Integer.toString(speed * 5), speeds);
+        gui.nl();
         gui
-                .shift(10)
-                .choices(TAG_SPEED, "Number of ticks for each operation", Integer.toString(speed * 5), speeds)
-                .nl();
+                .label(PRIORITY_LABEL.i18n()).integer(TAG_PRIORITY, PRIORITY_TOOLTIP.i18n(), priority, 36).shift(5)
+                .label("#").integer(TAG_COUNT, getMinMaxTooltip(), count, 30);
 
-        gui
-                .label("Pri").integer(TAG_PRIORITY, "Insertion priority", priority, 36).shift(5)
-                .label("#")
-                .integer(TAG_COUNT, itemMode == ItemMode.EXT ? "Amount in destination inventory|to keep" : "Max amount in destination|inventory", count, 30);
-
-        if (itemMode == ItemMode.EXT) {
-            gui
-                    .shift(5)
-                    .choices(TAG_EXTRACT, "Extract mode (first available,|random slot or round robin)", extractMode, ExtractMode.values());
+        if (itemMode == InsExtMode.EXT) {
+            gui.shift(5).translatableChoices(TAG_EXTRACT, extractMode, ExtractMode.values());
         }
 
+        gui.nl();
         gui
-                .nl()
-
-                .toggleText(TAG_BLACKLIST, "Enable blacklist mode", "BL", blacklist).shift(0)
-                .toggleText(TAG_TAGS, "Tag matching", "Tags", tagsMode).shift(0)
-                .toggleText(TAG_META, "Metadata matching", "Meta", metaMode).shift(0)
-                .toggleText(TAG_NBT, "NBT matching", "NBT", componentMode).shift(0)
-                .choices(TAG_FILTER_IDX, "Filter Index", getFilterIndexString(), "<Off>", "1", "2", "3", "4")
+                .toggleText(TAG_BLACKLIST, ITEM_BLACKLIST_TOOLTIP.i18n(), ITEM_BLACKLIST_LABEL.i18n(), blacklist).shift(0)
+                .toggleText(TAG_TAGS, ITEM_TAGS_TOOLTIP.i18n(), ITEM_TAGS_LABEL.i18n(), tagsMode).shift(0)
+                .toggleText(TAG_META, ITEM_META_TOOLTIP.i18n(), ITEM_META_LABEL.i18n(), metaMode).shift(0)
+                .toggleText(TAG_NBT, ITEM_NBT_TOOLTIP.i18n(), ITEM_NBT_LABEL.i18n(), componentMode).shift(0)
+                .choices(TAG_FILTER_IDX, ITEM_FILTER_INDEX_TOOLTIP.i18n(), getFilterIndexString(),
+                        ITEM_FILTER_OFF.i18n(), "1", "2", "3", "4")
                 .nl();
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
-            gui.ghostSlot(TAG_FILTER + i, filters.get(i));
+            if (i > 0 && i % 9 == 0) {
+                gui.nl();
+            }
+            gui.ghostSlot(TAG_FLT + i, filters.get(i));
         }
     }
 
     private String getFilterIndexString() {
         if (filterIndex == -1) {
-            return "<Off>";
+            return ITEM_FILTER_OFF.i18n();
         } else {
             return Integer.toString(filterIndex);
         }
@@ -343,36 +291,33 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
 
     @Override
     public boolean isEnabled(String tag) {
-        if (tag.startsWith(TAG_FILTER)) {
+        if (tag.startsWith(TAG_FLT)) {
             return true;
         }
         if (tag.equals(TAG_FACING)) {
             return advanced;
         }
-        if (itemMode == ItemMode.INS) {
+        if (itemMode == InsExtMode.INS) {
             return INSERT_TAGS.contains(tag);
         } else {
             return EXTRACT_TAGS.contains(tag);
         }
     }
 
+    public void setSpeed(int speed) {
+        this.speed = speed != 0 ? speed : 4;
+    }
+
     @Override
     public void update(Map<String, Object> data) {
         super.update(data);
-        itemMode = ItemMode.valueOf(((String)data.get(TAG_MODE)).toUpperCase());
-        Object emode = data.get(TAG_EXTRACT);
-        if (emode == null) {
-            extractMode = ExtractMode.FIRST;
-        } else {
-            extractMode = ExtractMode.valueOf(((String) emode).toUpperCase());
-        }
-        stackMode = StackMode.valueOf(((String)data.get(TAG_STACK)).toUpperCase());
-        speed = Integer.parseInt((String) data.get(TAG_SPEED)) / 5;
-        if (speed == 0) {
-            speed = 4;
-        }
+        itemMode = CastTools.safeInsExtMode(data.get(TAG_MODE));
+        extractMode = CastTools.safeExtractMode(data.get(TAG_EXTRACT));
+        stackMode = CastTools.safeStackMode(data.get(TAG_STACK));
+        setSpeed(Integer.parseInt((String) data.get(TAG_SPEED)) / 5);
+
         String idx = (String) data.get(TAG_FILTER_IDX);
-        this.filterIndex = "<Off>".equalsIgnoreCase(idx) ? -1 : Integer.parseInt(idx);
+        filterIndex = CastTools.safeIntOrValue(idx, -1);
         tagsMode = Boolean.TRUE.equals(data.get(TAG_TAGS));
         metaMode = Boolean.TRUE.equals(data.get(TAG_META));
         componentMode = Boolean.TRUE.equals(data.get(TAG_NBT));
@@ -382,7 +327,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         count = (Integer) data.get(TAG_COUNT);
         extractAmount = (Integer) data.get(TAG_EXTRACT_AMOUNT);
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
-            filters.set(i, (ItemStack) data.get(TAG_FILTER+i));
+            filters.set(i, (ItemStack) data.get(TAG_FLT+i));
         }
         matcher = null;
     }
@@ -391,25 +336,25 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     public JsonObject writeToJson() {
         JsonObject object = new JsonObject();
         super.writeToJsonInternal(object);
-        setEnumSafe(object, "itemmode", itemMode);
-        setEnumSafe(object, "extractmode", extractMode);
-        setEnumSafe(object, "stackmode", stackMode);
-        object.add("tagsmode", new JsonPrimitive(tagsMode));
-        object.add("metamode", new JsonPrimitive(metaMode));
-        object.add("nbtmode", new JsonPrimitive(componentMode));
-        object.add("blacklist", new JsonPrimitive(blacklist));
-        setIntegerSafe(object, "priority", priority);
-        setIntegerSafe(object, "extractamount", extractAmount);
-        setIntegerSafe(object, "count", count);
-        setIntegerSafe(object, "speed", speed);
-        setIntegerSafe(object, "filterindex", filterIndex);
+        setEnumSafe(object, TAG_ITEM_MODE, itemMode);
+        setEnumSafe(object, TAG_EXTRACT_MODE, extractMode);
+        setEnumSafe(object, TAG_STACK_MODE, stackMode);
+        object.add(TAG_TAGS_MODE, new JsonPrimitive(tagsMode));
+        object.add(TAG_META_MODE, new JsonPrimitive(metaMode));
+        object.add(TAG_NBT_MODE, new JsonPrimitive(componentMode));
+        object.add(TAG_BLACKLIST, new JsonPrimitive(blacklist));
+        setIntegerSafe(object, TAG_PRIORITY, priority);
+        setIntegerSafe(object, TAG_EXTRACT_AMOUNT, extractAmount);
+        setIntegerSafe(object, TAG_COUNT, count);
+        setIntegerSafe(object, TAG_SPEED, speed);
+        setIntegerSafe(object, TAG_FILTER_INDEX, filterIndex);
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             if (!filters.get(i).isEmpty()) {
-                object.add("filter" + i, JSonTools.itemStackToJson(filters.get(i)));
+                object.add(TAG_FLT + i, JSonTools.itemStackToJson(filters.get(i)));
             }
         }
         if (speed == 1) {
-            object.add("advancedneeded", new JsonPrimitive(true));
+            object.add(TAG_ADVANCED_NEEDED, new JsonPrimitive(true));
         }
 
         return object;
@@ -418,25 +363,25 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void readFromJson(JsonObject object) {
         super.readFromJsonInternal(object);
-        itemMode = getEnumSafe(object, "itemmode", EnumStringTranslators::getItemMode);
-        extractMode = getEnumSafe(object, "extractmode", EnumStringTranslators::getExtractMode);
-        stackMode = getEnumSafe(object, "stackmode", EnumStringTranslators::getStackMode);
-        tagsMode = getBoolSafe(object, "tagsmode");
-        metaMode = getBoolSafe(object, "metamode");
-        componentMode = getBoolSafe(object, "nbtmode");
-        blacklist = getBoolSafe(object, "blacklist");
-        priority = getIntegerSafe(object, "priority");
-        extractAmount = getIntegerSafe(object, "extractamount");
-        count = getIntegerSafe(object, "count");
-        speed = getIntegerNotNull(object, "speed");
-        if (object.has("filterindex")) {
-            filterIndex = getIntegerNotNull(object, "filterindex");
+        itemMode = getEnumSafe(object, TAG_ITEM_MODE, EnumStringTranslators::getItemMode);
+        extractMode = getEnumSafe(object, TAG_EXTRACT_MODE, EnumStringTranslators::getExtractMode);
+        stackMode = getEnumSafe(object, TAG_STACK_MODE, EnumStringTranslators::getStackMode);
+        tagsMode = getBoolSafe(object, TAG_TAGS_MODE);
+        metaMode = getBoolSafe(object, TAG_META_MODE);
+        componentMode = getBoolSafe(object, TAG_NBT_MODE);
+        blacklist = getBoolSafe(object, TAG_BLACKLIST);
+        priority = getIntegerSafe(object, TAG_PRIORITY);
+        extractAmount = getIntegerSafe(object, TAG_EXTRACT_AMOUNT);
+        count = getIntegerSafe(object, TAG_COUNT);
+        speed = getIntegerNotNull(object, TAG_SPEED);
+        if (object.has(TAG_FILTER_INDEX)) {
+            filterIndex = getIntegerNotNull(object, TAG_FILTER_INDEX);
         } else {
             filterIndex = -1;
         }
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
-            if (object.has("filter" + i)) {
-                filters.set(i, JSonTools.jsonToItemStack(object.get("filter" + i).getAsJsonObject()));
+            if (object.has(TAG_FLT + i)) {
+                filters.set(i, JSonTools.jsonToItemStack(object.get(TAG_FLT + i).getAsJsonObject()));
             } else {
                 filters.set(i, ItemStack.EMPTY);
             }

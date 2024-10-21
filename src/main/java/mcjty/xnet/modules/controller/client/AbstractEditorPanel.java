@@ -1,8 +1,19 @@
 package mcjty.xnet.modules.controller.client;
 
 import mcjty.lib.blockcommands.Command;
+import mcjty.lib.gui.ITranslatableEnum;
 import mcjty.lib.gui.events.BlockRenderEvent;
-import mcjty.lib.gui.widgets.*;
+import mcjty.lib.gui.widgets.BlockRender;
+import mcjty.lib.gui.widgets.ChoiceLabel;
+import mcjty.lib.gui.widgets.ColorChoiceLabel;
+import mcjty.lib.gui.widgets.EnumChoiceLabel;
+import mcjty.lib.gui.widgets.ImageChoiceLabel;
+import mcjty.lib.gui.widgets.Label;
+import mcjty.lib.gui.widgets.Panel;
+import mcjty.lib.gui.widgets.TextField;
+import mcjty.lib.gui.widgets.ToggleButton;
+import mcjty.lib.gui.widgets.Widget;
+import mcjty.lib.gui.widgets.Widgets;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
@@ -18,6 +29,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static mcjty.lib.gui.widgets.Widgets.textfield;
+import static mcjty.xnet.utils.I18nConstants.RS_MODE_IGNORED_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.RS_MODE_OFF_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.RS_MODE_ON_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.RS_MODE_PULSE_TOOLTIP;
 
 public abstract class AbstractEditorPanel implements IEditorGui {
 
@@ -118,41 +133,67 @@ public abstract class AbstractEditorPanel implements IEditorGui {
                 .tooltips(parseTooltips(tooltip));
         data.put(tag, value);
         text.addTextEnterEvent((newText) -> update(tag, newText));
-        text.event((newText) -> update(tag, newText));
+        gui.getWindow().addFocusEvent((textFocus) -> {
+            if (textFocus == null) {update(tag, text.getText());}
+        });
         panel.children(text);
         components.put(tag, text);
         x += width;
         return this;
     }
 
-    private Integer parseInt(String i, Integer maximum) {
+    private Integer validate(String i, Integer maximum, Integer minimum) {
         if (i == null || i.isEmpty()) {
-            return null;
+            return minimum;
         }
         try {
             int v = Integer.parseInt(i);
             if (maximum != null && v > maximum) {
                 v = maximum;
+            } else if (minimum != null && v < minimum) {
+                v = minimum;
             }
             return v;
         } catch (NumberFormatException e) {
-            return null;
+            return minimum;
         }
     }
 
     @Override
     public IEditorGui integer(String tag, String tooltip, Integer value, int width) {
-        return integer(tag, tooltip, value, width, null);
+        fitWidth(width);
+        TextField text = textfield(x, y, width, 14).text(value == null ? "" : value.toString())
+                                 .tooltips(parseTooltips(tooltip));
+        data.put(tag, value);
+        text.addTextEnterEvent((newText) -> update(tag, validate(newText, null, null)));
+        gui.getWindow().addFocusEvent((textFocus) -> {
+            if (textFocus == null) {
+                update(tag, validate(text.getText(), null, null));
+            }
+        });
+        panel.children(text);
+        components.put(tag, text);
+        x += width;
+        return this;
     }
 
     @Override
     public IEditorGui integer(String tag, String tooltip, Integer value, int width, Integer maximum) {
+        return integer(tag, tooltip, value, width, maximum, 0);
+    }
+
+    @Override
+    public IEditorGui integer(String tag, String tooltip, Integer value, int width, int maximum, int minimum) {
         fitWidth(width);
-        TextField text = textfield(x, y, width, 14).text(value == null ? "" : value.toString())
+        TextField text = textfield(x, y, width, 14).text(value == null ? String.valueOf(minimum) : value.toString())
                 .tooltips(parseTooltips(tooltip));
         data.put(tag, value);
-        text.addTextEnterEvent((newText) -> update(tag, parseInt(newText, maximum)));
-        text.event((newText) -> update(tag, parseInt(newText, maximum)));
+        text.addTextEnterEvent((newInt) -> update(tag, validate(newInt, maximum, minimum)));
+        gui.getWindow().addFocusEvent((textFocus) -> {
+            if (textFocus == null) {
+                update(tag, validate(text.getText(), maximum, minimum));
+            }
+        });
         panel.children(text);
         components.put(tag, text);
         x += width;
@@ -260,14 +301,31 @@ public abstract class AbstractEditorPanel implements IEditorGui {
     }
 
     @Override
+    public IEditorGui translatableChoices(String tag, ITranslatableEnum<?> current, ITranslatableEnum<?>... values) {
+        int w = 10;
+        for (ITranslatableEnum<?> s : values) {
+            w = Math.max(w, mc.font.width(s.getI18n()) + 14);
+        }
+
+        fitWidth(w);
+        EnumChoiceLabel choice = new EnumChoiceLabel().choices(values).choice(current).hint(x, y, w, 14);
+        data.put(tag, current.ordinal());
+        choice.event((newChoice) -> update(tag, newChoice.ordinal()));
+        panel.children(choice);
+        components.put(tag, choice);
+        x += w;
+        return this;
+    }
+
+    @Override
     public IEditorGui redstoneMode(String tag, RSMode current) {
         int w = 14;
         fitWidth(w);
         ImageChoiceLabel redstoneMode = new ImageChoiceLabel()
-                .choice("Ignored", "Redstone mode:\nIgnored", iconGuiElements, 1, 1)
-                .choice("Off", "Redstone mode:\nOff to activate", iconGuiElements, 17, 1)
-                .choice("On", "Redstone mode:\nOn to activate", iconGuiElements, 33, 1)
-                .choice("Pulse", "Do one operation\non a pulse", iconGuiElements, 49, 1);
+                .choice("Ignored", RS_MODE_IGNORED_TOOLTIP.i18n(), iconGuiElements, 1, 1)
+                .choice("Off", RS_MODE_OFF_TOOLTIP.i18n(), iconGuiElements, 17, 1)
+                .choice("On", RS_MODE_ON_TOOLTIP.i18n(), iconGuiElements, 33, 1)
+                .choice("Pulse", RS_MODE_PULSE_TOOLTIP.i18n(), iconGuiElements, 49, 1);
         switch (current) {
             case IGNORED -> redstoneMode.setCurrentChoice("Ignored");
             case OFF -> redstoneMode.setCurrentChoice("Off");
@@ -298,7 +356,7 @@ public abstract class AbstractEditorPanel implements IEditorGui {
                 ItemStack holding = Minecraft.getInstance().player.containerMenu.getCarried();
                 if (holding.isEmpty()) {
                     update(tag, holding);
-                    blockRender.renderItem(null);
+                    blockRender.renderItem(holding);
                 } else {
                     ItemStack copy = holding.copy();
                     copy.setCount(1);
@@ -311,6 +369,10 @@ public abstract class AbstractEditorPanel implements IEditorGui {
             public void doubleClick() {
 
             }
+        });
+        blockRender.event(itemStack -> {
+            update(tag, itemStack);
+            blockRender.renderItem(itemStack);
         });
         blockRender.hint(x, y-1, 17, 17);
         data.put(tag, stack);

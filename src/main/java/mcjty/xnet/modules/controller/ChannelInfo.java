@@ -8,6 +8,10 @@ import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.client.ConnectorInfo;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -16,6 +20,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static mcjty.xnet.apiimpl.Constants.TAG_ADVANCED;
+import static mcjty.xnet.apiimpl.Constants.TAG_CONNECTORS;
+import static mcjty.xnet.apiimpl.Constants.TAG_CONSUMER_ID;
+import static mcjty.xnet.apiimpl.Constants.TAG_ENABLED;
+import static mcjty.xnet.apiimpl.Constants.TAG_NAME;
+import static mcjty.xnet.apiimpl.Constants.TAG_SIDE;
+import static mcjty.xnet.apiimpl.Constants.TAG_TYPE;
 
 public class ChannelInfo {
 

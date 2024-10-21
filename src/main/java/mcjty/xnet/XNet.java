@@ -95,7 +95,7 @@ public class XNet {
 
     private void processIMC(final InterModProcessEvent event) {
         event.getIMCStream().forEach(message -> {
-            if ("getXNet".equalsIgnoreCase(message.getMethod())) {
+            if ("getXNet".equalsIgnoreCase(message.method())) {
                 Supplier<Function<IXNet, Void>> supplier = message.getMessageSupplier();
                 supplier.get().apply(xNetApi);
             }

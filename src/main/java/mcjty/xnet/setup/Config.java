@@ -52,6 +52,14 @@ public class Config {
     };
     public static ModConfigSpec.ConfigValue<List<? extends String>> unsidedBlocks;
 
+    public static Integer getMaxRfRate(boolean isAdvanced) {
+        return isAdvanced ? maxRfRateAdvanced.get() : maxRfRateNormal.get();
+    }
+
+    public static Integer getMaxFluidRate(boolean isAdvanced) {
+        return isAdvanced ? maxFluidRateAdvanced.get() : maxFluidRateNormal.get();
+    }
+
     public static final ModConfigSpec.Builder SERVER_BUILDER = new ModConfigSpec.Builder();
     public static final ModConfigSpec.Builder CLIENT_BUILDER = new ModConfigSpec.Builder();
 

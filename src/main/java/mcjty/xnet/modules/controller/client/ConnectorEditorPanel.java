@@ -11,7 +11,9 @@ import net.minecraft.client.Minecraft;
 
 import java.util.Map;
 
-import static mcjty.xnet.modules.controller.blocks.TileEntityController.*;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.PARAM_CHANNEL;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.PARAM_POS;
+import static mcjty.xnet.modules.controller.blocks.TileEntityController.PARAM_SIDE;
 
 public class ConnectorEditorPanel extends AbstractEditorPanel {
 

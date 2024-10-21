@@ -17,8 +17,21 @@ import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
+
+import static mcjty.xnet.apiimpl.Constants.TAG_AGE;
+import static mcjty.xnet.apiimpl.Constants.TAG_CHANNELS;
+import static mcjty.xnet.apiimpl.Constants.TAG_DIM;
+import static mcjty.xnet.apiimpl.Constants.TAG_NAME;
+import static mcjty.xnet.apiimpl.Constants.TAG_NETWORK;
+import static mcjty.xnet.apiimpl.Constants.TAG_OWNER;
+import static mcjty.xnet.apiimpl.Constants.TAG_ROUTERS;
+import static mcjty.xnet.apiimpl.Constants.TAG_TYPE;
 
 public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels> {
 
@@ -31,17 +44,17 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
     public XNetWirelessChannels(CompoundTag tag) {
         channelToWireless.clear();
-        ListTag tagList = tag.getList("channels", Tag.TAG_COMPOUND);
+        ListTag tagList = tag.getList(TAG_CHANNELS, Tag.TAG_COMPOUND);
         for (int i = 0 ; i < tagList.size() ; i++) {
             CompoundTag tc = tagList.getCompound(i);
             WirelessChannelInfo channelInfo = new WirelessChannelInfo();
-            readRouters(tc.getList("routers", Tag.TAG_COMPOUND), channelInfo);
+            readRouters(tc.getList(TAG_ROUTERS, Tag.TAG_COMPOUND), channelInfo);
             UUID owner = null;
             if (tc.hasUUID("ownerUUID")) {
                 owner = tc.getUUID("ownerUUID");
             }
-            String name = tc.getString("name");
-            IChannelType type = XNet.xNetApi.findType(tc.getString("type"));
+            String name = tc.getString(TAG_NAME);
+            IChannelType type = XNet.xNetApi.findType(tc.getString(TAG_TYPE));
             channelToWireless.put(new WirelessChannelKey(name, type, owner), channelInfo);
         }
     }
@@ -168,11 +181,11 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
     private void readRouters(ListTag tagList, WirelessChannelInfo channelInfo) {
         for (int i = 0 ; i < tagList.size() ; i++) {
             CompoundTag tc = tagList.getCompound(i);
-            ResourceKey<Level> dim = LevelTools.getId(tc.getString("dim"));
+            ResourceKey<Level> dim = LevelTools.getId(tc.getString(TAG_DIM));
             GlobalPos pos = GlobalPos.of(dim, new BlockPos(tc.getInt("x"), tc.getInt("y"), tc.getInt("z")));
             WirelessRouterInfo info = new WirelessRouterInfo(pos);
-            info.setAge(tc.getInt("age"));
-            info.setNetworkId(new NetworkId(tc.getInt("network")));
+            info.setAge(tc.getInt(TAG_AGE));
+            info.setNetworkId(new NetworkId(tc.getInt(TAG_NETWORK)));
             channelInfo.updateRouterInfo(pos, info);
         }
     }
@@ -186,16 +199,16 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             CompoundTag channelTc = new CompoundTag();
             WirelessChannelInfo channelInfo = entry.getValue();
             WirelessChannelKey key = entry.getKey();
-            channelTc.putString("name", key.name());
-            channelTc.putString("type", key.channelType().getID());
+            channelTc.putString(TAG_NAME, key.name());
+            channelTc.putString(TAG_TYPE, key.channelType().getID());
             if (key.owner() != null) {
                 channelTc.putUUID("ownerUUID", key.owner());
             }
-            channelTc.put("routers", writeRouters(channelInfo));
+            channelTc.put(TAG_ROUTERS, writeRouters(channelInfo));
             channelTagList.add(channelTc);
         }
 
-        compound.put("channels", channelTagList);
+        compound.put(TAG_CHANNELS, channelTagList);
 
         return compound;
     }
@@ -206,13 +219,13 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         for (Map.Entry<GlobalPos, WirelessRouterInfo> infoEntry : channelInfo.getRouters().entrySet()) {
             CompoundTag tc = new CompoundTag();
             GlobalPos pos = infoEntry.getKey();
-            tc.putString("dim", pos.dimension().location().toString());
+            tc.putString(TAG_DIM, pos.dimension().location().toString());
             tc.putInt("x", pos.pos().getX());
             tc.putInt("y", pos.pos().getY());
             tc.putInt("z", pos.pos().getZ());
             WirelessRouterInfo info = infoEntry.getValue();
-            tc.putInt("age", info.getAge());
-            tc.putInt("network", info.getNetworkId().id());
+            tc.putInt(TAG_AGE, info.getAge());
+            tc.putInt(TAG_NETWORK, info.getNetworkId().id());
             tagList.add(tc);
         }
         return tagList;

@@ -14,6 +14,8 @@ import net.minecraft.world.level.Level;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import static mcjty.xnet.utils.I18nConstants.CHANNEL_LOGIC;
+
 public class LogicChannelType implements IChannelType {
 
     @Override
@@ -23,7 +25,7 @@ public class LogicChannelType implements IChannelType {
 
     @Override
     public String getName() {
-        return "Logic";
+        return CHANNEL_LOGIC.i18n();
     }
 
     @Override

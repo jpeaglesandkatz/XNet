@@ -15,6 +15,8 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import static mcjty.xnet.utils.I18nConstants.CHANNEL_FLUID;
+
 public class FluidChannelType implements IChannelType {
 
     @Override
@@ -24,7 +26,7 @@ public class FluidChannelType implements IChannelType {
 
     @Override
     public String getName() {
-        return "Fluid";
+        return CHANNEL_FLUID.i18n();
     }
 
     @Override

@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
+import static mcjty.xnet.apiimpl.Constants.ITEM_ROUTER;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.setup.Registration.*;
 
@@ -87,7 +88,7 @@ public class RouterModule implements IModule {
                         .parentedItem("block/router")
                         .standardLoot(ITEM_ROUTER_DATA.get())
                         .blockState(p -> {
-                            ModelFile modelOk = p.frontBasedModel("router", p.modLoc("block/machine_router"));
+                            ModelFile modelOk = p.frontBasedModel(ITEM_ROUTER, p.modLoc("block/machine_router"));
                             ModelFile modelError = p.frontBasedModel("router_error", p.modLoc("block/machine_router_error"));
                             VariantBlockStateBuilder builder = p.getVariantBuilder(ROUTER.block().get());
                             for (Direction direction : OrientationTools.DIRECTION_VALUES) {

@@ -14,7 +14,11 @@ import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
-import mcjty.xnet.apiimpl.fluids.FluidChannelSettings;
+import mcjty.xnet.apiimpl.ConnectedBlock;
+import mcjty.xnet.apiimpl.ConnectedEntity;
+import mcjty.xnet.apiimpl.logic.enums.LogicMode;
+import mcjty.xnet.logic.LogicOperations;
+import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,28 +29,27 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static mcjty.xnet.apiimpl.Constants.TAG_COLORS;
+
 public class LogicChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
     public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
-
-    private int delay = 0;
     private int colors = 0;     // Colors for this channel
+    private List<ConnectedOptionalEntity<LogicConnectorSettings>> sensors = null;
+    private List<ConnectedBlock<LogicConnectorSettings>> outputs = null;
 
     public static final MapCodec<LogicChannelSettings> CODEC = MapCodec.unit(LogicChannelSettings::new);
     public static final StreamCodec<RegistryFriendlyByteBuf, LogicChannelSettings> STREAM_CODEC = StreamCodec.of(
             (buf, settings) -> { },
             buf -> new LogicChannelSettings()
     );
-
-    private List<Pair<SidedConsumer, LogicConnectorSettings>> sensors = null;
-    private List<Pair<SidedConsumer, LogicConnectorSettings>> outputs = null;
 
     @Override
     public IChannelType getType() {
@@ -64,14 +67,12 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
 
     @Override
     public void readFromNBT(CompoundTag tag) {
-        delay = tag.getInt("delay");
-        colors = tag.getInt("colors");
+        colors = tag.getInt(TAG_COLORS);
     }
 
     @Override
     public void writeToNBT(CompoundTag tag) {
-        tag.putInt("delay", delay);
-        tag.putInt("colors", colors);
+        tag.putInt(TAG_COLORS, colors);
     }
 
     @Override
@@ -81,51 +82,27 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
 
     @Override
     public void tick(int channel, IControllerContext context) {
-        delay--;
-        if (delay <= 0) {
-            delay = 200 * 6;      // Multiply of the different speeds we have
-        }
-        if (delay % 5 != 0) {
-            return;
-        }
-        int d = delay / 5;
         updateCache(channel, context);
         Level world = context.getControllerWorld();
 
         colors = 0;
-        for (Pair<SidedConsumer, LogicConnectorSettings> entry : sensors) {
-            LogicConnectorSettings settings = entry.getValue();
-            if (d % settings.getSpeed() != 0) {
-                // Use the color settings from this connector as we last remembered it
+        for (ConnectedOptionalEntity<LogicConnectorSettings> connectedBlock : sensors) {
+            LogicConnectorSettings settings = connectedBlock.settings();
+            int sensorColors = 0;
+            BlockPos pos = connectedBlock.getBlockPos();
+            if (!LevelTools.isLoaded(world, pos)) {
+                // If it is not chunkloaded we just use the color settings as we last remembered it
                 colors |= settings.getColorMask();
                 continue;
             }
-            int sensorColors = 0;
-            BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
-            if (connectorPos != null) {
-                Direction side = entry.getKey().side();
-                BlockPos pos = connectorPos.relative(side);
-                if (!LevelTools.isLoaded(world, pos)) {
-                    // If it is not chunkloaded we just use the color settings as we last remembered it
-                    colors |= settings.getColorMask();
-                    continue;
-                }
 
-                boolean sense = true;
+            // If checkRedstone is false the sensor is disabled which means the colors from it will also be disabled
+            if (checkRedstone(settings, connectedBlock.getConnectorEntity(), context)) {
+                BlockEntity te = connectedBlock.getConnectedEntity();
 
-                sense = !checkRedstone(world, settings, connectorPos);
-                if (sense && !context.matchColor(settings.getColorsMask())) {
-                    sense = false;
-                }
-
-                // If sense is false the sensor is disabled which means the colors from it will also be disabled
-                if (sense) {
-                    BlockEntity te = world.getBlockEntity(pos);
-
-                    for (Sensor sensor : settings.getSensors()) {
-                        if (sensor.test(te, world, pos, settings)) {
-                            sensorColors |= 1 << sensor.getOutputColor().ordinal();
-                        }
+                for (RSSensor sensor : settings.getSensors()) {
+                    if (sensor.test(te, world, pos, settings)) {
+                        sensorColors |= 1 << sensor.getOutputColor().ordinal();
                     }
                 }
             }
@@ -133,32 +110,27 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
             colors |= sensorColors;
         }
 
-        for (Pair<SidedConsumer, LogicConnectorSettings> entry : outputs) {
-            LogicConnectorSettings settings = entry.getValue();
-            if (d % settings.getSpeed() != 0) {
+        for (ConnectedBlock<LogicConnectorSettings> connector : outputs) {
+            LogicConnectorSettings settings = connector.settings();
+
+            BlockPos connectorPos = connector.connectorPos();
+            if (!LevelTools.isLoaded(world, connectorPos)) {
                 continue;
             }
 
-            BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
-            if (connectorPos != null) {
-                Direction side = entry.getKey().side();
-                if (!LevelTools.isLoaded(world, connectorPos)) {
-                    continue;
-                }
-
-                BlockEntity te = world.getBlockEntity(connectorPos);
-                if (te instanceof ConnectorTileEntity connectorTE) {
-                    int powerOut;
-                    if (checkRedstone(world, settings, connectorPos)) {
-                        powerOut = 0;
-                    } else if (!context.matchColor(settings.getColorsMask())) {
-                        powerOut = 0;
-                    } else {
-                        powerOut = settings.getRedstoneOut() == null ? 0 : settings.getRedstoneOut();
-                    }
-                    connectorTE.setPowerOut(side, powerOut);
-                }
+            Direction side = connector.sidedConsumer().side();
+            ConnectorTileEntity connectorTileEntity = connector.getConnectorEntity();
+            int powerOut;
+            if (checkRedstone(settings, connectorTileEntity, context)) {
+                RSOutput output = settings.getOutput();
+                boolean[] colorsArray = LogicTools.intToBinary(colors);
+                boolean input1 = colorsArray[output.getInputChannel1().ordinal()];
+                boolean input2 = colorsArray[output.getInputChannel2().ordinal()];
+                powerOut = LogicOperations.applyFilter(output, input1, input2) ? output.getRedstoneOut() : 0;
+            } else {
+                powerOut = 0;
             }
+            connectorTileEntity.setPowerOut(side, powerOut);
         }
     }
 
@@ -166,24 +138,64 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
         if (sensors == null) {
             sensors = new ArrayList<>();
             outputs = new ArrayList<>();
+            Level world = context.getControllerWorld();
             Map<SidedConsumer, IConnectorSettings> connectors = context.getConnectors(channel);
             for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
                 LogicConnectorSettings con = (LogicConnectorSettings) entry.getValue();
-                if (con.getLogicMode() == LogicConnectorSettings.LogicMode.SENSOR) {
-                    sensors.add(Pair.of(entry.getKey(), con));
+                ConnectedBlock<LogicConnectorSettings> connectedBlock;
+                connectedBlock = getConnectedBlockInfo(context, entry, world, con);
+                if (connectedBlock == null) {
+                    continue;
+                }
+                if (con.getLogicMode() == LogicMode.SENSOR) {
+                    ConnectedOptionalEntity<LogicConnectorSettings> connectedEntity = getConnectedEntity(connectedBlock, world);
+                    sensors.add(connectedEntity);
                 } else {
-                    outputs.add(Pair.of(entry.getKey(), con));
+                    outputs.add(connectedBlock);
                 }
             }
 
             connectors = context.getRoutedConnectors(channel);
             for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
                 LogicConnectorSettings con = (LogicConnectorSettings) entry.getValue();
-                if (con.getLogicMode() == LogicConnectorSettings.LogicMode.OUTPUT) {
-                    outputs.add(Pair.of(entry.getKey(), con));
+                if (con.getLogicMode() == LogicMode.OUTPUT) {
+                    ConnectedBlock<LogicConnectorSettings> connectedBlock;
+                    connectedBlock = getConnectedBlockInfo(context, entry, world, con);
+                    if (connectedBlock == null) {
+                        continue;
+                    }
+                    outputs.add(connectedBlock);
                 }
             }
         }
+    }
+
+    @Nonnull
+    private ConnectedOptionalEntity<LogicConnectorSettings> getConnectedEntity(
+            @Nonnull ConnectedBlock<LogicConnectorSettings> connectedBlock, @Nonnull Level world
+    ) {
+        BlockEntity connectedEntity = world.getBlockEntity(connectedBlock.getBlockPos());
+        return new ConnectedOptionalEntity<>(connectedBlock, connectedEntity);
+    }
+
+    @Nullable
+    private ConnectedBlock<LogicConnectorSettings> getConnectedBlockInfo(
+            IControllerContext context, Map.Entry<SidedConsumer, IConnectorSettings> entry, @Nonnull Level world, @Nonnull LogicConnectorSettings con
+    ) {
+        BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
+        if (connectorPos == null) {
+            return null;
+        }
+        ConnectorTileEntity connectorEntity = (ConnectorTileEntity) world.getBlockEntity(connectorPos);
+        if (connectorEntity == null) {
+            return null;
+        }
+        BlockPos connectedBlockPos = connectorPos.relative(entry.getKey().side());
+        BlockEntity connectedEntity = world.getBlockEntity(connectedBlockPos);
+        if (connectedEntity == null) {
+            return new ConnectedBlock<>(entry.getKey(), con, connectorPos, connectedBlockPos, connectorEntity);
+        }
+        return new ConnectedEntity<>(entry.getKey(), con, connectorPos, connectedBlockPos, connectedEntity, connectorEntity);
     }
 
     @Override
