@@ -47,14 +47,14 @@ import static net.minecraft.world.level.block.state.properties.BlockStatePropert
 public abstract class GenericCableBlock extends Block implements TOPInfoProvider, SimpleWaterloggedBlock {
 
     // Properties that indicate if there is the same block in a certain direction.
-    public static final EnumProperty<ConnectorType> NORTH = EnumProperty.<ConnectorType>create("north", ConnectorType.class);
-    public static final EnumProperty<ConnectorType> SOUTH = EnumProperty.<ConnectorType>create("south", ConnectorType.class);
-    public static final EnumProperty<ConnectorType> WEST = EnumProperty.<ConnectorType>create("west", ConnectorType.class);
-    public static final EnumProperty<ConnectorType> EAST = EnumProperty.<ConnectorType>create("east", ConnectorType.class);
-    public static final EnumProperty<ConnectorType> UP = EnumProperty.<ConnectorType>create("up", ConnectorType.class);
-    public static final EnumProperty<ConnectorType> DOWN = EnumProperty.<ConnectorType>create("down", ConnectorType.class);
+    public static final EnumProperty<ConnectorType> NORTH = EnumProperty.create("north", ConnectorType.class);
+    public static final EnumProperty<ConnectorType> SOUTH = EnumProperty.create("south", ConnectorType.class);
+    public static final EnumProperty<ConnectorType> WEST = EnumProperty.create("west", ConnectorType.class);
+    public static final EnumProperty<ConnectorType> EAST = EnumProperty.create("east", ConnectorType.class);
+    public static final EnumProperty<ConnectorType> UP = EnumProperty.create("up", ConnectorType.class);
+    public static final EnumProperty<ConnectorType> DOWN = EnumProperty.create("down", ConnectorType.class);
 
-    public static final EnumProperty<CableColor> COLOR = EnumProperty.<CableColor>create("color", CableColor.class);
+    public static final EnumProperty<CableColor> COLOR = EnumProperty.create("color", CableColor.class);
 
     public static final ModelProperty<BlockState> FACADEID = new ModelProperty<>();
 

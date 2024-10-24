@@ -13,6 +13,7 @@ import mcjty.lib.varia.OrientationTools;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.ConnectorType;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
+import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -93,9 +94,14 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
         Panel directionValuesPanel = vertical();
         Panel directionNamesPanel = horizontal(6, 5);
         Panel directionBlocksPanel = horizontal();
-        ConnectorTileEntity tileEntity = (ConnectorTileEntity) connector;
+        EnumProperty<ConnectorType>[] properties = new EnumProperty[] {
+                GenericCableBlock.DOWN, GenericCableBlock.UP,
+                GenericCableBlock.NORTH, GenericCableBlock.SOUTH,
+                GenericCableBlock.WEST, GenericCableBlock.EAST
+        };
+
         for (Direction facing : OrientationTools.DIRECTION_VALUES) {
-            BlockPos consumerPos = tileEntity.getBlockPos().relative(facing);
+            BlockPos consumerPos = connector.getBlockPos().relative(facing);
 
             BlockState state = level.getBlockState(consumerPos);
             ItemStack item = state.getBlock().getCloneItemStack(level, consumerPos, state);
@@ -111,7 +117,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
                                     .put(PARAM_ENABLED, toggleButtons[facing.ordinal()].isPressed())
                                     .build());
                 });
-            boolean isEnabled = !tileEntity.getBlockState().getValue(EnumProperty.create(facing.getName(), ConnectorType.class)).equals(ConnectorType.NONE);
+            boolean isEnabled = !connector.getBlockState().getValue(properties[facing.ordinal()]).equals(ConnectorType.NONE);
             toggleButtons[facing.ordinal()].pressed(isEnabled);
             directionNamesPanel.children(toggleButtons[facing.ordinal()]);
         }
@@ -122,7 +128,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
         toplevel.bounds(leftPos, topPos, WIDTH, HEIGHT);
         window = new Window(this, toplevel);
 
-        window.bind(TAG_NAME, tileEntity, TAG_NAME);
+        window.bind(TAG_NAME, connector, TAG_NAME);
     }
 
     @Override
