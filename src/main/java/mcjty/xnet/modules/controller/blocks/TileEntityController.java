@@ -377,6 +377,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     protected void applyImplicitComponents(DataComponentInput input) {
         super.applyImplicitComponents(input);
         energyStorage.applyImplicitComponents(input.get(Registration.ITEM_ENERGY));
+        items.applyImplicitComponents(input.get(Registration.ITEM_INVENTORY));
         var data = input.get(ControllerModule.ITEM_CONTROLLER_DATA);
         if (data != null) {
             setData(ControllerModule.CONTROLLER_DATA, data);
@@ -387,6 +388,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     protected void collectImplicitComponents(DataComponentMap.Builder builder) {
         super.collectImplicitComponents(builder);
         energyStorage.collectImplicitComponents(builder);
+        items.collectImplicitComponents(builder);
         builder.set(ControllerModule.ITEM_CONTROLLER_DATA, getData(ControllerModule.CONTROLLER_DATA));
     }
 
@@ -413,6 +415,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             tagCompound.putInt("networkId", networkId.id());
         }
         energyStorage.save(tagCompound, "energy", provider);
+        items.save(tagCompound, "items", provider);
     }
 
     @Override
@@ -439,6 +442,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             networkId = null;
         }
         energyStorage.load(tagCompound, "energy", provider);
+        items.load(tagCompound, "items", provider);
     }
 
     @Nullable
